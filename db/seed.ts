@@ -1,5 +1,9 @@
 import { hashSync } from "bcryptjs";
 import { eq } from "drizzle-orm";
+import {
+  BASE_SESSION_TYPES,
+  DEFAULT_NOT_DONE_REASONS,
+} from "../lib/config/constants";
 import { db } from "../lib/db/index";
 import { settings, users } from "../lib/db/schema";
 
@@ -12,18 +16,11 @@ const DEFAULT_SETTINGS = [
   { key: "edit_window_hours", value: 48 },
   {
     key: "not_done_reasons",
-    value: ["lesion", "trabajo", "enfermedad", "personal", "otro"],
+    value: [...DEFAULT_NOT_DONE_REASONS],
   },
   {
     key: "base_session_types",
-    value: [
-      "series",
-      "intervalos",
-      "fondos",
-      "tempo",
-      "recuperacion",
-      "descanso",
-    ],
+    value: [...BASE_SESSION_TYPES],
   },
 ];
 

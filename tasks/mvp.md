@@ -102,12 +102,12 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 6. Server Actions base y utilidades
 
-- [ ] 6.1 Crear patrón base de Server Action en `lib/actions/` con: verificar sesión → verificar permiso → validar Zod → llamar servicio → retornar resultado
-- [ ] 6.2 Crear `lib/utils/date.ts` con utilidades: `getWeekStart(date)` (lunes de la semana), `isSameWeek(a, b)`, `formatDateChile(date)` (timezone `America/Santiago`)
-- [ ] 6.3 Crear `lib/utils/initials.ts` con `getInitials(name)` para avatar de iniciales
-- [ ] 6.4 Crear `lib/utils/format.ts` con `formatDistance(km)`, `formatDuration(minutes)`, `formatRpe(rpe)`
-- [ ] 6.5 Crear `lib/config/constants.ts` con estados de sesión, colores por estado, tipos de sesión base, motivos default
-- [ ] 6.6 Crear `lib/config/index.ts` con lectura de variables de entorno y valores default de settings
+- [x] 6.1 Crear patrón base de Server Action en `lib/actions/` con: verificar sesión → verificar permiso → validar Zod → llamar servicio → retornar resultado
+- [x] 6.2 Crear `lib/utils/date.ts` con utilidades: `getWeekStart(date)` (lunes de la semana), `isSameWeek(a, b)`, `formatDateChile(date)` (timezone `America/Santiago`)
+- [x] 6.3 Crear `lib/utils/initials.ts` con `getInitials(name)` para avatar de iniciales
+- [x] 6.4 Crear `lib/utils/format.ts` con `formatDistance(km)`, `formatDuration(minutes)`, `formatRpe(rpe)`
+- [x] 6.5 Crear `lib/config/constants.ts` con estados de sesión, colores por estado, tipos de sesión base, motivos default
+- [x] 6.6 Crear `lib/config/index.ts` con lectura de variables de entorno y valores default de settings
 
 ---
 
