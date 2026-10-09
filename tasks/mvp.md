@@ -152,28 +152,28 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 9. Módulo Admin — Gestión de grupos
 
-- [ ] 9.1 Crear esquema Zod `createGroupSchema` (name, description opcional) en `lib/validations/group.schemas.ts`
-- [ ] 9.2 Crear `group.service.ts` con `createGroup(data)`, `updateGroup(id, data)`, `deleteGroup(id)`
-- [ ] 9.3 Crear servicio con `getGroups()` — listado con conteo de coaches, teams, atletas
-- [ ] 9.4 Crear servicio con `requestJoin(groupId, coachId)` — crea solicitud pendiente, verifica no duplicada (UNIQUE constraint)
-- [ ] 9.5 Crear servicio con `approveRequest(requestId, adminId)` — crea `group_members`, actualiza solicitud, notifica al coach
-- [ ] 9.6 Crear servicio con `rejectRequest(requestId, adminId)` — actualiza solicitud, notifica al coach
-- [ ] 9.7 Crear servicio con `toggleDirector(groupId, userId)` — alterna `is_director` en `group_members`
-- [ ] 9.8 Crear servicio con `getPendingRequests(groupId)` — solicitudes pendientes para admin
-- [ ] 9.9 Crear Server Actions en `lib/actions/group.actions.ts`: `createGroup`, `updateGroup`, `deleteGroup`, `requestJoin`, `approveRequest`, `rejectRequest`, `toggleDirector`
-- [ ] 9.10 Integrar auditoría para todas las acciones de grupo
-- [ ] 9.11 Crear componente `GroupsList` — tabla con nombre, coaches, teams, atletas, acciones
-- [ ] 9.12 Crear componente `GroupForm` — modal alta/edición (nombre, descripción, logo placeholder)
-- [ ] 9.13 Crear componente `RequestsPending` — listado de solicitudes con botones aprobar/rechazar
-- [ ] 9.14 Crear componente `DirectorToggle` — checkbox para asignar/quitar Director Técnico
-- [ ] 9.15 Crear página `app/(app)/admin/groups/page.tsx` — listado de grupos + botón nuevo
-- [ ] 9.16 Crear página `app/(app)/admin/groups/[id]/page.tsx` — detalle del grupo: coaches miembros, solicitudes pendientes, toggle director
-- [ ] 9.17 Verificar: admin crea grupo → aparece en listado
-- [ ] 9.18 Verificar: coach envía solicitud → admin la ve en pendientes
-- [ ] 9.19 Verificar: admin aprueba → coach queda en `group_members` y recibe notificación
-- [ ] 9.20 Verificar: admin rechaza → coach recibe notificación de rechazo
-- [ ] 9.21 Verificar: coach con solicitud duplicada → recibe error "Ya tienes una solicitud pendiente o aprobada"
-- [ ] 9.22 Verificar: admin asigna Director Técnico → coach tiene `is_director=true`
+- [x] 9.1 Crear esquema Zod `createGroupSchema` (name, description opcional) en `lib/validations/group.schemas.ts`
+- [x] 9.2 Crear `group.service.ts` con `createGroup(data)`, `updateGroup(id, data)`, `deleteGroup(id)`
+- [x] 9.3 Crear servicio con `getGroups()` — listado con conteo de coaches, teams, atletas
+- [x] 9.4 Crear servicio con `requestJoin(groupId, coachId)` — crea solicitud pendiente, verifica no duplicada (UNIQUE constraint)
+- [x] 9.5 Crear servicio con `approveRequest(requestId, adminId)` — crea `group_members`, actualiza solicitud, notifica al coach
+- [x] 9.6 Crear servicio con `rejectRequest(requestId, adminId)` — actualiza solicitud, notifica al coach
+- [x] 9.7 Crear servicio con `toggleDirector(groupId, userId)` — alterna `is_director` en `group_members`
+- [x] 9.8 Crear servicio con `getPendingRequests(groupId)` — solicitudes pendientes para admin
+- [x] 9.9 Crear Server Actions en `lib/actions/group.actions.ts`: `createGroup`, `updateGroup`, `deleteGroup`, `requestJoin`, `approveRequest`, `rejectRequest`, `toggleDirector`
+- [x] 9.10 Integrar auditoría para todas las acciones de grupo
+- [x] 9.11 Crear componente `GroupsList` — tabla con nombre, coaches, teams, atletas, acciones
+- [x] 9.12 Crear componente `GroupForm` — modal alta/edición (nombre, descripción, logo placeholder)
+- [x] 9.13 Crear componente `RequestsPending` — listado de solicitudes con botones aprobar/rechazar
+- [x] 9.14 Crear componente `DirectorToggle` — checkbox para asignar/quitar Director Técnico
+- [x] 9.15 Crear página `app/(app)/admin/groups/page.tsx` — listado de grupos + botón nuevo
+- [x] 9.16 Crear página `app/(app)/admin/groups/[id]/page.tsx` — detalle del grupo: coaches miembros, solicitudes pendientes, toggle director
+- [x] 9.17 Verificar: admin crea grupo → aparece en listado
+- [x] 9.18 Verificar: coach envía solicitud → admin la ve en pendientes
+- [x] 9.19 Verificar: admin aprueba → coach queda en `group_members` y recibe notificación
+- [x] 9.20 Verificar: admin rechaza → coach recibe notificación de rechazo
+- [x] 9.21 Verificar: coach con solicitud duplicada → recibe error "Ya tienes una solicitud pendiente o aprobada"
+- [x] 9.22 Verificar: admin asigna Director Técnico → coach tiene `is_director=true`
 
 ---
 
