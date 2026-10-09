@@ -12,3 +12,6 @@ wrangler.toml
 # Reportes de testing
 playwright-report
 test-results
+
+# Generado por drizzle-kit (se regenera en cada generate)
+db/migrations/meta

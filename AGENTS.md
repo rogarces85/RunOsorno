@@ -109,7 +109,7 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 | **Framework SSR** | **Next.js 14+ (App Router, React Server Components)** | SSR nativo, auth por cookies, RSC reduce JS cliente, compatible con Cloudflare Pages (@cloudflare/next-on-pages / OpenNext) |
 | **UI / Design System** | **Tabler** (`@tabler/core` + `@tabler/icons-react`) | `@tabler/core` (HTML/CSS Bootstrap 5-based) + wrappers React propios en `components/ui/` con clases Tabler. Iconos React oficiales. Responsive, dark/light, accesible. |
 | **Estilos** | **`@tabler/core` CSS** | Un solo framework CSS (el de Tabler). Tailwind descartado: conflicta con Bootstrap base de Tabler. Personalización vía CSS custom properties / SCSS de Tabler. |
-| **Base de Datos** | **MySQL (Planetscale) + Cloudflare Hyperdrive** | Hyperdrive crea connection pooling global y cachea queries en edge. Planetscale: MySQL serverless, branching, gratis generoso. |
+| **Base de Datos** | **MySQL** — dev local (XAMPP), prod PlanetScale u otro MySQL + Cloudflare Hyperdrive | Hyperdrive crea connection pooling global y cachea queries en edge. PlanetScale eliminó su free tier (abril 2024, desde $5/mes): desarrollo con MySQL local, producción se decide en Fase 43 (variable `DATABASE_URL`). |
 | **ORM** | **Drizzle ORM** | Type-safe, ligero, funciona en edge (Cloudflare Workers), migraciones SQL nativas, mejor performance que Prisma en edge |
 | **Autenticación** | **Lucia Auth** | Session-based, cookies HttpOnly/Secure, multi-runtime (Node/Edge), DB-agnostic, sin vendor lock-in. Simple y edge-ready. |
 | **Validación** | **Zod** + **React Hook Form** | Esquemas compartidos server/client, type inference, integra con Drizzle |

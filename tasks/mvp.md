@@ -14,7 +14,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 1.4 Configurar `tsconfig.json` con path aliases (`@/` → raíz del proyecto)
 - [x] 1.5 Crear estructura base de carpetas según `plan/mvp.md` Sección 3 (`app/`, `components/`, `lib/`, `db/`, `emails/`, `tests/`)
 - [x] 1.6 Instalar Tabler (`@tabler/core` + `@tabler/icons-react`) y verificar que renderiza un componente básico
-- [x] 1.7 Crear `.env.local` con variables de entorno vacías (PlanetScale URL, Resend API key, R2 credentials, Lucia secret)
+- [x] 1.7 Crear `.env.local` con variables de entorno vacías (`DATABASE_URL`, Resend API key, R2 credentials, Lucia secret)
 - [x] 1.8 Crear `.gitignore` completo (node_modules, .env.local, .next, etc.)
 - [x] 1.9 Inicializar repositorio Git y hacer commit inicial
 - [x] 1.10 Crear `README.md` con instrucciones de setup (install, dev, build)
@@ -38,30 +38,30 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 3. Base de datos y modelos de datos
 
-- [ ] 3.1 Instalar y configurar Drizzle ORM (`drizzle-orm`, `drizzle-kit`)
-- [ ] 3.2 Crear cuenta en PlanetScale y crear base de datos
-- [ ] 3.3 Configurar `drizzle.config.ts` con connection string de PlanetScale
-- [ ] 3.4 Crear `lib/db/index.ts` con conexión Drizzle
-- [ ] 3.5 Definir tabla `users` en `lib/db/schema.ts` (id, name, email UNIQUE, password_hash, role ENUM, avatar_key, is_active, must_change_password, created_at, last_login_at)
-- [ ] 3.6 Definir tabla `groups` (id, name, description, logo_key, created_at)
-- [ ] 3.7 Definir tabla `group_members` (PK compuesta group_id + user_id, is_director, joined_at)
-- [ ] 3.8 Definir tabla `group_requests` (id, group_id, coach_id, status ENUM, requested_at, resolved_at, resolved_by, UNIQUE group_id + coach_id)
-- [ ] 3.9 Definir tabla `teams` (id, name, coach_id FK, created_at)
-- [ ] 3.10 Definir tabla `team_members` (PK compuesta team_id + athlete_id, joined_at)
-- [ ] 3.11 Definir tabla `athlete_profiles` (PK user_id, birth_date, weight_kg, height_cm, max_hr, resting_hr)
-- [ ] 3.12 Definir tabla `templates` (id, coach_id FK NULL, group_id FK NULL, name, session_type, is_official, is_shared, structure JSON, created_at, updated_at)
-- [ ] 3.13 Definir tabla `session_assignments` (id, athlete_id FK, template_id FK, session_date, week_start, status ENUM, created_by FK, created_at)
-- [ ] 3.14 Definir tabla `session_records` (id, assignment_id FK UNIQUE, distance_km, duration_minutes, rpe CHECK 1-10, comments, not_done_reason, custom_reason, recorded_at, updated_at)
-- [ ] 3.15 Definir tabla `session_feedback` (id, assignment_id FK, author_id FK, message, created_at)
-- [ ] 3.16 Definir tabla `notifications` (id, user_id FK, type, title, message, is_read, entity_type, entity_id, created_at)
-- [ ] 3.17 Definir tabla `audit_logs` (id, user_id FK NULL, action, entity_type, entity_id, details JSON, ip_address, created_at)
-- [ ] 3.18 Definir tabla `settings` (PK key, value JSON, updated_at)
-- [ ] 3.19 Definir tabla `sessions` de Lucia Auth (session_id, user_id, expires)
-- [ ] 3.20 Generar primera migración con `drizzle-kit generate`
-- [ ] 3.21 Aplicar migración a PlanetScale con `drizzle-kit migrate`
-- [ ] 3.22 Crear índices: `users.email` UNIQUE, `session_assignments(athlete_id, session_date)`, `session_assignments(athlete_id, week_start)`, `notifications(user_id, is_read)`, `group_requests(group_id, coach_id)` UNIQUE
-- [ ] 3.23 Crear `db/seed.ts` que inserta: usuario admin inicial (email + password), configuración default en `settings` (límites, motivos, tipos de sesión, ventana edición=48h)
-- [ ] 3.24 Ejecutar seed y verificar que el admin puede ser encontrado en DB
+- [x] 3.1 Instalar y configurar Drizzle ORM (`drizzle-orm`, `drizzle-kit`)
+- [x] 3.2 Crear base de datos local `runosorno` en MySQL (XAMPP) — producción (PlanetScale u otro) se conecta en Fase 43
+- [x] 3.3 Configurar `drizzle.config.ts` con `DATABASE_URL` (MySQL local en dev)
+- [x] 3.4 Crear `lib/db/index.ts` con conexión Drizzle
+- [x] 3.5 Definir tabla `users` en `lib/db/schema.ts` (id, name, email UNIQUE, password_hash, role ENUM, avatar_key, is_active, must_change_password, created_at, last_login_at)
+- [x] 3.6 Definir tabla `groups` (id, name, description, logo_key, created_at)
+- [x] 3.7 Definir tabla `group_members` (PK compuesta group_id + user_id, is_director, joined_at)
+- [x] 3.8 Definir tabla `group_requests` (id, group_id, coach_id, status ENUM, requested_at, resolved_at, resolved_by, UNIQUE group_id + coach_id)
+- [x] 3.9 Definir tabla `teams` (id, name, coach_id FK, created_at)
+- [x] 3.10 Definir tabla `team_members` (PK compuesta team_id + athlete_id, joined_at)
+- [x] 3.11 Definir tabla `athlete_profiles` (PK user_id, birth_date, weight_kg, height_cm, max_hr, resting_hr)
+- [x] 3.12 Definir tabla `templates` (id, coach_id FK NULL, group_id FK NULL, name, session_type, is_official, is_shared, structure JSON, created_at, updated_at)
+- [x] 3.13 Definir tabla `session_assignments` (id, athlete_id FK, template_id FK, session_date, week_start, status ENUM, created_by FK, created_at)
+- [x] 3.14 Definir tabla `session_records` (id, assignment_id FK UNIQUE, distance_km, duration_minutes, rpe CHECK 1-10, comments, not_done_reason, custom_reason, recorded_at, updated_at)
+- [x] 3.15 Definir tabla `session_feedback` (id, assignment_id FK, author_id FK, message, created_at)
+- [x] 3.16 Definir tabla `notifications` (id, user_id FK, type, title, message, is_read, entity_type, entity_id, created_at)
+- [x] 3.17 Definir tabla `audit_logs` (id, user_id FK NULL, action, entity_type, entity_id, details JSON, ip_address, created_at)
+- [x] 3.18 Definir tabla `settings` (PK key, value JSON, updated_at)
+- [x] 3.19 Definir tabla `sessions` de Lucia Auth (session_id, user_id, expires)
+- [x] 3.20 Generar primera migración con `drizzle-kit generate`
+- [x] 3.21 Aplicar migración a MySQL local con `drizzle-kit migrate` (producción en Fase 43)
+- [x] 3.22 Crear índices: `users.email` UNIQUE, `session_assignments(athlete_id, session_date)`, `session_assignments(athlete_id, week_start)`, `notifications(user_id, is_read)`, `group_requests(group_id, coach_id)` UNIQUE
+- [x] 3.23 Crear `db/seed.ts` que inserta: usuario admin inicial (email + password), configuración default en `settings` (límites, motivos, tipos de sesión, ventana edición=48h)
+- [x] 3.24 Ejecutar seed y verificar que el admin puede ser encontrado en DB
 
 ---
 
@@ -730,8 +730,8 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 - [ ] 43.1 Instalar `@cloudflare/next-on-pages` y `wrangler`
 - [ ] 43.2 Configurar `wrangler.toml` con nombre del proyecto, R2 bucket binding, Hyperdrive binding
-- [ ] 43.3 Configurar variables de entorno en Cloudflare Pages (PlanetScale URL, Resend key, R2 credentials, Lucia secret)
-- [ ] 43.4 Configurar Hyperdrive en Cloudflare Dashboard apuntando a PlanetScale
+- [ ] 43.3 Configurar variables de entorno en Cloudflare Pages (`DATABASE_URL` de MySQL producción, Resend key, R2 credentials, Lucia secret)
+- [ ] 43.4 Configurar Hyperdrive en Cloudflare Dashboard apuntando al MySQL de producción (PlanetScale u otro)
 - [ ] 43.5 Verificar build local con `npx @cloudflare/next-on-pages@latest`
 - [ ] 43.6 Conectar repositorio GitHub a Cloudflare Pages
 - [ ] 43.7 Configurar GitHub Actions workflow (`.github/workflows/deploy.yml`): install → lint → test → build → deploy
@@ -784,7 +784,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 - [ ] 47.1 Verificar que las páginas principales son Server Components (no `"use client"` innecesario)
 - [ ] 47.2 Verificar que solo componentes interactivos son Client Components
-- [ ] 47.3 Verificar que las queries de DB tienen índices adecuados (EXPLAIN en PlanetScale)
+- [ ] 47.3 Verificar que las queries de DB tienen índices adecuados (EXPLAIN en MySQL)
 - [ ] 47.4 Verificar que el calendario carga datos de un mes (no todos los históricos)
 - [ ] 47.5 Verificar que las métricas no cargan todos los registros históricos para periodos largos (usar límites)
 - [ ] 47.6 Verificar `next build` no tiene warnings de tamaño de bundle excesivos
@@ -808,7 +808,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 - [ ] 49.1 Actualizar `README.md` con: descripción del proyecto, stack, setup, comandos dev/build/test
 - [ ] 49.2 Documentar variables de entorno requeridas en `.env.example`
-- [ ] 49.3 Documentar proceso de setup de servicios externos: PlanetScale, Cloudflare, Resend, R2, Sentry
+- [ ] 49.3 Documentar proceso de setup de servicios externos: MySQL de producción (PlanetScale u otro), Cloudflare, Resend, R2, Sentry
 - [ ] 49.4 Documentar flujo de deploy (GitHub → Cloudflare Pages)
 - [ ] 49.5 Documentar estructura de DB (schema referenciado)
 

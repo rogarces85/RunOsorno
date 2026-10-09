@@ -50,7 +50,7 @@ Antes de definir el plan, se señalan tres puntos que requieren decisión:
 └───────────────┼─────────────────────────────────┘
                 │ HTTPS (connection pooling)
 ┌───────────────▼─────────────────────────────────┐
-│         PlanetScale (MySQL Serverless)          │
+│         MySQL (dev local / PlanetScale prod)     │
 └─────────────────────────────────────────────────┘
 
 Cloudflare R2 (Avatares) ←── Presigned PUT desde cliente
@@ -77,7 +77,7 @@ Resend API ←── Email saliente
 | Framework | **Next.js 14+ (App Router)** | SSR, RSC, Server Actions, middleware, routing por carpetas. |
 | UI | **Tabler** (`@tabler/core` + `@tabler/icons-react`) | `@tabler/core` = CSS oficial Tabler (base Bootstrap 5); componentes React propios en `components/ui/` escritos con clases Tabler (`btn`, `card`, `modal`...). Iconos con `@tabler/icons-react`. |
 | Estilos | **`@tabler/core` CSS** | Un solo framework CSS. Tailwind descartado (conflicto con la base Bootstrap de Tabler). Tema claro/oscuro y personalización con CSS custom properties de Tabler. |
-| Base de datos | **MySQL (PlanetScale)** | Persistencia relacional. Serverless, branching para migraciones. |
+| Base de datos | **MySQL** (dev: XAMPP local · prod: PlanetScale u otro MySQL) | Persistencia relacional. Misma compatibilidad MySQL en ambos entornos vía `DATABASE_URL`. |
 | Conexión DB | **Cloudflare Hyperdrive** | Connection pooling global + query cache en edge. |
 | ORM | **Drizzle ORM** | Queries type-safe, migraciones SQL nativas, compatible con edge. |
 | Auth | **Lucia Auth** | Sesiones con cookies HttpOnly, usuarios y sesiones en DB. Multi-runtime. |
@@ -1080,8 +1080,9 @@ En UI (cualquier pantalla):
 
 | Aspecto | Decisión |
 |---------|----------|
-| **Base de datos** | MySQL en PlanetScale. Acceso vía Drizzle ORM + Hyperdrive. |
-| **Migraciones** | `drizzle-kit generate` crea archivos SQL. `drizzle-kit migrate` aplica. PlanetScale soporta branching para migraciones en desarrollo. |
+| **Base de datos** | MySQL. Dev local (XAMPP), prod PlanetScale u otro MySQL. Acceso vía Drizzle ORM; en Cloudflare vía Hyperdrive. |
+| **Migraciones** | `drizzle-kit generate` crea archivos SQL. `drizzle-kit migrate` aplica contra `DATABASE_URL` (local en desarrollo). Producción se configura en Fase 43. |
+| **Gotcha `timestamp` nullable** | drizzle-kit no emite el keyword `NULL` para columnas MySQL: genera `resolved_at timestamp,` y MySQL/MariaDB (`NO_ZERO_DATE`) lo rechaza con `ERROR1067`. Tras cada `generate`, revisar migraciones con `timestamp,` sin `NOT NULL` y corregir a `timestamp NULL DEFAULT NULL` a mano antes de `migrate`. |
 | **Seed** | `db/seed.ts` crea: usuario admin inicial, plantillas oficiales de ejemplo, configuración default en `settings`. |
 | **Archivos** | Avatares en Cloudflare R2 (bucket privado). No se usa filesystem. |
 | **Sesiones** | Tabla `sessions` de Lucia en MySQL. Cookie HttpOnly en navegador. |
@@ -1225,7 +1226,7 @@ sectionSchema = z.object({
 |---|-------|-----------------------|
 | 1.1 | Proyecto Next.js + TypeScript + ESLint/Prettier | `npm run dev` funciona, linting pasa |
 | 1.2 | Configurar Tabler (`@tabler/core`) + AppShell layout | Layout con sidebar y header renderiza |
-| 1.3 | Configurar Drizzle + schema de DB + migración inicial | Tablas creadas en PlanetScale |
+| 1.3 | Configurar Drizzle + schema de DB + migración inicial | Tablas creadas en MySQL local |
 | 1.4 | Configurar Lucia Auth + middleware + login/logout | Login funciona, rutas protegidas redirigen |
 | 1.5 | Seed: admin inicial + configuración default | Admin puede loguearse |
 | 1.6 | Configurar Zod + React Hook Form + primer Server Action | Formulario login con validación |
@@ -1427,7 +1428,7 @@ sectionSchema = z.object({
 | **Rendimiento de métricas con muchos datos** | Media (con el tiempo) | Medio | Índices en DB. Si es necesario, caché en Redis/Upstash (fase futura). |
 | **@dnd-kit + calendario complejo** | Media | Medio | Empezar con click-to-assign como fallback. Drag & drop como mejora. |
 | **Resend límites de email (3k/mes)** | Baja (MVP pequeño) | Bajo | Monitorear uso. Escalar a plan pago si es necesario. |
-| **PlanetScale cambia su tier gratuito** | Baja | Alto | Drizzle es ORM-agnostic. Migrar a otro MySQL (Neon, Railway, Turso) es factible. |
+| **PlanetScale sin free tier** (ocurrió: eliminado abril 2024) | Ya materializado | Alto | Dev con MySQL local (XAMPP); Drizzle es ORM-agnostic. Producción: PlanetScale de pago u otro MySQL (Aiven, Railway) vía `DATABASE_URL`. |
 | **Lucia Auth depreca cambios** | Baja | Medio | Lucia es una librería pequeña y estable. Si cambia, la capa de auth está aislada en `lib/auth/`. |
 | **Zona horaria de Chile** | Baja | Bajo | Usar `date-fns-tz` o `Intl.DateTimeFormat` con timezone `America/Santiago` para fechas. |
 
