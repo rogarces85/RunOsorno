@@ -1,6 +1,8 @@
 import { randomBytes } from "crypto";
 import { hash } from "bcryptjs";
 import { and, count, eq, inArray, sql } from "drizzle-orm";
+import { renderWelcomeEmail } from "@/emails/welcome";
+import { env } from "@/lib/config";
 import { db } from "@/lib/db";
 import {
   groupMembers,
@@ -16,6 +18,7 @@ import type {
   UpdateCoachInput,
 } from "@/lib/validations/user.schemas";
 import { logAudit } from "./audit.service";
+import { sendEmail } from "./email.service";
 
 export type ServiceResult<T> =
   { ok: true; data: T } | { ok: false; error: string };
@@ -30,6 +33,20 @@ export type CoachListItem = {
 
 function generateTempPassword(): string {
   return randomBytes(9).toString("base64url").slice(0, 10);
+}
+
+async function sendCredentialsEmail(params: {
+  name: string;
+  email: string;
+  tempPassword: string;
+  subject: string;
+}): Promise<void> {
+  const html = await renderWelcomeEmail({
+    name: params.name,
+    tempPassword: params.tempPassword,
+    loginUrl: `${env.appUrl}/login`,
+  });
+  await sendEmail({ to: params.email, subject: params.subject, html });
 }
 
 async function findCoach(id: string) {
@@ -79,6 +96,13 @@ export async function createCoach(
     entityId: id,
     details: { name: input.name, email: input.email },
     ipAddress,
+  });
+
+  await sendCredentialsEmail({
+    name: input.name,
+    email: input.email,
+    tempPassword,
+    subject: "Bienvenido a RunOsorno — tu invitación como coach",
   });
 
   return {
@@ -264,6 +288,16 @@ async function regeneratePassword(
     entityType: "user",
     entityId: id,
     details: { email: coach.email },
+  });
+
+  await sendCredentialsEmail({
+    name: coach.name,
+    email: coach.email,
+    tempPassword,
+    subject:
+      auditAction === "invitation_resent"
+        ? "Reenvío de invitación a RunOsorno"
+        : "Tu nueva contraseña temporal de RunOsorno",
   });
 
   return { ok: true, data: { tempPassword } };

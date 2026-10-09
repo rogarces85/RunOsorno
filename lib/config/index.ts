@@ -4,6 +4,8 @@ export const env = {
   databaseUrl: process.env.DATABASE_URL ?? "",
   luciaSecret: process.env.LUCIA_SECRET ?? "",
   resendApiKey: process.env.RESEND_API_KEY ?? "",
+  resendFrom: process.env.RESEND_FROM ?? "",
+  appUrl: process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
   r2AccountId: process.env.R2_ACCOUNT_ID ?? "",
   r2AccessKeyId: process.env.R2_ACCESS_KEY_ID ?? "",
   r2SecretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? "",

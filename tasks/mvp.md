@@ -135,18 +135,18 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 8. Integración de email (Resend)
 
-- [ ] 8.1 Instalar Resend SDK (`resend`) y React Email (`@react-email/components`, `@react-email/render`)
-- [ ] 8.2 Configurar Resend con API key en variables de entorno
-- [ ] 8.3 Crear `lib/services/email.service.ts` con `sendEmail({ to, subject, html })` — envío vía Resend
-- [ ] 8.4 Implementar reintento: si falla, reintentar una vez. Si vuelve a fallar, registrar en `audit_logs` con `action='email_failed'`. No bloquear acción principal
-- [ ] 8.5 Crear `emails/layout.tsx` — layout base responsive HTML para emails
-- [ ] 8.6 Crear `emails/welcome.tsx` — email de bienvenida/invitación con link de activación y contraseña temporal
-- [ ] 8.7 Crear `emails/plan-published.tsx` — email "Tu coach publicó un plan"
-- [ ] 8.8 Crear `emails/session-completed.tsx` — email "Tu atleta completó una sesión"
-- [ ] 8.9 Crear `emails/announcement.tsx` — email de anuncio masivo
-- [ ] 8.10 Integrar `sendEmail` en `createCoach` — enviar email de invitación al crear coach
-- [ ] 8.11 Verificar: al crear un coach, se envía email de invitación con el contenido correcto
-- [ ] 8.12 Verificar: si Resend falla, la acción no se bloquea y el error queda registrado en logs
+- [x] 8.1 Instalar Resend SDK (`resend`) y React Email (`@react-email/components`, `@react-email/render`)
+- [x] 8.2 Configurar Resend con API key en variables de entorno
+- [x] 8.3 Crear `lib/services/email.service.ts` con `sendEmail({ to, subject, html })` — envío vía Resend
+- [x] 8.4 Implementar reintento: si falla, reintentar una vez. Si vuelve a fallar, registrar en `audit_logs` con `action='email_failed'`. No bloquear acción principal
+- [x] 8.5 Crear `emails/layout.tsx` — layout base responsive HTML para emails
+- [x] 8.6 Crear `emails/welcome.tsx` — email de bienvenida/invitación con link de activación y contraseña temporal
+- [x] 8.7 Crear `emails/plan-published.tsx` — email "Tu coach publicó un plan"
+- [x] 8.8 Crear `emails/session-completed.tsx` — email "Tu atleta completó una sesión"
+- [x] 8.9 Crear `emails/announcement.tsx` — email de anuncio masivo
+- [x] 8.10 Integrar `sendEmail` en `createCoach` — enviar email de invitación al crear coach
+- [x] 8.11 Verificar: al crear un coach, se envía email de invitación con el contenido correcto
+- [x] 8.12 Verificar: si Resend falla, la acción no se bloquea y el error queda registrado en logs
 
 ---
 
