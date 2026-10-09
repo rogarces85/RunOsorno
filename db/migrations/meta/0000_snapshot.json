@@ -852,8 +852,8 @@
     "sessions": {
       "name": "sessions",
       "columns": {
-        "session_id": {
-          "name": "session_id",
+        "id": {
+          "name": "id",
           "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true,
@@ -866,9 +866,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "expires": {
-          "name": "expires",
-          "type": "timestamp",
+        "expires_at": {
+          "name": "expires_at",
+          "type": "datetime",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -891,10 +891,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "sessions_session_id": {
-          "name": "sessions_session_id",
+        "sessions_id": {
+          "name": "sessions_id",
           "columns": [
-            "session_id"
+            "id"
           ]
         }
       },

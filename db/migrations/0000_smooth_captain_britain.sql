@@ -100,10 +100,10 @@ CREATE TABLE `session_records` (
 );
 --> statement-breakpoint
 CREATE TABLE `sessions` (
-	`session_id` varchar(255) NOT NULL,
+	`id` varchar(255) NOT NULL,
 	`user_id` varchar(36) NOT NULL,
-	`expires` timestamp NOT NULL,
-	CONSTRAINT `sessions_session_id` PRIMARY KEY(`session_id`)
+	`expires_at` datetime NOT NULL,
+	CONSTRAINT `sessions_id` PRIMARY KEY(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `settings` (

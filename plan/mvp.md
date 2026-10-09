@@ -63,7 +63,7 @@ Resend API ←── Email saliente
 |-----------|-----------|
 | **SSR primero** | Todas las páginas se renderizan en servidor (RSC). El JavaScript cliente se usa solo donde hay interactividad (formularios, drag & drop, calendario). |
 | **Server Actions para mutaciones** | No hay API REST pública. Las mutaciones se hacen vía Server Actions de Next.js (endpoints internos protegidos por sesión). |
-| **Middleware de auth** | Un middleware de Next.js verifica la cookie de sesión en cada request y redirige al login si no existe o expiró. |
+| **Proxy de auth** | `proxy.ts` verifica la cookie de sesión en cada request y redirige al login si no existe o expiró. Next.js 16 renombró la convención `middleware` a `proxy` (runtime Node.js por defecto, compatible con mysql2/Drizzle). |
 | **Lógica de negocio en servicios** | Server Actions orquestan; la lógica de negocio (cálculos, validaciones, reglas) vive en módulos de servicio independientes, testeables con Vitest. |
 | **Sin estado global de cliente** | El estado vive en el servidor (base de datos). El cliente solo maneja estado local de UI (modal abierto, mes seleccionado, etc.). No se usa Redux/Zustand. |
 | **Edge-compatible** | Todas las dependencias críticas (Drizzle, Lucia, Resend SDK) funcionan en Cloudflare Workers (Edge Runtime). |
@@ -74,7 +74,7 @@ Resend API ←── Email saliente
 
 | Capa | Tecnología | Propósito |
 |------|------------|-----------|
-| Framework | **Next.js 14+ (App Router)** | SSR, RSC, Server Actions, middleware, routing por carpetas. |
+| Framework | **Next.js 14+ (App Router)** | SSR, RSC, Server Actions, proxy, routing por carpetas. |
 | UI | **Tabler** (`@tabler/core` + `@tabler/icons-react`) | `@tabler/core` = CSS oficial Tabler (base Bootstrap 5); componentes React propios en `components/ui/` escritos con clases Tabler (`btn`, `card`, `modal`...). Iconos con `@tabler/icons-react`. |
 | Estilos | **`@tabler/core` CSS** | Un solo framework CSS. Tailwind descartado (conflicto con la base Bootstrap de Tabler). Tema claro/oscuro y personalización con CSS custom properties de Tabler. |
 | Base de datos | **MySQL** (dev: XAMPP local · prod: PlanetScale u otro MySQL) | Persistencia relacional. Misma compatibilidad MySQL en ambos entornos vía `DATABASE_URL`. |
@@ -309,7 +309,7 @@ runosorno/
 │       ├── coach-flow.spec.ts
 │       └── athlete-flow.spec.ts
 │
-├── middleware.ts                     # Next.js middleware (auth guard)
+├── proxy.ts                          # Next.js proxy (auth guard)
 ├── next.config.mjs
 ├── drizzle.config.ts
 ├── vitest.config.ts
@@ -613,7 +613,7 @@ users ────► audit_logs
 | Aspecto | Detalle |
 |---------|---------|
 | **Responsabilidad** | Login, logout, gestión de sesiones, guards de rol y propiedad. |
-| **Componentes** | `LoginPage`, middleware, `RoleGuard` |
+| **Componentes** | `LoginPage`, `proxy`, `RoleGuard` |
 | **Servicios** | `auth.service` (hash, validación), `session` (Lucia: create, validate, invalidate) |
 | **Relación** | Base de todos los módulos. Middleware protege todas las rutas `(app)`. |
 | **Funcionalidades** | Login con email/contraseña → cookie de sesión. Logout → destruye sesión. Guard: sin sesión → redirect `/login`. Guard rol: `/admin/*` solo admin, `/coach/*` solo coach, etc. |
@@ -1094,8 +1094,9 @@ En UI (cualquier pantalla):
 | **Persistente** | Todo vive en MySQL. No hay caché de cliente. |
 | **Server-side (por request)** | RSC cargan datos directamente de DB en cada render. Next.js App Router cachea por request (no entre requests sin revalidación explícita). |
 | **Client-side (UI local)** | Estado de componentes con `useState`/`useReducer`: mes seleccionado, modal abierto, tab activo, formulario en progreso. Se resetea al navegar. |
-| **Entre páginas** | No hay estado global. Cada página RSC carga lo que necesita. La sesión (usuario, rol) vive en cookie y se lee en middleware + RSC. |
+| **Entre páginas** | No hay estado global. Cada página RSC carga lo que necesita. La sesión (usuario, rol) vive en cookie y se lee en proxy + RSC. |
 | **Actualización tras mutación** | Server Actions usan `revalidatePath()` o `revalidateTag()` de Next.js para refrescar los datos de la página después de una mutación. No se usa polling ni WebSockets. |
+| **Rutas con sesión (Cache Components)** | Páginas que leen la sesión (cookie) usan `export const instant = false` (opt-out oficial de Next.js 16) para render dinámico en el servidor; adopción progresiva de `use cache: private` por ruta en fases futuras. |
 
 ### Flujo de datos típico
 
@@ -1227,7 +1228,7 @@ sectionSchema = z.object({
 | 1.1 | Proyecto Next.js + TypeScript + ESLint/Prettier | `npm run dev` funciona, linting pasa |
 | 1.2 | Configurar Tabler (`@tabler/core`) + AppShell layout | Layout con sidebar y header renderiza |
 | 1.3 | Configurar Drizzle + schema de DB + migración inicial | Tablas creadas en MySQL local |
-| 1.4 | Configurar Lucia Auth + middleware + login/logout | Login funciona, rutas protegidas redirigen |
+| 1.4 | Configurar Lucia Auth + proxy + login/logout | Login funciona, rutas protegidas redirigen |
 | 1.5 | Seed: admin inicial + configuración default | Admin puede loguearse |
 | 1.6 | Configurar Zod + React Hook Form + primer Server Action | Formulario login con validación |
 

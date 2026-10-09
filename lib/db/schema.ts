@@ -3,6 +3,7 @@ import {
   boolean,
   check,
   date,
+  datetime,
   decimal,
   index,
   int,
@@ -246,9 +247,9 @@ export const settings = mysqlTable("settings", {
 });
 
 export const sessions = mysqlTable("sessions", {
-  sessionId: varchar("session_id", { length: 255 }).primaryKey(),
+  id: varchar("id", { length: 255 }).primaryKey(),
   userId: varchar("user_id", { length: 36 })
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  expires: timestamp("expires").notNull(),
+  expiresAt: datetime("expires_at").notNull(),
 });

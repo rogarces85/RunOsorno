@@ -56,7 +56,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 3.16 Definir tabla `notifications` (id, user_id FK, type, title, message, is_read, entity_type, entity_id, created_at)
 - [x] 3.17 Definir tabla `audit_logs` (id, user_id FK NULL, action, entity_type, entity_id, details JSON, ip_address, created_at)
 - [x] 3.18 Definir tabla `settings` (PK key, value JSON, updated_at)
-- [x] 3.19 Definir tabla `sessions` de Lucia Auth (session_id, user_id, expires)
+- [x] 3.19 Definir tabla `sessions` de Lucia Auth (id, user_id, expires_at — columnas requeridas por `@lucia-auth/adapter-drizzle`)
 - [x] 3.20 Generar primera migración con `drizzle-kit generate`
 - [x] 3.21 Aplicar migración a MySQL local con `drizzle-kit migrate` (producción en Fase 43)
 - [x] 3.22 Crear índices: `users.email` UNIQUE, `session_assignments(athlete_id, session_date)`, `session_assignments(athlete_id, week_start)`, `notifications(user_id, is_read)`, `group_requests(group_id, coach_id)` UNIQUE
@@ -67,22 +67,22 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 4. Autenticación y sesión
 
-- [ ] 4.1 Instalar Lucia Auth (`lucia`) e integrar con Drizzle adapter
-- [ ] 4.2 Crear `lib/auth/index.ts` con setup de Lucia (definición de tablas users + sessions)
-- [ ] 4.3 Crear `lib/auth/session.ts` con funciones: `createSession(userId)`, `validateSession(sessionId)`, `invalidateSession(sessionId)`
-- [ ] 4.4 Implementar hash de contraseñas con argon2id (o bcrypt) en `lib/services/auth.service.ts`
-- [ ] 4.5 Implementar `authenticate(email, password)` en `auth.service`: busca usuario, verifica hash, verifica `is_active`, retorna usuario o error genérico "Email o contraseña incorrectos"
-- [ ] 4.6 Crear Server Action `login` en `lib/actions/auth.actions.ts`: valida Zod, autentica, crea sesión, redirige según rol (admin → `/admin/dashboard`, coach → `/coach/dashboard`, athlete → `/athlete/dashboard`)
-- [ ] 4.7 Crear Server Action `logout`: invalida sesión, redirige a `/login`
-- [ ] 4.8 Crear esquema Zod `loginSchema` en `lib/validations/auth.schemas.ts`
-- [ ] 4.9 Crear página `app/(auth)/login/page.tsx` con formulario React Hook Form + Zod
-- [ ] 4.10 Crear `middleware.ts` en raíz: verifica cookie de sesión en cada request de `(app)`. Sin sesión → redirect `/login`. Con sesión pero ruta de auth → redirect a dashboard según rol
-- [ ] 4.11 Crear `lib/auth/guards.ts` con `requireAuth()` y `requireRole(role)` para usar en Server Actions
-- [ ] 4.12 Verificar: login con credenciales válidas redirige al dashboard del rol correcto
-- [ ] 4.13 Verificar: credenciales inválidas muestran mensaje genérico sin revelar si el email existe
-- [ ] 4.14 Verificar: acceder a `/admin/...` sin sesión redirige a `/login`
-- [ ] 4.15 Verificar: logout destruye sesión y redirige a `/login`
-- [ ] 4.16 Verificar: sesión expirada redirige a `/login` con mensaje "Tu sesión ha expirado"
+- [x] 4.1 Instalar Lucia Auth (`lucia@3.2.2`) y adapter Drizzle (`@lucia-auth/adapter-drizzle`)
+- [x] 4.2 Crear `lib/auth/index.ts` con setup de Lucia (definición de tablas users + sessions)
+- [x] 4.3 Crear `lib/auth/session.ts` con funciones: `createSession(userId)`, `validateSession(sessionId)`, `invalidateSession(sessionId)`
+- [x] 4.4 Implementar hash de contraseñas con argon2id (o bcrypt) en `lib/services/auth.service.ts`
+- [x] 4.5 Implementar `authenticate(email, password)` en `auth.service`: busca usuario, verifica hash, verifica `is_active`, retorna usuario o error genérico "Email o contraseña incorrectos"
+- [x] 4.6 Crear Server Action `login` en `lib/actions/auth.actions.ts`: valida Zod, autentica, crea sesión, redirige según rol (admin → `/admin/dashboard`, coach → `/coach/dashboard`, athlete → `/athlete/dashboard`)
+- [x] 4.7 Crear Server Action `logout`: invalida sesión, redirige a `/login`
+- [x] 4.8 Crear esquema Zod `loginSchema` en `lib/validations/auth.schemas.ts`
+- [x] 4.9 Crear página `app/(auth)/login/page.tsx` con formulario React Hook Form + Zod
+- [x] 4.10 Crear `proxy.ts` en raíz (Next.js 16: la convención `middleware` fue renombrada a `proxy`): verifica cookie de sesión en cada request de `(app)`. Sin sesión → redirect `/login`. Con sesión pero ruta de auth → redirect a dashboard según rol
+- [x] 4.11 Crear `lib/auth/guards.ts` con `requireAuth()` y `requireRole(role)` para usar en Server Actions
+- [x] 4.12 Verificar: login con credenciales válidas redirige al dashboard del rol correcto
+- [x] 4.13 Verificar: credenciales inválidas muestran mensaje genérico sin revelar si el email existe
+- [x] 4.14 Verificar: acceder a `/admin/...` sin sesión redirige a `/login`
+- [x] 4.15 Verificar: logout destruye sesión y redirige a `/login`
+- [x] 4.16 Verificar: sesión expirada redirige a `/login` con mensaje "Tu sesión ha expirado"
 
 ---
 
