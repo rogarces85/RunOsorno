@@ -1,4 +1,4 @@
-import { and, count, eq, inArray } from "drizzle-orm";
+import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   groupMembers,
@@ -482,4 +482,30 @@ export async function getPendingRequests(
     .orderBy(groupRequests.requestedAt);
 
   return rows;
+}
+
+export async function getAvailableGroups(
+  coachId: string,
+): Promise<GroupBasic[]> {
+  return db
+    .select({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+    })
+    .from(groups)
+    .where(
+      and(
+        sql`not exists (
+          select 1 from group_members gm
+          where gm.group_id = ${groups.id} and gm.user_id = ${coachId}
+        )`,
+        sql`not exists (
+          select 1 from group_requests gr
+          where gr.group_id = ${groups.id} and gr.coach_id = ${coachId}
+            and gr.status = 'pending'
+        )`,
+      ),
+    )
+    .orderBy(groups.name);
 }
