@@ -88,15 +88,15 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 5. Permisos y roles
 
-- [ ] 5.1 Crear `lib/permissions/roles.ts` con definición de capacidades por rol (qué rol puede acceder a qué rutas/acciones)
-- [ ] 5.2 Crear `lib/permissions/index.ts` con funciones: `isAdmin(user)`, `isCoach(user)`, `isAthlete(user)`, `isDirector(user, groupId)`
-- [ ] 5.3 Crear función `canManageTeam(user, teamId)` — solo el coach creador del team
-- [ ] 5.4 Crear función `canPlanFor(user, athleteId)` — coach dueño del atleta vía team
-- [ ] 5.5 Crear función `canViewAthlete(user, athleteId)` — atleta propio, coach dueño, o director del grupo
-- [ ] 5.6 Crear función `canEditRecord(user, assignmentId)` — solo el atleta dueño, dentro de ventana de edición, fecha no futura
-- [ ] 5.7 Verificar: un coach no puede acceder a rutas `/admin/*`
-- [ ] 5.8 Verificar: un atleta no puede acceder a rutas `/coach/*` ni `/admin/*`
-- [ ] 5.9 Verificar: un Director Técnico no puede editar planes (solo lectura)
+- [x] 5.1 Crear `lib/permissions/roles.ts` con definición de capacidades por rol (qué rol puede acceder a qué rutas/acciones)
+- [x] 5.2 Crear `lib/permissions/index.ts` con funciones: `isAdmin(user)`, `isCoach(user)`, `isAthlete(user)`, `isDirector(user, groupId)`
+- [x] 5.3 Crear función `canManageTeam(user, teamId)` — solo el coach creador del team
+- [x] 5.4 Crear función `canPlanFor(user, athleteId)` — coach dueño del atleta vía team
+- [x] 5.5 Crear función `canViewAthlete(user, athleteId)` — atleta propio, coach dueño, o director del grupo
+- [x] 5.6 Crear función `canEditRecord(user, assignmentId)` — solo el atleta dueño, dentro de ventana de edición, fecha no futura
+- [x] 5.7 Verificar: un coach no puede acceder a rutas `/admin/*`
+- [x] 5.8 Verificar: un atleta no puede acceder a rutas `/coach/*` ni `/admin/*`
+- [x] 5.9 Verificar: un Director Técnico no puede editar planes (solo lectura)
 
 ---
 
