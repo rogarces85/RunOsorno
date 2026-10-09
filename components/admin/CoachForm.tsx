@@ -1,0 +1,160 @@
+"use client";
+
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  createCoachAction,
+  updateCoachAction,
+} from "@/lib/actions/user.actions";
+import {
+  createCoachSchema,
+  type CreateCoachInput,
+} from "@/lib/validations/user.schemas";
+
+export type CoachFormNotice = {
+  type: "success" | "danger";
+  message: string;
+  tempPassword?: string;
+};
+
+export function CoachForm({
+  open,
+  coach,
+  onClose,
+  onSaved,
+}: {
+  open: boolean;
+  coach: { id: string; name: string; email: string } | null;
+  onClose: () => void;
+  onSaved: (notice: CoachFormNotice) => void;
+}) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<CreateCoachInput>({
+    resolver: zodResolver(createCoachSchema),
+    defaultValues: { name: "", email: "" },
+  });
+
+  useEffect(() => {
+    if (open) {
+      reset({ name: coach?.name ?? "", email: coach?.email ?? "" });
+    }
+  }, [open, coach, reset]);
+
+  const onSubmit = async (data: CreateCoachInput) => {
+    if (coach) {
+      const result = await updateCoachAction(coach.id, data);
+      if (result.ok) {
+        onSaved({ type: "success", message: "Coach actualizado" });
+        onClose();
+      } else {
+        onSaved({ type: "danger", message: result.error });
+      }
+      return;
+    }
+    const result = await createCoachAction(data);
+    if (result.ok) {
+      onSaved({
+        type: "success",
+        message: "Coach creado",
+        tempPassword: result.data.tempPassword,
+      });
+      onClose();
+    } else {
+      onSaved({ type: "danger", message: result.error });
+    }
+  };
+
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <>
+      <div
+        className="modal modal-blur fade show d-block"
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+      >
+        <div className="modal-dialog modal-dialog-centered" role="document">
+          <div className="modal-content">
+            <form onSubmit={handleSubmit(onSubmit)} noValidate>
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  {coach ? "Editar coach" : "Nuevo coach"}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  aria-label="Cerrar"
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="coach-name">
+                    Nombre
+                  </label>
+                  <input
+                    id="coach-name"
+                    type="text"
+                    className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                    placeholder="Nombre completo"
+                    {...register("name")}
+                  />
+                  {errors.name && (
+                    <div className="invalid-feedback">
+                      {errors.name.message}
+                    </div>
+                  )}
+                </div>
+                <div className="mb-0">
+                  <label className="form-label" htmlFor="coach-email">
+                    Email
+                  </label>
+                  <input
+                    id="coach-email"
+                    type="email"
+                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
+                    placeholder="coach@email.cl"
+                    autoComplete="off"
+                    {...register("email")}
+                  />
+                  {errors.email && (
+                    <div className="invalid-feedback">
+                      {errors.email.message}
+                    </div>
+                  )}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-link link-secondary"
+                  onClick={onClose}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? "Guardando…" : "Guardar"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div className="modal-backdrop fade show d-block" />
+    </>
+  );
+}

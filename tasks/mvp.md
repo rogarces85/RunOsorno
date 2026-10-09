@@ -113,23 +113,23 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 7. Módulo Admin — Gestión de coaches
 
-- [ ] 7.1 Crear esquema Zod `createCoachSchema` (name, email) en `lib/validations/user.schemas.ts`
-- [ ] 7.2 Crear servicio `user.service.ts` con `createCoach(data)` — genera contraseña temporal, crea usuario con `role='coach'`, `must_change_password=true`
-- [ ] 7.3 Crear servicio con `updateCoach(id, data)`, `deactivateCoach(id)` (is_active=false), `deleteCoach(id)` (solo si no tiene teams/registros, si los tiene retorna error)
-- [ ] 7.4 Crear servicio con `resetPassword(id)` — nueva contraseña temporal, `must_change_password=true`
-- [ ] 7.5 Crear servicio con `getCoaches(filters)` — listado con filtros por estado, grupo, búsqueda
-- [ ] 7.6 Crear servicio con `getOrphanCoaches()` — coaches sin grupo asignado
-- [ ] 7.7 Crear Server Actions en `lib/actions/user.actions.ts`: `createCoach`, `updateCoach`, `deactivateCoach`, `deleteCoach`, `resetPassword`, `resendInvitation`
-- [ ] 7.8 Integrar `audit.service` — registrar `coach_created`, `coach_updated`, `coach_deactivated`, `coach_deleted`, `password_reset` con user_id, details, IP
-- [ ] 7.9 Crear componente `CoachesList` en `components/admin/CoachesList.tsx` — tabla con nombre, email, estado, grupo, acciones
-- [ ] 7.10 Crear componente `CoachForm` en `components/admin/CoachForm.tsx` — modal con nombre, email (alta/edición)
-- [ ] 7.11 Crear página `app/(app)/admin/coaches/page.tsx` que renderiza listado + botón nuevo coach
-- [ ] 7.12 Crear componente `ConfirmDialog` en `components/ui/ConfirmDialog.tsx` para acciones destructivas
-- [ ] 7.13 Verificar: admin crea coach → aparece en listado → recibe email de invitación
-- [ ] 7.14 Verificar: admin edita coach → datos actualizados
-- [ ] 7.15 Verificar: admin desactiva coach → coach no puede iniciar sesión
-- [ ] 7.16 Verificar: admin intenta eliminar coach con teams → recibe error sugiriendo desactivación
-- [ ] 7.17 Verificar: admin resetea contraseña → coach recibe email y `must_change_password=true`
+- [x] 7.1 Crear esquema Zod `createCoachSchema` (name, email) en `lib/validations/user.schemas.ts`
+- [x] 7.2 Crear servicio `user.service.ts` con `createCoach(data)` — genera contraseña temporal, crea usuario con `role='coach'`, `must_change_password=true`
+- [x] 7.3 Crear servicio con `updateCoach(id, data)`, `deactivateCoach(id)` (is_active=false), `deleteCoach(id)` (solo si no tiene teams/registros, si los tiene retorna error)
+- [x] 7.4 Crear servicio con `resetPassword(id)` — nueva contraseña temporal, `must_change_password=true`
+- [x] 7.5 Crear servicio con `getCoaches(filters)` — listado con filtros por estado, grupo, búsqueda
+- [x] 7.6 Crear servicio con `getOrphanCoaches()` — coaches sin grupo asignado
+- [x] 7.7 Crear Server Actions en `lib/actions/user.actions.ts`: `createCoach`, `updateCoach`, `deactivateCoach`, `deleteCoach`, `resetPassword`, `resendInvitation`
+- [x] 7.8 Integrar `audit.service` — registrar `coach_created`, `coach_updated`, `coach_deactivated`, `coach_deleted`, `password_reset` con user_id, details, IP
+- [x] 7.9 Crear componente `CoachesList` en `components/admin/CoachesList.tsx` — tabla con nombre, email, estado, grupo, acciones
+- [x] 7.10 Crear componente `CoachForm` en `components/admin/CoachForm.tsx` — modal con nombre, email (alta/edición)
+- [x] 7.11 Crear página `app/(app)/admin/coaches/page.tsx` que renderiza listado + botón nuevo coach
+- [x] 7.12 Crear componente `ConfirmDialog` en `components/ui/ConfirmDialog.tsx` para acciones destructivas
+- [x] 7.13 Verificar: admin crea coach → aparece en listado → recibe email de invitación
+- [x] 7.14 Verificar: admin edita coach → datos actualizados
+- [x] 7.15 Verificar: admin desactiva coach → coach no puede iniciar sesión
+- [x] 7.16 Verificar: admin intenta eliminar coach con teams → recibe error sugiriendo desactivación
+- [x] 7.17 Verificar: admin resetea contraseña → coach recibe email y `must_change_password=true`
 
 ---
 

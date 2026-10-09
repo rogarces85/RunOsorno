@@ -15,6 +15,13 @@ export const fail = (error = "No autorizado"): ActionError => ({
 
 export const INVALID_INPUT = "Datos inválidos";
 
+export class ActionFailure extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ActionFailure";
+  }
+}
+
 export async function runAction<S extends z.ZodType, T>(
   options: { schema: S; role?: Role },
   input: unknown,
@@ -28,9 +35,17 @@ export async function runAction<S extends z.ZodType, T>(
   if (!parsed.success) {
     return fail(INVALID_INPUT);
   }
-  const data = await handler(parsed.data, {
-    id: user.id,
-    role: user.role,
-  });
+  let data: T;
+  try {
+    data = await handler(parsed.data, {
+      id: user.id,
+      role: user.role,
+    });
+  } catch (error) {
+    if (error instanceof ActionFailure) {
+      return fail(error.message);
+    }
+    throw error;
+  }
   return ok(data);
 }
