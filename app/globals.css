@@ -1,6 +1,11 @@
 @import "@tabler/core/dist/css/tabler.min.css";
 
-/* Tema base RunOsorno — personalización sobre variables de Tabler */
+:root {
+  --tblr-body-bg: light-dark(oklch(98.51% 0 0deg), oklch(20.46% 0 0deg));
+  --tblr-primary: oklch(54.6% 0.1724 254.2deg);
+  --tblr-body-font-family: var(--tblr-font-sans-serif);
+}
+
 html {
   height: 100%;
 }

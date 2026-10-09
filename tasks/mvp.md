@@ -23,16 +23,16 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 2. Layout y estructura de interfaz base
 
-- [ ] 2.1 Crear root layout `app/layout.tsx` con `<html lang="es-CL">`, metadata base, importación de `globals.css`
-- [ ] 2.2 Crear `app/globals.css` con imports de `@tabler/core` y variables de tema Tabler
-- [ ] 2.3 Crear route group `app/(auth)/` con layout minimalista (sin sidebar)
-- [ ] 2.4 Crear route group `app/(app)/` con layout de aplicación: `AppShell` de Tabler con sidebar y header
-- [ ] 2.5 Implementar componente `AppSidebar` en `components/layout/AppSidebar.tsx` con items de menú placeholder
-- [ ] 2.6 Implementar componente `AppHeader` en `components/layout/AppHeader.tsx` con logo, espacio para campanita, avatar placeholder
-- [ ] 2.7 Crear componente `RoleGuard` en `components/layout/RoleGuard.tsx` que redirige según rol (placeholder hasta tener auth)
-- [ ] 2.8 Crear `app/page.tsx` raíz que redirige a `/login` (o dashboard si ya autenticado)
-- [ ] 2.9 Crear `app/error.tsx` con pantalla de error genérica y botón "Volver al inicio"
-- [ ] 2.10 Verificar que el layout renderiza en desktop, tablet y móvil (responsive)
+- [x] 2.1 Crear root layout `app/layout.tsx` con `<html lang="es-CL">`, metadata base, importación de `globals.css`
+- [x] 2.2 Crear `app/globals.css` con imports de `@tabler/core` y variables de tema Tabler
+- [x] 2.3 Crear route group `app/(auth)/` con layout minimalista (sin sidebar)
+- [x] 2.4 Crear route group `app/(app)/` con layout de aplicación: `AppShell` de Tabler con sidebar y header
+- [x] 2.5 Implementar componente `AppSidebar` en `components/layout/AppSidebar.tsx` con items de menú placeholder
+- [x] 2.6 Implementar componente `AppHeader` en `components/layout/AppHeader.tsx` con logo, espacio para campanita, avatar placeholder
+- [x] 2.7 Crear componente `RoleGuard` en `components/layout/RoleGuard.tsx` que redirige según rol (placeholder hasta tener auth)
+- [x] 2.8 Crear `app/page.tsx` raíz que redirige a `/login` (o dashboard si ya autenticado)
+- [x] 2.9 Crear `app/error.tsx` con pantalla de error genérica y botón "Volver al inicio"
+- [x] 2.10 Verificar que el layout renderiza en desktop, tablet y móvil (responsive)
 
 ---
 
