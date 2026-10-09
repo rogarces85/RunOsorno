@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+build
+coverage
+package-lock.json
+wrangler.toml
+
+# Documentación aprobada a mano (no reformatar)
+*.md
+
+# Reportes de testing
+playwright-report
+test-results

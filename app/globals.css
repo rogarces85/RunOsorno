@@ -1,0 +1,13 @@
+@import "@tabler/core/dist/css/tabler.min.css";
+
+/* Tema base RunOsorno — personalización sobre variables de Tabler */
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+  background-color: var(--tblr-body-bg);
+  color: var(--tblr-body-color);
+  font-family: var(--tblr-body-font-family);
+}

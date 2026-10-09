@@ -1,12 +1,47 @@
-# PHP project ignores
-.DS_Store
-*.log
-# Credenciales reales — nunca versionar. config/config.php solo tiene
-# valores placeholder/getenv(); config/config.local.php trae los reales.
-config/config.local.php
-# Add any other sensitive or temporary files here
-# Credenciales de produccion (Hostinger) — nunca versionar.
-config/config.production.php
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# Backups de base de datos (contienen hashes de usuarios reales)
-backups/
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+/playwright-report/
+/test-results/
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# cloudflare
+/.wrangler/
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
