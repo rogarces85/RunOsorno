@@ -213,23 +213,23 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 12. Gestión de atletas
 
-- [ ] 12.1 Crear esquema Zod `createAthleteSchema` (name, email, datos físicos opcionales)
-- [ ] 12.2 Crear `athlete.service.ts` con `createAthlete(data, teamId)` — crea usuario con role='athlete', crea `athlete_profiles`, asigna al team
-- [ ] 12.3 Crear servicio con `getAthletesByCoach(coachId)` — atletas de todos los teams del coach con estado
-- [ ] 12.4 Crear servicio con `getAthleteDetail(athleteId)` — perfil, teams, último registro, cumplimiento
-- [ ] 12.5 Crear servicio con `getAllAthletes(filters)` — listado global para admin (filtros: coach, team, grupo, estado)
-- [ ] 12.6 Crear servicio con `transferAthlete(athleteId, fromTeamId, toTeamId)` — mueve atleta entre teams, registra auditoría
-- [ ] 12.7 Crear servicio con `getOrphanAthletes()` — atletas sin coach asignado (admin)
-- [ ] 12.8 Crear Server Actions: `createAthlete`, `updateAthleteProfile`, `transferAthlete`
-- [ ] 12.9 Crear componente `AthletesList` — tabla con nombre, email, team, cumplimiento, última actividad, acciones
-- [ ] 12.10 Crear componente `AthleteForm` — alta/edición de atleta con datos físicos opcionales (birth_date, weight, height, max_hr, resting_hr)
-- [ ] 12.11 Crear componente `TransferDialog` — mover atleta entre teams (solo admin)
-- [ ] 12.12 Crear página `app/(app)/coach/athletes/page.tsx` — atletas del coach
-- [ ] 12.13 Crear página `app/(app)/coach/athletes/[id]/page.tsx` — perfil del atleta: datos, historial, métricas básicas
-- [ ] 12.14 Crear página `app/(app)/admin/athletes/page.tsx` — listado global con filtros
-- [ ] 12.15 Verificar: coach da de alta atleta → aparece en su team
-- [ ] 12.16 Verificar: admin ve listado global con filtros funcionando
-- [ ] 12.17 Verificar: admin transfiere atleta entre teams → cambio registrado con auditoría
+- [x] 12.1 Crear esquema Zod `createAthleteSchema` (name, email, datos físicos opcionales)
+- [x] 12.2 Crear `athlete.service.ts` con `createAthlete(data, teamId)` — crea usuario con role='athlete', crea `athlete_profiles`, asigna al team
+- [x] 12.3 Crear servicio con `getAthletesByCoach(coachId)` — atletas de todos los teams del coach con estado
+- [x] 12.4 Crear servicio con `getAthleteDetail(athleteId)` — perfil, teams, último registro, cumplimiento
+- [x] 12.5 Crear servicio con `getAllAthletes(filters)` — listado global para admin (filtros: coach, team, grupo, estado)
+- [x] 12.6 Crear servicio con `transferAthlete(athleteId, fromTeamId, toTeamId)` — mueve atleta entre teams, registra auditoría
+- [x] 12.7 Crear servicio con `getOrphanAthletes()` — atletas sin coach asignado (admin)
+- [x] 12.8 Crear Server Actions: `createAthlete`, `updateAthleteProfile`, `transferAthlete`
+- [x] 12.9 Crear componente `AthletesList` — tabla con nombre, email, team, cumplimiento, última actividad, acciones
+- [x] 12.10 Crear componente `AthleteForm` — alta/edición de atleta con datos físicos opcionales (birth_date, weight, height, max_hr, resting_hr)
+- [x] 12.11 Crear componente `TransferDialog` — mover atleta entre teams (solo admin)
+- [x] 12.12 Crear página `app/(app)/coach/athletes/page.tsx` — atletas del coach
+- [x] 12.13 Crear página `app/(app)/coach/athletes/[id]/page.tsx` — perfil del atleta: datos, historial, métricas básicas
+- [x] 12.14 Crear página `app/(app)/admin/athletes/page.tsx` — listado global con filtros
+- [x] 12.15 Verificar: coach da de alta atleta → aparece en su team
+- [x] 12.16 Verificar: admin ve listado global con filtros funcionando
+- [x] 12.17 Verificar: admin transfiere atleta entre teams → cambio registrado con auditoría
 
 ---
 
