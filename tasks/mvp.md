@@ -179,35 +179,35 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 10. Módulo Coach — Unirse a grupo
 
-- [ ] 10.1 Crear servicio con `getAvailableGroups()` — grupos donde el coach aún no es miembro ni tiene solicitud pendiente
-- [ ] 10.2 Crear página `app/(app)/coach/groups/page.tsx` — listado de grupos disponibles + solicitud de unión
-- [ ] 10.3 Crear componente `GroupRequestCard` — nombre del grupo, descripción, botón "Solicitar unirse"
-- [ ] 10.4 Verificar: coach ve grupos disponibles y puede enviar solicitud
-- [ ] 10.5 Verificar: grupo donde ya es miembro o tiene solicitud pendiente no aparece en disponibles
+- [x] 10.1 Crear servicio con `getAvailableGroups()` — grupos donde el coach aún no es miembro ni tiene solicitud pendiente
+- [x] 10.2 Crear página `app/(app)/coach/groups/page.tsx` — listado de grupos disponibles + solicitud de unión
+- [x] 10.3 Crear componente `GroupRequestCard` — nombre del grupo, descripción, botón "Solicitar unirse"
+- [x] 10.4 Verificar: coach ve grupos disponibles y puede enviar solicitud
+- [x] 10.5 Verificar: grupo donde ya es miembro o tiene solicitud pendiente no aparece en disponibles
 
 ---
 
 # 11. Módulo Coach — Teams
 
-- [ ] 11.1 Crear esquema Zod `createTeamSchema` (name opcional) en `lib/validations/team.schemas.ts`
-- [ ] 11.2 Crear `team.service.ts` con `createTeam(coachId, name?)` — default name = apellido del coach
-- [ ] 11.3 Crear servicio con `updateTeam(id, name)`, `deleteTeam(id)` (con verificación de dependencias)
-- [ ] 11.4 Crear servicio con `getTeamsByCoach(coachId)` — listado con conteo de atletas
-- [ ] 11.5 Crear servicio con `assignAthlete(teamId, athleteId)` — verifica límite de atletas por team desde settings
-- [ ] 11.6 Crear servicio con `removeAthlete(teamId, athleteId)`
-- [ ] 11.7 Crear servicio con `getTeamAthletes(teamId)` — atletas con último registro, cumplimiento básico
-- [ ] 11.8 Crear Server Actions en `lib/actions/team.actions.ts`: `createTeam`, `updateTeam`, `deleteTeam`, `assignAthlete`, `removeAthlete`
-- [ ] 11.9 Verificar límite: si `max_athletes_per_team` alcanzado → error "Has alcanzado el límite de atletas en este team"
-- [ ] 11.10 Crear componente `TeamsList` — cards o tabla con nombre, atletas, acciones
-- [ ] 11.11 Crear componente `TeamForm` — modal alta/edición con nombre (default = apellido)
-- [ ] 11.12 Crear componente `TeamAthletesManager` — listado de atletas del team con botón asignar/quitar
-- [ ] 11.13 Crear página `app/(app)/coach/teams/page.tsx` — listado de teams del coach + botón nuevo team
-- [ ] 11.14 Crear página `app/(app)/coach/teams/[id]/page.tsx` — detalle team: atletas, acciones
-- [ ] 11.15 Verificar: coach crea team → nombre por defecto es su apellido
-- [ ] 11.16 Verificar: coach renombra team → nombre actualizado
-- [ ] 11.17 Verificar: coach asigna atleta al team → atleta aparece en listado
-- [ ] 11.18 Verificar: coach quita atleta → atleta desaparece del team
-- [ ] 11.19 Verificar: límite de atletas alcanzado → mensaje de error
+- [x] 11.1 Crear esquema Zod `createTeamSchema` (name opcional) en `lib/validations/team.schemas.ts`
+- [x] 11.2 Crear `team.service.ts` con `createTeam(coachId, name?)` — default name = apellido del coach
+- [x] 11.3 Crear servicio con `updateTeam(id, name)`, `deleteTeam(id)` (con verificación de dependencias)
+- [x] 11.4 Crear servicio con `getTeamsByCoach(coachId)` — listado con conteo de atletas
+- [x] 11.5 Crear servicio con `assignAthlete(teamId, athleteId)` — verifica límite de atletas por team desde settings
+- [x] 11.6 Crear servicio con `removeAthlete(teamId, athleteId)`
+- [x] 11.7 Crear servicio con `getTeamAthletes(teamId)` — atletas con último registro, cumplimiento básico
+- [x] 11.8 Crear Server Actions en `lib/actions/team.actions.ts`: `createTeam`, `updateTeam`, `deleteTeam`, `assignAthlete`, `removeAthlete`
+- [x] 11.9 Verificar límite: si `max_athletes_per_team` alcanzado → error "Has alcanzado el límite de atletas en este team"
+- [x] 11.10 Crear componente `TeamsList` — cards o tabla con nombre, atletas, acciones
+- [x] 11.11 Crear componente `TeamForm` — modal alta/edición con nombre (default = apellido)
+- [x] 11.12 Crear componente `TeamAthletesManager` — listado de atletas del team con botón asignar/quitar
+- [x] 11.13 Crear página `app/(app)/coach/teams/page.tsx` — listado de teams del coach + botón nuevo team
+- [x] 11.14 Crear página `app/(app)/coach/teams/[id]/page.tsx` — detalle team: atletas, acciones
+- [x] 11.15 Verificar: coach crea team → nombre por defecto es su apellido
+- [x] 11.16 Verificar: coach renombra team → nombre actualizado
+- [x] 11.17 Verificar: coach asigna atleta al team → atleta aparece en listado
+- [x] 11.18 Verificar: coach quita atleta → atleta desaparece del team
+- [x] 11.19 Verificar: límite de atletas alcanzado → mensaje de error
 
 ---
 
