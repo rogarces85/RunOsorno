@@ -40,6 +40,39 @@ body {
   min-height: 68px;
 }
 
+.calendar-cell,
+.calendar-droppable {
+  display: flex;
+}
+
+.calendar-cell .calendar-day,
+.calendar-droppable .calendar-day {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.calendar-droppable.is-over .calendar-day {
+  border-color: var(--tblr-primary);
+  background-color: color-mix(in srgb, var(--tblr-primary) 14%, transparent);
+}
+
+.calendar-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.drag-overlay-chip {
+  background-color: var(--tblr-primary);
+  color: #fff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
+}
+
 .calendar-day {
   display: flex;
   flex-direction: column;

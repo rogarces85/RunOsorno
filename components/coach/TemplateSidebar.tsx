@@ -1,0 +1,64 @@
+"use client";
+
+import { useDraggable } from "@dnd-kit/core";
+import { IconGripVertical } from "@tabler/icons-react";
+import { formatSessionType } from "@/lib/utils/format";
+
+export type TemplateOption = {
+  id: string;
+  name: string;
+  sessionType: string;
+};
+
+function DraggableTemplate({ template }: { template: TemplateOption }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: template.id,
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`list-group-item list-group-item-action d-flex justify-content-between align-items-center${isDragging ? " opacity-50" : ""}`}
+      data-testid="sidebar-template"
+      data-template-id={template.id}
+    >
+      <div>
+        <div className="fw-medium">{template.name}</div>
+        <div className="text-secondary small">
+          {formatSessionType(template.sessionType)}
+        </div>
+      </div>
+      <IconGripVertical size={16} stroke={1.75} className="text-secondary" />
+    </div>
+  );
+}
+
+export function TemplateSidebar({
+  templates,
+}: {
+  templates: TemplateOption[];
+}) {
+  return (
+    <div className="card" data-testid="template-sidebar">
+      <div className="card-header">
+        <h3 className="card-title">Plantillas</h3>
+      </div>
+      <div className="list-group list-group-flush">
+        {templates.length === 0 ? (
+          <div className="list-group-item text-secondary">
+            No hay plantillas disponibles.
+          </div>
+        ) : (
+          templates.map((template) => (
+            <DraggableTemplate key={template.id} template={template} />
+          ))
+        )}
+      </div>
+      <div className="card-footer text-secondary small">
+        Arrastra una plantilla a un día del calendario.
+      </div>
+    </div>
+  );
+}

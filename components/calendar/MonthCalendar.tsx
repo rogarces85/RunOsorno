@@ -6,6 +6,7 @@ import type { PlanItem } from "@/lib/services/plan.service";
 import { toISODate } from "@/lib/utils/date";
 import { formatSessionType } from "@/lib/utils/format";
 import { CalendarDay } from "./CalendarDay";
+import { DroppableDay } from "./DroppableDay";
 import { resolveDayState } from "./dayState";
 
 const WEEKDAYS = ["Lun", "Mar", "MiÃ©", "Jue", "Vie", "SÃ¡b", "Dom"];
@@ -134,9 +135,8 @@ export function MonthCalendar({
             const dateISO = `${view.year}-${pad(view.month + 1)}-${pad(dayNumber)}`;
             const item = itemsByDate.get(dateISO) ?? null;
             const state = resolveDayState(item, dateISO, today);
-            return (
+            const day = (
               <CalendarDay
-                key={cell}
                 dateISO={dateISO}
                 dayNumber={dayNumber}
                 isToday={dateISO === today}
@@ -149,6 +149,14 @@ export function MonthCalendar({
                 onClick={() => onDayClick?.(dateISO, item)}
               />
             );
+            if (mode === "coach") {
+              return (
+                <DroppableDay key={cell} dateISO={dateISO}>
+                  {day}
+                </DroppableDay>
+              );
+            }
+            return <div key={cell} className="calendar-cell">{day}</div>;
           })}
         </div>
       </div>

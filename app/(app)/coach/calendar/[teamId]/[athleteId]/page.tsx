@@ -86,6 +86,14 @@ export default async function CoachAthleteCalendarPage({
             sessionType,
           }))}
           messages={messages}
+          athletes={
+            athletesResult.ok
+              ? athletesResult.data.map((row) => ({
+                  athleteId: row.athleteId,
+                  name: row.name,
+                }))
+              : []
+          }
         />
       </div>
     </div>
