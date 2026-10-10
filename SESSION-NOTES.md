@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 13
+# Sesión — Resumen hasta Fase 14
 
 ## Estado actual
-- **HEAD**: `4c698b9` (Fase 13 completada, commit local sobre `origin/main`)
+- **HEAD**: `ef095b8` (Fase 14 completada, commit local sobre `origin/main`)
 - **Push a GitHub**: pendiente — sin credenciales configuradas en esta máquina (repo `rogarces85/RunOsorno`, remoto `origin/main` = `385d62d`)
 - **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
-## Fases completadas (1–13)
+## Fases completadas (1–14)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -20,32 +20,36 @@
 | 10 | 768eb34 | Coach ↔ grupo (grupos disponibles, solicitud unión) |
 | 11 | 4b45502 | Teams coach (CRUD, asignar/quitar atletas con límite, UI) |
 | 12 | b145a12 | Gestión de atletas (schemas, servicios, UI, páginas) |
-| 13 | 4c698b9 | **Biblioteca de plantillas** (ver abajo) |
+| 13 | 4c698b9 | Biblioteca de plantillas (schemas, CRUD/clonar/compartir, editor, tabs) |
+| 14 | ef095b8 | **Plantillas oficiales (Admin)** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
-- **Constantes**: `SECTION_TYPES` + `SECTION_TYPE_LABELS` (7 tipos) en `lib/config/constants.ts`
-- **Validación** (`template.schemas.ts`): `sectionSchema` (id/order opcionales, title ≤100, type enum, content 1–2000), `templateSchema` (name, sessionType ≤50 libre, `structure.min(1)`), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema`
+- **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
+- **Servicio**: `create/update/delete` (solo propia, no oficial; delete bloquea con `session_assignments`), `cloneTemplate`, `share/unshare` (solo miembro del grupo), `getTemplatesByCoach` (own/official/group + flags), `getTemplateById`, `getTemplateVisibility` (admin solo lectura), `parseStructure` defensivo, auditoría por operación · `group.service.getMyGroups(userId)`
+- **UI**: `TemplateList` (tabs Mías/Oficiales/Grupo), `TemplateCard`, `SectionEditor` (↑↓/eliminar), `TemplateEditor` (RHF + useFieldArray, 3 secciones default, datalist), `CloneDialog`, `ShareDialog`, `CloneButton`
+- **Páginas**: `/coach/templates`, `/new`, `/[id]` (editor si `canEdit`, si no solo lectura + clonar; `notFound()` sin visibilidad)
+- **Verificación**: 49 checks servicio + 14 E2E Playwright = 63/63 OK
+
+## Fase 14 — Plantillas oficiales (7 tareas ✅)
+- **Seed** (`db/seed.ts`): 5 oficiales idempotentes (`isOfficial=true`, `coachId=null`): Series 6×400m, Intervalos 5×1000m, Fondo largo, Tempo 20 min, Recuperación activa — cada una con 3 secciones (calentamiento/main/enfriamiento); re-ejecutar no duplica (check por nombre+oficial)
 - **Servicio** (`template.service.ts`):
-  - `createTemplate` / `updateTemplate` (solo propia, no oficial) / `deleteTemplate` (bloquea si hay `session_assignments`)
-  - `cloneTemplate` (visible → copia propia con ids nuevos), `shareTemplate` (solo propia + miembro del grupo), `unshareTemplate`
-  - `getTemplatesByCoach` (propias + oficiales + compartidas de mis grupos → `ownership: own|official|group` con flags canEdit/canClone/canShare/canDelete)
-  - `getTemplateById`, `getTemplateVisibility(template, user)` (admin: solo lectura; canView/canEdit/canClone/canShare/canDelete)
-  - `parseStructure` defensivo (JSON string u objeto), estructura normalizada (uuid + order = índice), auditoría en cada operación
-- **Group service**: `getMyGroups(userId)` (nuevo) para el diálogo de compartir
-- **Acciones** (`template.actions.ts`): create/update/delete/clone/share/unshare, `role: "coach"`
-- **UI** (`components/templates/`): `TemplateList` (tabs Mías/Oficiales/Grupo con contadores + avisos), `TemplateCard`, `SectionEditor` (título/tipo/contenido, mover ↑↓, eliminar), `TemplateEditor` (RHF + useFieldArray, 3 secciones por defecto, datalist de tipos: base + libres, validación cliente), `CloneDialog`, `ShareDialog`, `CloneButton`
-- **Páginas**: `/coach/templates` (listado), `/coach/templates/new` (creación), `/coach/templates/[id]` (editor si `canEdit`; si no: vista solo lectura + botón clonar; `notFound()` si no `canView`)
-- **Verificación**: 49 checks de servicio (`npx tsx scratch-*.ts`) + 14 E2E Playwright (login → validación vacía → crear → editar → tabs → eliminar) = **63/63 OK**
-- **Lint/Build**: ✅ · **Leftovers**: 0
-- **Notas**: playwright reinstaló browsers a build 1248 (`npx playwright install chromium`); sin Chrome/Edge en la máquina — usar chromium headless
+  - `getOfficialTemplates()` → lista admin (`structure` parseada + `sectionCount`), solo `is_official=true`
+  - `createOfficialTemplate(input, adminId)` / `updateOfficialTemplate(id, input, adminId)` (exige `isOfficial`) / `deleteOfficialTemplate(id, adminId)` (exige `isOfficial` + bloquea si hay `session_assignments`)
+  - Auditoría: `official_template_created/updated/deleted`
+- **Acciones** (`template.actions.ts`): `createOfficialTemplateAction`, `updateOfficialTemplateAction`, `deleteOfficialTemplateAction` — `role: "admin"` (mismo `templateSchema` que coach)
+- **UI**:
+  - `app/(app)/admin/templates/page.tsx` (`instant=false`, `requireRole("admin")`)
+  - `components/admin/OfficialTemplatesList.tsx` (tabla: nombre/tipo/secciones/fecha + editar/eliminar con ConfirmDialog + avisos)
+  - `components/admin/OfficialTemplateForm.tsx` (modal `modal-lg` con RHF + useFieldArray + `SectionEditor` reutilizado; datalist de tipos; reset en `open` vía `useEffect` — patrón ya probado con lint)
+  - `TemplateEditor.tsx`: exporta ahora `FREE_SESSION_TYPES` y `defaultSections()` (reutilizados por el form admin)
+- **Verificación**: 31 checks de servicio (`scratch-phase14.ts`: seed idempotente, CRUD, rechazos no-oficial/bloqueo por asignaciones, auditoría, coach ve/clona) + 8 E2E Playwright (admin: crear/editar/eliminar por UI; coach: tab Oficiales + botón clonar) = **39/39 OK**
+- **Lint/Build**: ✅ (`/admin/templates` registrada) · **Leftovers**: 0
+- **Notas**: seed usa `TemplateSection["type"]` validado; `npm run db:seed` seguro de re-ejecutar
 
 ## Próximos pasos
-**Fase 14 — Plantillas oficiales** (7 tareas en `tasks/mvp.md`):
-1. Seed de plantillas oficiales precargadas (CRUD admin en `lib/services/template.service.ts` ya separa `isOfficial`)
-2. Admin: CRUD plantillas oficiales (configuración global)
-3. Coaches: clonar/editar copias (ya funciona desde Fase 13)
+**Fase 15 — Planificación semanal** (18 tareas en `tasks/mvp.md`): drag & drop plantillas a días, generador ("semana tipo"), copiar semana anterior, multi-asignación a varios atletas.
 
-Luego **Fase 15 — Planificación semanal** (drag & drop + generador + copiar semana + multi-asignación).
+Luego **Fase 16 — Calendario base**.
 
 ## Para continuar en otro PC
 ```bash
@@ -62,6 +66,8 @@ npm run dev
 - `athlete.test@runosorno.cl` / `Admin1234!` (Atleta Test)
 - `director.test@runosorno.cl` / `Admin1234!` (Director Test)
 - `p13.ui@test.local` / `Test1234!` (coach de prueba E2E Fase 13)
+- `p14.svc@test.local` / `Test1234!` (coach de prueba Fase 14)
+- `p14.ath@test.local` / `Test1234!` (atleta de prueba Fase 14)
 
 ### Notas técnicas clave
 - MySQL local XAMPP: `C:\xampp\mysql\bin\mysql.exe -u root runosorno`
