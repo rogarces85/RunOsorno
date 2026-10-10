@@ -82,6 +82,13 @@ body {
   flex-shrink: 0;
 }
 
+.calendar-day-compliance {
+  font-size: 0.65rem;
+  line-height: 1.4;
+  padding: 0 4px;
+  font-weight: 600;
+}
+
 .calendar-day-session {
   font-size: 0.7rem;
   line-height: 1.2;

@@ -4,6 +4,7 @@ import {
   sessionAssignments,
   sessionFeedback,
   sessionRecords,
+  teamMembers,
   templates,
   type TemplateSection,
 } from "@/lib/db/schema";
@@ -69,7 +70,7 @@ function whereWeekStart(weekStartISO: string) {
   return sql`${sessionAssignments.weekStart} = ${weekStartISO}`;
 }
 
-function whereSessionDateBetween(firstISO: string, lastISO: string) {
+export function whereSessionDateBetween(firstISO: string, lastISO: string) {
   return sql`${sessionAssignments.sessionDate} >= ${firstISO} AND ${sessionAssignments.sessionDate} <= ${lastISO}`;
 }
 
@@ -549,6 +550,41 @@ export async function getMonthPlan(
     )
     .orderBy(asc(sessionAssignments.sessionDate));
   return rows.map(toPlanItem);
+}
+
+export type DayCompliance = { done: number; total: number };
+
+export async function getTeamMonthCompliance(
+  teamId: string,
+  year: number,
+  month: number,
+): Promise<Record<string, DayCompliance>> {
+  const firstDay = `${year}-${String(month).padStart(2, "0")}-01`;
+  const lastDayNumber = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const lastDay = `${year}-${String(month).padStart(2, "0")}-${String(lastDayNumber).padStart(2, "0")}`;
+
+  const rows = await db
+    .select({
+      sessionDate: sessionAssignments.sessionDate,
+      status: sessionAssignments.status,
+    })
+    .from(sessionAssignments)
+    .innerJoin(teamMembers, eq(teamMembers.athleteId, sessionAssignments.athleteId))
+    .where(
+      and(eq(teamMembers.teamId, teamId), whereSessionDateBetween(firstDay, lastDay)),
+    );
+
+  const byDate: Record<string, DayCompliance> = {};
+  for (const row of rows) {
+    const dateISO = toISO(row.sessionDate);
+    const entry = byDate[dateISO] ?? { done: 0, total: 0 };
+    entry.total += 1;
+    if (row.status === "completed") {
+      entry.done += 1;
+    }
+    byDate[dateISO] = entry;
+  }
+  return byDate;
 }
 
 export async function countWeekAssignments(

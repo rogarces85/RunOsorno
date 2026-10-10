@@ -1,5 +1,6 @@
 import { AthleteCalendar } from "@/components/athlete/AthleteCalendar";
 import { requireRole } from "@/lib/auth/guards";
+import { getMonthFeedback } from "@/lib/services/feedback.service";
 import { getMonthPlan } from "@/lib/services/plan.service";
 
 export const instant = false;
@@ -21,7 +22,10 @@ export default async function AthleteCalendarPage({
   const month = resolveMonth((await searchParams).month);
   const year = Number(month.slice(0, 4));
   const monthNum = Number(month.slice(5, 7));
-  const items = await getMonthPlan(user.id, year, monthNum);
+  const [items, messages] = await Promise.all([
+    getMonthPlan(user.id, year, monthNum),
+    getMonthFeedback(user.id, year, monthNum),
+  ]);
 
   return (
     <div className="row">
@@ -32,7 +36,7 @@ export default async function AthleteCalendarPage({
             {user.name} — tu plan de entrenamiento
           </div>
         </div>
-        <AthleteCalendar items={items} month={month} />
+        <AthleteCalendar items={items} month={month} messages={messages} />
       </div>
     </div>
   );

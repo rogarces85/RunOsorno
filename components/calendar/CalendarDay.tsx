@@ -2,6 +2,13 @@
 
 import { DAY_STATE_META, type CalendarDayState } from "./dayState";
 
+function complianceClass(done: number, total: number): string {
+  const pct = Math.round((done / total) * 100);
+  if (pct >= 80) return "bg-success";
+  if (pct >= 50) return "bg-warning";
+  return "bg-danger";
+}
+
 export function CalendarDay({
   dateISO,
   dayNumber,
@@ -9,6 +16,7 @@ export function CalendarDay({
   isSelected,
   state,
   sessionLabel,
+  compliance,
   onClick,
 }: {
   dateISO: string;
@@ -17,9 +25,14 @@ export function CalendarDay({
   isSelected: boolean;
   state: CalendarDayState;
   sessionLabel?: string;
+  compliance?: { done: number; total: number };
   onClick?: () => void;
 }) {
   const meta = DAY_STATE_META[state];
+  const showCompliance = compliance !== undefined && compliance.total > 0;
+  const pct = showCompliance
+    ? Math.round((compliance.done / compliance.total) * 100)
+    : 0;
 
   return (
     <button
@@ -36,6 +49,16 @@ export function CalendarDay({
         className={`calendar-day-badge ${meta.badgeClass}`}
         title={meta.label}
       />
+      {showCompliance && (
+        <span
+          className={`calendar-day-compliance badge ${complianceClass(compliance.done, compliance.total)}`}
+          data-testid="day-compliance"
+          data-pct={pct}
+          title={`Cumplimiento: ${compliance.done}/${compliance.total}`}
+        >
+          {pct}%
+        </span>
+      )}
       {sessionLabel && (
         <span className="calendar-day-session">{sessionLabel}</span>
       )}

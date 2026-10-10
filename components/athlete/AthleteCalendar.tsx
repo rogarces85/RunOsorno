@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { FeedbackMessage } from "@/lib/services/feedback.service";
 import type { PlanItem } from "@/lib/services/plan.service";
 import { MonthCalendar } from "@/components/calendar/MonthCalendar";
 import { SessionDetailPanel } from "@/components/calendar/SessionDetailPanel";
@@ -9,9 +10,11 @@ import { SessionDetailPanel } from "@/components/calendar/SessionDetailPanel";
 export function AthleteCalendar({
   items,
   month,
+  messages,
 }: {
   items: PlanItem[];
   month: string;
+  messages?: Record<string, FeedbackMessage[]>;
 }) {
   const router = useRouter();
   const [selected, setSelected] = useState<{
@@ -35,6 +38,7 @@ export function AthleteCalendar({
         open={selected !== null}
         dateISO={selected?.dateISO ?? null}
         item={selected?.item ?? null}
+        messages={selected?.item ? (messages?.[selected.item.id] ?? []) : []}
         onClose={() => setSelected(null)}
       />
     </>

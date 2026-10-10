@@ -36,12 +36,16 @@ function parseMonth(value: string): { year: number; month: number } {
 export function MonthCalendar({
   items,
   month,
+  mode = "athlete",
+  compliance,
   selectedDate,
   onMonthChange,
   onDayClick,
 }: {
   items: PlanItem[];
   month?: string;
+  mode?: "athlete" | "coach";
+  compliance?: Record<string, { done: number; total: number }>;
   selectedDate?: string | null;
   onMonthChange?: (monthISO: string) => void;
   onDayClick?: (dateISO: string, item: PlanItem | null) => void;
@@ -87,7 +91,7 @@ export function MonthCalendar({
   const title = monthLabel(view.year, view.month);
 
   return (
-    <div className="card">
+    <div className="card" data-mode={mode}>
       <div className="card-header">
         <h3 className="card-title" data-testid="calendar-month-label">
           {title.charAt(0).toUpperCase() + title.slice(1)}
@@ -141,6 +145,7 @@ export function MonthCalendar({
                 sessionLabel={
                   item?.template ? formatSessionType(item.template.sessionType) : undefined
                 }
+                compliance={compliance?.[dateISO]}
                 onClick={() => onDayClick?.(dateISO, item)}
               />
             );

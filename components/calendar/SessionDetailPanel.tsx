@@ -1,20 +1,28 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { SECTION_TYPE_LABELS } from "@/lib/config/constants";
+import type { FeedbackMessage } from "@/lib/services/feedback.service";
 import type { PlanItem } from "@/lib/services/plan.service";
 import { formatDateChile, toISODate } from "@/lib/utils/date";
 import { formatDistance, formatDuration, formatRpe, formatSessionType } from "@/lib/utils/format";
+import { FeedbackForm } from "./FeedbackForm";
+import { FeedbackThread } from "./FeedbackThread";
 import { DAY_STATE_META, resolveDayState } from "./dayState";
 
 export function SessionDetailPanel({
   open,
   dateISO,
   item,
+  messages,
+  extra,
   onClose,
 }: {
   open: boolean;
   dateISO: string | null;
   item: PlanItem | null;
+  messages?: FeedbackMessage[];
+  extra?: ReactNode;
   onClose: () => void;
 }) {
   if (!open || !dateISO) {
@@ -126,6 +134,15 @@ export function SessionDetailPanel({
                     </>
                   )}
                 </div>
+              )}
+
+              {extra}
+
+              {item && (
+                <>
+                  <FeedbackThread messages={messages ?? []} />
+                  <FeedbackForm assignmentId={item.id} />
+                </>
               )}
             </div>
             <div className="modal-footer">
