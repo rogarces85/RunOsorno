@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 14
+# Sesión — Resumen hasta Fase 15
 
 ## Estado actual
-- **HEAD**: `ef095b8` (Fase 14 completada, commit local sobre `origin/main`)
-- **Push a GitHub**: pendiente — sin credenciales configuradas en esta máquina (repo `rogarces85/RunOsorno`, remoto `origin/main` = `385d62d`)
+- **HEAD**: `0dc02cc` (Fase 15 completada, commit local sobre `origin/main`)
+- **Push a GitHub**: pendiente de credenciales (repo `rogarces85/RunOsorno`, remoto `origin/main` = `385d62d`)
 - **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
-## Fases completadas (1–14)
+## Fases completadas (1–15)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -21,7 +21,8 @@
 | 11 | 4b45502 | Teams coach (CRUD, asignar/quitar atletas con límite, UI) |
 | 12 | b145a12 | Gestión de atletas (schemas, servicios, UI, páginas) |
 | 13 | 4c698b9 | Biblioteca de plantillas (schemas, CRUD/clonar/compartir, editor, tabs) |
-| 14 | ef095b8 | **Plantillas oficiales (Admin)** (ver abajo) |
+| 14 | ef095b8 | Plantillas oficiales (seed 5 oficiales, CRUD admin, `/admin/templates`) |
+| 15 | 0dc02cc | **Planificación semanal** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -46,10 +47,28 @@
 - **Lint/Build**: ✅ (`/admin/templates` registrada) · **Leftovers**: 0
 - **Notas**: seed usa `TemplateSection["type"]` validado; `npm run db:seed` seguro de re-ejecutar
 
-## Próximos pasos
-**Fase 15 — Planificación semanal** (18 tareas en `tasks/mvp.md`): drag & drop plantillas a días, generador ("semana tipo"), copiar semana anterior, multi-asignación a varios atletas.
+## Fase 15 — Planificación semanal (18 tareas ✅)
+- **Schemas** (`plan.schemas.ts`): `assignSessionSchema` (athleteId/templateId/date + `replace` opcional), `bulkAssignSchema` (`min(1)` → "Selecciona al menos un atleta."), `assignmentIdSchema`, `copyWeekSchema`, `generateWeekSchema` (pattern `[{type, count}]`, count 1–7, ≤7 entradas)
+- **Servicio** (`plan.service.ts`):
+  - `assignSession` → día libre crea `status='planned'`; día ocupado retorna `{needsConfirm: true, assignmentId}`
+  - `assignSessionReplace` → borra asignación previa + `session_records` + `session_feedback` (FK) y crea la nueva
+  - `bulkAssign` → valida `canPlanFor` de todos antes de crear; días ocupados se omiten (created/skipped)
+  - `removeAssignment(assignmentId, coachId)` → cascada record+feedback+asignación + auditoría (firma extra `coachId` por seguridad — el task decía solo `assignmentId`)
+  - `copyPreviousWeek` → copia `weekStart-7d` al destino (status `planned`, salta días ocupados); error exacto "No hay semana anterior para copiar"
+  - `generateWeek` → resuelve `type` por templateId visible o `sessionType` (case-insensitive) entre plantillas del coach; distribuye slots en días libres Lunes→Domingo; errores: tipo inexistente / patrón >7 / pocos días libres
+  - `getWeekPlan` / `getMonthPlan` (leftJoin templates + `parseStructure`), `countWeekAssignments`; helpers ISO (weekStart lunes por aritmética UTC)
+  - Permisos: `canPlanFor` de `lib/permissions` en todas las mutaciones; plantilla debe ser visible (`getTemplateVisibility`)
+  - Auditoría: `bulk_assign`, `assignment_removed`, `week_copied`, `week_generated`
+- **Acciones** (`plan.actions.ts`): `assignSessionAction` (usa `replace` → `assignSessionReplace`), `bulkAssignAction`, `removeAssignmentAction`, `copyPreviousWeekAction`, `generateWeekAction` — `role: "coach"`
+- **Verificación**: **26/26 checks de servicio** (`scratch-phase15.ts`: 15.11–15.18 + lecturas 15.8/15.9 + cascadas + redondeo de fechas) — sin E2E (UI drag & drop llega en Fase 19)
+- **Lint/Build**: ✅ · **Leftovers**: 0
+- **⚠️ Trampa de fechas (CRÍTICO para fases 16-21)**: columnas `date` de Drizzle/MySQL **leen** como `Date` (UTC midnight) pero **`eq/gte/lte` con params `Date` no matchean** (mysql2 serializa param con hora → `DATE = '2026-10-06 12:00:00'` = false). **Regla**: en WHERE usar `sql\`${col} = ${isoStr}\`` con string "YYYY-MM-DD" (probado OK); en INSERT usar `Date` local-noon (`new Date(y, m-1, d, 12)`) — round-trip correcto. Leer vía `.toISOString().slice(0,10)`.
+- **Cuentas prueba**: `p15.*@test.local` creadas y eliminadas por el script (cleanup al inicio y al final)
 
-Luego **Fase 16 — Calendario base**.
+## Próximos pasos
+**Fase 16 — Calendario base** (8 tareas en `tasks/mvp.md`).
+
+Luego: 17. Calendario atleta, 18. Calendario coach, 19. Drag & drop (UI de la Fase 15).
 
 ## Para continuar en otro PC
 ```bash
@@ -75,3 +94,4 @@ npm run dev
 - Verificación por fase: script `npx tsx scratch-*.ts` (servicios) + Playwright E2E (chromium)
 - Scripts scratch se eliminan al cerrar la fase (leftovers: 0)
 - Commits en español sin acentos; push pendiente de credenciales
+- **Fechas en Drizzle**: WHERE con columnas `date` → SIEMPRE `sql` + string ISO (nunca params `Date`); INSERT con `Date` local-noon
