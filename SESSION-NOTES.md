@@ -1,8 +1,8 @@
 # Sesión — Resumen hasta Fase 15
 
 ## Estado actual
-- **HEAD**: `0dc02cc` (Fase 15 completada, commit local sobre `origin/main`)
-- **Push a GitHub**: pendiente de credenciales (repo `rogarces85/RunOsorno`, remoto `origin/main` = `385d62d`)
+- **HEAD**: `bcb5593` (Fase 15 completada)
+- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–15 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
 ## Fases completadas (1–15)
@@ -93,5 +93,5 @@ npm run dev
 - `RESEND_API_KEY` vacío → emails en dev log (`[email:dev]`)
 - Verificación por fase: script `npx tsx scratch-*.ts` (servicios) + Playwright E2E (chromium)
 - Scripts scratch se eliminan al cerrar la fase (leftovers: 0)
-- Commits en español sin acentos; push pendiente de credenciales
+- Commits en español sin acentos; push a `origin/main` cuando haya commits nuevos
 - **Fechas en Drizzle**: WHERE con columnas `date` → SIEMPRE `sql` + string ISO (nunca params `Date`); INSERT con `Date` local-noon
