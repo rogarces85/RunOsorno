@@ -359,22 +359,22 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 20. Registro de sesiones — Atleta
 
-- [ ] 20.1 Crear esquema Zod `recordSessionSchema` (assignmentId, distanceKm, durationMinutes, rpe opcional, comments opcional, status enum) en `lib/validations/session.schemas.ts`
-- [ ] 20.2 Crear esquema Zod `notDoneSchema` (assignmentId, reason enum, customReason opcional) con refine: si reason='otro' → customReason requerido
-- [ ] 20.3 Crear `session.service.ts` con `canEditRecord(assignmentId, userId)` — verifica: es el atleta dueño, fecha pasada (no futura), dentro de ventana de edición (settings `edit_window_hours`, default 48h)
-- [ ] 20.4 Crear servicio con `recordSession(data, athleteId)` — crea `session_records`, actualiza `session_assignments.status` a 'completed' o 'partial'
-- [ ] 20.5 Crear servicio con `markNotDone(data, athleteId)` — crea registro con motivo, setea status='not_done'
-- [ ] 20.6 Crear servicio con `getRecord(assignmentId)` — retorna registro existente
-- [ ] 20.7 Crear Server Actions: `recordSession`, `markNotDone`
-- [ ] 20.8 Integrar auditoría: registrar `session_recorded` con datos del registro
-- [ ] 20.9 Verificar: registrar sesión con distancia+tiempo → status cambia a 'completed', día se pone verde
-- [ ] 20.10 Verificar: registrar con datos parciales → status 'partial', día amarillo
-- [ ] 20.11 Verificar: marcar "no realizada" con motivo predefinido → status 'not_done', día rojo
-- [ ] 20.12 Verificar: marcar "Otro" sin descripción → error "Describe el motivo"
-- [ ] 20.13 Verificar: RPE fuera de 1-10 → error de validación
-- [ ] 20.14 Verificar: intentar registrar sesión futura → error "No puedes registrar sesiones de días futuros"
-- [ ] 20.15 Verificar: intentar editar registro fuera de ventana 48h → error "La ventana de edición ha expirado"
-- [ ] 20.16 Verificar: sin distancia/tiempo al marcar completada → error "La distancia y el tiempo son requeridos"
+- [x] 20.1 Crear esquema Zod `recordSessionSchema` (assignmentId, distanceKm, durationMinutes, rpe opcional, comments opcional, status enum) en `lib/validations/session.schemas.ts`
+- [x] 20.2 Crear esquema Zod `notDoneSchema` (assignmentId, reason enum, customReason opcional) con refine: si reason='otro' → customReason requerido
+- [x] 20.3 Crear `session.service.ts` con `canEditRecord(assignmentId, userId)` — verifica: es el atleta dueño, fecha pasada (no futura), dentro de ventana de edición (settings `edit_window_hours`, default 48h)
+- [x] 20.4 Crear servicio con `recordSession(data, athleteId)` — crea `session_records`, actualiza `session_assignments.status` a 'completed' o 'partial'
+- [x] 20.5 Crear servicio con `markNotDone(data, athleteId)` — crea registro con motivo, setea status='not_done'
+- [x] 20.6 Crear servicio con `getRecord(assignmentId)` — retorna registro existente
+- [x] 20.7 Crear Server Actions: `recordSession`, `markNotDone`
+- [x] 20.8 Integrar auditoría: registrar `session_recorded` con datos del registro
+- [x] 20.9 Verificar: registrar sesión con distancia+tiempo → status cambia a 'completed', día se pone verde
+- [x] 20.10 Verificar: registrar con datos parciales → status 'partial', día amarillo
+- [x] 20.11 Verificar: marcar "no realizada" con motivo predefinido → status 'not_done', día rojo
+- [x] 20.12 Verificar: marcar "Otro" sin descripción → error "Describe el motivo"
+- [x] 20.13 Verificar: RPE fuera de 1-10 → error de validación
+- [x] 20.14 Verificar: intentar registrar sesión futura → error "No puedes registrar sesiones de días futuros"
+- [x] 20.15 Verificar: intentar editar registro fuera de ventana 48h → error "La ventana de edición ha expirado"
+- [x] 20.16 Verificar: sin distancia/tiempo al marcar completada → error "La distancia y el tiempo son requeridos"
 
 ---
 
@@ -857,7 +857,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 17. Calendario — Atleta | 6 | 6 |
 | 18. Calendario — Coach | 8 | 8 |
 | 19. Drag & drop y planificación | 15 | 15 |
-| 20. Registro de sesiones | 16 | 0 |
+| 20. Registro de sesiones | 16 | 16 |
 | 21. Formulario registro (UI) | 10 | 0 |
 | 22. Feedback en sesiones | 10 | 8 |
 | 23. Notificaciones in-app | 17 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **264** |
+| **TOTAL** | **~578** | **280** |

@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 19
+# Sesión — Resumen hasta Fase 20
 
 ## Estado actual
-- **HEAD**: `c048073` (Fase 19 completada)
-- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–19 subidas; credenciales disponibles en este equipo)
+- **HEAD**: `7961db3` (Fase 20 completada)
+- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–20 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
-## Fases completadas (1–19)
+## Fases completadas (1–20)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -27,6 +27,7 @@
 | 17 | 89387e6 | **Calendario vista atleta** (ver abajo) |
 | 18 | 7bedfb7 | **Calendario vista coach + feedback** (ver abajo) |
 | 19 | c048073 | **Drag & drop y herramientas de planificación** (ver abajo) |
+| 20 | 7961db3 | **Registro de sesiones** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -131,10 +132,27 @@
   - **Localizadores Playwright**: el texto "Copiar semana anterior" existe en el botón Y en el título del diálogo → usar `.modal.show h5:has-text(...)` (strict mode)
   - DnD con Playwright: `mouse.down` → move +40px (supera `distance:6`) → move al día → `mouse.up`; `scrollIntoViewIfNeeded` antes de medir bboxes
 
-## Próximos pasos
-**Fase 20 — Registro de sesiones** (16 tareas en `tasks/mvp.md`).
+## Fase 20 — Registro de sesiones (16 tareas ✅)
+- **Esquemas** `lib/validations/session.schemas.ts`:
+  - `recordSessionSchema`: assignmentId uuid, distanceKm opcional (0.01–1000), durationMinutes opcional (1–1440), rpe opcional (1–10), comments opcional (≤2000), `status: z.enum(["completed","partial"])` + `superRefine`: completed exige distance **y** duration → "La distancia y el tiempo son requeridos"; partial exige ≥1 dato
+  - `notDoneSchema`: assignmentId uuid, `reason: z.enum(DEFAULT_NOT_DONE_REASONS)` (lesion/trabajo/enfermedad/personal/otro), customReason opcional + `superRefine`: reason='otro' sin customReason → **"Describe el motivo"**
+- **`lib/services/session.service.ts`**:
+  - `assertEditable(assignmentId, athleteId)` interno: sesión existe ("Sesión no encontrada") → dueño ("No puedes registrar esta sesión") → fecha no futura (**"No puedes registrar sesiones de días futuros"**) → si hay registro, ventana `edit_window_hours` vía `getNumberSetting` default 48h (**"La ventana de edición ha expirado"**)
+  - `canEditRecord(assignmentId, userId)` (20.3) — `permissions.canEditRecord(user, assignmentId)` ahora **delega** aquí (solo retorna false si role≠athlete); única fuente de verdad
+  - `recordSession(data, athleteId)` (20.4): upsert `session_records` (edita si existe, limpia `notDoneReason`), setea `session_assignments.status` = 'completed' | 'partial', audit `session_recorded` con datos
+  - `markNotDone(data, athleteId)` (20.5): upsert con motivo (customReason solo si 'otro'), null distance/duration/rpe, status 'not_done', audit `session_recorded`
+  - `getRecord(assignmentId)` (20.6) → fila | null
+- **Actions** `lib/actions/session.actions.ts` (20.7): `recordSessionAction` / `markNotDoneAction` con `role: "athlete"`; errores de servicio vía `ActionFailure` (los fallos de esquema salen como "Datos inválidos" — patrón `runAction` de todo el proyecto)
+- **Verificación**: **19/19 checks de servicio/esquema** (`scratch-p20.ts`, fixtures `p20-*` UUID + cleanup FK records→feedback→assignments→users): 20.9 (completed + día verde + getRecord + audit), 20.10 (partial amarillo), 20.11 (not_done rojo + motivo), re-registro limpia motivo, 20.12 ("Describe el motivo"), 20.13 (RPE 0/11 fallan, 10 ok), 20.14 (futuro + canEditRecord false), 20.15 (49h backdate → expirado), 20.16 (sin datos → mensaje exacto), permisos (dueña ok / otro atleta / no autorizado) — sin E2E UI (el formulario llega en Fase 21)
+- **Lint/Build**: ✅ · **Leftovers**: 0
+- **Notas**:
+  - **Orden de cleanup FK**: `session_records` y `session_feedback` referencian `session_assignments` → borrarlos ANTES que assignments (además de audit/notifications/users ya anotados en Fase 19)
+  - Colores de día verificados importando `resolveDayState` directamente en el script (mismo código que usa la UI)
 
-Luego: 21. Formulario registro (UI), 22 (22.9/22.10), 23. Notificaciones in-app.
+## Próximos pasos
+**Fase 21 — Formulario de registro (UI)** (10 tareas en `tasks/mvp.md`).
+
+Luego: 22 (22.9/22.10), 23. Notificaciones in-app, 24. Notificaciones email.
 
 ## Para continuar en otro PC
 ```bash
