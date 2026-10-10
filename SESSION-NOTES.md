@@ -1,9 +1,9 @@
 # Sesión — Resumen hasta Fase 13
 
 ## Estado actual
-- **HEAD local**: pendiente (esta copia no tenía `.git`; se inicializa y se commitea localmente)
-- **Push a GitHub**: pendiente — sin credenciales configuradas en esta máquina (repo `rogarces85/RunOsorno`, último remoto conocido `b145a12`)
-- **Trabajo limpio**: lint + build ✅ · leftovers 0
+- **HEAD**: `4c698b9` (Fase 13 completada, commit local sobre `origin/main`)
+- **Push a GitHub**: pendiente — sin credenciales configuradas en esta máquina (repo `rogarces85/RunOsorno`, remoto `origin/main` = `385d62d`)
+- **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
 ## Fases completadas (1–13)
 | Fase | Commit | Descripción |
@@ -20,7 +20,7 @@
 | 10 | 768eb34 | Coach ↔ grupo (grupos disponibles, solicitud unión) |
 | 11 | 4b45502 | Teams coach (CRUD, asignar/quitar atletas con límite, UI) |
 | 12 | b145a12 | Gestión de atletas (schemas, servicios, UI, páginas) |
-| 13 | _ver historial local_ | **Biblioteca de plantillas** (ver abajo) |
+| 13 | 4c698b9 | **Biblioteca de plantillas** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Constantes**: `SECTION_TYPES` + `SECTION_TYPE_LABELS` (7 tipos) en `lib/config/constants.ts`
