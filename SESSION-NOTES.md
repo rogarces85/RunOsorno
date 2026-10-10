@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 17
+# Sesión — Resumen hasta Fase 18
 
 ## Estado actual
-- **HEAD**: `89387e6` (Fase 17 completada)
-- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–17 subidas; credenciales disponibles en este equipo)
+- **HEAD**: `7bedfb7` (Fase 18 completada)
+- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–18 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
-## Fases completadas (1–17)
+## Fases completadas (1–18)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -25,6 +25,7 @@
 | 15 | 0dc02cc | **Planificación semanal** (ver abajo) |
 | 16 | 24bc5eb | **Calendario base** (ver abajo) |
 | 17 | 89387e6 | **Calendario vista atleta** (ver abajo) |
+| 18 | 7bedfb7 | **Calendario vista coach + feedback** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -91,10 +92,29 @@
   - Fixture `planned` debe evitar el día de hoy (hoy → estado `in_progress` cyan); script usó `PLANNED_DAY = hoy==10 ? 11 : 10`
   - INSERT de fixtures: `sessionDate` con `Date` local-noon (regla Drizzle/MySQL)
 
-## Próximos pasos
-**Fase 18 — Calendario vista Coach** (8 tareas en `tasks/mvp.md`).
+## Fase 18 — Calendario vista Coach + Feedback (8 tareas ✅ + 8 de Fase 22)
+- **Selector** `app/(app)/coach/calendar/page.tsx` (RSC): sin `?team=` → cards de teams (`getTeamsByCoach`) con link `?team=ID`; con `?team=` → valida propiedad + cards de atletas (`getTeamAthletes`) con link a `/coach/calendar/[teamId]/[athleteId]`
+- **Detalle** `app/(app)/coach/calendar/[teamId]/[athleteId]/page.tsx` (RSC): `canManageTeam` + `canPlanFor` + miembro del team (si no → `notFound()`); `Promise.all([getMonthPlan, getTeamMonthCompliance, getTemplatesByCoach, getMonthFeedback])`; lee `?month=`
+- **`CoachCalendar.tsx`** (Client): `MonthCalendar mode="coach"` + compliance + panel con `messages` + `extra` = `AssignTemplateForm`; nav mes → `router.replace(/coach/calendar/[teamId]/[athleteId]?month=...)`
+- **`AssignTemplateForm`** (18.3): select de plantillas visibles + "Asignar" → `assignSessionAction`; `needsConfirm` → alerta inline "¿Reemplazar la plantilla existente?" (`[data-testid="assign-confirm"]`) → `replace:true`; éxito → `router.refresh()` + cierra panel
+- **Cumplimiento diario** (18.4): `getTeamMonthCompliance(teamId, year, month)` en `plan.service` — join `team_members` + `session_assignments` en el mes → `Record<dateISO, {done,total}>`; **`done` = status `completed` estricto** (parcial NO cuenta — coherente con `calcCompliance` fase 25); badge en `CalendarDay` `[data-testid="day-compliance"]` `data-pct`, color ≥80 verde / ≥50 amarillo / <50 rojo
+- **`MonthCalendar`**: props `mode?: "athlete"|"coach"` (atributo `data-mode` en card) + `compliance?: Record<...>`
+- **Feedback (22.1–22.8 adelantado)**:
+  - `lib/validations/session.schemas.ts`: `feedbackSchema` (assignmentId, message trim 1–2000)
+  - `lib/services/feedback.service.ts`: `addFeedback` (permiso: atleta dueño ∨ coach `canPlanFor` ∨ admin; error "No puedes comentar en esta sesión"), `getFeedback(assignmentId)`, `getMonthFeedback(athleteId, year, month)` → `Record<assignmentId, FeedbackMessage[]>`
+  - `lib/actions/feedback.actions.ts`: `addFeedbackAction` (sin `role` — permiso en servicio)
+  - `FeedbackThread` (autor + badge rol + fecha) + `FeedbackForm` (textarea + Enviar → `router.refresh()`) integrados en `SessionDetailPanel` (ambos roles vía prop `messages`)
+- **Verificación**: **32/32 checks E2E** (`scratch-p18.ts`, fixtures `p18-*` + cleanup por atletas de prueba): 18.1 selector team→atleta, 18.3 modo coach/asignar/confirmar reemplazo (verificación con reintentos por `router.refresh`), 18.7 badges 100/50/0/100 + colores, 18.8 registro real, 18.5+22.5–22.7 feedback form/thread, 22.8 atleta ve feedback del coach (2do contexto Playwright)
+- **Lint/Build**: ✅ · **Leftovers**: 0
+- **Notas**:
+  - **Limpieza de fixtures**: los assigns creados por UI tienen id aleatorio — `LIKE 'p18-%'` NO los limpia (fuga entre corridas → día ocupado → `needsConfirm` inesperado). Limpiar por `athleteId` de las cuentas de prueba
+  - La UI creada por fase 18 (asignar plantillas) no era parte de la fase 19 drag&drop — fase 19 añadirá DnD + WeekGenerator + copiar semana + multi-asignación sobre este mismo calendario
+  - **Fase 22 pendiente**: 22.9 (feedback → notificación no leída) y 22.10 (verificar comentario del atleta)
 
-Luego: 19. Drag & drop (UI de la Fase 15).
+## Próximos pasos
+**Fase 19 — Drag & drop y herramientas de planificación** (15 tareas en `tasks/mvp.md`; instala `@dnd-kit`).
+
+Luego: 20. Registro de sesiones atleta, 21. Formulario registro UI, 22 (22.9/22.10), 23. Notificaciones.
 
 ## Para continuar en otro PC
 ```bash

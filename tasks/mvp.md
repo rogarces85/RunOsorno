@@ -326,14 +326,14 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 18. Calendario — Vista Coach
 
-- [ ] 18.1 Crear página `app/(app)/coach/calendar/page.tsx` — selector de Team → Atleta → calendario
-- [ ] 18.2 Crear página `app/(app)/coach/calendar/[teamId]/[athleteId]/page.tsx` (RSC) — carga plan del atleta seleccionado
-- [ ] 18.3 Renderizar `MonthCalendar` en modo edición (coach puede asignar plantillas)
-- [ ] 18.4 Implementar badge de cumplimiento por día: % de atletas del team que completaron esa sesión
-- [ ] 18.5 Al hacer click en día → `SessionDetailPanel` muestra registro real del atleta + campo de feedback
-- [ ] 18.6 Verificar: coach ve calendario de cada atleta de su team
-- [ ] 18.7 Verificar: badges de cumplimiento muestran porcentaje correcto
-- [ ] 18.8 Verificar: click en sesión completada muestra registro real (distancia, tiempo, RPE, comentarios)
+- [x] 18.1 Crear página `app/(app)/coach/calendar/page.tsx` — selector de Team → Atleta → calendario
+- [x] 18.2 Crear página `app/(app)/coach/calendar/[teamId]/[athleteId]/page.tsx` (RSC) — carga plan del atleta seleccionado
+- [x] 18.3 Renderizar `MonthCalendar` en modo edición (coach puede asignar plantillas)
+- [x] 18.4 Implementar badge de cumplimiento por día: % de atletas del team que completaron esa sesión
+- [x] 18.5 Al hacer click en día → `SessionDetailPanel` muestra registro real del atleta + campo de feedback
+- [x] 18.6 Verificar: coach ve calendario de cada atleta de su team
+- [x] 18.7 Verificar: badges de cumplimiento muestran porcentaje correcto
+- [x] 18.8 Verificar: click en sesión completada muestra registro real (distancia, tiempo, RPE, comentarios)
 
 ---
 
@@ -395,14 +395,14 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 22. Feedback en sesiones (Coach)
 
-- [ ] 22.1 Crear esquema Zod `feedbackSchema` (assignmentId, message)
-- [ ] 22.2 Crear servicio con `addFeedback(assignmentId, authorId, message)` — crea `session_feedback`
-- [ ] 22.3 Crear servicio con `getFeedback(assignmentId)` — retorna mensajes ordenados por fecha
-- [ ] 22.4 Crear Server Action `addFeedback` — verifica permiso (coach dueño o atleta dueño)
-- [ ] 22.5 Crear componente `FeedbackForm` — textarea + botón enviar
-- [ ] 22.6 Crear componente `FeedbackThread` — lista de mensajes (coach y atleta) con autor y fecha
-- [ ] 22.7 Integrar `FeedbackThread` + `FeedbackForm` en `SessionDetailPanel` para ambos roles
-- [ ] 22.8 Verificar: coach deja feedback en sesión → atleta lo ve en su panel de detalle
+- [x] 22.1 Crear esquema Zod `feedbackSchema` (assignmentId, message)
+- [x] 22.2 Crear servicio con `addFeedback(assignmentId, authorId, message)` — crea `session_feedback`
+- [x] 22.3 Crear servicio con `getFeedback(assignmentId)` — retorna mensajes ordenados por fecha
+- [x] 22.4 Crear Server Action `addFeedback` — verifica permiso (coach dueño o atleta dueño)
+- [x] 22.5 Crear componente `FeedbackForm` — textarea + botón enviar
+- [x] 22.6 Crear componente `FeedbackThread` — lista de mensajes (coach y atleta) con autor y fecha
+- [x] 22.7 Integrar `FeedbackThread` + `FeedbackForm` en `SessionDetailPanel` para ambos roles
+- [x] 22.8 Verificar: coach deja feedback en sesión → atleta lo ve en su panel de detalle
 - [ ] 22.9 Verificar: atleta ve feedback del coach → marcado como no leído en notificaciones
 - [ ] 22.10 Verificar: atleta también puede comentar en la sesión (pregunta al coach)
 
@@ -855,11 +855,11 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 15. Planificación semanal | 18 | 18 |
 | 16. Calendario — Base | 8 | 8 |
 | 17. Calendario — Atleta | 6 | 6 |
-| 18. Calendario — Coach | 8 | 0 |
+| 18. Calendario — Coach | 8 | 8 |
 | 19. Drag & drop y planificación | 15 | 0 |
 | 20. Registro de sesiones | 16 | 0 |
 | 21. Formulario registro (UI) | 10 | 0 |
-| 22. Feedback en sesiones | 10 | 0 |
+| 22. Feedback en sesiones | 10 | 8 |
 | 23. Notificaciones in-app | 17 | 0 |
 | 24. Notificaciones email | 8 | 0 |
 | 25. Métricas — Cálculo | 15 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **233** |
+| **TOTAL** | **~578** | **249** |
