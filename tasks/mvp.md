@@ -235,33 +235,33 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 13. Módulo Coach — Biblioteca de plantillas
 
-- [ ] 13.1 Crear esquema Zod `templateSchema` (name, sessionType, structure array de secciones) en `lib/validations/template.schemas.ts`
-- [ ] 13.2 Crear esquema Zod `sectionSchema` (id, order, title, type ENUM, content) — al menos 1 sección requerida
-- [ ] 13.3 Crear `template.service.ts` con `createTemplate(coachId, data)` — crea plantilla privada
-- [ ] 13.4 Crear servicio con `updateTemplate(id, data)` — solo plantilla propia (no oficial, no de otro coach)
-- [ ] 13.5 Crear servicio con `deleteTemplate(id)` — verifica que no tenga `session_assignments` activos; si tiene, retorna error
-- [ ] 13.6 Crear servicio con `cloneTemplate(sourceId, coachId, newName)` — duplica como plantilla propia, estructura copiada
-- [ ] 13.7 Crear servicio con `shareTemplate(id, groupId)` — setea `is_shared=true`, `group_id`
-- [ ] 13.8 Crear servicio con `unshareTemplate(id)` — setea `is_shared=false`
-- [ ] 13.9 Crear servicio con `getTemplatesByCoach(coachId)` — propias + oficiales + compartidas del grupo
-- [ ] 13.10 Crear servicio con `getTemplateVisibility(template, user)` — determina si el usuario puede ver/editar/clonar
-- [ ] 13.11 Crear Server Actions: `createTemplate`, `updateTemplate`, `deleteTemplate`, `cloneTemplate`, `shareTemplate`, `unshareTemplate`
-- [ ] 13.12 Verificar: plantilla privada solo visible para su creador
-- [ ] 13.13 Verificar: plantilla compartida visible y clonable para coaches del grupo (no editable)
-- [ ] 13.14 Verificar: plantilla oficial clonable pero no editable directamente
-- [ ] 13.15 Verificar: no se puede guardar plantilla vacía (nombre + al menos 1 sección con contenido)
-- [ ] 13.16 Verificar: eliminar plantilla con asignaciones activas → retorna error
-- [ ] 13.17 Crear componente `TemplateList` — grid de cards de plantillas con tabs (mías, oficiales, grupo)
-- [ ] 13.18 Crear componente `TemplateCard` — card con nombre, tipo, acciones (editar, clonar, compartir, eliminar)
-- [ ] 13.19 Crear componente `SectionEditor` — editor de sección: título, tipo, contenido; reordenable (arriba/abajo), eliminar sección, añadir sección
-- [ ] 13.20 Crear componente `TemplateEditor` — formulario completo: nombre, tipo de sesión, lista de secciones editables
-- [ ] 13.21 Crear página `app/(app)/coach/templates/page.tsx` — biblioteca con listado y botón nueva plantilla
-- [ ] 13.22 Crear página `app/(app)/coach/templates/new/page.tsx` — formulario de creación
-- [ ] 13.23 Crear página `app/(app)/coach/templates/[id]/page.tsx` — formulario de edición
-- [ ] 13.24 Verificar: coach crea plantilla con estructura (calentamiento + específico + enfriamiento) → se guarda correctamente
-- [ ] 13.25 Verificar: coach edita plantilla → cambios persisten
-- [ ] 13.26 Verificar: coach clona plantilla oficial → aparece como plantilla propia editable
-- [ ] 13.27 Verificar: coach comparte plantilla → otro coach del grupo la ve y puede clonar
+- [x] 13.1 Crear esquema Zod `templateSchema` (name, sessionType, structure array de secciones) en `lib/validations/template.schemas.ts`
+- [x] 13.2 Crear esquema Zod `sectionSchema` (id, order, title, type ENUM, content) — al menos 1 sección requerida
+- [x] 13.3 Crear `template.service.ts` con `createTemplate(coachId, data)` — crea plantilla privada
+- [x] 13.4 Crear servicio con `updateTemplate(id, data)` — solo plantilla propia (no oficial, no de otro coach)
+- [x] 13.5 Crear servicio con `deleteTemplate(id)` — verifica que no tenga `session_assignments` activos; si tiene, retorna error
+- [x] 13.6 Crear servicio con `cloneTemplate(sourceId, coachId, newName)` — duplica como plantilla propia, estructura copiada
+- [x] 13.7 Crear servicio con `shareTemplate(id, groupId)` — setea `is_shared=true`, `group_id`
+- [x] 13.8 Crear servicio con `unshareTemplate(id)` — setea `is_shared=false`
+- [x] 13.9 Crear servicio con `getTemplatesByCoach(coachId)` — propias + oficiales + compartidas del grupo
+- [x] 13.10 Crear servicio con `getTemplateVisibility(template, user)` — determina si el usuario puede ver/editar/clonar
+- [x] 13.11 Crear Server Actions: `createTemplate`, `updateTemplate`, `deleteTemplate`, `cloneTemplate`, `shareTemplate`, `unshareTemplate`
+- [x] 13.12 Verificar: plantilla privada solo visible para su creador
+- [x] 13.13 Verificar: plantilla compartida visible y clonable para coaches del grupo (no editable)
+- [x] 13.14 Verificar: plantilla oficial clonable pero no editable directamente
+- [x] 13.15 Verificar: no se puede guardar plantilla vacía (nombre + al menos 1 sección con contenido)
+- [x] 13.16 Verificar: eliminar plantilla con asignaciones activas → retorna error
+- [x] 13.17 Crear componente `TemplateList` — grid de cards de plantillas con tabs (mías, oficiales, grupo)
+- [x] 13.18 Crear componente `TemplateCard` — card con nombre, tipo, acciones (editar, clonar, compartir, eliminar)
+- [x] 13.19 Crear componente `SectionEditor` — editor de sección: título, tipo, contenido; reordenable (arriba/abajo), eliminar sección, añadir sección
+- [x] 13.20 Crear componente `TemplateEditor` — formulario completo: nombre, tipo de sesión, lista de secciones editables
+- [x] 13.21 Crear página `app/(app)/coach/templates/page.tsx` — biblioteca con listado y botón nueva plantilla
+- [x] 13.22 Crear página `app/(app)/coach/templates/new/page.tsx` — formulario de creación
+- [x] 13.23 Crear página `app/(app)/coach/templates/[id]/page.tsx` — formulario de edición
+- [x] 13.24 Verificar: coach crea plantilla con estructura (calentamiento + específico + enfriamiento) → se guarda correctamente
+- [x] 13.25 Verificar: coach edita plantilla → cambios persisten
+- [x] 13.26 Verificar: coach clona plantilla oficial → aparece como plantilla propia editable
+- [x] 13.27 Verificar: coach comparte plantilla → otro coach del grupo la ve y puede clonar
 
 ---
 
@@ -838,19 +838,19 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 | Fase | Tareas | Completadas |
 |------|--------|-------------|
-| 1. Preparación del proyecto | 10 | 0 |
-| 2. Layout y estructura base | 10 | 0 |
-| 3. Base de datos y modelos | 24 | 0 |
-| 4. Autenticación y sesión | 16 | 0 |
-| 5. Permisos y roles | 9 | 0 |
-| 6. Server Actions base | 6 | 0 |
-| 7. Admin — Coaches | 17 | 0 |
-| 8. Email (Resend) | 12 | 0 |
-| 9. Admin — Grupos | 22 | 0 |
-| 10. Coach — Unirse a grupo | 5 | 0 |
-| 11. Coach — Teams | 19 | 0 |
-| 12. Gestión de atletas | 17 | 0 |
-| 13. Coach — Plantillas | 27 | 0 |
+| 1. Preparación del proyecto | 10 | 10 |
+| 2. Layout y estructura base | 10 | 10 |
+| 3. Base de datos y modelos | 24 | 24 |
+| 4. Autenticación y sesión | 16 | 16 |
+| 5. Permisos y roles | 9 | 9 |
+| 6. Server Actions base | 6 | 6 |
+| 7. Admin — Coaches | 17 | 17 |
+| 8. Email (Resend) | 12 | 12 |
+| 9. Admin — Grupos | 22 | 22 |
+| 10. Coach — Unirse a grupo | 5 | 5 |
+| 11. Coach — Teams | 19 | 19 |
+| 12. Gestión de atletas | 17 | 17 |
+| 13. Coach — Plantillas | 27 | 27 |
 | 14. Plantillas oficiales | 7 | 0 |
 | 15. Planificación semanal | 18 | 0 |
 | 16. Calendario — Base | 8 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~566** | **0** |
+| **TOTAL** | **~578** | **194** |

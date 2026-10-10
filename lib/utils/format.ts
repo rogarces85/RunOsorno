@@ -1,3 +1,5 @@
+import { SESSION_TYPE_LABELS } from "@/lib/config/constants";
+
 export function formatDistance(km: number | string | null | undefined): string {
   if (km === null || km === undefined) {
     return "—";
@@ -29,4 +31,13 @@ export function formatRpe(rpe: number | null | undefined): string {
     return "—";
   }
   return `${rpe}/10`;
+}
+
+export function formatSessionType(value: string | null | undefined): string {
+  if (!value) {
+    return "—";
+  }
+  const trimmed = value.trim();
+  const key = trimmed.toLowerCase() as keyof typeof SESSION_TYPE_LABELS;
+  return SESSION_TYPE_LABELS[key] ?? trimmed;
 }

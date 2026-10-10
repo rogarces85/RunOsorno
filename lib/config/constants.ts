@@ -39,6 +39,28 @@ export const SESSION_TYPE_LABELS: Record<BaseSessionType, string> = {
   descanso: "Descanso",
 };
 
+export const SECTION_TYPES = [
+  "warmup",
+  "main",
+  "cooldown",
+  "stretching",
+  "recovery",
+  "strength",
+  "custom",
+] as const;
+
+export type SectionType = (typeof SECTION_TYPES)[number];
+
+export const SECTION_TYPE_LABELS: Record<SectionType, string> = {
+  warmup: "Calentamiento",
+  main: "Entrenamiento específico",
+  cooldown: "Enfriamiento",
+  stretching: "Estiramientos",
+  recovery: "Recuperación",
+  strength: "Musculación",
+  custom: "Personalizado",
+};
+
 export const DEFAULT_NOT_DONE_REASONS = [
   "lesion",
   "trabajo",

@@ -509,3 +509,16 @@ export async function getAvailableGroups(
     )
     .orderBy(groups.name);
 }
+
+export async function getMyGroups(userId: string): Promise<GroupBasic[]> {
+  return db
+    .select({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+    })
+    .from(groupMembers)
+    .innerJoin(groups, eq(groupMembers.groupId, groups.id))
+    .where(eq(groupMembers.userId, userId))
+    .orderBy(groups.name);
+}

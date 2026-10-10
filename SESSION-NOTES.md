@@ -1,10 +1,11 @@
-# Sesión — Resumen hasta Fase 12
+# Sesión — Resumen hasta Fase 13
 
 ## Estado actual
-- **HEAD**: `b145a12` (Fase 12 completada y pusheada a `rogarces85/RunOsorno` main)
-- **Trabajo limpio**: `git status` → sin cambios pendientes
+- **HEAD local**: pendiente (esta copia no tenía `.git`; se inicializa y se commitea localmente)
+- **Push a GitHub**: pendiente — sin credenciales configuradas en esta máquina (repo `rogarces85/RunOsorno`, último remoto conocido `b145a12`)
+- **Trabajo limpio**: lint + build ✅ · leftovers 0
 
-## Fases completadas (1–12)
+## Fases completadas (1–13)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -18,33 +19,33 @@
 | 9 | 5e372e6 | Admin grupos (CRUD, aprobaciones, métricas, Director Técnico) |
 | 10 | 768eb34 | Coach ↔ grupo (grupos disponibles, solicitud unión) |
 | 11 | 4b45502 | Teams coach (CRUD, asignar/quitar atletas con límite, UI) |
-| 12 | b145a12 | **Gestión de atletas** (ver abajo) |
+| 12 | b145a12 | Gestión de atletas (schemas, servicios, UI, páginas) |
+| 13 | _ver historial local_ | **Biblioteca de plantillas** (ver abajo) |
 
-## Fase 12 — Gestión de atletas (17 tareas ✅)
-- **Validación**: `athlete.schemas.ts` (create/update/transfer con refine)
-- **Servicios** (`athlete.service.ts`):
-  - `createAthlete`: usuario role athlete + pwd temporal + perfil + team + auditoría + email bienvenida
-  - `getAthletesByCoach` / `getAthleteDetail` (perfil, teams, último registro, cumplimiento; seguridad de rol)
-  - `getAllAthletes` (filtros coach/team/grupo/estado)
-  - `updateAthleteProfile` (coach dueño)
-  - `transferAthlete` (admin, origen→destino + auditoría)
-  - `getOrphanAthletes`
-- **Acciones** (`athlete.actions.ts`): create/update (coach), transfer (admin)
-- **UI**: `AthletesList`, `AthleteForm` (alta/edición, tempPassword visible), `TransferDialog`
-- **Páginas**: `/coach/athletes`, `/coach/athletes/[id]`, `/admin/athletes` (filtros GET)
-- **Checks**: 27 servicios + 10 E2E = **37/37 OK**
+## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
+- **Constantes**: `SECTION_TYPES` + `SECTION_TYPE_LABELS` (7 tipos) en `lib/config/constants.ts`
+- **Validación** (`template.schemas.ts`): `sectionSchema` (id/order opcionales, title ≤100, type enum, content 1–2000), `templateSchema` (name, sessionType ≤50 libre, `structure.min(1)`), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema`
+- **Servicio** (`template.service.ts`):
+  - `createTemplate` / `updateTemplate` (solo propia, no oficial) / `deleteTemplate` (bloquea si hay `session_assignments`)
+  - `cloneTemplate` (visible → copia propia con ids nuevos), `shareTemplate` (solo propia + miembro del grupo), `unshareTemplate`
+  - `getTemplatesByCoach` (propias + oficiales + compartidas de mis grupos → `ownership: own|official|group` con flags canEdit/canClone/canShare/canDelete)
+  - `getTemplateById`, `getTemplateVisibility(template, user)` (admin: solo lectura; canView/canEdit/canClone/canShare/canDelete)
+  - `parseStructure` defensivo (JSON string u objeto), estructura normalizada (uuid + order = índice), auditoría en cada operación
+- **Group service**: `getMyGroups(userId)` (nuevo) para el diálogo de compartir
+- **Acciones** (`template.actions.ts`): create/update/delete/clone/share/unshare, `role: "coach"`
+- **UI** (`components/templates/`): `TemplateList` (tabs Mías/Oficiales/Grupo con contadores + avisos), `TemplateCard`, `SectionEditor` (título/tipo/contenido, mover ↑↓, eliminar), `TemplateEditor` (RHF + useFieldArray, 3 secciones por defecto, datalist de tipos: base + libres, validación cliente), `CloneDialog`, `ShareDialog`, `CloneButton`
+- **Páginas**: `/coach/templates` (listado), `/coach/templates/new` (creación), `/coach/templates/[id]` (editor si `canEdit`; si no: vista solo lectura + botón clonar; `notFound()` si no `canView`)
+- **Verificación**: 49 checks de servicio (`npx tsx scratch-*.ts`) + 14 E2E Playwright (login → validación vacía → crear → editar → tabs → eliminar) = **63/63 OK**
 - **Lint/Build**: ✅ · **Leftovers**: 0
+- **Notas**: playwright reinstaló browsers a build 1248 (`npx playwright install chromium`); sin Chrome/Edge en la máquina — usar chromium headless
 
 ## Próximos pasos
-**Fase 13 — Biblioteca de plantillas** (38 tareas en `tasks/mvp.md`):
-1. CRUD plantillas privadas (coach)
-2. Estructura secciones editables (calentamiento/específico/enfriamiento)
-3. Tipos base + creación libre
-4. Versionado/clonado
-5. Compartir en grupo (pública/privada)
-6. Plantillas oficiales (precargadas, clonables)
-7. Generador semana tipo + drag&drop + copiar semana + multi-asignación
-8. UI: lista plantillas, editor, modal compartir, asignador semana
+**Fase 14 — Plantillas oficiales** (7 tareas en `tasks/mvp.md`):
+1. Seed de plantillas oficiales precargadas (CRUD admin en `lib/services/template.service.ts` ya separa `isOfficial`)
+2. Admin: CRUD plantillas oficiales (configuración global)
+3. Coaches: clonar/editar copias (ya funciona desde Fase 13)
+
+Luego **Fase 15 — Planificación semanal** (drag & drop + generador + copiar semana + multi-asignación).
 
 ## Para continuar en otro PC
 ```bash
@@ -60,9 +61,11 @@ npm run dev
 - `coach.test@runosorno.cl` / `Admin1234!` (Coach Test)
 - `athlete.test@runosorno.cl` / `Admin1234!` (Atleta Test)
 - `director.test@runosorno.cl` / `Admin1234!` (Director Test)
+- `p13.ui@test.local` / `Test1234!` (coach de prueba E2E Fase 13)
 
 ### Notas técnicas clave
 - MySQL local XAMPP: `C:\xampp\mysql\bin\mysql.exe -u root runosorno`
 - `RESEND_API_KEY` vacío → emails en dev log (`[email:dev]`)
-- Verificación por fase: script `npx tsx scratch-*.ts` (servicios) + Playwright E2E
-- Commits en español sin acentos; push a `runosorno` con `GIT_TERMINAL_PROMPT=0`
+- Verificación por fase: script `npx tsx scratch-*.ts` (servicios) + Playwright E2E (chromium)
+- Scripts scratch se eliminan al cerrar la fase (leftovers: 0)
+- Commits en español sin acentos; push pendiente de credenciales
