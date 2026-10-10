@@ -474,3 +474,162 @@ export async function getTemplateVisibility(
     canDelete: isOwn && !template.isOfficial,
   };
 }
+
+export type OfficialTemplateListItem = {
+  id: string;
+  name: string;
+  sessionType: string;
+  structure: TemplateSection[];
+  sectionCount: number;
+  updatedAt: Date;
+};
+
+export async function getOfficialTemplates(): Promise<
+  OfficialTemplateListItem[]
+> {
+  const rows = await db
+    .select({
+      id: templates.id,
+      name: templates.name,
+      sessionType: templates.sessionType,
+      structure: templates.structure,
+      updatedAt: templates.updatedAt,
+    })
+    .from(templates)
+    .where(eq(templates.isOfficial, true))
+    .orderBy(templates.name);
+
+  return rows.map((row) => {
+    const structure = parseStructure(row.structure);
+    return {
+      id: row.id,
+      name: row.name,
+      sessionType: row.sessionType,
+      structure,
+      sectionCount: structure.length,
+      updatedAt: row.updatedAt,
+    };
+  });
+}
+
+export async function createOfficialTemplate(
+  input: TemplateInput,
+  adminId: string,
+): Promise<ServiceResult<{ id: string; name: string }>> {
+  const structure = normalizeStructure(input.structure);
+  if (structure.length === 0) {
+    return { ok: false, error: "Agrega al menos una sección con contenido" };
+  }
+
+  const id = crypto.randomUUID();
+  await db.insert(templates).values({
+    id,
+    coachId: null,
+    groupId: null,
+    name: input.name,
+    sessionType: input.sessionType,
+    isOfficial: true,
+    isShared: false,
+    structure,
+  });
+
+  await logAudit({
+    userId: adminId,
+    action: "official_template_created",
+    entityType: "template",
+    entityId: id,
+    details: { name: input.name, sessionType: input.sessionType },
+  });
+
+  return { ok: true, data: { id, name: input.name } };
+}
+
+export async function updateOfficialTemplate(
+  templateId: string,
+  input: TemplateInput,
+  adminId: string,
+): Promise<ServiceResult<{ id: string; name: string }>> {
+  const [template] = await db
+    .select()
+    .from(templates)
+    .where(eq(templates.id, templateId))
+    .limit(1);
+  if (!template) {
+    return { ok: false, error: "Plantilla no encontrada" };
+  }
+  if (!template.isOfficial) {
+    return {
+      ok: false,
+      error: "Solo se pueden editar las plantillas oficiales",
+    };
+  }
+
+  const structure = normalizeStructure(input.structure);
+  if (structure.length === 0) {
+    return { ok: false, error: "Agrega al menos una sección con contenido" };
+  }
+
+  await db
+    .update(templates)
+    .set({
+      name: input.name,
+      sessionType: input.sessionType,
+      structure,
+      updatedAt: new Date(),
+    })
+    .where(eq(templates.id, templateId));
+
+  await logAudit({
+    userId: adminId,
+    action: "official_template_updated",
+    entityType: "template",
+    entityId: templateId,
+    details: { name: input.name },
+  });
+
+  return { ok: true, data: { id: templateId, name: input.name } };
+}
+
+export async function deleteOfficialTemplate(
+  templateId: string,
+  adminId: string,
+): Promise<ServiceResult<null>> {
+  const [template] = await db
+    .select()
+    .from(templates)
+    .where(eq(templates.id, templateId))
+    .limit(1);
+  if (!template) {
+    return { ok: false, error: "Plantilla no encontrada" };
+  }
+  if (!template.isOfficial) {
+    return {
+      ok: false,
+      error: "Solo se pueden eliminar las plantillas oficiales",
+    };
+  }
+
+  const [assignedRow] = await db
+    .select({ value: count() })
+    .from(sessionAssignments)
+    .where(eq(sessionAssignments.templateId, templateId));
+  if (assignedRow && assignedRow.value > 0) {
+    return {
+      ok: false,
+      error:
+        "La plantilla tiene sesiones planificadas. Elimina o reprograma esas sesiones antes de borrarla.",
+    };
+  }
+
+  await db.delete(templates).where(eq(templates.id, templateId));
+
+  await logAudit({
+    userId: adminId,
+    action: "official_template_deleted",
+    entityType: "template",
+    entityId: templateId,
+    details: { name: template.name },
+  });
+
+  return { ok: true, data: null };
+}

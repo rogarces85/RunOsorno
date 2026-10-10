@@ -20,7 +20,7 @@ import {
 } from "@/lib/validations/template.schemas";
 import { SectionEditor } from "./SectionEditor";
 
-const FREE_SESSION_TYPES = [
+export const FREE_SESSION_TYPES = [
   "Test/Control",
   "Fuerza",
   "Cross-training",
@@ -28,7 +28,7 @@ const FREE_SESSION_TYPES = [
   "Cuesta",
 ];
 
-function defaultSections(): TemplateInput["structure"] {
+export function defaultSections(): TemplateInput["structure"] {
   return [
     {
       title: "Calentamiento",

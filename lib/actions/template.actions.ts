@@ -9,10 +9,13 @@ import {
 } from "@/lib/validations/template.schemas";
 import {
   cloneTemplate,
+  createOfficialTemplate,
   createTemplate,
+  deleteOfficialTemplate,
   deleteTemplate,
   shareTemplate,
   unshareTemplate,
+  updateOfficialTemplate,
   updateTemplate,
 } from "@/lib/services/template.service";
 
@@ -113,6 +116,55 @@ export async function unshareTemplateAction(
     templateId,
     async (id, user) => {
       const result = await unshareTemplate(id, user.id);
+      if (!result.ok) {
+        throw new ActionFailure(result.error);
+      }
+      return null;
+    },
+  );
+}
+
+export async function createOfficialTemplateAction(
+  input: unknown,
+): Promise<ActionResult<{ id: string; name: string }>> {
+  return runAction(
+    { schema: templateSchema, role: "admin" },
+    input,
+    async (data, user) => {
+      const result = await createOfficialTemplate(data, user.id);
+      if (!result.ok) {
+        throw new ActionFailure(result.error);
+      }
+      return result.data;
+    },
+  );
+}
+
+export async function updateOfficialTemplateAction(
+  templateId: string,
+  input: unknown,
+): Promise<ActionResult<{ id: string; name: string }>> {
+  return runAction(
+    { schema: templateSchema, role: "admin" },
+    input,
+    async (data, user) => {
+      const result = await updateOfficialTemplate(templateId, data, user.id);
+      if (!result.ok) {
+        throw new ActionFailure(result.error);
+      }
+      return result.data;
+    },
+  );
+}
+
+export async function deleteOfficialTemplateAction(
+  templateId: string,
+): Promise<ActionResult<null>> {
+  return runAction(
+    { schema: templateIdSchema, role: "admin" },
+    templateId,
+    async (id, user) => {
+      const result = await deleteOfficialTemplate(id, user.id);
       if (!result.ok) {
         throw new ActionFailure(result.error);
       }

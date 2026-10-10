@@ -267,13 +267,13 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 14. Plantillas oficiales (Admin)
 
-- [ ] 14.1 Crear seed con 3-5 plantillas oficiales de ejemplo (Series, Intervalos, Fondo, Tempo, Recuperación)
-- [ ] 14.2 Crear servicio con `getOfficialTemplates()` — plantillas con `is_official=true`
-- [ ] 14.3 Crear servicio con `createOfficialTemplate(data)`, `updateOfficialTemplate(id, data)`, `deleteOfficialTemplate(id)` — CRUD admin
-- [ ] 14.4 Crear Server Actions para CRUD de plantillas oficiales (solo admin)
-- [ ] 14.5 Crear página `app/(app)/admin/templates/page.tsx` — listado + CRUD de plantillas oficiales
-- [ ] 14.6 Verificar: admin crea/edita/elimina plantillas oficiales
-- [ ] 14.7 Verificar: coach ve plantillas oficiales en su biblioteca y puede clonarlas
+- [x] 14.1 Crear seed con 3-5 plantillas oficiales de ejemplo (Series, Intervalos, Fondo, Tempo, Recuperación)
+- [x] 14.2 Crear servicio con `getOfficialTemplates()` — plantillas con `is_official=true`
+- [x] 14.3 Crear servicio con `createOfficialTemplate(data)`, `updateOfficialTemplate(id, data)`, `deleteOfficialTemplate(id)` — CRUD admin
+- [x] 14.4 Crear Server Actions para CRUD de plantillas oficiales (solo admin)
+- [x] 14.5 Crear página `app/(app)/admin/templates/page.tsx` — listado + CRUD de plantillas oficiales
+- [x] 14.6 Verificar: admin crea/edita/elimina plantillas oficiales
+- [x] 14.7 Verificar: coach ve plantillas oficiales en su biblioteca y puede clonarlas
 
 ---
 
@@ -851,7 +851,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 11. Coach — Teams | 19 | 19 |
 | 12. Gestión de atletas | 17 | 17 |
 | 13. Coach — Plantillas | 27 | 27 |
-| 14. Plantillas oficiales | 7 | 0 |
+| 14. Plantillas oficiales | 7 | 7 |
 | 15. Planificación semanal | 18 | 0 |
 | 16. Calendario — Base | 8 | 0 |
 | 17. Calendario — Atleta | 6 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **194** |
+| **TOTAL** | **~578** | **201** |
