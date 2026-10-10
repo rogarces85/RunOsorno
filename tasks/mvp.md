@@ -315,12 +315,12 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 17. Calendario — Vista Atleta
 
-- [ ] 17.1 Crear página `app/(app)/athlete/calendar/page.tsx` (RSC) — carga `getMonthPlan` para el atleta de sesión
-- [ ] 17.2 Renderizar `MonthCalendar` con datos de asignaciones + registros
-- [ ] 17.3 Al hacer click en día → abrir `SessionDetailPanel` con: plantilla planificada (calentamiento, específico, enfriamiento), registro actual si existe, estado
-- [ ] 17.4 Verificar: atleta ve su calendario con sesiones planificadas y colores correctos
-- [ ] 17.5 Verificar: click en día muestra detalle completo de la sesión planificada
-- [ ] 17.6 Verificar: días sin asignación muestran "Descanso" en gris
+- [x] 17.1 Crear página `app/(app)/athlete/calendar/page.tsx` (RSC) — carga `getMonthPlan` para el atleta de sesión
+- [x] 17.2 Renderizar `MonthCalendar` con datos de asignaciones + registros
+- [x] 17.3 Al hacer click en día → abrir `SessionDetailPanel` con: plantilla planificada (calentamiento, específico, enfriamiento), registro actual si existe, estado
+- [x] 17.4 Verificar: atleta ve su calendario con sesiones planificadas y colores correctos
+- [x] 17.5 Verificar: click en día muestra detalle completo de la sesión planificada
+- [x] 17.6 Verificar: días sin asignación muestran "Descanso" en gris
 
 ---
 
@@ -854,7 +854,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 14. Plantillas oficiales | 7 | 7 |
 | 15. Planificación semanal | 18 | 18 |
 | 16. Calendario — Base | 8 | 8 |
-| 17. Calendario — Atleta | 6 | 0 |
+| 17. Calendario — Atleta | 6 | 6 |
 | 18. Calendario — Coach | 8 | 0 |
 | 19. Drag & drop y planificación | 15 | 0 |
 | 20. Registro de sesiones | 16 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **227** |
+| **TOTAL** | **~578** | **233** |

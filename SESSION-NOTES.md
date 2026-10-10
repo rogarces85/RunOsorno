@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 16
+# Sesión — Resumen hasta Fase 17
 
 ## Estado actual
-- **HEAD**: `24bc5eb` (Fase 16 completada)
-- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–15 subidas; credenciales disponibles en este equipo)
+- **HEAD**: `89387e6` (Fase 17 completada)
+- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–17 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
-## Fases completadas (1–16)
+## Fases completadas (1–17)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -24,6 +24,7 @@
 | 14 | ef095b8 | Plantillas oficiales (seed 5 oficiales, CRUD admin, `/admin/templates`) |
 | 15 | 0dc02cc | **Planificación semanal** (ver abajo) |
 | 16 | 24bc5eb | **Calendario base** (ver abajo) |
+| 17 | 89387e6 | **Calendario vista atleta** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -76,10 +77,24 @@
 - **Lint/Build**: ✅ · **Leftovers**: 0
 - **Notas**: login E2E debe esperar `waitForURL("**/admin/dashboard")` (la página de login también tiene `.card` → condición de carrera)
 
-## Próximos pasos
-**Fase 17 — Calendario vista Atleta** (6 tareas en `tasks/mvp.md`).
+## Fase 17 — Calendario vista Atleta (6 tareas ✅)
+- **Página** `app/(app)/athlete/calendar/page.tsx` (RSC, `instant=false`, `requireRole("athlete")`): lee `?month=YYYY-MM` (regex, fallback mes actual) → `getMonthPlan(user.id, year, month)`
+- **Host** `components/athlete/AthleteCalendar.tsx` (Client): estado `selected {dateISO, item}`, `MonthCalendar` **controlado** (`month` + `onMonthChange` → `router.replace(/athlete/calendar?month=...)`, limpia selección), `SessionDetailPanel` controlado
+- **`MonthCalendar`**: ahora acepta props opcionales `month?: string` ("YYYY-MM") y `onMonthChange?` — sin ellos sigue autogestionado (scratch/otros usos). `parseMonth` valida formato
+- **`PlanItem` + registro** (`plan.service.ts`): nuevo tipo `PlanRecord` (`distanceKm/durationMinutes/rpe/comments/notDoneReason/customReason`), `PlanItem.record: PlanRecord | null`; `planSelect` agrega columnas de `session_records` con `leftJoin` en `getWeekPlan`/`getMonthPlan`; `toPlanItem` mapea
+- **`SessionDetailPanel`**: nueva sección `[data-testid="session-detail-record"]` — motivo "No realizada: {reason}" si `notDoneReason`; si no: Distancia (`formatDistance` es-CL "10,5 km"), Tiempo (`formatDuration` "1 h 2 min"), RPE ("7/10"), Comentarios
+- **🐛 Bug encontrado y corregido**: `templates.structure` (columna `json` de Drizzle) llega como **string** desde mysql2 → `structure.map is not a function` tumaba el panel; corregido con `parseStructure()` (template.service) en `toPlanItem` — **afectaba también a `getWeekPlan`**
+- **Verificación**: **26/26 checks E2E** (`scratch-p17.ts`, datos propios `p17-*` con cleanup try/finally): 17.4 mes+días+4 colores de estado, 17.6 rest gris + panel descanso, 17.5 panel planificada (plantilla+secciones, sin registro) / completada (distancia/tiempo/RPE/comentarios) / no realizada (motivo), nav `?month=` next+prev con `waitForFunction` — **scratch borrado**
+- **Lint/Build**: ✅ · **Leftovers**: 0
+- **Notas**:
+  - E2E atleta: `p14.ath@test.local` / `Test1234!` — **`athlete.test@runosorno.cl` NO existe** (seed solo crea admin; las cuentas `*.test@runosorno.cl` de "Cuentas seed" no están en la DB; quedan leftovers `p13.*`/`p14.*`)
+  - Fixture `planned` debe evitar el día de hoy (hoy → estado `in_progress` cyan); script usó `PLANNED_DAY = hoy==10 ? 11 : 10`
+  - INSERT de fixtures: `sessionDate` con `Date` local-noon (regla Drizzle/MySQL)
 
-Luego: 18. Calendario coach, 19. Drag & drop (UI de la Fase 15).
+## Próximos pasos
+**Fase 18 — Calendario vista Coach** (8 tareas en `tasks/mvp.md`).
+
+Luego: 19. Drag & drop (UI de la Fase 15).
 
 ## Para continuar en otro PC
 ```bash
@@ -91,13 +106,11 @@ npm run dev
 ```
 
 ### Cuentas seed
-- `admin@runosorno.cl` / `Admin1234!` (Admin)
-- `coach.test@runosorno.cl` / `Admin1234!` (Coach Test)
-- `athlete.test@runosorno.cl` / `Admin1234!` (Atleta Test)
-- `director.test@runosorno.cl` / `Admin1234!` (Director Test)
-- `p13.ui@test.local` / `Test1234!` (coach de prueba E2E Fase 13)
-- `p14.svc@test.local` / `Test1234!` (coach de prueba Fase 14)
-- `p14.ath@test.local` / `Test1234!` (atleta de prueba Fase 14)
+- `admin@runosorno.cl` / `Admin1234!` (Admin) — **única cuenta que crea `db/seed.ts`**
+- `p14.ath@test.local` / `Test1234!` (Atleta de prueba Fase 14 — leftovers de DB, útil para E2E atleta)
+- `p14.svc@test.local` / `Test1234!` (Coach de prueba Fase 14)
+- `p13.ui@test.local` / `Test1234!` (Coach UI E2E Fase 13)
+- ⚠️ `coach.test@runosorno.cl`, `athlete.test@runosorno.cl`, `director.test@runosorno.cl` **no existen** en la DB actual
 
 ### Notas técnicas clave
 - MySQL local XAMPP: `C:\xampp\mysql\bin\mysql.exe -u root runosorno`
