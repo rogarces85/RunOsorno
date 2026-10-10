@@ -53,10 +53,10 @@ export function CoachCalendar({
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
   );
-  const [selected, setSelected] = useState<{
-    dateISO: string;
-    item: PlanItem | null;
-  } | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const selectedItem: PlanItem | null = selectedDate
+    ? (items.find((item) => item.sessionDate === selectedDate) ?? null)
+    : null;
   const [dragTemplate, setDragTemplate] = useState<TemplateOption | null>(null);
   const [pendingDrop, setPendingDrop] = useState<{
     templateId: string;
@@ -181,14 +181,14 @@ export function CoachCalendar({
             month={month}
             mode="coach"
             compliance={compliance}
-            selectedDate={selected?.dateISO ?? null}
+            selectedDate={selectedDate}
             onMonthChange={(next) => {
-              setSelected(null);
+              setSelectedDate(null);
               router.replace(
                 `/coach/calendar/${teamId}/${athleteId}?month=${next}`,
               );
             }}
-            onDayClick={(dateISO, item) => setSelected({ dateISO, item })}
+            onDayClick={(dateISO) => setSelectedDate(dateISO)}
           />
         </div>
       </div>
@@ -198,22 +198,22 @@ export function CoachCalendar({
         ) : null}
       </DragOverlay>
       <SessionDetailPanel
-        open={selected !== null}
-        dateISO={selected?.dateISO ?? null}
-        item={selected?.item ?? null}
-        messages={selected?.item ? (messages[selected.item.id] ?? []) : []}
+        open={selectedDate !== null}
+        dateISO={selectedDate}
+        item={selectedItem}
+        messages={selectedItem ? (messages[selectedItem.id] ?? []) : []}
         extra={
-          selected ? (
+          selectedDate ? (
             <AssignTemplateForm
               athleteId={athleteId}
-              dateISO={selected.dateISO}
-              occupied={selected.item !== null}
+              dateISO={selectedDate}
+              occupied={selectedItem !== null}
               templates={templates}
-              onDone={() => setSelected(null)}
+              onDone={() => setSelectedDate(null)}
             />
           ) : null
         }
-        onClose={() => setSelected(null)}
+        onClose={() => setSelectedDate(null)}
       />
       <ConfirmDialog
         open={pendingDrop !== null}

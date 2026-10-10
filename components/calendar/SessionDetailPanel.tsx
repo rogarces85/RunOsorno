@@ -16,6 +16,7 @@ export function SessionDetailPanel({
   item,
   messages,
   extra,
+  recordForm,
   onClose,
 }: {
   open: boolean;
@@ -23,6 +24,7 @@ export function SessionDetailPanel({
   item: PlanItem | null;
   messages?: FeedbackMessage[];
   extra?: ReactNode;
+  recordForm?: ReactNode;
   onClose: () => void;
 }) {
   if (!open || !dateISO) {
@@ -137,6 +139,8 @@ export function SessionDetailPanel({
               )}
 
               {extra}
+
+              {recordForm}
 
               {item && (
                 <>

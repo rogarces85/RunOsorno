@@ -34,6 +34,7 @@ export type PlanRecord = {
   comments: string | null;
   notDoneReason: string | null;
   customReason: string | null;
+  recordedAt: string;
 };
 
 export type PlanItem = {
@@ -462,6 +463,7 @@ function toPlanItem(row: {
   recordComments: string | null;
   recordNotDoneReason: string | null;
   recordCustomReason: string | null;
+  recordRecordedAt: Date | null;
 }): PlanItem {
   return {
     id: row.id,
@@ -486,6 +488,7 @@ function toPlanItem(row: {
           comments: row.recordComments,
           notDoneReason: row.recordNotDoneReason,
           customReason: row.recordCustomReason,
+          recordedAt: (row.recordRecordedAt ?? new Date()).toISOString(),
         }
       : null,
   };
@@ -507,6 +510,7 @@ const planSelect = {
   recordComments: sessionRecords.comments,
   recordNotDoneReason: sessionRecords.notDoneReason,
   recordCustomReason: sessionRecords.customReason,
+  recordRecordedAt: sessionRecords.recordedAt,
 };
 
 export async function getWeekPlan(
