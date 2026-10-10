@@ -3,12 +3,10 @@ import type { Role } from "@/lib/auth/role";
 import { db } from "@/lib/db";
 import {
   groupMembers,
-  sessionAssignments,
-  sessionRecords,
-  settings,
   teams,
   teamMembers,
 } from "@/lib/db/schema";
+import { canEditRecord as serviceCanEditRecord } from "@/lib/services/session.service";
 
 export * from "./roles";
 
@@ -119,40 +117,5 @@ export async function canEditRecord(
   if (user.role !== "athlete") {
     return false;
   }
-
-  const [assignment] = await db
-    .select()
-    .from(sessionAssignments)
-    .where(eq(sessionAssignments.id, assignmentId))
-    .limit(1);
-  if (assignment === undefined || assignment.athleteId !== user.id) {
-    return false;
-  }
-
-  const now = new Date();
-  const todayISO = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  const sessionDayISO = assignment.sessionDate.toISOString().slice(0, 10);
-  if (sessionDayISO > todayISO) {
-    return false;
-  }
-
-  const [record] = await db
-    .select()
-    .from(sessionRecords)
-    .where(eq(sessionRecords.assignmentId, assignmentId))
-    .limit(1);
-  if (record === undefined) {
-    return true;
-  }
-
-  const [windowSetting] = await db
-    .select()
-    .from(settings)
-    .where(eq(settings.key, "edit_window_hours"))
-    .limit(1);
-  const windowHours =
-    typeof windowSetting?.value === "number" ? windowSetting.value : 48;
-  const deadline =
-    new Date(record.recordedAt).getTime() + windowHours * 60 * 60 * 1000;
-  return now.getTime() <= deadline;
+  return serviceCanEditRecord(assignmentId, user.id);
 }
