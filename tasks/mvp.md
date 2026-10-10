@@ -279,24 +279,24 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 15. Planificación semanal (Coach)
 
-- [ ] 15.1 Crear esquema Zod `assignSessionSchema` (athleteId, templateId, date) en `lib/validations/plan.schemas.ts`
-- [ ] 15.2 Crear `plan.service.ts` con `assignSession(athleteId, templateId, date, coachId)` — crea `session_assignments`, verifica permiso (`canPlanFor`)
-- [ ] 15.3 Crear servicio con `assignSessionReplace(...)` — reemplaza plantilla en día ocupado
-- [ ] 15.4 Crear servicio con `bulkAssign(athleteIds, templateId, date, coachId)` — multi-asignación
-- [ ] 15.5 Crear servicio con `removeAssignment(assignmentId)` — elimina asignación y registro asociado
-- [ ] 15.6 Crear servicio con `copyPreviousWeek(athleteId, weekStart, coachId)` — copia asignaciones de `weekStart - 7 días`. Retorna count o error "No hay semana anterior para copiar"
-- [ ] 15.7 Crear servicio con `generateWeek(athleteId, weekStart, pattern, coachId)` — recibe array `[{ type, count }]` y distribuye plantillas en los 7 días de la semana
-- [ ] 15.8 Crear servicio con `getWeekPlan(athleteId, weekStart)` — asignaciones de la semana con plantillas incluidas
-- [ ] 15.9 Crear servicio con `getMonthPlan(athleteId, year, month)` — asignaciones del mes
-- [ ] 15.10 Crear Server Actions: `assignSession`, `bulkAssign`, `removeAssignment`, `copyPreviousWeek`, `generateWeek`
-- [ ] 15.11 Verificar: asignar plantilla a día libre → `session_assignments` creado con status='planned'
-- [ ] 15.12 Verificar: asignar plantilla a día ocupado → retorna `needsConfirm: true`
-- [ ] 15.13 Verificar: reemplazar en día ocupado → asignación anterior eliminada, nueva creada
-- [ ] 15.14 Verificar: multi-asignación a 3 atletas → 3 asignaciones creadas
-- [ ] 15.15 Verificar: copiar semana anterior → copia todas las asignaciones de la semana previa
-- [ ] 15.16 Verificar: copiar semana sin datos → error "No hay semana anterior para copiar"
-- [ ] 15.17 Verificar: generador de semana → distribuye plantillas según patrón
-- [ ] 15.18 Verificar: coach sin permiso sobre atleta → error de autorización
+- [x] 15.1 Crear esquema Zod `assignSessionSchema` (athleteId, templateId, date) en `lib/validations/plan.schemas.ts`
+- [x] 15.2 Crear `plan.service.ts` con `assignSession(athleteId, templateId, date, coachId)` — crea `session_assignments`, verifica permiso (`canPlanFor`)
+- [x] 15.3 Crear servicio con `assignSessionReplace(...)` — reemplaza plantilla en día ocupado
+- [x] 15.4 Crear servicio con `bulkAssign(athleteIds, templateId, date, coachId)` — multi-asignación
+- [x] 15.5 Crear servicio con `removeAssignment(assignmentId)` — elimina asignación y registro asociado
+- [x] 15.6 Crear servicio con `copyPreviousWeek(athleteId, weekStart, coachId)` — copia asignaciones de `weekStart - 7 días`. Retorna count o error "No hay semana anterior para copiar"
+- [x] 15.7 Crear servicio con `generateWeek(athleteId, weekStart, pattern, coachId)` — recibe array `[{ type, count }]` y distribuye plantillas en los 7 días de la semana
+- [x] 15.8 Crear servicio con `getWeekPlan(athleteId, weekStart)` — asignaciones de la semana con plantillas incluidas
+- [x] 15.9 Crear servicio con `getMonthPlan(athleteId, year, month)` — asignaciones del mes
+- [x] 15.10 Crear Server Actions: `assignSession`, `bulkAssign`, `removeAssignment`, `copyPreviousWeek`, `generateWeek`
+- [x] 15.11 Verificar: asignar plantilla a día libre → `session_assignments` creado con status='planned'
+- [x] 15.12 Verificar: asignar plantilla a día ocupado → retorna `needsConfirm: true`
+- [x] 15.13 Verificar: reemplazar en día ocupado → asignación anterior eliminada, nueva creada
+- [x] 15.14 Verificar: multi-asignación a 3 atletas → 3 asignaciones creadas
+- [x] 15.15 Verificar: copiar semana anterior → copia todas las asignaciones de la semana previa
+- [x] 15.16 Verificar: copiar semana sin datos → error "No hay semana anterior para copiar"
+- [x] 15.17 Verificar: generador de semana → distribuye plantillas según patrón
+- [x] 15.18 Verificar: coach sin permiso sobre atleta → error de autorización
 
 ---
 
@@ -852,7 +852,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 12. Gestión de atletas | 17 | 17 |
 | 13. Coach — Plantillas | 27 | 27 |
 | 14. Plantillas oficiales | 7 | 7 |
-| 15. Planificación semanal | 18 | 0 |
+| 15. Planificación semanal | 18 | 18 |
 | 16. Calendario — Base | 8 | 0 |
 | 17. Calendario — Atleta | 6 | 0 |
 | 18. Calendario — Coach | 8 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **201** |
+| **TOTAL** | **~578** | **219** |
