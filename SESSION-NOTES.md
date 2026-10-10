@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 15
+# Sesión — Resumen hasta Fase 16
 
 ## Estado actual
-- **HEAD**: `bcb5593` (Fase 15 completada)
+- **HEAD**: `24bc5eb` (Fase 16 completada)
 - **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–15 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
-## Fases completadas (1–15)
+## Fases completadas (1–16)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -23,6 +23,7 @@
 | 13 | 4c698b9 | Biblioteca de plantillas (schemas, CRUD/clonar/compartir, editor, tabs) |
 | 14 | ef095b8 | Plantillas oficiales (seed 5 oficiales, CRUD admin, `/admin/templates`) |
 | 15 | 0dc02cc | **Planificación semanal** (ver abajo) |
+| 16 | 24bc5eb | **Calendario base** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -65,10 +66,20 @@
 - **⚠️ Trampa de fechas (CRÍTICO para fases 16-21)**: columnas `date` de Drizzle/MySQL **leen** como `Date` (UTC midnight) pero **`eq/gte/lte` con params `Date` no matchean** (mysql2 serializa param con hora → `DATE = '2026-10-06 12:00:00'` = false). **Regla**: en WHERE usar `sql\`${col} = ${isoStr}\`` con string "YYYY-MM-DD" (probado OK); en INSERT usar `Date` local-noon (`new Date(y, m-1, d, 12)`) — round-trip correcto. Leer vía `.toISOString().slice(0,10)`.
 - **Cuentas prueba**: `p15.*@test.local` creadas y eliminadas por el script (cleanup al inicio y al final)
 
-## Próximos pasos
-**Fase 16 — Calendario base** (8 tareas en `tasks/mvp.md`).
+## Fase 16 — Calendario base (8 tareas ✅)
+- **`components/calendar/dayState.ts`**: tipo `CalendarDayState` (`completed/partial/not_done/planned/in_progress/rest`), `DAY_STATE_META` (label + clase color: bg-success/warning/danger/primary/info/secondary), `resolveDayState(item, dateISO, todayISO)` — estado por `status` del item; `planned` hoy → `in_progress` (cyan); sin item → `rest` (gris)
+- **`CalendarDay.tsx`** (Client): celda `<button>` con `data-date`/`data-state`, número, badge punto de color, etiqueta de tipo de sesión (`formatSessionType`), clases `is-today`/`is-selected`, `aria-current="date"`
+- **`MonthCalendar.tsx`** (Client): props `items: PlanItem[]`, `selectedDate?`, `onDayClick(dateISO, item)`; nav prev/next (`useState` view año/mes, iconos IconChevron*), header `[data-testid="calendar-month-label"]` (Intl es-CL mayúscula), grid Lun–Dom (offset `(getDay()+6)%7`), celdas vacías al inicio/fin, `today` = `toISODate(new Date())` local
+- **`SessionDetailPanel.tsx`** (Client): modal (patrón `.modal-blur.fade.show.d-block`) controlado por `open/dateISO/item/onClose`; muestra fecha (`formatDateChile`), badge estado, plantilla + secciones (`SECTION_TYPE_LABELS`), o texto "Descanso — sin sesión planificada."
+- **CSS** (`app/globals.css`): `.calendar-weekdays/.calendar-grid` (grid 7 cols), `.calendar-day` (borde, hover, `is-today` ring primario, `is-selected` color-mix), badge punto 0.65rem, etiqueta sesión con ellipsis
+- **Verificación**: **25/25 checks E2E Playwright** (página scratch temporal con fixtures de cada estado → 16.5 mes/días, 16.6 nav prev/next con cálculo de días, 16.7 `is-today` único + data-date, 16.8 los 6 colores + badge, 16.4 panel abre/fecha/plantilla/secciones/cierra/descanso) — scratch borrado
+- **Lint/Build**: ✅ · **Leftovers**: 0
+- **Notas**: login E2E debe esperar `waitForURL("**/admin/dashboard")` (la página de login también tiene `.card` → condición de carrera)
 
-Luego: 17. Calendario atleta, 18. Calendario coach, 19. Drag & drop (UI de la Fase 15).
+## Próximos pasos
+**Fase 17 — Calendario vista Atleta** (6 tareas en `tasks/mvp.md`).
+
+Luego: 18. Calendario coach, 19. Drag & drop (UI de la Fase 15).
 
 ## Para continuar en otro PC
 ```bash

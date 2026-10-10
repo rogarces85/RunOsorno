@@ -302,14 +302,14 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 16. Calendario mensual — Componente base
 
-- [ ] 16.1 Crear componente `MonthCalendar` en `components/calendar/MonthCalendar.tsx` (Client Component) — grid de mes, navegación anterior/siguiente, marca día actual
-- [ ] 16.2 Crear componente `CalendarDay` en `components/calendar/CalendarDay.tsx` — celda de día con: número de día, badge de estado con código color, indicador de sesión planificada
-- [ ] 16.3 Implementar código de color: verde (completed), amarillo (partial), rojo (not_done), gris (rest/no asignado), azul (planned futuro), cyan (in_progress/hoy)
-- [ ] 16.4 Crear componente `SessionDetailPanel` — panel lateral o modal que muestra detalle de sesión al hacer click en un día
-- [ ] 16.5 Verificar: calendario muestra mes actual con días correctos
-- [ ] 16.6 Verificar: navegación mes anterior/siguiente funciona
-- [ ] 16.7 Verificar: día actual está resaltado visualmente
-- [ ] 16.8 Verificar: código de color se aplica correctamente según estado
+- [x] 16.1 Crear componente `MonthCalendar` en `components/calendar/MonthCalendar.tsx` (Client Component) — grid de mes, navegación anterior/siguiente, marca día actual
+- [x] 16.2 Crear componente `CalendarDay` en `components/calendar/CalendarDay.tsx` — celda de día con: número de día, badge de estado con código color, indicador de sesión planificada
+- [x] 16.3 Implementar código de color: verde (completed), amarillo (partial), rojo (not_done), gris (rest/no asignado), azul (planned futuro), cyan (in_progress/hoy)
+- [x] 16.4 Crear componente `SessionDetailPanel` — panel lateral o modal que muestra detalle de sesión al hacer click en un día
+- [x] 16.5 Verificar: calendario muestra mes actual con días correctos
+- [x] 16.6 Verificar: navegación mes anterior/siguiente funciona
+- [x] 16.7 Verificar: día actual está resaltado visualmente
+- [x] 16.8 Verificar: código de color se aplica correctamente según estado
 
 ---
 
@@ -853,7 +853,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 13. Coach — Plantillas | 27 | 27 |
 | 14. Plantillas oficiales | 7 | 7 |
 | 15. Planificación semanal | 18 | 18 |
-| 16. Calendario — Base | 8 | 0 |
+| 16. Calendario — Base | 8 | 8 |
 | 17. Calendario — Atleta | 6 | 0 |
 | 18. Calendario — Coach | 8 | 0 |
 | 19. Drag & drop y planificación | 15 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **219** |
+| **TOTAL** | **~578** | **227** |
