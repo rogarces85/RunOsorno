@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 18
+# Sesión — Resumen hasta Fase 19
 
 ## Estado actual
-- **HEAD**: `7bedfb7` (Fase 18 completada)
-- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–18 subidas; credenciales disponibles en este equipo)
+- **HEAD**: `c048073` (Fase 19 completada)
+- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–19 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
 
-## Fases completadas (1–18)
+## Fases completadas (1–19)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -26,6 +26,7 @@
 | 16 | 24bc5eb | **Calendario base** (ver abajo) |
 | 17 | 89387e6 | **Calendario vista atleta** (ver abajo) |
 | 18 | 7bedfb7 | **Calendario vista coach + feedback** (ver abajo) |
+| 19 | c048073 | **Drag & drop y herramientas de planificación** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -111,10 +112,29 @@
   - La UI creada por fase 18 (asignar plantillas) no era parte de la fase 19 drag&drop — fase 19 añadirá DnD + WeekGenerator + copiar semana + multi-asignación sobre este mismo calendario
   - **Fase 22 pendiente**: 22.9 (feedback → notificación no leída) y 22.10 (verificar comentario del atleta)
 
-## Próximos pasos
-**Fase 19 — Drag & drop y herramientas de planificación** (15 tareas en `tasks/mvp.md`; instala `@dnd-kit`).
+## Fase 19 — Drag & drop y herramientas de planificación (15 tareas ✅)
+- **Dep**: `@dnd-kit/core@6.3.1` + `@dnd-kit/sortable@10.0.0` (19.1)
+- **`DndContext` en `CoachCalendar`** (envuelve sidebar + calendario; `PointerSensor` con `activationConstraint {distance:6}`, `closestCorners`); `MonthCalendar mode="coach"` envuelve cada día en **`DroppableDay`** (`useDroppable({id: dateISO})` + clase `.is-over`) — vista atleta queda sin contexto ni droppables (19.2/19.4)
+- **`TemplateSidebar`** (19.3): lista de plantillas visibles con `useDraggable({id: templateId})` + icono grip; `DragOverlay` muestra chip con el nombre durante el arrastre
+- **Drop → `assignSessionAction`** (19.4): `onDragEnd` valida `over.id` como fecha ISO; `needsConfirm` → **`ConfirmDialog`** "¿Reemplazar la plantilla existente?" → `replace:true` (19.5); éxito → `router.refresh()`; errores → alerta `[data-testid="coach-error"]`
+- **`WeekGenerator`** (19.6/19.7): modal con select de semanas del mes visible + inputs numéricos por `sessionType` único de las plantillas + resumen "Total: N · Descanso: M" → `generateWeekAction`; errores del servicio (patrón >7 días, sin días libres, tipo sin plantilla) en `[data-testid="wg-error"]`
+- **"Copiar semana anterior"** (19.8): botón en toolbar → `ConfirmDialog` (mensaje con fecha de la semana actual via `formatDateChile(getWeekStart())`) → `copyPreviousWeekAction` (copia semana-7 → semana actual, respeta días ocupados); error "No hay semana anterior para copiar"
+- **`MultiAssignDialog`** (19.9): fecha + plantilla + checkboxes de atletas (nueva prop `athletes` en `CoachCalendar`, desde `getTeamAthletes` en la página) → `bulkAssignAction`
+- **Toolbar** `.calendar-toolbar`: "Generar semana" / "Copiar semana anterior" / "Multi-asignar"
+- **CSS nuevo**: `.calendar-cell`/`.calendar-droppable` (flex, día al 100%), `.calendar-droppable.is-over` resaltado, `.calendar-toolbar`, `.drag-overlay-chip`
+- **Verificación**: **29/29 checks E2E** (`scratch-p19.ts`, fixtures `p19-*` con UUIDs + cleanup por `email LIKE 'p19.%'`): 19.10 drag (overlay activo → día planned → panel con nombre), 19.5/19.11 confirmar/cancelar/reemplazar (retry por `router.refresh`), 19.6/19.7/19.12 generador (3 sesiones = 2 series + 1 tempo en DB, resto descanso), 19.8/19.13 copia (UI + DB 2 destinos), 19.9/19.14 multi (UI + DB ambos atletas con plantilla elegida), 19.15 atleta sin `assign-form`/`template-sidebar`/`[data-droppable]`/toolbar
+- **Lint/Build**: ✅ · **Leftovers**: 0
+- **Notas**:
+  - **`z.uuid` exige UUIDs reales**: fixtures con ids tipo `p19-atha` → la action falla "Datos inválidos"; además el panel queda en "Descanso" (sin `<h4>`) y bloquea los checks siguientes — usar `randomUUID()` + cleanup por `email LIKE 'p19.%'`
+  - **Fechas al leer de DB**: `toISOString().slice(0,10)` (las columnas `date` leen como UTC midnight); `toISO` local da día-1 en Chile
+  - **FKs al limpiar usuarios**: `audit_logs`, `notifications` y `session_feedback` referencian `users.id` (NO ACTION) → borrarlos antes que `users`
+  - **Localizadores Playwright**: el texto "Copiar semana anterior" existe en el botón Y en el título del diálogo → usar `.modal.show h5:has-text(...)` (strict mode)
+  - DnD con Playwright: `mouse.down` → move +40px (supera `distance:6`) → move al día → `mouse.up`; `scrollIntoViewIfNeeded` antes de medir bboxes
 
-Luego: 20. Registro de sesiones atleta, 21. Formulario registro UI, 22 (22.9/22.10), 23. Notificaciones.
+## Próximos pasos
+**Fase 20 — Registro de sesiones** (16 tareas en `tasks/mvp.md`).
+
+Luego: 21. Formulario registro (UI), 22 (22.9/22.10), 23. Notificaciones in-app.
 
 ## Para continuar en otro PC
 ```bash

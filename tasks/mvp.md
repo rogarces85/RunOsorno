@@ -339,21 +339,21 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 19. Drag & drop y herramientas de planificación
 
-- [ ] 19.1 Instalar `@dnd-kit/core` y `@dnd-kit/sortable`
-- [ ] 19.2 Integrar `DndContext` en `MonthCalendar` modo coach — plantillas arrastrables de sidebar a días
-- [ ] 19.3 Crear componente `TemplateSidebar` — lista de plantillas del coach para arrastrar (visible en modo edición)
-- [ ] 19.4 Implementar drop en `CalendarDay` — al soltar plantilla, llama Server Action `assignSession`
-- [ ] 19.5 Implementar diálogo de confirmación al soltar en día ocupado — "¿Reemplazar la plantilla existente?"
-- [ ] 19.6 Crear componente `WeekGenerator` — modal con selectors: cuántos Fondos, Series, Tempo, Descanso, etc. → botón "Generar semana"
-- [ ] 19.7 Integrar `WeekGenerator` con Server Action `generateWeek`
-- [ ] 19.8 Crear botón "Copiar semana anterior" en toolbar del calendario coach
-- [ ] 19.9 Crear diálogo `MultiAssignDialog` — seleccionar varios atletas + plantilla + fecha → `bulkAssign`
-- [ ] 19.10 Verificar: drag & drop asigna plantilla al día correcto
-- [ ] 19.11 Verificar: drop en día ocupado pregunta confirmación y reemplaza
-- [ ] 19.12 Verificar: generador crea semana completa según patrón
-- [ ] 19.13 Verificar: copiar semana anterior duplica el plan
-- [ ] 19.14 Verificar: multi-asignación selecciona atletas y asigna a todos
-- [ ] 19.15 Verificar: atleta no puede modificar el plan (no hay controles de edición en su vista)
+- [x] 19.1 Instalar `@dnd-kit/core` y `@dnd-kit/sortable`
+- [x] 19.2 Integrar `DndContext` en `MonthCalendar` modo coach — plantillas arrastrables de sidebar a días
+- [x] 19.3 Crear componente `TemplateSidebar` — lista de plantillas del coach para arrastrar (visible en modo edición)
+- [x] 19.4 Implementar drop en `CalendarDay` — al soltar plantilla, llama Server Action `assignSession`
+- [x] 19.5 Implementar diálogo de confirmación al soltar en día ocupado — "¿Reemplazar la plantilla existente?"
+- [x] 19.6 Crear componente `WeekGenerator` — modal con selectors: cuántos Fondos, Series, Tempo, Descanso, etc. → botón "Generar semana"
+- [x] 19.7 Integrar `WeekGenerator` con Server Action `generateWeek`
+- [x] 19.8 Crear botón "Copiar semana anterior" en toolbar del calendario coach
+- [x] 19.9 Crear diálogo `MultiAssignDialog` — seleccionar varios atletas + plantilla + fecha → `bulkAssign`
+- [x] 19.10 Verificar: drag & drop asigna plantilla al día correcto
+- [x] 19.11 Verificar: drop en día ocupado pregunta confirmación y reemplaza
+- [x] 19.12 Verificar: generador crea semana completa según patrón
+- [x] 19.13 Verificar: copiar semana anterior duplica el plan
+- [x] 19.14 Verificar: multi-asignación selecciona atletas y asigna a todos
+- [x] 19.15 Verificar: atleta no puede modificar el plan (no hay controles de edición en su vista)
 
 ---
 
@@ -856,7 +856,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 16. Calendario — Base | 8 | 8 |
 | 17. Calendario — Atleta | 6 | 6 |
 | 18. Calendario — Coach | 8 | 8 |
-| 19. Drag & drop y planificación | 15 | 0 |
+| 19. Drag & drop y planificación | 15 | 15 |
 | 20. Registro de sesiones | 16 | 0 |
 | 21. Formulario registro (UI) | 10 | 0 |
 | 22. Feedback en sesiones | 10 | 8 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **249** |
+| **TOTAL** | **~578** | **264** |
