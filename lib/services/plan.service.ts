@@ -13,6 +13,7 @@ import {
   getTemplateById,
   getTemplateVisibility,
   getTemplatesByCoach,
+  parseStructure,
 } from "@/lib/services/template.service";
 import { logAudit } from "./audit.service";
 import type { WeekPatternItem } from "@/lib/validations/plan.schemas";
@@ -23,6 +24,16 @@ export type PlanStatus =
   | "completed"
   | "partial"
   | "not_done";
+
+export type PlanRecord = {
+  id: string;
+  distanceKm: string | null;
+  durationMinutes: number | null;
+  rpe: number | null;
+  comments: string | null;
+  notDoneReason: string | null;
+  customReason: string | null;
+};
 
 export type PlanItem = {
   id: string;
@@ -35,6 +46,7 @@ export type PlanItem = {
     sessionType: string;
     structure: TemplateSection[];
   } | null;
+  record: PlanRecord | null;
 };
 
 export type AssignSessionResult = {
@@ -442,6 +454,13 @@ function toPlanItem(row: {
   templateName: string | null;
   templateSessionType: string | null;
   templateStructure: TemplateSection[] | null;
+  recordId: string | null;
+  recordDistanceKm: string | null;
+  recordDurationMinutes: number | null;
+  recordRpe: number | null;
+  recordComments: string | null;
+  recordNotDoneReason: string | null;
+  recordCustomReason: string | null;
 }): PlanItem {
   return {
     id: row.id,
@@ -454,9 +473,20 @@ function toPlanItem(row: {
             id: row.templateId,
             name: row.templateName,
             sessionType: row.templateSessionType ?? "",
-            structure: row.templateStructure ?? [],
+            structure: parseStructure(row.templateStructure),
           }
         : null,
+    record: row.recordId
+      ? {
+          id: row.recordId,
+          distanceKm: row.recordDistanceKm,
+          durationMinutes: row.recordDurationMinutes,
+          rpe: row.recordRpe,
+          comments: row.recordComments,
+          notDoneReason: row.recordNotDoneReason,
+          customReason: row.recordCustomReason,
+        }
+      : null,
   };
 }
 
@@ -469,6 +499,13 @@ const planSelect = {
   templateName: templates.name,
   templateSessionType: templates.sessionType,
   templateStructure: templates.structure,
+  recordId: sessionRecords.id,
+  recordDistanceKm: sessionRecords.distanceKm,
+  recordDurationMinutes: sessionRecords.durationMinutes,
+  recordRpe: sessionRecords.rpe,
+  recordComments: sessionRecords.comments,
+  recordNotDoneReason: sessionRecords.notDoneReason,
+  recordCustomReason: sessionRecords.customReason,
 };
 
 export async function getWeekPlan(
@@ -479,6 +516,7 @@ export async function getWeekPlan(
     .select(planSelect)
     .from(sessionAssignments)
     .leftJoin(templates, eq(sessionAssignments.templateId, templates.id))
+    .leftJoin(sessionRecords, eq(sessionRecords.assignmentId, sessionAssignments.id))
     .where(
       and(
         eq(sessionAssignments.athleteId, athleteId),
@@ -502,6 +540,7 @@ export async function getMonthPlan(
     .select(planSelect)
     .from(sessionAssignments)
     .leftJoin(templates, eq(sessionAssignments.templateId, templates.id))
+    .leftJoin(sessionRecords, eq(sessionRecords.assignmentId, sessionAssignments.id))
     .where(
       and(
         eq(sessionAssignments.athleteId, athleteId),

@@ -3,7 +3,7 @@
 import { SECTION_TYPE_LABELS } from "@/lib/config/constants";
 import type { PlanItem } from "@/lib/services/plan.service";
 import { formatDateChile, toISODate } from "@/lib/utils/date";
-import { formatSessionType } from "@/lib/utils/format";
+import { formatDistance, formatDuration, formatRpe, formatSessionType } from "@/lib/utils/format";
 import { DAY_STATE_META, resolveDayState } from "./dayState";
 
 export function SessionDetailPanel({
@@ -85,6 +85,47 @@ export function SessionDetailPanel({
                 <p className="mb-0 text-secondary" data-testid="session-detail-rest">
                   Descanso — sin sesión planificada.
                 </p>
+              )}
+
+              {item?.record && (
+                <div
+                  className="mt-3 pt-3 border-top"
+                  data-testid="session-detail-record"
+                >
+                  <h6 className="mb-2">Registro</h6>
+                  {item.record.notDoneReason ? (
+                    <p className="mb-0 text-danger">
+                      No realizada: {item.record.notDoneReason}
+                      {item.record.customReason ? ` — ${item.record.customReason}` : ""}
+                    </p>
+                  ) : (
+                    <>
+                      <div className="row g-2 mb-0">
+                        <div className="col-auto" data-testid="record-distance">
+                          <span className="text-secondary small d-block">Distancia</span>
+                          <span className="fw-medium">
+                            {formatDistance(item.record.distanceKm)}
+                          </span>
+                        </div>
+                        <div className="col-auto" data-testid="record-duration">
+                          <span className="text-secondary small d-block">Tiempo</span>
+                          <span className="fw-medium">
+                            {formatDuration(item.record.durationMinutes)}
+                          </span>
+                        </div>
+                        <div className="col-auto" data-testid="record-rpe">
+                          <span className="text-secondary small d-block">RPE</span>
+                          <span className="fw-medium">{formatRpe(item.record.rpe)}</span>
+                        </div>
+                      </div>
+                      {item.record.comments && (
+                        <p className="mb-0 mt-2 text-secondary" data-testid="record-comments">
+                          {item.record.comments}
+                        </p>
+                      )}
+                    </>
+                  )}
+                </div>
               )}
             </div>
             <div className="modal-footer">

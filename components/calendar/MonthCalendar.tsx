@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
@@ -8,7 +8,7 @@ import { formatSessionType } from "@/lib/utils/format";
 import { CalendarDay } from "./CalendarDay";
 import { resolveDayState } from "./dayState";
 
-const WEEKDAYS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
+const WEEKDAYS = ["Lun", "Mar", "MiÃ©", "Jue", "Vie", "SÃ¡b", "Dom"];
 
 function pad(value: number): string {
   return String(value).padStart(2, "0");
@@ -21,20 +21,38 @@ function monthLabel(year: number, month: number): string {
   }).format(new Date(year, month, 1));
 }
 
+function parseMonth(value: string): { year: number; month: number } {
+  const match = /^(\d{4})-(\d{2})$/.exec(value);
+  if (match) {
+    const month = Number(match[2]);
+    if (month >= 1 && month <= 12) {
+      return { year: Number(match[1]), month: month - 1 };
+    }
+  }
+  const now = new Date();
+  return { year: now.getFullYear(), month: now.getMonth() };
+}
+
 export function MonthCalendar({
   items,
+  month,
   selectedDate,
+  onMonthChange,
   onDayClick,
 }: {
   items: PlanItem[];
+  month?: string;
   selectedDate?: string | null;
+  onMonthChange?: (monthISO: string) => void;
   onDayClick?: (dateISO: string, item: PlanItem | null) => void;
 }) {
   const today = toISODate(new Date());
-  const [view, setView] = useState(() => {
+  const [internalView, setInternalView] = useState(() => {
     const now = new Date();
     return { year: now.getFullYear(), month: now.getMonth() };
   });
+  const controlled = month !== undefined;
+  const view = controlled ? parseMonth(month) : internalView;
 
   const itemsByDate = new Map(
     items.map((item) => [item.sessionDate, item] as const),
@@ -43,18 +61,28 @@ export function MonthCalendar({
   const daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
   const cellCount = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
 
-  const goPrev = () =>
-    setView((current) =>
-      current.month === 0
-        ? { year: current.year - 1, month: 11 }
-        : { year: current.year, month: current.month - 1 },
-    );
-  const goNext = () =>
-    setView((current) =>
-      current.month === 11
-        ? { year: current.year + 1, month: 0 }
-        : { year: current.year, month: current.month + 1 },
-    );
+  const goPrev = () => {
+    const next =
+      view.month === 0
+        ? { year: view.year - 1, month: 11 }
+        : { year: view.year, month: view.month - 1 };
+    if (controlled) {
+      onMonthChange?.(`${next.year}-${pad(next.month + 1)}`);
+    } else {
+      setInternalView(next);
+    }
+  };
+  const goNext = () => {
+    const next =
+      view.month === 11
+        ? { year: view.year + 1, month: 0 }
+        : { year: view.year, month: view.month + 1 };
+    if (controlled) {
+      onMonthChange?.(`${next.year}-${pad(next.month + 1)}`);
+    } else {
+      setInternalView(next);
+    }
+  };
 
   const title = monthLabel(view.year, view.month);
 
