@@ -380,16 +380,16 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 21. Formulario de registro de sesión (UI)
 
-- [ ] 21.1 Crear componente `SessionForm` en `components/calendar/SessionForm.tsx` — React Hook Form + Zod con campos: distancia (km), tiempo (min), RPE (select 1-10), comentarios (textarea)
-- [ ] 21.2 Crear toggle "Completada" vs "Parcial" vs "No realizada" en el formulario
-- [ ] 21.3 Al seleccionar "No realizada": mostrar select de motivos (desde settings) + campo texto si motivo="otro"
-- [ ] 21.4 Integrar `SessionForm` en `SessionDetailPanel` para rol atleta
-- [ ] 21.5 Manejar estados de edición: si registro existe y dentro de ventana → editable; si fuera de ventana → solo lectura con mensaje
-- [ ] 21.6 Mostrar confirmación de éxito tras guardar ("Sesión registrada correctamente")
-- [ ] 21.7 Actualizar el color del día en calendario tras guardar (sin refresh de página completo)
-- [ ] 21.8 Verificar: formulario valida en cliente con Zod (feedback inmediato)
-- [ ] 21.9 Verificar: formulario valida en servidor (Server Action rechaza datos inválidos)
-- [ ] 21.10 Verificar: al guardar, el día cambia de color inmediatamente
+- [x] 21.1 Crear componente `SessionForm` en `components/calendar/SessionForm.tsx` — React Hook Form + Zod con campos: distancia (km), tiempo (min), RPE (select 1-10), comentarios (textarea)
+- [x] 21.2 Crear toggle "Completada" vs "Parcial" vs "No realizada" en el formulario
+- [x] 21.3 Al seleccionar "No realizada": mostrar select de motivos (desde settings) + campo texto si motivo="otro"
+- [x] 21.4 Integrar `SessionForm` en `SessionDetailPanel` para rol atleta
+- [x] 21.5 Manejar estados de edición: si registro existe y dentro de ventana → editable; si fuera de ventana → solo lectura con mensaje
+- [x] 21.6 Mostrar confirmación de éxito tras guardar ("Sesión registrada correctamente")
+- [x] 21.7 Actualizar el color del día en calendario tras guardar (sin refresh de página completo)
+- [x] 21.8 Verificar: formulario valida en cliente con Zod (feedback inmediato)
+- [x] 21.9 Verificar: formulario valida en servidor (Server Action rechaza datos inválidos)
+- [x] 21.10 Verificar: al guardar, el día cambia de color inmediatamente
 
 ---
 
@@ -858,7 +858,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 18. Calendario — Coach | 8 | 8 |
 | 19. Drag & drop y planificación | 15 | 15 |
 | 20. Registro de sesiones | 16 | 16 |
-| 21. Formulario registro (UI) | 10 | 0 |
+| 21. Formulario registro (UI) | 10 | 10 |
 | 22. Feedback en sesiones | 10 | 8 |
 | 23. Notificaciones in-app | 17 | 0 |
 | 24. Notificaciones email | 8 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **280** |
+| **TOTAL** | **~578** | **290** |

@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 20
+# Sesión — Resumen hasta Fase 21
 
 ## Estado actual
-- **HEAD**: `7961db3` (Fase 20 completada)
-- **Push a GitHub**: ✓ realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–20 subidas; credenciales disponibles en este equipo)
-- **Trabajo limpio**: `git status` → sin cambios pendientes · lint + build ✅ · leftovers 0
+- **HEAD**: `13d966a` (Fase 21 completada)
+- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–21 subidas; credenciales disponibles en este equipo)
+- **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build ✓ · leftovers 0
 
-## Fases completadas (1–20)
+## Fases completadas (1–21)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -28,6 +28,7 @@
 | 18 | 7bedfb7 | **Calendario vista coach + feedback** (ver abajo) |
 | 19 | c048073 | **Drag & drop y herramientas de planificación** (ver abajo) |
 | 20 | 7961db3 | **Registro de sesiones** (ver abajo) |
+| 21 | 13d966a | **Formulario de registro (UI)** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -149,10 +150,25 @@
   - **Orden de cleanup FK**: `session_records` y `session_feedback` referencian `session_assignments` → borrarlos ANTES que assignments (además de audit/notifications/users ya anotados en Fase 19)
   - Colores de día verificados importando `resolveDayState` directamente en el script (mismo código que usa la UI)
 
-## Próximos pasos
-**Fase 21 — Formulario de registro (UI)** (10 tareas en `tasks/mvp.md`).
+## Fase 21 — Formulario de registro (UI) — `13d966a` (290/578)
+- **`components/calendar/SessionForm.tsx`** (21.1-21.3, 21.5-21.6): RHF **sin resolver dinámico** — modo toggle con `useState` (`completed`/`partial`/`not_done`, `data-testid="session-mode-*"`) + `safeParse` manual de `recordSessionSchema`/`notDoneSchema` + `setError` mapeando paths (`distanceKm→distance`, `durationMinutes→duration`, `customReason→customReason`, resto→`root`). Motivos: select `NOT_DONE_REASON_LABELS`; texto libre solo si 'otro'. Éxito: `session-form-success` "Sesión registrada correctamente". Guardar → acción → `router.refresh()`
+  - **Bug encontrado y corregido en E2E**: el select de motivo NO está registrado en RHF (controlado por estado local `reason`) — `onSubmit` usaba `values.reason` (siempre el default 'lesion') y la validación 'otro' nunca veía el valor seleccionado → usar el estado local `reason` en el `safeParse`
+  - **Read-only** (`session-form-readonly`): fecha > hoy → "No puedes registrar sesiones de días futuros"; registro con `recordedAt + edit_window_hours (48)` vencido → "La ventana de edición ha expirado". El reloj (`BOOT_AT`/`TODAY_ISO`) vive a **ámbito de módulo** porque `react-hooks/purity` prohíbe `Date.now()`/`new Date()` en render (el servidor sigue siendo la fuente de verdad al enviar)
+- **`SessionDetailPanel.tsx`**: nueva prop `recordForm?: ReactNode` (21.4) — el formulario se inyecta bajo el detalle/registro/extra
+- **`AthleteCalendar.tsx`**: pasa `<SessionForm key={item.id}>` cuando hay item seleccionado (21.4). **`CoachCalendar.tsx`**: mismo refactor — estado solo `selectedDate` + item **derivado** de `items` (props frescas tras `router.refresh()`, sin efectos que disparen el lint `set-state-in-effect`)
+- **`plan.service.ts`**: `PlanRecord.recordedAt: string` + `planSelect.recordRecordedAt` + mapeo en `toPlanItem` (para el check de ventana de edición en el cliente)
+- **Verificación**: **27/27 E2E** (`scratch-p21.ts` + página scratch `/scratch-p21`, borrados; fixtures `p21.%` UUID + cleanup FK): 21.2 (3 modos), 21.4 (form en panel atleta), 21.5 (futuro + ventana 49h backdate → read-only), 21.6 (mensaje éxito), 21.7 (marcador JS global sobrevive al guardar = sin reload + URL estable), 21.8 (campos requeridos + 'otro' requieren texto, sin navegar), 21.9 (Server Action real rechaza: registro inválido, not_done inválido, futuro, ventana expirada — 4 mensajes exactos), 21.10 (día completed/parcial/not_done tras guardar sin reload) + DB assertions (status, motivo 'otro' + texto, valores del record, futuro sigue 'planned')
+- **Lint/Build**: ✓. **Leftovers**: 0 (scratch-p21.ts, scratch-probe.ts, página scratch, .dev-e2e.log, .next)
+- **Notas E2E nuevas**:
+  - **Días fixtures deben ser PASADOS** para los flujos de registro — offsets +2/+3 caen en futuro → read-only y el form no aparece (timeout confuso)
+  - **React bail-out con mismo estado**: dos respuestas de acción con JSON idéntico + `clearResult` (mutación manual del DOM) → `setResult` con string igual → sin re-render → DOM queda vacío → **prefijo único por handler** en la página scratch (`valid:`/`invalid:`/`notdone:`)
+  - **NUNCA usar `Set-Content`/`-replace` de PS5.1 sobre .ts UTF-8** (reafirmado): mojibake + BOM → reescribir con tool `write`
+  - select de motivo controlado por estado local ≠ RHF: leer ese estado en `onSubmit`, no `values.*`
 
-Luego: 22 (22.9/22.10), 23. Notificaciones in-app, 24. Notificaciones email.
+## Próximos pasos
+**Fase 22 — 22.9/22.10** (feedback: notificación al coach + verificación comentario atleta).
+
+Luego: 23. Notificaciones in-app, 24. Notificaciones email.
 
 ## Para continuar en otro PC
 ```bash
