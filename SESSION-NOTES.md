@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 21
+# Sesión — Resumen hasta Fase 23
 
 ## Estado actual
-- **HEAD**: `13d966a` (Fase 21 completada)
-- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–21 subidas; credenciales disponibles en este equipo)
+- **HEAD**: `9168502` (Fase 23 completada)
+- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–23 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build ✓ · leftovers 0
 
-## Fases completadas (1–21)
+## Fases completadas (1–23)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -29,6 +29,8 @@
 | 19 | c048073 | **Drag & drop y herramientas de planificación** (ver abajo) |
 | 20 | 7961db3 | **Registro de sesiones** (ver abajo) |
 | 21 | 13d966a | **Formulario de registro (UI)** (ver abajo) |
+| 22 | — | **Feedback en sesiones** (22.9/22.10 cerradas en Fase 23) |
+| 23 | 9168502 | **Notificaciones in-app** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -165,10 +167,24 @@
   - **NUNCA usar `Set-Content`/`-replace` de PS5.1 sobre .ts UTF-8** (reafirmado): mojibake + BOM → reescribir con tool `write`
   - select de motivo controlado por estado local ≠ RHF: leer ese estado en `onSubmit`, no `values.*`
 
-## Próximos pasos
-**Fase 22 — 22.9/22.10** (feedback: notificación al coach + verificación comentario atleta).
+## Fase 23 — Notificaciones in-app — `9168502` (309/578)
+- **Servicio** (`notification.service.ts`): `notify()` original intacto · `getUnreadCount(userId)`, `getNotifications(userId,{unreadOnly,limit})`, `markAsRead(id,userId)→boolean` (ownership), `markAllAsRead(userId)` · `notifySessionRecorded({assignmentId,athleteId,kind})` (join templates+users; mensajes completed/partial/not_done; salta si `!createdBy || createdBy===athleteId`) · `notifyFeedbackCreated({assignmentId,authorId})` (notifica a todas las partes menos el autor) · helper `formatSessionDay` (slice(0,10)+`T12:00:00` para evitar desfase Santiago/UTC)
+- **Actions/schemas**: `markAsReadAction` (ActionFailure "Notificación no encontrada"), `markAllAsReadAction` (`z.object({})`); `markAsReadSchema`/`markAllAsReadSchema`
+- **Integraciones**: `recordSession`/`markNotDone` → `notifySessionRecorded` solo en **primer guardado** (`!editable.data.recordId`, no ediciones) · `addFeedback` → `notifyFeedbackCreated` (= 22.9+23.8) · `assignAthlete` (team) → `athlete_assigned` · `createAthlete` → `welcome` · `approveRequest`/`rejectRequest` ya notificaban (23.9)
+- **UI**: `NotificationBell.tsx` (client; bell `notification-bell`, badge `notification-badge` "99+", dropdown React-state — **sin JS de Tabler** — items `notification-item` click→markAsRead+push+refresh, `mark-all-read`, "Ver todas"→`/notifications`, click-outside `mousedown`) · `AppHeader` (async server: `requireAuth` + `Promise.all(unreadCount, notifications limit 8)` → href vía `notificationHref(item, role)`) · `NotificationCenter.tsx` (filtros pills `filter-all`/`filter-unread`, lista, vacío) · `app/(app)/notifications/page.tsx` (`instant=false`, `?filter=unread`, limit 100) · `lib/utils/notification.ts` (`notificationHref`: session_assignment→atleta `/athlete/calendar`/coach `/coach/calendar`, group→admin/coach, team→coach, default `dashboardPath`)
+- **Verificación**: **33/33 E2E** (`scratch-p23.ts`, borrado; fixtures `p23.%` + cleanup FK notifications→feedback→records→assignments→team_members→group_requests→group_members→audit_logs→sessions→athlete_profiles→templates→teams→users→groups): 23.1–23.4 (count/mark own-true/foreign-false/markAll→0), 23.6–23.10 (completed/not_done/feedback bidireccional/athlete_assigned/join_request_approved/welcome), 22.9+23.8, 22.10+23.8, 23.12–23.17 UI (bell visible, badge=count, dropdown lista, click item badge−1 y navega, mark-all badge gone, page list/empty, filter unread active) + coach badge/count/navegación/marca leída + leftovers 0
+- **Lint/Build**: ✓ (`/notifications` dinámica). **Leftovers**: 0
+- **Notas E2E nuevas**:
+  - **Dropdown sin Popper de Bootstrap**: posición explícita `position:absolute; top:100%; right:0` en el estilo del menú (si no, queda fuera del viewport)
+  - **Tabler `.dropdown-header` tiene `pointer-events:none`** → el botón "Marcar todas" dentro hereda `none` y Playwright reporta "dropdown intercepts pointer events" → añadir clase **`pe-auto`** al header
+  - **Click en notificación navega a la entidad** (no al dashboard actual) → el paso de abrir un día del calendario debe ir tras `goto('/athlete/calendar')`, no asumir la URL actual
+  - **Race markAsRead vs check DB**: esperar a que el badge baje (`waitForFunction`) antes de leer `getUnreadCount` — el `waitForURL("**/coach/**")` pasa de inmediato si ya estás en una página /coach/*
+  - tsx no valida tipos: `recordSession` exige `status` explícito en el fixture; y **`process.exit()` al final del main** (el pool de MySQL mantiene el event loop vivo y el script cuelga tras el último log)
 
-Luego: 23. Notificaciones in-app, 24. Notificaciones email.
+## Próximos pasos
+**Fase 24 — Notificaciones email** (Resend/React Email para eventos críticos: plan publicado, sesión completada, anuncios masivos).
+
+Luego: 25. Exportes PDF/Excel, 26. Dashboard atleta, 27. Dashboard coach, 28. Dashboard Dir. Técnico/Admin, etc. (ver `tasks/mvp.md`).
 
 ## Para continuar en otro PC
 ```bash

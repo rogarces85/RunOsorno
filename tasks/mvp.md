@@ -403,30 +403,30 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 22.6 Crear componente `FeedbackThread` — lista de mensajes (coach y atleta) con autor y fecha
 - [x] 22.7 Integrar `FeedbackThread` + `FeedbackForm` en `SessionDetailPanel` para ambos roles
 - [x] 22.8 Verificar: coach deja feedback en sesión → atleta lo ve en su panel de detalle
-- [ ] 22.9 Verificar: atleta ve feedback del coach → marcado como no leído en notificaciones
-- [ ] 22.10 Verificar: atleta también puede comentar en la sesión (pregunta al coach)
+- [x] 22.9 Verificar: atleta ve feedback del coach → marcado como no leído en notificaciones
+- [x] 22.10 Verificar: atleta también puede comentar en la sesión (pregunta al coach)
 
 ---
 
 # 23. Notificaciones in-app
 
-- [ ] 23.1 Crear `notification.service.ts` con `create({ userId, type, title, message, entityType?, entityId? })` — inserta en `notifications`
-- [ ] 23.2 Crear servicio con `getUnread(userId)` — notificaciones no leídas del usuario
-- [ ] 23.3 Crear servicio avec `markAsRead(id)`, `markAllAsRead(userId)`
-- [ ] 23.4 Crear servicio con `getNotifications(userId, { unreadOnly?, limit })` — lista paginada
-- [ ] 23.5 Crear Server Actions: `markAsRead`, `markAllAsRead`
-- [ ] 23.6 Integrar `create()` en `recordSession` → notificar al coach: "Tu atleta {nombre} completó {tipo} el {fecha}"
-- [ ] 23.7 Integrar `create()` en `markNotDone` → notificar al coach: "{nombre} marcó {tipo} como no realizada"
-- [ ] 23.8 Integrar `create()` en `addFeedback` → notificar al autor original: "Nuevo comentario en tu sesión"
-- [ ] 23.9 Integrar `create()` en `approveRequest` / `rejectRequest` → notificar al coach
-- [ ] 23.10 Integrar `create()` en cambio de team, bienvenida, etc. (eventos de sistema)
-- [ ] 23.11 Crear componente `NotificationBell` en `components/ui/NotificationBell.tsx` — icono de campanita con badge de contador de no leídas
-- [ ] 23.12 Crear dropdown/lista de notificaciones recientes al hacer click en campanita
-- [ ] 23.13 Crear página `app/(app)/notifications/page.tsx` — centro de notificaciones completo con filtros (todas, no leídas)
-- [ ] 23.14 Integrar `NotificationBell` en `AppHeader`
-- [ ] 23.15 Verificar: al completar sesión, el coach ve la campanita con contador incrementado
-- [ ] 23.16 Verificar: click en notificación → marca como leída y navega a la entidad relacionada
-- [ ] 23.17 Verificar: "Marcar todas como leídas" limpia el contador
+- [x] 23.1 Crear `notification.service.ts` con `create({ userId, type, title, message, entityType?, entityId? })` — inserta en `notifications`
+- [x] 23.2 Crear servicio con `getUnread(userId)` — notificaciones no leídas del usuario
+- [x] 23.3 Crear servicio avec `markAsRead(id)`, `markAllAsRead(userId)`
+- [x] 23.4 Crear servicio con `getNotifications(userId, { unreadOnly?, limit })` — lista paginada
+- [x] 23.5 Crear Server Actions: `markAsRead`, `markAllAsRead`
+- [x] 23.6 Integrar `create()` en `recordSession` → notificar al coach: "Tu atleta {nombre} completó {tipo} el {fecha}"
+- [x] 23.7 Integrar `create()` en `markNotDone` → notificar al coach: "{nombre} marcó {tipo} como no realizada"
+- [x] 23.8 Integrar `create()` en `addFeedback` → notificar al autor original: "Nuevo comentario en tu sesión"
+- [x] 23.9 Integrar `create()` en `approveRequest` / `rejectRequest` → notificar al coach
+- [x] 23.10 Integrar `create()` en cambio de team, bienvenida, etc. (eventos de sistema)
+- [x] 23.11 Crear componente `NotificationBell` en `components/ui/NotificationBell.tsx` — icono de campanita con badge de contador de no leídas
+- [x] 23.12 Crear dropdown/lista de notificaciones recientes al hacer click en campanita
+- [x] 23.13 Crear página `app/(app)/notifications/page.tsx` — centro de notificaciones completo con filtros (todas, no leídas)
+- [x] 23.14 Integrar `NotificationBell` en `AppHeader`
+- [x] 23.15 Verificar: al completar sesión, el coach ve la campanita con contador incrementado
+- [x] 23.16 Verificar: click en notificación → marca como leída y navega a la entidad relacionada
+- [x] 23.17 Verificar: "Marcar todas como leídas" limpia el contador
 
 ---
 
@@ -859,8 +859,8 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 19. Drag & drop y planificación | 15 | 15 |
 | 20. Registro de sesiones | 16 | 16 |
 | 21. Formulario registro (UI) | 10 | 10 |
-| 22. Feedback en sesiones | 10 | 8 |
-| 23. Notificaciones in-app | 17 | 0 |
+| 22. Feedback en sesiones | 10 | 10 |
+| 23. Notificaciones in-app | 17 | 17 |
 | 24. Notificaciones email | 8 | 0 |
 | 25. Métricas — Cálculo | 15 | 0 |
 | 26. Métricas — Servicio | 10 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **290** |
+| **TOTAL** | **~578** | **309** |
