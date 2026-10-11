@@ -465,16 +465,16 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 26. Métricas — Servicio y Server Actions
 
-- [ ] 26.1 Crear `metric.service.ts` con `getAthleteMetrics(athleteId, period)` — carga registros + asignaciones, llama funciones de cálculo, retorna objeto completo
-- [ ] 26.2 Crear servicio con `getTeamMetrics(teamId, period)` — buckets de cumplimiento (>80/50-80/<50), carga media, alertas
-- [ ] 26.3 Crear servicio con `getGroupMetrics(groupId, period)` — comparativa de teams + cumplimiento por coach
-- [ ] 26.4 Crear servicio con `getMetricsPeriod(period)` — resuelve temporada/año/rango personalizado a fechas
-- [ ] 26.5 Crear Server Actions o funciones RSC para obtener métricas de cada nivel
-- [ ] 26.6 Integrar actualización de métricas: al guardar registro (`recordSession`), las métricas se refrescan via `revalidatePath`
-- [ ] 26.7 Verificar: métricas del atleta se calculan correctamente con datos reales
-- [ ] 26.8 Verificar: métricas del team muestran buckets correctos
-- [ ] 26.9 Verificar: métricas del grupo comparan teams correctamente
-- [ ] 26.10 Verificar: métricas se actualizan al guardar registro (sin refresh manual)
+- [x] 26.1 Crear `metric.service.ts` con `getAthleteMetrics(athleteId, period)` — carga registros + asignaciones, llama funciones de cálculo, retorna objeto completo
+- [x] 26.2 Crear servicio con `getTeamMetrics(teamId, period)` — buckets de cumplimiento (>80/50-80/<50), carga media, alertas
+- [x] 26.3 Crear servicio con `getGroupMetrics(groupId, period)` — comparativa de teams + cumplimiento por coach
+- [x] 26.4 Crear servicio con `getMetricsPeriod(period)` — resuelve temporada/año/rango personalizado a fechas
+- [x] 26.5 Crear Server Actions o funciones RSC para obtener métricas de cada nivel
+- [x] 26.6 Integrar actualización de métricas: al guardar registro (`recordSession`), las métricas se refrescan via `revalidatePath`
+- [x] 26.7 Verificar: métricas del atleta se calculan correctamente con datos reales
+- [x] 26.8 Verificar: métricas del team muestran buckets correctos
+- [x] 26.9 Verificar: métricas del grupo comparan teams correctamente
+- [x] 26.10 Verificar: métricas se actualizan al guardar registro (sin refresh manual)
 
 ---
 
@@ -863,7 +863,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 23. Notificaciones in-app | 17 | 17 |
 | 24. Notificaciones email | 8 | 8 |
 | 25. Métricas — Cálculo | 15 | 15 |
-| 26. Métricas — Servicio | 10 | 0 |
+| 26. Métricas — Servicio | 10 | 10 |
 | 27. Métricas — Interfaz | 15 | 0 |
 | 28. Métricas fisiológicas | 7 | 0 |
 | 29. Avatar | 19 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **332** |
+| **TOTAL** | **~578** | **342** |

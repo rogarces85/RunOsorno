@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 25
+# Sesión — Resumen hasta Fase 26
 
 ## Estado actual
-- **HEAD**: `5543621` (Fase 25 completada)
-- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–25 subidas; credenciales disponibles en este equipo)
-- **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build + `npm test` (25/25) ✓ · leftovers 0
+- **HEAD**: `12750e9` (Fase 26 completada)
+- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–26 subidas; credenciales disponibles en este equipo)
+- **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build + `npm test` (29/29) ✓ · leftovers 0
 
-## Fases completadas (1–25)
+## Fases completadas (1–26)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -33,6 +33,7 @@
 | 23 | 9168502 | **Notificaciones in-app** (ver abajo) |
 | 24 | effac37 | **Notificaciones email** (ver abajo) |
 | 25 | 5543621 | **Métricas — funciones de cálculo** (ver abajo) |
+| 26 | 12750e9 | **Métricas — servicio y actions** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -215,10 +216,30 @@
   - `sessionRecords` no tiene columnas de FC → TRIMP usa RPE como proxy de %HRR (documentado en `heart-rate.ts`)
   - Corregido "Próximos pasos": Fase 25 era funciones de cálculo, NO exportes (PDF/Excel = Fase 33)
 
-## Próximos pasos
-**Fase 26 — Métricas: servicio y Server Actions** (consultas DB + composición de las funciones de la Fase 25; ver `tasks/mvp.md`).
+## Fase 26 — Métricas — servicio y Server Actions — `12750e9` (342/578)
+- **`lib/validations/metric.schemas.ts`**: `metricsPeriodSchema` (discriminatedUnion `kind`: `season` | `year` (year opcional 2000-2100) | `custom` (from/to ISO)) + refine "from ≤ to" → error path `from`; input schemas `athleteMetricsInputSchema` / `teamMetricsInputSchema` / `groupMetricsInputSchema` (uuid + period)
+- **`lib/services/metric.service.ts`** (sin permisos — los chequea 26.5 en las actions):
+  - `getMetricsPeriod(period)` → `{from, to}` ISO: **temporada austral 1 ago → 31 jul** (si mes ≥ 8: año actual; si no: año anterior), año → `Y-01-01..Y-12-31`, custom → tal cual
+  - `getAthleteMetrics(athleteId, period)` → ServiceResult: usuario debe existir con role athlete ("Atleta no encontrado"); query assignments ⋈ templates ⋈ records(left) con `whereSessionDateBetween` (helper sql de plan.service) → `period`, `totals{sessions,completed,km,minutes}`, `compliance`, `weeklyLoad` (semana de `reference = min(hoy, period.to)`, con perfil → trimp), `progression` (clamp 1..12 semanas según span del periodo), `distribution`, `avgRpe` (1 decimal, solo registros con rpe), `streak`, `vo2max`, `hrZones` (solo si perfil tiene FC máx > reposo)
+  - `getTeamMetrics(teamId, period)` → team existe + members (innerJoin users, orden nombre); **una sola query** assignments⋈records por atletas (TODOS los periodos) → filtra en memoria por fecha para métricas del periodo y usa TODOS los registros para `detectAlerts` (alertas = estado actual, no del periodo); `buckets{high>80, medium 50-80, low<50, withoutPlan sessions=0}`, `averageLoadKm` (media km/atleta), `athletes[]` detalle
+  - `getGroupMetrics(groupId, period)` → teams de coaches del grupo (⋈ groupMembers, orden coachName+teamName = **sin ranking**); por team: cumplimiento agregado, km, `alerts: number`; por coach (Map + sort por nombre): teams, sessions, completed, compliance
+  - Fechas: `toDayISO(value) = value.toISOString().slice(0,10)` (**mismo patrón que plan.service/session.service**, no getters locales)
+- **26.5 `lib/actions/metric.actions.ts`**: `getAthleteMetricsAction` (→ `canViewAthlete`), `getTeamMetricsAction` (admin o `canManageTeam`), `getGroupMetricsAction` (→ **nuevo `isGroupMember`** en `lib/permissions/index.ts`: admin auto-true, si no fila en groupMembers — coaches del grupo ven métricas comparativas, según AGENTS); errores: "No puedes ver las métricas de este atleta" / "No tienes permiso para ver este team" / "No tienes permiso para ver este grupo"
+- **26.6**: `session.actions.ts` → `revalidatePath("/athlete/calendar")` + `revalidatePath("/athlete/metrics")` en `recordSessionAction` y `markNotDoneAction` (después de ok); la UI además hace `router.refresh()` (SessionForm)
+- **Tests unitarios**: +4 (29/29) — `getMetricsPeriod` temporada/año/custom + schema rechaza range invertido y fecha no-ISO
+- **Verificación scratch `scratch-p26.ts` (borrado): 51/51** con fixture p26.* (2 coaches, grupo, 2 teams, 5 atletas, perfil FC a1 190/48): 26.7 (compliance 100, km 36, dist 50/50, avgRpe 7, racha 4, vo2max **60.6** = 15.3×190/48, zonas to=190, carga semanal recalculada del fixture, trimp>0, progression termina en lunes actual, sin perfil→null, inexistente→error), 26.8 (buckets 1/1/1/1, 100/50/25/0, media 15.3 km, alertas: A3 "12 días" + A4 "sin registros" y **A2 exactamente 7 días NO alerta** (umbral `>7`), 2 caídas de carga, 0 RPE alto), 26.9 (Team A 58% = 7/12, Team B 50%, orden alfabético pese a compliance, coaches 1 team c/u, alerts 4/0), 26.5 (10 checks de permisos), 26.10 (antes 50% → recordSession → 75% + km 25; fuente contiene ambos revalidatePath; **E2E Playwright**: login p26.a2 → calendario → click día T-4 → form → Guardar → success + `data-state="completed"` tras refresh → métricas 4/4 = 100%)
+- **Lint/Build**: ✓ · **Leftovers**: 0 (scratch + .dev-e2e.log borrados, dev server matado PID 18292)
+- **Notas nuevas**:
+  - Expectativas del scratch ajustadas 3× (vo2max 60.6 no 60.5; umbral alerta estricto `> days`; a2 tiene 4 sesiones totales → 4/4=100 tras E2E) — el código estaba bien
+  - `getTeamMetrics`/`getGroupMetrics` evalúan alertas con TODOS los registros (no los del periodo): "sin registrar >X días" y caída de carga son estado actual
+  - Atletas sin sesiones planificadas en el periodo → bucket `withoutPlan` (excluidos de los otros 3)
+  - `Start-Process` en PS5.1 exige `-FilePath`/`-ArgumentList` (con posicionales falla)
+  - Métricas sin UI aún: página `/athlete/metrics` llega en Fase 27 (revalidatePath ya la apunta)
 
-Luego: 27. Métricas interfaz y gráficas, 28. Métricas fisiológicas, 29. Avatar (R2), 30. Dashboard roles, 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, etc.
+## Próximos pasos
+**Fase 27 — Métricas: interfaz y gráficas** (dashboard atleta con gráficas; ver `tasks/mvp.md`).
+
+Luego: 28. Métricas fisiológicas, 29. Avatar (R2), 30. Dashboard roles, 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, 36. Dashboard Admin, etc.
 
 ## Para continuar en otro PC
 ```bash
