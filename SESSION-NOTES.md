@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 27
+# Sesión — Resumen hasta Fase 28
 
 ## Estado actual
-- **HEAD**: `e34b63f` (Fase 27 completada)
-- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–27 subidas; credenciales disponibles en este equipo)
-- **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build + `npm test` (29/29) ✓ · leftovers 0
+- **HEAD**: `8fef722` (Fase 28 completada)
+- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–28 subidas; credenciales disponibles en este equipo)
+- **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build + `npm test` (34/34) ✓ · leftovers 0
 
-## Fases completadas (1–27)
+## Fases completadas (1–28)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -35,6 +35,7 @@
 | 25 | 5543621 | **Métricas — funciones de cálculo** (ver abajo) |
 | 26 | 12750e9 | **Métricas — servicio y actions** (ver abajo) |
 | 27 | e34b63f | **Métricas — interfaz y gráficas** (ver abajo) |
+| 28 | 8fef722 | **Métricas — fisiológicas** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -258,10 +259,23 @@
   - `getByText` es case-insensitive + whitespace-normalized → alerts "Sin registrar" puede matchear badge Y mensaje → usar `.first()` siempre
   - Playwright con varios roles = `newContext()` por sesión (o `clearCookies()`); login espera `waitForURL(pathname.startsWith(...))`
 
-## Próximos pasos
-**Fase 28 — Métricas fisiológicas (VO2max, zonas FC, umbrales)** (ver `tasks/mvp.md`).
+## Fase 28 — Métricas — fisiológicas — `8fef722` (364/578)
+- **`lib/metrics/heart-rate.ts`**: `calcThresholdHr(maxHr, restingHr)` → FC umbral estimada = **Karvonen 90% de la reserva** (`round(rest + (max-rest)*0.9)`); null si FC inválida (190/48 → **176**)
+- **`lib/metrics/rpe.ts`** (nuevo): `plannedRpeTarget(sessionType)` — objetivo RPE por tipo (series/intervalos 8, tempo 7, fondo/largo 6, recuperación/recovery 3; normaliza mayúsculas+acentos, tipos desconocidos → null) + `calcPlannedRpe(types)` (promedio solo de tipos conocidos, 1 decimal, null si ninguno)
+- **`metric.service.ts`**: `AthleteMetrics` += `thresholdHr`, `plannedRpe` (calculados en `getAthleteMetrics`; pasan automáticamente por `getAthleteMetricsAction`)
+- **`AthleteMetricsPanel`**: alert-warning **28.5** "Datos insuficientes. Completa tu perfil con FC máx y FC reposo." (cuando `hrZones === null`); cards nuevas: **FC de umbral** (lpm o "sin datos de FC"), **RPE medio vs planificado** (real / planificado + badge delta: `>0` rojo "sobre objetivo", `<0` azul "bajo objetivo", `=0` verde "en objetivo"); card **Zonas de FC (Karvonen)** con tabla Zona 1–5 (desde/hasta lpm)
+- **Tests**: +5 (**34/34**) — `calcThresholdHr` (176/168 + inválidos) y `plannedRpe`/`calcPlannedRpe` (acento "Recuperación", desconocidos, promedios 7/7.7/null)
+- **Verificación E2E `scratch-e2e-p28.ts` (borrado): 9/9 PASS** — fixture p28.* (coach + 2 atletas, plantilla "Series", 4 completadas c/u, a1 con perfil 190/48): 28.6 (VO2máx **60.6**, umbral **176**, tabla Zona 1+Zona 5, RPE **6.8 / 8**, badge "-1.2 bajo objetivo", sin mensaje), 28.7 (mensaje datos insuficientes exacto, "sin datos de FC", sin tabla de zonas)
+- **Lint/Build/Tests**: ✓ · **Leftovers**: 0
+- **Notas nuevas**:
+  - **"RPE planificado" no existe en el schema** (ni columna ni en `TemplateSection`) → interpretado como **objetivo por tipo de sesión** (`lib/metrics/rpe.ts`) en vez de migración; si algún día se agrega `planned_rpe` real a `session_assignments`, reemplazar `calcPlannedRpe`
+  - Umbral = 90% reserva Karvonen (consistente con zonas: borde inferior Z5); no hay datos de potencia en el schema → "potencia/umbrales" de specs queda pendiente de datos
+  - `estimateVO2max` exige al menos un registro con `durationMinutes > 0` (perfil solo no basta)
 
-Luego: 29. Avatar (R2), 30. Dashboard roles, 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, 36. Dashboard Admin, etc.
+## Próximos pasos
+**Fase 29 — Avatar (R2)** (ver `tasks/mvp.md`).
+
+Luego: 30. Dashboard roles, 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, 36. Dashboard Admin, etc.
 
 ## Para continuar en otro PC
 ```bash

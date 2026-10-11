@@ -500,13 +500,13 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 28. Métricas fisiológicas (VO2max, zonas FC, umbrales)
 
-- [ ] 28.1 Mostrar VO2max estimado en panel de métricas del atleta (si hay datos suficientes)
-- [ ] 28.2 Mostrar zonas de FC en panel del atleta (si tiene max_hr y resting_hr en perfil)
-- [ ] 28.3 Mostrar FC de umbral estimada (si hay datos de FC)
-- [ ] 28.4 Mostrar RPE medio vs RPE planificado en panel del atleta
-- [ ] 28.5 Si no hay datos suficientes → mostrar mensaje "Datos insuficientes. Completa tu perfil con FC máx y FC reposo."
-- [ ] 28.6 Verificar: atleta con perfil completo ve VO2max y zonas FC
-- [ ] 28.7 Verificar: atleta sin datos fisiológicos ve mensaje de datos insuficientes
+- [x] 28.1 Mostrar VO2max estimado en panel de métricas del atleta (si hay datos suficientes)
+- [x] 28.2 Mostrar zonas de FC en panel del atleta (si tiene max_hr y resting_hr en perfil)
+- [x] 28.3 Mostrar FC de umbral estimada (si hay datos de FC)
+- [x] 28.4 Mostrar RPE medio vs RPE planificado en panel del atleta
+- [x] 28.5 Si no hay datos suficientes → mostrar mensaje "Datos insuficientes. Completa tu perfil con FC máx y FC reposo."
+- [x] 28.6 Verificar: atleta con perfil completo ve VO2max y zonas FC
+- [x] 28.7 Verificar: atleta sin datos fisiológicos ve mensaje de datos insuficientes
 
 ---
 
@@ -865,7 +865,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 25. Métricas — Cálculo | 15 | 15 |
 | 26. Métricas — Servicio | 10 | 10 |
 | 27. Métricas — Interfaz | 15 | 15 |
-| 28. Métricas fisiológicas | 7 | 0 |
+| 28. Métricas fisiológicas | 7 | 7 |
 | 29. Avatar | 19 | 0 |
 | 30. Dashboard por roles | 8 | 0 |
 | 31. Menú lateral por rol | 7 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **357** |
+| **TOTAL** | **~578** | **364** |
