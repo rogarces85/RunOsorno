@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 26
+# Sesión — Resumen hasta Fase 27
 
 ## Estado actual
-- **HEAD**: `12750e9` (Fase 26 completada)
-- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–26 subidas; credenciales disponibles en este equipo)
+- **HEAD**: `e34b63f` (Fase 27 completada)
+- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–27 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build + `npm test` (29/29) ✓ · leftovers 0
 
-## Fases completadas (1–26)
+## Fases completadas (1–27)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -34,6 +34,7 @@
 | 24 | effac37 | **Notificaciones email** (ver abajo) |
 | 25 | 5543621 | **Métricas — funciones de cálculo** (ver abajo) |
 | 26 | 12750e9 | **Métricas — servicio y actions** (ver abajo) |
+| 27 | e34b63f | **Métricas — interfaz y gráficas** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -236,10 +237,31 @@
   - `Start-Process` en PS5.1 exige `-FilePath`/`-ArgumentList` (con posicionales falla)
   - Métricas sin UI aún: página `/athlete/metrics` llega en Fase 27 (revalidatePath ya la apunta)
 
-## Próximos pasos
-**Fase 27 — Métricas: interfaz y gráficas** (dashboard atleta con gráficas; ver `tasks/mvp.md`).
+## Fase 27 — Métricas — interfaz y gráficas — `e34b63f` (357/578)
+- **`recharts@3.10.1`** instalado (soporta React 19); gráficas = componentes `"use client"` con props serializables desde RSC
+- **`components/metrics/`** (10 archivos):
+  - `chartColors.ts`: paleta 8 colores + `complianceBadgeClass` (≥80 verde / ≥50 amarillo / resto rojo)
+  - **Paneles server**: `AthleteMetricsPanel` (6 cards: cumplimiento %, carga semanal km/min/TSS/TRIMP, racha, distribución badges, VO2máx, RPE medio), `TeamMetricsPanel` (4 cards buckets con % del team + card carga media con tabla de atletas + lista de alertas con badges `no_logging`/`load_drop`/`high_rpe`), `GroupMetricsPanel` (tabla teams orden coach+team = sin ranking + tabla cumplimiento por coach)
+  - **Gráficas client**: `ProgressChart` (línea km/semana), `LoadChart` (ComposedChart barras km + línea minutos, ejes duales), `TypeDistributionChart` (donut con legend), `ComplianceChart` (donut completadas/pendientes), `AthleteComplianceChart` (barras horizontales % por atleta, nombres truncados 16 chars)
+  - `PeriodSelector` (server): links Temporada/Año + form GET con fechas desde/hasta (custom) — preserva `extra` (team/group) en links y form
+- **`lib/validations/metric.schemas.ts`**: `periodFromSearchParams` (default season, fallback a season si rango inválido) + `periodToQuery` (serializa period a query string)
+- **`lib/permissions/roles.ts`**: `ROUTE_ACCESS.coach` ahora `["/coach", "/director"]` (DT = coach con `isDirector`; proxy solo valida sesión, no roles)
+- **Páginas** (`instant = false`):
+  - `/athlete/metrics`: header periodo + 4 gráficas (progresión, carga, distribución, cumplimiento) + panel de 6 cards
+  - `/coach/metrics`: selector de teams (si >1, preserva period), `canManageTeam` → notFound, `TeamMetricsPanel` + donut cumplimiento agregado + barras por atleta; empty state "primero crea un team"
+  - `/director/teams`: selector de grupos (si >1, preserva period), `isDirector` → alert-warning si no es DT, `GroupMetricsPanel`; empty state sin grupo → link `/coach/groups`
+- **Verificación E2E Playwright `scratch-e2e-p27.ts` (borrado): 15/15 PASS** — fixture p27.* (DT + coach2 en grupo, 2 teams, 3 atletas, a1 con 4 completadas recientes, a2 con 1 completada T-11 + 1 planned T-1): 27.12 (100%, progresión con `.recharts-line`, 4 gráficas, Series 100%), 27.13 (4 buckets, tabla atletas, alerta "Sin registrar" → Atleta Dos, 2+ gráficas), 27.14 (ambos teams en tabla + cumplimiento por coach), 27.15 (móvil 375×812: atleta 4 gráficas, coach 2+, director comparativa)
+- **Lint/Build/Tests**: ✓ (29/29) · **Leftovers**: 0 (scratch + .dev-e2e.log borrados, server matado)
+- **Notas nuevas**:
+  - Los svg de recharts NO existen en el HTML SSR → contar `svg.recharts-surface` exige `waitForFunction` post-hidratación (primer intento: 3 FAIL por conteo prematuro)
+  - Recuento de svgs por página: atleta 7, coach 4 (ResponsiveContainer/render extra de recharts — usar umbrales ≥4 / ≥2)
+  - `getByText` es case-insensitive + whitespace-normalized → alerts "Sin registrar" puede matchear badge Y mensaje → usar `.first()` siempre
+  - Playwright con varios roles = `newContext()` por sesión (o `clearCookies()`); login espera `waitForURL(pathname.startsWith(...))`
 
-Luego: 28. Métricas fisiológicas, 29. Avatar (R2), 30. Dashboard roles, 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, 36. Dashboard Admin, etc.
+## Próximos pasos
+**Fase 28 — Métricas fisiológicas (VO2max, zonas FC, umbrales)** (ver `tasks/mvp.md`).
+
+Luego: 29. Avatar (R2), 30. Dashboard roles, 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, 36. Dashboard Admin, etc.
 
 ## Para continuar en otro PC
 ```bash

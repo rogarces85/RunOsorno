@@ -480,21 +480,21 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 27. Métricas — Interfaz y gráficas
 
-- [ ] 27.1 Instalar `recharts`
-- [ ] 27.2 Crear componente `AthleteMetricsPanel` — cards con cumplimiento %, carga semanal, racha, distribución
-- [ ] 27.3 Crear componente `ProgressChart` — gráfica de línea: volumen semanal últimas 4-12 semanas (Recharts)
-- [ ] 27.4 Crear componente `TypeDistributionChart` — gráfica circular o barra: distribución por tipo de sesión
-- [ ] 27.5 Crear componente `LoadChart` — gráfica de carga semanal (km + tiempo)
-- [ ] 27.6 Crear componente `ComplianceChart` — gráfica de cumplimiento
-- [ ] 27.7 Crear componente `TeamMetricsPanel` — cards con % atletas por bucket, carga media, lista de alertas
-- [ ] 27.8 Crear componente `GroupMetricsPanel` — tabla comparativa de teams, cumplimiento por coach
-- [ ] 27.9 Crear página `app/(app)/athlete/metrics/page.tsx` — métricas personales del atleta con gráficas
-- [ ] 27.10 Crear página `app/(app)/coach/metrics/page.tsx` — métricas del team con gráficas y alertas
-- [ ] 27.11 Crear página `app/(app)/director/teams/page.tsx` — comparativa de teams del grupo
-- [ ] 27.12 Verificar: atleta ve gráfica de progresión con datos reales
-- [ ] 27.13 Verificar: coach ve resumen de team con buckets y alertas
-- [ ] 27.14 Verificar: Director Técnico ve comparativa de teams
-- [ ] 27.15 Verificar: todas las gráficas renderizan correctamente en desktop y móvil
+- [x] 27.1 Instalar `recharts`
+- [x] 27.2 Crear componente `AthleteMetricsPanel` — cards con cumplimiento %, carga semanal, racha, distribución
+- [x] 27.3 Crear componente `ProgressChart` — gráfica de línea: volumen semanal últimas 4-12 semanas (Recharts)
+- [x] 27.4 Crear componente `TypeDistributionChart` — gráfica circular o barra: distribución por tipo de sesión
+- [x] 27.5 Crear componente `LoadChart` — gráfica de carga semanal (km + tiempo)
+- [x] 27.6 Crear componente `ComplianceChart` — gráfica de cumplimiento
+- [x] 27.7 Crear componente `TeamMetricsPanel` — cards con % atletas por bucket, carga media, lista de alertas
+- [x] 27.8 Crear componente `GroupMetricsPanel` — tabla comparativa de teams, cumplimiento por coach
+- [x] 27.9 Crear página `app/(app)/athlete/metrics/page.tsx` — métricas personales del atleta con gráficas
+- [x] 27.10 Crear página `app/(app)/coach/metrics/page.tsx` — métricas del team con gráficas y alertas
+- [x] 27.11 Crear página `app/(app)/director/teams/page.tsx` — comparativa de teams del grupo
+- [x] 27.12 Verificar: atleta ve gráfica de progresión con datos reales
+- [x] 27.13 Verificar: coach ve resumen de team con buckets y alertas
+- [x] 27.14 Verificar: Director Técnico ve comparativa de teams
+- [x] 27.15 Verificar: todas las gráficas renderizan correctamente en desktop y móvil
 
 ---
 
@@ -864,7 +864,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 24. Notificaciones email | 8 | 8 |
 | 25. Métricas — Cálculo | 15 | 15 |
 | 26. Métricas — Servicio | 10 | 10 |
-| 27. Métricas — Interfaz | 15 | 0 |
+| 27. Métricas — Interfaz | 15 | 15 |
 | 28. Métricas fisiológicas | 7 | 0 |
 | 29. Avatar | 19 | 0 |
 | 30. Dashboard por roles | 8 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **342** |
+| **TOTAL** | **~578** | **357** |
