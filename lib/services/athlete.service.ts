@@ -31,6 +31,7 @@ export type AthleteListItem = {
   name: string;
   email: string;
   isActive: boolean;
+  avatarKey: string | null;
   teamNames: string[];
   teamRefs: { id: string; name: string }[];
   profile: AthleteProfileData | null;
@@ -369,6 +370,7 @@ export async function getAthletesByCoach(
       name: users.name,
       email: users.email,
       isActive: users.isActive,
+      avatarKey: users.avatarKey,
     })
     .from(users)
     .where(inArray(users.id, athleteIds))
@@ -390,6 +392,7 @@ export async function getAthletesByCoach(
       name: user.name,
       email: user.email,
       isActive: user.isActive,
+      avatarKey: user.avatarKey,
       teamNames: memberships.map((row) => row.teamName),
       teamRefs: memberships.map((row) => ({
         id: row.teamId,
@@ -558,6 +561,7 @@ export async function getAllAthletes(
       name: users.name,
       email: users.email,
       isActive: users.isActive,
+      avatarKey: users.avatarKey,
     })
     .from(users)
     .where(and(...conditions))
@@ -593,6 +597,7 @@ export async function getAllAthletes(
       name: user.name,
       email: user.email,
       isActive: user.isActive,
+      avatarKey: user.avatarKey,
       teamNames: memberships.map((row) => row.teamName),
       teamRefs: memberships.map((row) => ({
         id: row.teamId,

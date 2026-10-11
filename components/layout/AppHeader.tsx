@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { IconUser } from "@tabler/icons-react";
 import { logout } from "@/lib/actions/auth.actions";
 import { requireAuth } from "@/lib/auth/guards";
 import {
@@ -7,6 +6,7 @@ import {
   getUnreadCount,
 } from "@/lib/services/notification.service";
 import { notificationHref } from "@/lib/utils/notification";
+import { Avatar } from "@/components/ui/Avatar";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 
 export async function AppHeader() {
@@ -31,9 +31,18 @@ export async function AppHeader() {
             <NotificationBell unreadCount={unreadCount} items={items} />
           </div>
           <div className="nav-item ms-2">
-            <span className="avatar avatar-sm" aria-label="Perfil">
-              <IconUser size={16} stroke={1.75} />
-            </span>
+            <Link
+              href="/profile"
+              title="Mi perfil"
+              className="d-flex align-items-center"
+            >
+              <Avatar
+                userId={user.id}
+                name={user.name}
+                avatarKey={user.avatarKey}
+                size="sm"
+              />
+            </Link>
           </div>
           <div className="nav-item ms-2">
             <form action={logout}>

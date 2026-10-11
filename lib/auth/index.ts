@@ -17,6 +17,7 @@ export const lucia = new Lucia(adapter, {
     role: attributes.role,
     isActive: attributes.isActive,
     mustChangePassword: attributes.mustChangePassword,
+    avatarKey: attributes.avatarKey,
   }),
 });
 

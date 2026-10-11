@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { IconEdit, IconPlus, IconTransfer } from "@tabler/icons-react";
 import { formatDateChile } from "@/lib/utils/date";
 import type { AthleteListItem } from "@/lib/services/athlete.service";
+import { Avatar } from "@/components/ui/Avatar";
 import {
   AthleteForm,
   type AthleteFormNotice,
@@ -108,8 +109,20 @@ export function AthletesList({
               {athletes.map((athlete) => (
                 <tr key={athlete.id}>
                   <td>
-                    <div className="fw-medium">{athlete.name}</div>
-                    <div className="text-secondary small">{athlete.email}</div>
+                    <div className="d-flex align-items-center gap-2">
+                      <Avatar
+                        userId={athlete.id}
+                        name={athlete.name}
+                        avatarKey={athlete.avatarKey}
+                        size="sm"
+                      />
+                      <div>
+                        <div className="fw-medium">{athlete.name}</div>
+                        <div className="text-secondary small">
+                          {athlete.email}
+                        </div>
+                      </div>
+                    </div>
                   </td>
                   <td className="text-secondary">
                     {athlete.teamNames.length > 0

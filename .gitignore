@@ -25,6 +25,9 @@
 # cloudflare
 /.wrangler/
 
+# avatares locales (dev sin R2)
+/.data/
+
 # misc
 .DS_Store
 *.pem
