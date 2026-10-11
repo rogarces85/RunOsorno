@@ -9,14 +9,33 @@ function formatNullable(value: number | null): string {
 }
 
 export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
-  const { compliance, weeklyLoad, streak, distribution, vo2max, avgRpe } =
-    metrics;
+  const {
+    compliance,
+    weeklyLoad,
+    streak,
+    distribution,
+    vo2max,
+    thresholdHr,
+    avgRpe,
+    plannedRpe,
+    hrZones,
+  } = metrics;
   const distEntries = Object.entries(distribution).filter(
     ([, percent]) => percent > 0,
   );
+  const rpeDelta =
+    avgRpe !== null && plannedRpe !== null
+      ? Math.round((avgRpe - plannedRpe) * 10) / 10
+      : null;
 
   return (
     <>
+      {hrZones === null ? (
+        <div className="alert alert-warning" role="alert">
+          Datos insuficientes. Completa tu perfil con FC máx y FC reposo.
+        </div>
+      ) : null}
+
       <div className="row mb-3">
         <div className="col-md-6 col-xl-3">
           <div className="card h-100">
@@ -69,6 +88,7 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
           </div>
         </div>
       </div>
+
       <div className="row mb-3">
         <div className="col-md-6 col-xl-3">
           <div className="card h-100">
@@ -84,13 +104,73 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <div className="card h-100">
             <div className="card-body">
-              <div className="text-secondary mb-1">RPE medio</div>
-              <div className="h2 mb-0">{formatNullable(avgRpe)}</div>
-              <div className="text-secondary small">sobre 10</div>
+              <div className="text-secondary mb-1">FC de umbral</div>
+              <div className="h2 mb-0">{formatNullable(thresholdHr)}</div>
+              <div className="text-secondary small">
+                {thresholdHr === null ? "sin datos de FC" : "lpm estimados"}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-6 col-xl-3">
+          <div className="card h-100">
+            <div className="card-body">
+              <div className="text-secondary mb-1">RPE medio vs planificado</div>
+              <div className="h2 mb-0">
+                {formatNullable(avgRpe)}{" "}
+                <span className="text-secondary h4">/ {formatNullable(plannedRpe)}</span>
+              </div>
+              {rpeDelta === null ? (
+                <div className="text-secondary small">real / planificado</div>
+              ) : rpeDelta > 0 ? (
+                <span className="badge bg-red-lt text-red">
+                  +{rpeDelta} sobre objetivo
+                </span>
+              ) : rpeDelta < 0 ? (
+                <span className="badge bg-blue-lt text-blue">
+                  {rpeDelta} bajo objetivo
+                </span>
+              ) : (
+                <span className="badge bg-green-lt text-green">
+                  en objetivo
+                </span>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {hrZones !== null ? (
+        <div className="row mb-3">
+          <div className="col-12">
+            <div className="card">
+              <div className="card-header">
+                <h3 className="card-title">Zonas de FC (Karvonen)</h3>
+              </div>
+              <div className="table-responsive">
+                <table className="table table-vcenter table-sm mb-0">
+                  <thead>
+                    <tr>
+                      <th>Zona</th>
+                      <th className="text-end">Desde</th>
+                      <th className="text-end">Hasta</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {hrZones.map((zone) => (
+                      <tr key={zone.zone}>
+                        <td>Zona {zone.zone}</td>
+                        <td className="text-end">{zone.from} lpm</td>
+                        <td className="text-end">{zone.to} lpm</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }

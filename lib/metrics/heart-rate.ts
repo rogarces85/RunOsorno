@@ -30,6 +30,21 @@ export function calcHRZones(maxHr: number, restingHr: number): HRZone[] {
   return zones;
 }
 
+export function calcThresholdHr(
+  maxHr: number,
+  restingHr: number,
+): number | null {
+  if (
+    !Number.isFinite(maxHr) ||
+    !Number.isFinite(restingHr) ||
+    maxHr <= restingHr ||
+    restingHr <= 0
+  ) {
+    return null;
+  }
+  return Math.round(restingHr + (maxHr - restingHr) * 0.9);
+}
+
 export type TRIMPRecord = {
   durationMinutes?: number | null;
   rpe?: number | null;

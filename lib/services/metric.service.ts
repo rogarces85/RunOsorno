@@ -16,7 +16,12 @@ import {
   calcCompliance,
   type ComplianceResult,
 } from "@/lib/metrics/compliance";
-import { calcHRZones, type HRProfile, type HRZone } from "@/lib/metrics/heart-rate";
+import {
+  calcHRZones,
+  calcThresholdHr,
+  type HRProfile,
+  type HRZone,
+} from "@/lib/metrics/heart-rate";
 import {
   calcProgression,
   type ProgressionPoint,
@@ -28,6 +33,7 @@ import {
   type LoadRecord,
   type WeeklyLoad,
 } from "@/lib/metrics/load";
+import { calcPlannedRpe } from "@/lib/metrics/rpe";
 import { estimateVO2max } from "@/lib/metrics/vo2max";
 import {
   daysBetweenISO,
@@ -58,8 +64,10 @@ export type AthleteMetrics = {
   progression: ProgressionPoint[];
   distribution: Record<string, number>;
   avgRpe: number | null;
+  plannedRpe: number | null;
   streak: number;
   vo2max: number | null;
+  thresholdHr: number | null;
   hrZones: HRZone[] | null;
 };
 
@@ -282,6 +290,11 @@ export async function getAthleteMetrics(
     hrProfile.maxHr && hrProfile.restingHr && hrProfile.maxHr > hrProfile.restingHr
       ? calcHRZones(hrProfile.maxHr, hrProfile.restingHr)
       : null;
+  const thresholdHr =
+    hrProfile.maxHr && hrProfile.restingHr
+      ? calcThresholdHr(hrProfile.maxHr, hrProfile.restingHr)
+      : null;
+  const plannedRpe = calcPlannedRpe(rows.map((row) => row.sessionType));
 
   let km = 0;
   let minutes = 0;
@@ -305,8 +318,10 @@ export async function getAthleteMetrics(
       progression,
       distribution,
       avgRpe,
+      plannedRpe,
       streak,
       vo2max,
+      thresholdHr,
       hrZones,
     },
   };

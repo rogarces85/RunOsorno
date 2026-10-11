@@ -4,7 +4,8 @@ import { calcWeeklyLoad, type LoadRecord } from "@/lib/metrics/load";
 import { calcProgression } from "@/lib/metrics/progression";
 import { calcTypeDistribution } from "@/lib/metrics/distribution";
 import { calcStreak } from "@/lib/metrics/streaks";
-import { calcHRZones, calcTRIMP } from "@/lib/metrics/heart-rate";
+import { calcHRZones, calcThresholdHr, calcTRIMP } from "@/lib/metrics/heart-rate";
+import { calcPlannedRpe, plannedRpeTarget } from "@/lib/metrics/rpe";
 import { estimateVO2max } from "@/lib/metrics/vo2max";
 import { detectAlerts } from "@/lib/metrics/alerts";
 import { getMetricsPeriod } from "@/lib/services/metric.service";
@@ -364,5 +365,43 @@ describe("getMetricsPeriod (26.4)", () => {
       to: "2026-05-02",
     });
     expect(badDate.success).toBe(false);
+  });
+});
+
+describe("calcThresholdHr (28.3)", () => {
+  it("estima la FC de umbral al 90% de la reserva de Karvonen", () => {
+    expect(calcThresholdHr(190, 48)).toBe(176);
+    expect(calcThresholdHr(180, 60)).toBe(168);
+  });
+
+  it("retorna null con datos de FC inválidos", () => {
+    expect(calcThresholdHr(48, 190)).toBeNull();
+    expect(calcThresholdHr(180, 180)).toBeNull();
+    expect(calcThresholdHr(180, 0)).toBeNull();
+    expect(calcThresholdHr(Number.NaN, 50)).toBeNull();
+  });
+});
+
+describe("plannedRpe / calcPlannedRpe (28.4)", () => {
+  it("resuelve el objetivo por tipo de sesión sin importar mayúsculas ni acentos", () => {
+    expect(plannedRpeTarget("Series")).toBe(8);
+    expect(plannedRpeTarget("series")).toBe(8);
+    expect(plannedRpeTarget("Tempo")).toBe(7);
+    expect(plannedRpeTarget("Fondo")).toBe(6);
+    expect(plannedRpeTarget("Recuperación")).toBe(3);
+    expect(plannedRpeTarget("recovery")).toBe(3);
+  });
+
+  it("retorna null para tipos sin objetivo conocido", () => {
+    expect(plannedRpeTarget("Descanso")).toBeNull();
+    expect(plannedRpeTarget("Fuerza")).toBeNull();
+    expect(plannedRpeTarget("")).toBeNull();
+  });
+
+  it("promedia solo los tipos con objetivo conocido", () => {
+    expect(calcPlannedRpe(["Series", "Fondo", "Descanso"])).toBe(7);
+    expect(calcPlannedRpe(["Series", "Series", "Tempo"])).toBe(7.7);
+    expect(calcPlannedRpe(["Descanso", "Fuerza"])).toBeNull();
+    expect(calcPlannedRpe([])).toBeNull();
   });
 });
