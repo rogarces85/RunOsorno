@@ -158,6 +158,10 @@ export async function recordSession(
       assignmentId: input.assignmentId,
       athleteId,
       kind: input.status,
+      record: {
+        distanceKm: input.distanceKm ?? null,
+        durationMinutes: input.durationMinutes ?? null,
+      },
     });
   }
 

@@ -5,14 +5,17 @@ import {
   createGroupSchema,
   groupIdSchema,
   groupTargetSchema,
+  sendAnnouncementSchema,
   updateGroupSchema,
 } from "@/lib/validations/group.schemas";
+import { isDirector } from "@/lib/permissions";
 import {
   approveRequest,
   createGroup,
   deleteGroup,
   rejectRequest,
   requestJoin,
+  sendAnnouncement,
   toggleDirector,
   updateGroup,
   type GroupBasic,
@@ -123,6 +126,27 @@ export async function toggleDirectorAction(
     input,
     async (data, user) => {
       const result = await toggleDirector(data.groupId, data.userId, user.id);
+      if (!result.ok) {
+        throw new ActionFailure(result.error);
+      }
+      return result.data;
+    },
+  );
+}
+
+export async function sendAnnouncementAction(
+  input: unknown,
+): Promise<ActionResult<{ notified: number; emailed: number }>> {
+  return runAction(
+    { schema: sendAnnouncementSchema },
+    input,
+    async (data, user) => {
+      if (!(await isDirector(user, data.groupId))) {
+        throw new ActionFailure(
+          "No tienes permiso para anunciar en este grupo",
+        );
+      }
+      const result = await sendAnnouncement(data, user.id);
       if (!result.ok) {
         throw new ActionFailure(result.error);
       }

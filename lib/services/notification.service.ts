@@ -1,4 +1,5 @@
 import { and, count, desc, eq } from "drizzle-orm";
+import { env } from "@/lib/config";
 import { db } from "@/lib/db";
 import {
   notifications,
@@ -7,6 +8,9 @@ import {
   users,
 } from "@/lib/db/schema";
 import { formatDateChile } from "@/lib/utils/date";
+import { sendEmail } from "./email.service";
+import { renderPlanPublishedEmail } from "@/emails/plan-published";
+import { renderSessionCompletedEmail } from "@/emails/session-completed";
 
 function formatSessionDay(date: Date): string {
   const iso = date.toISOString().slice(0, 10);
@@ -112,6 +116,7 @@ export async function notifySessionRecorded(params: {
   assignmentId: string;
   athleteId: string;
   kind: "completed" | "partial" | "not_done";
+  record?: { distanceKm?: number | string | null; durationMinutes?: number | null };
 }): Promise<void> {
   const [row] = await db
     .select({
@@ -150,6 +155,38 @@ export async function notifySessionRecorded(params: {
     entityType: "session_assignment",
     entityId: params.assignmentId,
   });
+
+  if (params.kind === "completed") {
+    const [coach] = await db
+      .select({ name: users.name, email: users.email })
+      .from(users)
+      .where(eq(users.id, row.createdBy))
+      .limit(1);
+    if (coach?.email) {
+      try {
+        const html = await renderSessionCompletedEmail({
+          coachName: coach.name,
+          athleteName: row.athleteName,
+          sessionDate: fecha,
+          distanceKm:
+            params.record?.distanceKm != null
+              ? String(params.record.distanceKm)
+              : null,
+          durationMinutes: params.record?.durationMinutes ?? null,
+        });
+        await sendEmail({
+          to: coach.email,
+          subject: `${row.athleteName} completó una sesión`,
+          html,
+        });
+      } catch (error) {
+        console.error(
+          "[notification] falló email sesión completada:",
+          error,
+        );
+      }
+    }
+  }
 }
 
 export async function notifyFeedbackCreated(params: {
@@ -189,5 +226,47 @@ export async function notifyFeedbackCreated(params: {
       entityType: "session_assignment",
       entityId: params.assignmentId,
     });
+  }
+}
+
+export async function notifyPlanPublished(params: {
+  athleteId: string;
+  coachId: string;
+}): Promise<void> {
+  const [athlete] = await db
+    .select({ name: users.name, email: users.email })
+    .from(users)
+    .where(eq(users.id, params.athleteId))
+    .limit(1);
+  const [coach] = await db
+    .select({ name: users.name })
+    .from(users)
+    .where(eq(users.id, params.coachId))
+    .limit(1);
+  if (!athlete || !coach) {
+    return;
+  }
+
+  await notify({
+    userId: params.athleteId,
+    type: "plan_published",
+    title: "Nuevo plan de entrenamiento",
+    message: `Tu coach ${coach.name} publicó un nuevo plan. Revisa tu calendario.`,
+    entityType: "calendar",
+  });
+
+  try {
+    const html = await renderPlanPublishedEmail({
+      athleteName: athlete.name,
+      coachName: coach.name,
+      calendarUrl: `${env.appUrl}/athlete/calendar`,
+    });
+    await sendEmail({
+      to: athlete.email,
+      subject: "Tienes un plan nuevo en RunOsorno",
+      html,
+    });
+  } catch (error) {
+    console.error("[notification] falló email plan publicado:", error);
   }
 }

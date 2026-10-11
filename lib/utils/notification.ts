@@ -8,6 +8,8 @@ export function notificationHref(
   switch (item.entityType) {
     case "session_assignment":
       return role === "athlete" ? "/athlete/calendar" : "/coach/calendar";
+    case "calendar":
+      return role === "athlete" ? "/athlete/calendar" : dashboardPath(role);
     case "group":
       if (role === "admin" && item.entityId) {
         return `/admin/groups/${item.entityId}`;

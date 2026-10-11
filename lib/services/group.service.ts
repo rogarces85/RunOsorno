@@ -11,10 +11,13 @@ import {
 } from "@/lib/db/schema";
 import type {
   CreateGroupInput,
+  SendAnnouncementInput,
   UpdateGroupInput,
 } from "@/lib/validations/group.schemas";
 import { logAudit } from "./audit.service";
+import { sendEmail } from "./email.service";
 import { notify } from "./notification.service";
+import { renderAnnouncementEmail } from "@/emails/announcement";
 
 export type ServiceResult<T> =
   { ok: true; data: T } | { ok: false; error: string };
@@ -36,6 +39,7 @@ export type GroupMemberItem = {
   name: string;
   email: string;
   isDirector: boolean;
+  isActive: boolean;
 };
 
 export type PendingRequestItem = {
@@ -239,6 +243,7 @@ export async function getGroupMembers(
       name: users.name,
       email: users.email,
       isDirector: groupMembers.isDirector,
+      isActive: users.isActive,
     })
     .from(groupMembers)
     .innerJoin(users, eq(groupMembers.userId, users.id))
@@ -521,4 +526,67 @@ export async function getMyGroups(userId: string): Promise<GroupBasic[]> {
     .innerJoin(groups, eq(groupMembers.groupId, groups.id))
     .where(eq(groupMembers.userId, userId))
     .orderBy(groups.name);
+}
+
+export async function sendAnnouncement(
+  input: SendAnnouncementInput,
+  actorId: string,
+): Promise<ServiceResult<{ notified: number; emailed: number }>> {
+  const group = await findGroup(input.groupId);
+  if (!group) {
+    return { ok: false, error: "Grupo no encontrado" };
+  }
+
+  const allMembers = await getGroupMembers(input.groupId);
+  const members = allMembers.filter((member) => member.isActive);
+  if (members.length === 0) {
+    return { ok: false, error: "El grupo no tiene miembros" };
+  }
+
+  const [actor] = await db
+    .select({ name: users.name })
+    .from(users)
+    .where(eq(users.id, actorId))
+    .limit(1);
+  const sentBy = actor?.name ?? "RunOsorno";
+
+  let emailed = 0;
+  for (const member of members) {
+    await notify({
+      userId: member.userId,
+      type: "announcement",
+      title: input.title,
+      message: input.message,
+      entityType: "group",
+      entityId: input.groupId,
+    });
+    try {
+      const html = await renderAnnouncementEmail({
+        recipientName: member.name,
+        title: input.title,
+        message: input.message,
+        sentBy,
+      });
+      const result = await sendEmail({
+        to: member.email,
+        subject: `Anuncio: ${input.title}`,
+        html,
+      });
+      if (result.ok) {
+        emailed += 1;
+      }
+    } catch (error) {
+      console.error("[announcement] falló email:", error);
+    }
+  }
+
+  await logAudit({
+    userId: actorId,
+    action: "announcement_sent",
+    entityType: "group",
+    entityId: input.groupId,
+    details: { title: input.title, members: members.length },
+  });
+
+  return { ok: true, data: { notified: members.length, emailed } };
 }

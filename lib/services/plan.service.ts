@@ -17,6 +17,7 @@ import {
   parseStructure,
 } from "@/lib/services/template.service";
 import { logAudit } from "./audit.service";
+import { notifyPlanPublished } from "./notification.service";
 import type { WeekPatternItem } from "@/lib/validations/plan.schemas";
 
 export type PlanStatus =
@@ -193,6 +194,7 @@ export async function assignSession(
     weekStartISO: weekStartOfISO(date),
     createdBy: coachId,
   });
+  await notifyPlanPublished({ athleteId, coachId });
   return { ok: true, data: { assignmentId, needsConfirm: false } };
 }
 
@@ -249,6 +251,7 @@ export async function bulkAssign(
   const weekStartISO = weekStartOfISO(date);
   let created = 0;
   let skipped = 0;
+  const notified: string[] = [];
   for (const athleteId of athleteIds) {
     const existing = await findAssignmentOnDay(athleteId, date);
     if (existing) {
@@ -263,6 +266,11 @@ export async function bulkAssign(
       createdBy: coachId,
     });
     created += 1;
+    notified.push(athleteId);
+  }
+
+  for (const athleteId of notified) {
+    await notifyPlanPublished({ athleteId, coachId });
   }
 
   if (created > 0) {
@@ -358,6 +366,10 @@ export async function copyPreviousWeek(
     copied += 1;
   }
 
+  if (copied > 0) {
+    await notifyPlanPublished({ athleteId, coachId });
+  }
+
   await logAudit({
     userId: coachId,
     action: "week_copied",
@@ -436,6 +448,9 @@ export async function generateWeek(
       weekStartISO: targetStart,
       createdBy: coachId,
     });
+  }
+  if (slots.length > 0) {
+    await notifyPlanPublished({ athleteId, coachId });
   }
 
   await logAudit({
