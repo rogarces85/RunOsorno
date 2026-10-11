@@ -512,25 +512,25 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 29. Avatar / Foto de perfil
 
-- [ ] 29.1 Instalar SDK de Cloudflare R2 (`@aws-sdk/client-s3` compatible con R2 o `@cloudflare/r2` client)
-- [ ] 29.2 Configurar bucket R2 privado + credentials en variables de entorno
-- [ ] 29.3 Crear API route `app/api/avatar/upload/route.ts` — genera presigned PUT URL para R2
-- [ ] 29.4 Crear API route `app/api/avatar/route.ts` — genera signed GET URL para visualizar avatar (o retorna SVG de iniciales si no hay avatar_key)
-- [ ] 29.5 Crear `avatar.service.ts` con `getUploadUrl(userId)` — presigned PUT, key = `avatars/{userId}.webp`
-- [ ] 29.6 Crear servicio con `confirmUpload(userId, key)` — actualiza `users.avatar_key`
-- [ ] 29.7 Crear servicio con `deleteAvatar(userId)` — elimina archivo de R2, limpia `avatar_key`
-- [ ] 29.8 Crear componente `AvatarUpload` — input file, valida formato (JPG/PNG/WebP), valida tamaño (≤ 2MB)
-- [ ] 29.9 Implementar resize client-side a 256×256 px usando canvas
-- [ ] 29.10 Implementar strip EXIF (el resize via canvas ya elimina EXIF)
-- [ ] 29.11 Subida: resize → Blob → presigned PUT → confirm → actualizar UI
-- [ ] 29.12 Crear componente `Avatar` en `components/ui/Avatar.tsx` — muestra imagen si existe, si no muestra iniciales generadas con SVG
-- [ ] 29.13 Integrar `Avatar` en `AppHeader`, listados de atletas, página de perfil
-- [ ] 29.14 Crear botón "Eliminar foto" en perfil → vuelve a avatar de iniciales
-- [ ] 29.15 Verificar: subir foto JPG/PNG/WebP → se redimensiona a 256×256 y se muestra en header
-- [ ] 29.16 Verificar: subir imagen > 2MB → error "La imagen es muy grande. El máximo es 2 MB."
-- [ ] 29.17 Verificar: formato no soportado → error "Formato no soportado. Usa JPG, PNG o WebP."
-- [ ] 29.18 Verificar: sin foto → se muestra avatar de iniciales
-- [ ] 29.19 Verificar: eliminar foto → vuelve a iniciales
+- [x] 29.1 Instalar SDK de Cloudflare R2 (`@aws-sdk/client-s3` compatible con R2 o `@cloudflare/r2` client)
+- [x] 29.2 Configurar bucket R2 privado + credentials en variables de entorno
+- [x] 29.3 Crear API route `app/api/avatar/upload/route.ts` — genera presigned PUT URL para R2
+- [x] 29.4 Crear API route `app/api/avatar/route.ts` — genera signed GET URL para visualizar avatar (o retorna SVG de iniciales si no hay avatar_key)
+- [x] 29.5 Crear `avatar.service.ts` con `getUploadUrl(userId)` — presigned PUT, key = `avatars/{userId}.webp`
+- [x] 29.6 Crear servicio con `confirmUpload(userId, key)` — actualiza `users.avatar_key`
+- [x] 29.7 Crear servicio con `deleteAvatar(userId)` — elimina archivo de R2, limpia `avatar_key`
+- [x] 29.8 Crear componente `AvatarUpload` — input file, valida formato (JPG/PNG/WebP), valida tamaño (≤ 2MB)
+- [x] 29.9 Implementar resize client-side a 256×256 px usando canvas
+- [x] 29.10 Implementar strip EXIF (el resize via canvas ya elimina EXIF)
+- [x] 29.11 Subida: resize → Blob → presigned PUT → confirm → actualizar UI
+- [x] 29.12 Crear componente `Avatar` en `components/ui/Avatar.tsx` — muestra imagen si existe, si no muestra iniciales generadas con SVG
+- [x] 29.13 Integrar `Avatar` en `AppHeader`, listados de atletas, página de perfil
+- [x] 29.14 Crear botón "Eliminar foto" en perfil → vuelve a avatar de iniciales
+- [x] 29.15 Verificar: subir foto JPG/PNG/WebP → se redimensiona a 256×256 y se muestra en header
+- [x] 29.16 Verificar: subir imagen > 2MB → error "La imagen es muy grande. El máximo es 2 MB."
+- [x] 29.17 Verificar: formato no soportado → error "Formato no soportado. Usa JPG, PNG o WebP."
+- [x] 29.18 Verificar: sin foto → se muestra avatar de iniciales
+- [x] 29.19 Verificar: eliminar foto → vuelve a iniciales
 
 ---
 
@@ -866,7 +866,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 26. Métricas — Servicio | 10 | 10 |
 | 27. Métricas — Interfaz | 15 | 15 |
 | 28. Métricas fisiológicas | 7 | 7 |
-| 29. Avatar | 19 | 0 |
+| 29. Avatar | 19 | 19 |
 | 30. Dashboard por roles | 8 | 0 |
 | 31. Menú lateral por rol | 7 | 0 |
 | 32. Director Técnico | 8 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **364** |
+| **TOTAL** | **~578** | **383** |

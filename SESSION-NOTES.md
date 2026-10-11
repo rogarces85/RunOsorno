@@ -1,7 +1,7 @@
-# Sesión — Resumen hasta Fase 28
+# Sesión — Resumen hasta Fase 29
 
 ## Estado actual
-- **HEAD**: `8fef722` (Fase 28 completada)
+- **HEAD**: `02a75aa` (Fase 29 completada)
 - **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–28 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build + `npm test` (34/34) ✓ · leftovers 0
 
@@ -272,10 +272,29 @@
   - Umbral = 90% reserva Karvonen (consistente con zonas: borde inferior Z5); no hay datos de potencia en el schema → "potencia/umbrales" de specs queda pendiente de datos
   - `estimateVO2max` exige al menos un registro con `durationMinutes > 0` (perfil solo no basta)
 
-## Próximos pasos
-**Fase 29 — Avatar (R2)** (ver `tasks/mvp.md`).
+## Fase 29 — Avatar / Foto de perfil — `02a75aa` (383/578)
+- **SDK**: `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` (compatibles con R2, endpoint `https://{accountId}.r2.cloudflarestorage.com`, `region: "auto"`)
+- **Modo doble (R2 / local)**: `avatarKeyFor(userId)` = `avatars/{userId}.webp`. Si `R2_*` están vacíos → **modo local**: sube a `/api/avatar/upload?local=1` (PUT escribe `.data/avatars/{userId}.webp`); si R2 configurado → presigned PUT (300s) a R2. `resolveAvatarSource` sirve el avatar por `/api/avatar?userId=…`: R2 → 307 a signed GET (3600s), local → stream el archivo, sin `avatarKey` → **SVG de iniciales**; sin usuario → 404.
+- **Variables entorno**: `.env.example` (nuevo, commiteable) documenta `R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET_NAME/R2_PUBLIC_URL`; valores en `.gitignore` (`.env*`); `.data/` agregado a `.gitignore`.
+- **`lib/services/avatar.service.ts`** (nuevo): `getUploadTicket` (presigned PUT o `/api/avatar/upload?local=1`), `storeLocalAvatar` (valida ≤2MB, escribe `.data/`), `confirmUpload(user,key)` (rechaza key ≠ esperada, actualiza `users.avatarKey`), `deleteAvatar` (borra de R2/local + limpia `avatarKey`; error si no hay foto), `resolveAvatarSource`, `readLocalAvatar`.
+- **`lib/actions/avatar.actions.ts`** (nuevo, `"use server"`): `confirmAvatarAction({key})`, `deleteAvatarAction()`; ambos `revalidatePath("/", "layout")`. ⚠️ **En archivo `"use server"` NO se puede exportar el schema Zod** (solo async functions) → `confirmAvatarSchema` es `const` privado.
+- **`components/ui/Avatar.tsx`** (nuevo): `Avatar({userId,name,avatarKey,size})` — si hay `avatarKey` usa `/api/avatar?userId=…`, si no SVG de iniciales (`svgAvatar`); `sm/md/lg` = 24/36/96px.
+- **`lib/utils/avatar.ts`** (nuevo): `initialsFor`, `initialsColor` (hash → 6 colores), `svgAvatar` (rect redondeado + iniciales, escapa XML).
+- **`components/profile/AvatarUpload.tsx`** (nuevo, client): `resizeToAvatar(file)` = `createImageBitmap` → canvas 256×256 cover-crop centrado → `toBlob("image/webp",0.92)` (strip EXIF implícito); valida formato (`image/jpeg|png|webp`) y ≤2MB **antes** de decodificar; flujo completo: resize → POST `/api/avatar/upload` (ticket) → PUT → `confirmAvatarAction` → `router.refresh()`. Botones "Subir foto" / "Eliminar foto" (deshabilitada si no hay foto).
+- **Mensajes de error exactos**: `"Formato no soportado. Usa JPG, PNG o WebP."`, `"La imagen es muy grande. El máximo es 2 MB."`.
+- **`app/(app)/profile/page.tsx`** (nuevo): requiere sesión, muestra `Avatar` lg + nombre/email/rol + `AvatarUpload`.
+- **Integración**: `AppHeader` cambia span `IconUser` → `<Avatar size="sm">` linkeado a `/profile`; `lib/auth/index.ts` `getUserAttributes` += `avatarKey`; `lib/services/athlete.service.ts` `AthleteListItem` += `avatarKey` (2 selects + maps); `components/coach/AthletesList.tsx` muestra `Avatar` en celda nombre.
+- **Verificación**: `npm test` **34/34** ✓, lint ✓ (1 warning `no-img-element` esperado en `Avatar.tsx`), build ✓ (ruta `/profile`); **E2E `scratch-e2e-p29.ts` 9/9 PASS** (borrado) — 29.18 sin foto → header + perfil muestran `data:image/svg`; 29.17 PDF → error formato exacto; 29.16 PNG 2.1MB → error tamaño exacto; 29.15 PNG válido → confirmación, header sirve `/api/avatar?userId` con `naturalWidth=256`; 29.19 eliminar → vuelve `data:image/svg`; 29.13 `/coach/athletes` muestra avatar en tabla.
+- **Leftovers**: 0
+- **Notas nuevas**:
+  - **`process.exit()` dentro de `finally` en scripts E2E oculta excepciones** (el `try` lanza → `finally` corre → `exit(0)` mata el proceso antes del `catch`) → mover resumen/exit **fuera** de `try/finally`, dejar solo cleanup en `finally`.
+  - `R2_PUBLIC_URL` no se usa en el flujo actual (signed URLs o modo local lo reemplazan).
+  - Canvas de un 1×1 escalado a 256 con cover-crop es suficiente para verificar `naturalWidth=256`; no hace falta imagen real grande.
 
-Luego: 30. Dashboard roles, 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, 36. Dashboard Admin, etc.
+## Próximos pasos
+**Fase 30 — Dashboard por roles** (ver `tasks/mvp.md`).
+
+Luego: 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, 36. Dashboard Admin, 37. Perfil completo, etc.
 
 ## Para continuar en otro PC
 ```bash
