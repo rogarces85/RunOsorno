@@ -40,6 +40,20 @@ export async function isDirector(user: PermissionUser, groupId: string) {
   return row !== undefined;
 }
 
+export async function isGroupMember(user: PermissionUser, groupId: string) {
+  if (user.role === "admin") {
+    return true;
+  }
+  const [row] = await db
+    .select()
+    .from(groupMembers)
+    .where(
+      and(eq(groupMembers.groupId, groupId), eq(groupMembers.userId, user.id)),
+    )
+    .limit(1);
+  return row !== undefined;
+}
+
 export async function canManageTeam(user: PermissionUser, teamId: string) {
   if (user.role !== "coach") {
     return false;

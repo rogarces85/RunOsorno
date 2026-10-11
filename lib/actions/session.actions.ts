@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { ActionFailure, runAction, type ActionResult } from "./base";
 import {
   notDoneSchema,
@@ -22,6 +23,8 @@ export async function recordSessionAction(
       if (!result.ok) {
         throw new ActionFailure(result.error);
       }
+      revalidatePath("/athlete/calendar");
+      revalidatePath("/athlete/metrics");
       return result.data;
     },
   );
@@ -45,6 +48,8 @@ export async function markNotDoneAction(
       if (!result.ok) {
         throw new ActionFailure(result.error);
       }
+      revalidatePath("/athlete/calendar");
+      revalidatePath("/athlete/metrics");
       return result.data;
     },
   );

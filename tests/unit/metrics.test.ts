@@ -7,6 +7,8 @@ import { calcStreak } from "@/lib/metrics/streaks";
 import { calcHRZones, calcTRIMP } from "@/lib/metrics/heart-rate";
 import { estimateVO2max } from "@/lib/metrics/vo2max";
 import { detectAlerts } from "@/lib/metrics/alerts";
+import { getMetricsPeriod } from "@/lib/services/metric.service";
+import { metricsPeriodSchema } from "@/lib/validations/metric.schemas";
 
 const REFERENCE = "2026-10-11"; // domingo
 
@@ -316,5 +318,51 @@ describe("detectAlerts (25.15)", () => {
       REFERENCE,
     );
     expect(alerts).toHaveLength(0);
+  });
+});
+
+describe("getMetricsPeriod (26.4)", () => {
+  it("resuelve la temporada austral (1 ago → 31 jul)", () => {
+    const season = getMetricsPeriod({ kind: "season" });
+    expect(season.from).toMatch(/^\d{4}-08-01$/);
+    expect(season.to).toMatch(/^\d{4}-07-31$/);
+    expect(season.from < season.to).toBe(true);
+  });
+
+  it("resuelve año con year explícito y con year por defecto", () => {
+    expect(getMetricsPeriod({ kind: "year", year: 2025 })).toEqual({
+      from: "2025-01-01",
+      to: "2025-12-31",
+    });
+    const currentYear = String(new Date().getFullYear());
+    expect(getMetricsPeriod({ kind: "year" })).toEqual({
+      from: `${currentYear}-01-01`,
+      to: `${currentYear}-12-31`,
+    });
+  });
+
+  it("respeta el rango personalizado", () => {
+    expect(
+      getMetricsPeriod({ kind: "custom", from: "2026-03-01", to: "2026-04-30" }),
+    ).toEqual({ from: "2026-03-01", to: "2026-04-30" });
+  });
+
+  it("el schema acepta periodos válidos y rechaza rangos invertidos", () => {
+    expect(metricsPeriodSchema.safeParse({ kind: "season" }).success).toBe(true);
+    expect(
+      metricsPeriodSchema.safeParse({ kind: "year", year: 2026 }).success,
+    ).toBe(true);
+    const inverted = metricsPeriodSchema.safeParse({
+      kind: "custom",
+      from: "2026-05-01",
+      to: "2026-04-01",
+    });
+    expect(inverted.success).toBe(false);
+    const badDate = metricsPeriodSchema.safeParse({
+      kind: "custom",
+      from: "01-05-2026",
+      to: "2026-05-02",
+    });
+    expect(badDate.success).toBe(false);
   });
 });
