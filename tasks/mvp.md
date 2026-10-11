@@ -432,14 +432,14 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 24. Notificaciones email (eventos críticos)
 
-- [ ] 24.1 Integrar `email.service.sendEmail` con template `plan-published` en acción de publicar plan → email al atleta
-- [ ] 24.2 Integrar template `session-completed` en `recordSession` → email al coach
-- [ ] 24.3 Crear Server Action `sendAnnouncement` — crea notificaciones in-app + envía email a todos los miembros del grupo
-- [ ] 24.4 Integrar en `createCoach` → email de bienvenida/invitación (ya hecho en Fase 8)
-- [ ] 24.5 Verificar: coach publica plan → atleta recibe email
-- [ ] 24.6 Verificar: atleta completa sesión → coach recibe email
-- [ ] 24.7 Verificar: grupo vacío → aviso "El grupo no tiene miembros"
-- [ ] 24.8 Verificar: email fallido no bloquea la acción principal
+- [x] 24.1 Integrar `email.service.sendEmail` con template `plan-published` en acción de publicar plan → email al atleta
+- [x] 24.2 Integrar template `session-completed` en `recordSession` → email al coach
+- [x] 24.3 Crear Server Action `sendAnnouncement` — crea notificaciones in-app + envía email a todos los miembros del grupo
+- [x] 24.4 Integrar en `createCoach` → email de bienvenida/invitación (ya hecho en Fase 8)
+- [x] 24.5 Verificar: coach publica plan → atleta recibe email
+- [x] 24.6 Verificar: atleta completa sesión → coach recibe email
+- [x] 24.7 Verificar: grupo vacío → aviso "El grupo no tiene miembros"
+- [x] 24.8 Verificar: email fallido no bloquea la acción principal
 
 ---
 
@@ -861,7 +861,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 21. Formulario registro (UI) | 10 | 10 |
 | 22. Feedback en sesiones | 10 | 10 |
 | 23. Notificaciones in-app | 17 | 17 |
-| 24. Notificaciones email | 8 | 0 |
+| 24. Notificaciones email | 8 | 8 |
 | 25. Métricas — Cálculo | 15 | 0 |
 | 26. Métricas — Servicio | 10 | 0 |
 | 27. Métricas — Interfaz | 15 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **309** |
+| **TOTAL** | **~578** | **317** |

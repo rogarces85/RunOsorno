@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 23
+# Sesión — Resumen hasta Fase 24
 
 ## Estado actual
-- **HEAD**: `9168502` (Fase 23 completada)
-- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–23 subidas; credenciales disponibles en este equipo)
+- **HEAD**: `effac37` (Fase 24 completada)
+- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–24 subidas; credenciales disponibles en este equipo)
 - **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build ✓ · leftovers 0
 
-## Fases completadas (1–23)
+## Fases completadas (1–24)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -31,6 +31,7 @@
 | 21 | 13d966a | **Formulario de registro (UI)** (ver abajo) |
 | 22 | — | **Feedback en sesiones** (22.9/22.10 cerradas en Fase 23) |
 | 23 | 9168502 | **Notificaciones in-app** (ver abajo) |
+| 24 | effac37 | **Notificaciones email** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -181,10 +182,24 @@
   - **Race markAsRead vs check DB**: esperar a que el badge baje (`waitForFunction`) antes de leer `getUnreadCount` — el `waitForURL("**/coach/**")` pasa de inmediato si ya estás en una página /coach/*
   - tsx no valida tipos: `recordSession` exige `status` explícito en el fixture; y **`process.exit()` al final del main** (el pool de MySQL mantiene el event loop vivo y el script cuelga tras el último log)
 
-## Próximos pasos
-**Fase 24 — Notificaciones email** (Resend/React Email para eventos críticos: plan publicado, sesión completada, anuncios masivos).
+## Fase 24 — Notificaciones email (eventos críticos) — `effac37` (317/578)
+- **`notifyPlanPublished({athleteId, coachId})`** (`notification.service.ts`): query atleta(name,email)+coach(name) → in-app `plan_published` (entityType `calendar` → href `/athlete/calendar` para atleta) + `renderPlanPublishedEmail` → `sendEmail` (try/catch, nunca bloquea). Integrado en **24.1**: `plan.service.assignSession` (solo create, no replace), `bulkAssign` (1 por atleta creado, array `notified`), `generateWeek` (si slots>0), `copyPreviousWeek` (si copied>0) → **un email por atleta por evento de planificación** (sin spam por sesión)
+- **24.2 session-completed**: `notifySessionRecorded` acepta `record?{distanceKm,durationMinutes}`; si `kind==="completed"` consulta email/name del coach (`createdBy`) y envía `renderSessionCompletedEmail` (subject `"{atleta} completó una sesión"`). `recordSession` pasa los valores del input (tipado `number|string|null` → `String()` antes del template; `partial`/`not_done` NO generan email)
+- **24.3 sendAnnouncement**: schema `sendAnnouncementSchema` (groupId uuid, title ≤150, message ≤2000) en `group.schemas.ts`; `group.service.sendAnnouncement(input, actorId)` → findGroup, `getGroupMembers` filtrando **`isActive`** (nuevo campo en select/`GroupMemberItem`), vacío → error exacto **"El grupo no tiene miembros"**, por miembro: `notify(type "announcement", entityType group)` + `renderAnnouncementEmail` → `sendEmail` (try/catch por miembro, cuenta `emailed`), `logAudit("announcement_sent")`; action `sendAnnouncementAction` (`group.actions.ts`, sin role fijo → chequea **`isDirector(user, groupId)`** = admin o Director Técnico del grupo → "No tienes permiso para anunciar en este grupo")
+- **24.4**: `createCoach` ya enviaba invitación (Fase 8) — verificado y marcado
+- **`notificationHref`**: nuevo case `calendar` → atleta `/athlete/calendar`, resto dashboard
+- **Verificación**: **26/26** (`scratch-p24.ts`, borrado; servicio puro sin Playwright — la UI de anuncios es Fase 32): 24.5a–d (email+in-app plan en assign/bulk/generate/copy con conteos acumulados), 24.6a/b (completed→email coach + in-app; partial→NO email), 24.4 (email invitación), 24.7a (grupo vacío msg exacto), 24.7b (notified=2/emailed=2 + 2 in-app + auditoría), 24.8 (sendEmail nunca lanza + acciones ok), leftovers 0. **Captura de emails**: monkey-patch de `console.log` filtrando `[email:dev]` (dev sin RESEND_API_KEY loguea `to=` y `subject=`)
+- **Lint/Build**: ✓ (re-verificado tras fix de tipos `distanceKm number→String()`). **Leftovers**: 0
+- **Notas nuevas**:
+  - `distanceKm` del schema es `number` pero `SessionCompletedEmailProps.distanceKm` es `string|null` → convertir con `String()` en el service, no cambiar el template
+  - Sin acción "publishPlan" en el dominio: el evento implícito es **asignar/generar/copiar** plan; 1 email/atleta/evento
+  - `getGroupMembers` ahora retorna `isActive` (aditivo; el filtro activo es solo en sendAnnouncement)
+  - `tsx` no valida tipos: el error TS2322 solo aparece en `npm run build` → **siempre build tras cambios de tipos**
 
-Luego: 25. Exportes PDF/Excel, 26. Dashboard atleta, 27. Dashboard coach, 28. Dashboard Dir. Técnico/Admin, etc. (ver `tasks/mvp.md`).
+## Próximos pasos
+**Fase 25 — Exportes PDF/Excel** (métricas de atleta/coach con exports; ver `tasks/mvp.md`).
+
+Luego: 26. Dashboard atleta, 27. Dashboard coach, 28. Dashboard Dir. Técnico/Admin, 32. UI anuncios, etc.
 
 ## Para continuar en otro PC
 ```bash
