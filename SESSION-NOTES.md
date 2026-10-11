@@ -1,11 +1,11 @@
-# Sesión — Resumen hasta Fase 24
+# Sesión — Resumen hasta Fase 25
 
 ## Estado actual
-- **HEAD**: `effac37` (Fase 24 completada)
-- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–24 subidas; credenciales disponibles en este equipo)
-- **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build ✓ · leftovers 0
+- **HEAD**: `5543621` (Fase 25 completada)
+- **Push a GitHub**: sí realizado — `main` sincronizado con `origin/main` (https://github.com/rogarces85/RunOsorno, Fases 1–25 subidas; credenciales disponibles en este equipo)
+- **Trabajo limpio**: `git status` — sin cambios pendientes · lint + build + `npm test` (25/25) ✓ · leftovers 0
 
-## Fases completadas (1–24)
+## Fases completadas (1–25)
 | Fase | Commit | Descripción |
 |------|--------|-------------|
 | 1 | 31a023a | Base Next.js + Tabler + Drizzle + Lucia |
@@ -32,6 +32,7 @@
 | 22 | — | **Feedback en sesiones** (22.9/22.10 cerradas en Fase 23) |
 | 23 | 9168502 | **Notificaciones in-app** (ver abajo) |
 | 24 | effac37 | **Notificaciones email** (ver abajo) |
+| 25 | 5543621 | **Métricas — funciones de cálculo** (ver abajo) |
 
 ## Fase 13 — Biblioteca de plantillas (27 tareas ✅)
 - **Validación** (`template.schemas.ts`): `sectionSchema`, `templateSchema` (`structure.min(1)`, sessionType ≤50 libre), `cloneTemplateSchema`, `shareTemplateSchema`, `templateIdSchema` · `SECTION_TYPES`/labels en `constants.ts`
@@ -196,10 +197,28 @@
   - `getGroupMembers` ahora retorna `isActive` (aditivo; el filtro activo es solo en sendAnnouncement)
   - `tsx` no valida tipos: el error TS2322 solo aparece en `npm run build` → **siempre build tras cambios de tipos**
 
-## Próximos pasos
-**Fase 25 — Exportes PDF/Excel** (métricas de atleta/coach con exports; ver `tasks/mvp.md`).
+## Fase 25 — Métricas — funciones de cálculo — `5543621` (332/578)
+- **Módulo nuevo `lib/metrics/`** (funciones puras, sin DB, sin JSX):
+  - `utils.ts`: `toISO`/`todayISO`/`parseISO`/`shiftDaysISO`/`weekStartOfISO` (lunes vía UTC)/`daysBetweenISO`/`parseKm`/`round2` — fechas en UTC para evitar bugs de huso horario
+  - `compliance.ts`: `calcCompliance(items)` → `{percent, completed, total}`; completed = status `"completed"`; lista vacía → 0%
+  - `load.ts`: `calcWeeklyLoad(records, weekStart, profile?)` → `{km, minutes, tss, trimp}`; filtra lun-dom; `km` parsea los strings decimal del schema; **tss** = Σ(min/60 × rpe × 10) si hay rpe+minutos (1h @ RPE 10 = 100), si no `null`; **trimp** solo si se pasa perfil de FC (delega en `calcTRIMP`)
+  - `progression.ts`: `calcProgression(records, numberOfWeeks, todayISO?)` → `[{week, km, minutes}]` semanas lun de más vieja a más reciente, zeros en semanas vacías
+  - `distribution.ts`: `calcTypeDistribution(items)` → % por tipo que **suman 100** (corrige descuadre de redondeo en el tipo mayor); vacío → `{}`
+  - `streaks.ts`: `calcStreak(records, todayISO?)` → días consecutivos `"completed"`; arranca en hoy, si no en ayer (racha viva), si no 0
+  - `heart-rate.ts`: `calcHRZones(max, rest)` Karvonen 5 zonas (50-60/60-70/70-80/80-90/90-100% HRR, from/to redondeados; inválido → throw `"Datos de FC inválidos"`) + `calcTRIMP(records, profile)` Banister `min × 0.64 × hrRatio × e^(1.92×hrRatio)` con **hrRatio = clamp(rpe/10) como proxy de %HRR** (el schema no tiene FC por sesión); sin perfil HR o sin registros válidos → `null`
+  - `vo2max.ts`: `estimateVO2max(records, profile)` Uth = 15.3 × FCmáx/FCreposo (1 decimal); exige HR completo en profile + registro con minutos > 0, si no `null`
+  - `alerts.ts`: `detectAlerts(athletes, records, settings?, todayISO?)` → `{athleteId, athleteName, kind, message}[]`; kinds `no_logging` (sin registros o > 7 días), `load_drop` (km últimos 7 días vs 7 previos, caída ≥ 40%), `high_rpe` (rpe ≥ 8 en ≥ 3 días consecutivos); defaults 7/40/3/8, `settings` sobrescribe
+- **25.10 Vitest**: `vitest@4` (v5 exige @types/node ≥22 y el proyecto tiene ^20 → ERESOLVE), `vitest.config.mts` (alias `@` → raíz, `include: tests/unit/**`), script `"test": "vitest run"`
+- **Verificación**: **25/25** (`npm test`) — incluye 25.11–25.15 (compliance 50%/0%/100%, carga 15.5km/85min + tss, rachas 3/2/0, zonas 120-134…176-190 + throw, alerta "10 días" > umbral 7) + distribution/progression/VO2max/TRIMP
+- **Lint/Build**: ✓ · **Leftovers**: 0 (los tests unitarios son entregable y se commitean)
+- **Notas nuevas**:
+  - `sessionRecords` no tiene columnas de FC → TRIMP usa RPE como proxy de %HRR (documentado en `heart-rate.ts`)
+  - Corregido "Próximos pasos": Fase 25 era funciones de cálculo, NO exportes (PDF/Excel = Fase 33)
 
-Luego: 26. Dashboard atleta, 27. Dashboard coach, 28. Dashboard Dir. Técnico/Admin, 32. UI anuncios, etc.
+## Próximos pasos
+**Fase 26 — Métricas: servicio y Server Actions** (consultas DB + composición de las funciones de la Fase 25; ver `tasks/mvp.md`).
+
+Luego: 27. Métricas interfaz y gráficas, 28. Métricas fisiológicas, 29. Avatar (R2), 30. Dashboard roles, 31. Menú lateral, 32. Director Técnico, 33. Exportes PDF/Excel, 34. Config global, 35. Auditoría, etc.
 
 ## Para continuar en otro PC
 ```bash

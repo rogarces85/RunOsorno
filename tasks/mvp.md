@@ -445,21 +445,21 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 25. Métricas — Funciones de cálculo
 
-- [ ] 25.1 Crear `lib/metrics/compliance.ts` con `calcCompliance(assignments)` → `% completadas / total planificadas * 100`
-- [ ] 25.2 Crear `lib/metrics/load.ts` con `calcWeeklyLoad(records, weekStart)` → `{ km, minutes, tss?, trimp? }`
-- [ ] 25.3 Crear `lib/metrics/progression.ts` con `calcProgression(records, numberOfWeeks)` → array `[{ week, km, minutes }]`
-- [ ] 25.4 Crear `lib/metrics/distribution.ts` con `calcTypeDistribution(assignments)` → `{ type: percentage }`
-- [ ] 25.5 Crear `lib/metrics/streaks.ts` con `calcStreak(records)` → días consecutivos con sesión completada
-- [ ] 25.6 Crear `lib/metrics/heart-rate.ts` con `calcHRZones(maxHr, restingHr)` → zonas 1-5 (método Karvonen)
-- [ ] 25.7 Crear `lib/metrics/heart-rate.ts` con `calcTRIMP(records, profile)` → TRIMP si hay datos de FC
-- [ ] 25.8 Crear `lib/metrics/vo2max.ts` con `estimateVO2max(records, profile)` → VO2max estimado si hay datos suficientes
-- [ ] 25.9 Crear `lib/metrics/alerts.ts` con `detectAlerts(athletes, records, settings)` → array de alertas (sin registrar > X días, caída carga, RPE alto sostenido)
-- [ ] 25.10 Escribir tests unitarios con Vitest para cada función de cálculo (`tests/unit/metrics.test.ts`)
-- [ ] 25.11 Verificar: `calcCompliance` retorna % correcto con datos de prueba
-- [ ] 25.12 Verificar: `calcWeeklyLoad` suma correctamente km y minutos
-- [ ] 25.13 Verificar: `calcStreak` detecta racha consecutiva correctamente
-- [ ] 25.14 Verificar: `calcHRZones` genera zonas correctas con FC máx y reposo dados
-- [ ] 25.15 Verificar: `detectAlerts` genera alerta cuando atleta lleva > X días sin registrar
+- [x] 25.1 Crear `lib/metrics/compliance.ts` con `calcCompliance(assignments)` → `% completadas / total planificadas * 100`
+- [x] 25.2 Crear `lib/metrics/load.ts` con `calcWeeklyLoad(records, weekStart)` → `{ km, minutes, tss?, trimp? }`
+- [x] 25.3 Crear `lib/metrics/progression.ts` con `calcProgression(records, numberOfWeeks)` → array `[{ week, km, minutes }]`
+- [x] 25.4 Crear `lib/metrics/distribution.ts` con `calcTypeDistribution(assignments)` → `{ type: percentage }`
+- [x] 25.5 Crear `lib/metrics/streaks.ts` con `calcStreak(records)` → días consecutivos con sesión completada
+- [x] 25.6 Crear `lib/metrics/heart-rate.ts` con `calcHRZones(maxHr, restingHr)` → zonas 1-5 (método Karvonen)
+- [x] 25.7 Crear `lib/metrics/heart-rate.ts` con `calcTRIMP(records, profile)` → TRIMP si hay datos de FC
+- [x] 25.8 Crear `lib/metrics/vo2max.ts` con `estimateVO2max(records, profile)` → VO2max estimado si hay datos suficientes
+- [x] 25.9 Crear `lib/metrics/alerts.ts` con `detectAlerts(athletes, records, settings)` → array de alertas (sin registrar > X días, caída carga, RPE alto sostenido)
+- [x] 25.10 Escribir tests unitarios con Vitest para cada función de cálculo (`tests/unit/metrics.test.ts`)
+- [x] 25.11 Verificar: `calcCompliance` retorna % correcto con datos de prueba
+- [x] 25.12 Verificar: `calcWeeklyLoad` suma correctamente km y minutos
+- [x] 25.13 Verificar: `calcStreak` detecta racha consecutiva correctamente
+- [x] 25.14 Verificar: `calcHRZones` genera zonas correctas con FC máx y reposo dados
+- [x] 25.15 Verificar: `detectAlerts` genera alerta cuando atleta lleva > X días sin registrar
 
 ---
 
@@ -862,7 +862,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 22. Feedback en sesiones | 10 | 10 |
 | 23. Notificaciones in-app | 17 | 17 |
 | 24. Notificaciones email | 8 | 8 |
-| 25. Métricas — Cálculo | 15 | 0 |
+| 25. Métricas — Cálculo | 15 | 15 |
 | 26. Métricas — Servicio | 10 | 0 |
 | 27. Métricas — Interfaz | 15 | 0 |
 | 28. Métricas fisiológicas | 7 | 0 |
@@ -888,4 +888,4 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **317** |
+| **TOTAL** | **~578** | **332** |
