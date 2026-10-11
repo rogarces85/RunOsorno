@@ -19,6 +19,7 @@ import type {
 } from "@/lib/validations/athlete.schemas";
 import { logAudit } from "./audit.service";
 import { sendEmail } from "./email.service";
+import { notify } from "./notification.service";
 import { getMaxAthletesPerTeam } from "./settings.service";
 import { toISODate } from "@/lib/utils/date";
 
@@ -160,6 +161,15 @@ export async function createAthlete(
   await db.insert(teamMembers).values({
     teamId: input.teamId,
     athleteId: id,
+  });
+
+  await notify({
+    userId: id,
+    type: "welcome",
+    title: "¡Bienvenido a RunOsorno!",
+    message: `Tu cuenta de atleta fue creada en el team "${team.name}". Revisa tu correo para iniciar sesión.`,
+    entityType: "team",
+    entityId: input.teamId,
   });
 
   await logAudit({

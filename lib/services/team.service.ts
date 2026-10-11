@@ -12,6 +12,7 @@ import type {
   UpdateTeamInput,
 } from "@/lib/validations/team.schemas";
 import { logAudit } from "./audit.service";
+import { notify } from "./notification.service";
 import { getMaxAthletesPerTeam } from "./settings.service";
 
 export type ServiceResult<T> =
@@ -211,6 +212,15 @@ export async function assignAthlete(
   }
 
   await db.insert(teamMembers).values({ teamId, athleteId });
+
+  await notify({
+    userId: athleteId,
+    type: "athlete_assigned",
+    title: "Agregado a un team",
+    message: `Tu coach te agregó al team "${team.name}".`,
+    entityType: "team",
+    entityId: teamId,
+  });
 
   await logAudit({
     userId: coachId,

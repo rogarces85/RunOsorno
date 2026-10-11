@@ -1,8 +1,25 @@
 import Link from "next/link";
-import { IconBell, IconUser } from "@tabler/icons-react";
+import { IconUser } from "@tabler/icons-react";
 import { logout } from "@/lib/actions/auth.actions";
+import { requireAuth } from "@/lib/auth/guards";
+import {
+  getNotifications,
+  getUnreadCount,
+} from "@/lib/services/notification.service";
+import { notificationHref } from "@/lib/utils/notification";
+import { NotificationBell } from "@/components/ui/NotificationBell";
 
-export function AppHeader() {
+export async function AppHeader() {
+  const { user } = await requireAuth();
+  const [unreadCount, recent] = await Promise.all([
+    getUnreadCount(user.id),
+    getNotifications(user.id, { limit: 8 }),
+  ]);
+  const items = recent.map((item) => ({
+    ...item,
+    href: notificationHref(item, user.role),
+  }));
+
   return (
     <header className="navbar d-print-none">
       <div className="container-fluid">
@@ -11,13 +28,7 @@ export function AppHeader() {
         </Link>
         <div className="navbar-nav flex-row ms-auto align-items-center">
           <div className="nav-item">
-            <span
-              className="nav-link nav-link-icon"
-              title="Notificaciones"
-              aria-label="Notificaciones"
-            >
-              <IconBell size={20} stroke={1.75} />
-            </span>
+            <NotificationBell unreadCount={unreadCount} items={items} />
           </div>
           <div className="nav-item ms-2">
             <span className="avatar avatar-sm" aria-label="Perfil">

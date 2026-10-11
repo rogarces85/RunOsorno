@@ -7,6 +7,7 @@ import {
 } from "@/lib/db/schema";
 import { canPlanFor, type PermissionUser } from "@/lib/permissions";
 import { whereSessionDateBetween } from "@/lib/services/plan.service";
+import { notifyFeedbackCreated } from "@/lib/services/notification.service";
 import type { ServiceResult } from "@/lib/services/template.service";
 
 export type FeedbackMessage = {
@@ -48,6 +49,10 @@ export async function addFeedback(
     assignmentId: assignment.id,
     authorId: author.id,
     message: input.message,
+  });
+  await notifyFeedbackCreated({
+    assignmentId: assignment.id,
+    authorId: author.id,
   });
   return { ok: true, data: null };
 }

@@ -2,6 +2,8 @@ import type { ReactNode } from "react";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AppHeader } from "@/components/layout/AppHeader";
 
+export const instant = false;
+
 export default function AppLayout({ children }: { children: ReactNode }) {
   return (
     <div className="page">

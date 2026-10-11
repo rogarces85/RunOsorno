@@ -3,6 +3,7 @@ import type { NotDoneReason } from "@/lib/config/constants";
 import { db } from "@/lib/db";
 import { sessionAssignments, sessionRecords } from "@/lib/db/schema";
 import { logAudit } from "./audit.service";
+import { notifySessionRecorded } from "./notification.service";
 import { getNumberSetting } from "./settings.service";
 import type { ServiceResult } from "./template.service";
 
@@ -152,6 +153,14 @@ export async function recordSession(
     .set({ status: input.status })
     .where(eq(sessionAssignments.id, input.assignmentId));
 
+  if (!editable.data.recordId) {
+    await notifySessionRecorded({
+      assignmentId: input.assignmentId,
+      athleteId,
+      kind: input.status,
+    });
+  }
+
   await logAudit({
     userId: athleteId,
     action: "session_recorded",
@@ -206,6 +215,14 @@ export async function markNotDone(
     .update(sessionAssignments)
     .set({ status: "not_done" })
     .where(eq(sessionAssignments.id, input.assignmentId));
+
+  if (!editable.data.recordId) {
+    await notifySessionRecorded({
+      assignmentId: input.assignmentId,
+      athleteId,
+      kind: "not_done",
+    });
+  }
 
   await logAudit({
     userId: athleteId,
