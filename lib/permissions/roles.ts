@@ -2,7 +2,7 @@ import type { Role } from "@/lib/auth/role";
 
 export const ROUTE_ACCESS: Record<Role, readonly string[]> = {
   admin: ["/admin"],
-  coach: ["/coach"],
+  coach: ["/coach", "/director"],
   athlete: ["/athlete"],
 } as const;
 
