@@ -12,6 +12,7 @@ import {
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { authenticate } from "@/lib/services/auth.service";
+import { pruneOldSessions } from "@/lib/services/profile.service";
 import { loginSchema } from "@/lib/validations/auth.schemas";
 
 export type LoginState = { error: string | null };
@@ -37,6 +38,10 @@ export async function login(
     .update(users)
     .set({ lastLoginAt: new Date() })
     .where(eq(users.id, result.user.id));
+
+  // Recorta las sesiones viejas del usuario antes de crear la nueva, para
+  // que la tabla `sessions` no crezca sin control.
+  await pruneOldSessions(result.user.id);
 
   await createSession(result.user.id);
   redirect(dashboardPath(result.user.role));

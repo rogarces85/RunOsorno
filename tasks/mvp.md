@@ -665,13 +665,31 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 37. Página de perfil de usuario (todos los roles)
 
-- [ ] 37.1 Crear página `app/(app)/profile/page.tsx` — datos personales, avatar, cambio de contraseña
-- [ ] 37.2 Crear componente `ProfileForm` — nombre y email (read-only o editable según configuración)
-- [ ] 37.3 Crear componente `PasswordChange` — contraseña actual, nueva, confirmación (React Hook Form + Zod)
-- [ ] 37.4 Crear Server Action `changePassword` — verifica contraseña actual, actualiza hash, invalida sesiones anteriores
-- [ ] 37.5 Integrar `AvatarUpload` en página de perfil
-- [ ] 37.6 Verificar: usuario cambia contraseña → debe usar la nueva en el próximo login
-- [ ] 37.7 Verificar: usuario actualiza avatar → se refleja en header inmediatamente
+- [x] 37.1 Crear página `app/(app)/profile/page.tsx` — datos personales, avatar, cambio de contraseña
+- [x] 37.2 Crear componente `ProfileForm` — nombre y email (read-only o editable según configuración)
+- [x] 37.3 Crear componente `PasswordChange` — contraseña actual, nueva, confirmación (React Hook Form + Zod)
+- [x] 37.4 Crear Server Action `changePassword` — verifica contraseña actual, actualiza hash, invalida sesiones anteriores
+- [x] 37.5 Integrar `AvatarUpload` en página de perfil
+- [x] 37.6 Verificar: usuario cambia contraseña → debe usar la nueva en el próximo login
+- [x] 37.7 Verificar: usuario actualiza avatar → se refleja en header inmediatamente
+
+> Nota 37.x: al cambiar la contraseña se revocan **todas** las sesiones
+> salvo la actual (decisión explícita del proyecto, no un efecto secundario).
+> El servicio usa `ne(sessions.id, currentSessionId)` para conservar la
+> sesión desde la que se hace el cambio; si no, el usuario perdería el
+> acceso de inmediato. El hash sube a bcrypt con 12 rondas (antes 10) y se
+> limpia `must_change_password`. También se añadió `pruneOldSessions` al
+> login: la tabla `sessions` crecía sin límite y ahora conserva 5 por
+> usuario.
+>
+> El email **no** es editable desde el perfil: cambiarlo afectaría al
+> login y a los registros ya enviados, así que se muestra deshabilitado
+> con una nota que lo explique.
+>
+> `changePasswordAction` se escribe a mano (necesita el id de sesión) y no
+> pasa por `runAction`, por lo que convierte el fallo a `{ok:false}`
+> explícitamente: si lanzara `ActionFailure` el usuario vería la pantalla
+> de error 500 en vez del mensaje "La contraseña actual no es correcta".
 
 ---
 
@@ -906,7 +924,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 34. Configuración global | 12 | 12 |
 | 35. Logs de auditoría | 10 | 10 |
 | 36. Dashboard Admin stats | 4 | 4 |
-| 37. Perfil de usuario | 7 | 0 |
+| 37. Perfil de usuario | 7 | 7 |
 | 38. Estados vacíos y errores | 8 | 0 |
 | 39. Responsive | 8 | 0 |
 | 40. Validaciones (completación) | 15 | 0 |
@@ -920,7 +938,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **448** |
+| **TOTAL** | **~578** | **455** |
 
 ---
 
@@ -939,6 +957,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-exports-ui.ts` | Página `/exports` por rol y descarga real iniciada desde el botón (Fase 33) |
 | `npx tsx scripts/verify-settings.ts` | Comprueba que la configuración se aplique de verdad: límites leídos de la DB, motivos reflejados en el select del atleta, ventana de edición cambiante y acceso restringido al admin (Fase 34) |
 | `npx tsx scripts/verify-audit-logs.ts` | Genera acciones reales desde la interfaz (crear equipo, aprobar solicitud, trasladar atleta) y comprueba que el log guarde usuario, detalles e IP; valida los filtros por fecha, usuario y acción (Fase 35) |
+| `npx tsx scripts/verify-profile.ts` | Perfil y cambio de contraseña: valida los formularios, que la nueva clave sirva y la anterior no, y que al cambiar queden revocadas todas las sesiones menos la actual (Fase 37) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 

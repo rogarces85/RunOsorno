@@ -4,13 +4,15 @@ type AvatarProps = {
   userId: string;
   name: string;
   avatarKey?: string | null;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 };
 
 const SIZES = {
   sm: 24,
   md: 36,
   lg: 96,
+  // xl se usa en la pagina de perfil, donde el avatar es el foco visual.
+  xl: 128,
 } as const;
 
 export function Avatar({
