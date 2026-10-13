@@ -1,10 +1,9 @@
 import { eq } from "drizzle-orm";
-import type { NotDoneReason } from "@/lib/config/constants";
 import { db } from "@/lib/db";
 import { sessionAssignments, sessionRecords } from "@/lib/db/schema";
 import { logAudit } from "./audit.service";
 import { notifySessionRecorded } from "./notification.service";
-import { getNumberSetting } from "./settings.service";
+import { getNumberSetting, getNotDoneReasons } from "./settings.service";
 import type { ServiceResult } from "./template.service";
 
 export type RecordSessionData = {
@@ -18,7 +17,12 @@ export type RecordSessionData = {
 
 export type MarkNotDoneData = {
   assignmentId: string;
-  reason: NotDoneReason;
+  /**
+   * Identificador del motivo. Es un string (no un enum fijo) porque el admin
+   * puede configurar la lista desde la interfaz (Fase 34); la validación
+   * contra la configuración ocurre en `markNotDone`.
+   */
+  reason: string;
   customReason?: string;
 };
 
@@ -188,6 +192,16 @@ export async function markNotDone(
   const editable = await assertEditable(input.assignmentId, athleteId);
   if (!editable.ok) {
     return editable;
+  }
+
+  // El motivo debe existir en la configuración actual (Fase 34): el admin
+  // puede agregar o quitar motivos desde la interfaz de configuración.
+  const validReasons = await getNotDoneReasons();
+  if (!validReasons.some((reason) => reason.id === input.reason)) {
+    return {
+      ok: false,
+      error: "El motivo seleccionado no es válido",
+    };
   }
 
   const values = {

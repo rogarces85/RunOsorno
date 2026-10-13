@@ -7,15 +7,19 @@ import type { PlanItem } from "@/lib/services/plan.service";
 import { MonthCalendar } from "@/components/calendar/MonthCalendar";
 import { SessionDetailPanel } from "@/components/calendar/SessionDetailPanel";
 import { SessionForm } from "@/components/calendar/SessionForm";
+import type { ReasonOption } from "@/components/calendar/SessionForm";
 
 export function AthleteCalendar({
   items,
   month,
   messages,
+  reasons,
 }: {
   items: PlanItem[];
   month: string;
   messages?: Record<string, FeedbackMessage[]>;
+  /** Motivos configurables por el admin (Fase 34). */
+  reasons: ReasonOption[];
 }) {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -48,6 +52,7 @@ export function AthleteCalendar({
               dateISO={selectedDate}
               record={selectedItem.record}
               status={selectedItem.status}
+              reasons={reasons}
             />
           ) : null
         }

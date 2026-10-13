@@ -4,10 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import {
-  NOT_DONE_REASON_LABELS,
-  type NotDoneReason,
-} from "@/lib/config/constants";
-import {
   markNotDoneAction,
   recordSessionAction,
 } from "@/lib/actions/session.actions";
@@ -20,12 +16,15 @@ import { toISODate } from "@/lib/utils/date";
 
 type Mode = "completed" | "partial" | "not_done";
 
+/** Motivo de "no realizada" configurable por el admin (Fase 34). */
+export type ReasonOption = { id: string; label: string };
+
 type FormValues = {
   distance: string;
   duration: string;
   rpe: string;
   comments: string;
-  reason: NotDoneReason;
+  reason: string;
   customReason: string;
 };
 
@@ -73,16 +72,20 @@ export function SessionForm({
   dateISO,
   record,
   status,
+  reasons,
 }: {
   assignmentId: string;
   dateISO: string;
   record: PlanRecord | null;
   status: PlanStatus;
+  /** Motivos configurables; si viene vacío se usan los de por defecto. */
+  reasons: ReasonOption[];
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(() => initialMode(record, status));
-  const [reason, setReason] = useState<NotDoneReason>(
-    () => (record?.notDoneReason as NotDoneReason | null) ?? "lesion",
+  const fallbackReason = reasons[0]?.id ?? "lesion";
+  const [reason, setReason] = useState<string>(
+    () => (record?.notDoneReason as string | null) ?? fallbackReason,
   );
   const [saved, setSaved] = useState(false);
   const {
@@ -101,7 +104,7 @@ export function SessionForm({
       rpe:
         record?.rpe !== null && record?.rpe !== undefined ? String(record.rpe) : "",
       comments: record?.comments ?? "",
-      reason: (record?.notDoneReason as NotDoneReason | null) ?? "lesion",
+      reason: (record?.notDoneReason as string | null) ?? fallbackReason,
       customReason: record?.customReason ?? "",
     },
   });
@@ -306,14 +309,14 @@ export function SessionForm({
             data-testid="session-reason"
             value={reason}
             onChange={(event) => {
-              setReason(event.target.value as NotDoneReason);
+              setReason(event.target.value);
               setSaved(false);
               clearErrors("customReason");
             }}
           >
-            {Object.entries(NOT_DONE_REASON_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
+            {reasons.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
               </option>
             ))}
           </select>

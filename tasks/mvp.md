@@ -604,18 +604,27 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 34. Configuración global (Admin)
 
-- [ ] 34.1 Crear servicio con `getSetting(key)` y `updateSetting(key, value)` — lectura/escritura de tabla `settings`
-- [ ] 34.2 Crear esquemas Zod para cada tipo de setting (límites, motivos, tipos, email)
-- [ ] 34.3 Crear Server Actions: `updateSetting` (solo admin)
-- [ ] 34.4 Crear página `app/(app)/admin/settings/page.tsx` con Tabs: Límites, Motivos, Tipos de sesión, Email
-- [ ] 34.5 Tab "Límites": form para `max_teams_per_coach`, `max_athletes_per_team`, `edit_window_hours`, `alert_no_record_days`
-- [ ] 34.6 Tab "Motivos no realizada": lista editable de motivos (agregar, editar, eliminar)
-- [ ] 34.7 Tab "Tipos de sesión": lista de tipos base (agregar, editar, eliminar)
-- [ ] 34.8 Tab "Email": form para `email_from`, edición de templates HTML de email
-- [ ] 34.9 Verificar: admin edita límites → los límites se aplican en las acciones correspondientes
-- [ ] 34.10 Verificar: admin edita motivos → aparecen en el select del atleta
-- [ ] 34.11 Verificar: admin edita `edit_window_hours` → cambia la ventana de edición de registros
-- [ ] 34.12 Verificar: no-admin no puede acceder a `/admin/settings`
+- [x] 34.1 Crear servicio con `getSetting(key)` y `updateSetting(key, value)` — lectura/escritura de tabla `settings`
+- [x] 34.2 Crear esquemas Zod para cada tipo de setting (límites, motivos, tipos, email)
+- [x] 34.3 Crear Server Actions: `updateSetting` (solo admin)
+- [x] 34.4 Crear página `app/(app)/admin/settings/page.tsx` con Tabs: Límites, Motivos, Tipos de sesión, Email
+- [x] 34.5 Tab "Límites": form para `max_teams_per_coach`, `max_athletes_per_team`, `edit_window_hours`, `alert_no_record_days`
+- [x] 34.6 Tab "Motivos no realizada": lista editable de motivos (agregar, editar, eliminar)
+- [x] 34.7 Tab "Tipos de sesión": lista de tipos base (agregar, editar, eliminar)
+- [x] 34.8 Tab "Email": form para `email_from`, edición de templates HTML de email
+- [x] 34.9 Verificar: admin edita límites → los límites se aplican en las acciones correspondientes
+- [x] 34.10 Verificar: admin edita motivos → aparecen en el select del atleta
+- [x] 34.11 Verificar: admin edita `edit_window_hours` → cambia la ventana de edición de registros
+- [x] 34.12 Verificar: no-admin no puede acceder a `/admin/settings`
+
+> Nota 34.x: la columna `settings.value` es `longtext`, no `JSON`, así que
+> Drizzle devuelve siempre el contenido como string aunque sea JSON válido.
+> `settings.service.ts` lo parsea explícitamente; sin eso, una lista guardada
+> como `'[{"id":...}]'` se descartaba en silencio y la app volvía a los
+> valores por defecto. Los motivos y tipos de sesión pasan a ser
+> configurables de verdad: `SessionForm` los recibe desde el servidor y
+> `markNotDone` valida contra la configuración, en lugar de usar el enum
+> fijo `DEFAULT_NOT_DONE_REASONS`.
 
 ---
 
@@ -883,7 +892,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 31. Menú lateral por rol | 7 | 7 |
 | 32. Director Técnico | 8 | 8 |
 | 33. Exportación | 13 | 13 |
-| 34. Configuración global | 12 | 0 |
+| 34. Configuración global | 12 | 12 |
 | 35. Logs de auditoría | 10 | 0 |
 | 36. Dashboard Admin stats | 4 | 4 |
 | 37. Perfil de usuario | 7 | 0 |
@@ -900,7 +909,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **426** |
+| **TOTAL** | **~578** | **438** |
 
 ---
 
@@ -917,6 +926,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-exports.ts` | Descarga los archivos por HTTP y valida firmas, permisos por rol y respuesta sin datos (Fase 33) |
 | `npx tsx scripts/verify-export-files.ts` | Guarda los archivos en disco y valida que el PDF, XLSX y CSV tengan estructura y datos reales (Fase 33) |
 | `npx tsx scripts/verify-exports-ui.ts` | Página `/exports` por rol y descarga real iniciada desde el botón (Fase 33) |
+| `npx tsx scripts/verify-settings.ts` | Comprueba que la configuración se aplique de verdad: límites leídos de la DB, motivos reflejados en el select del atleta, ventana de edición cambiante y acceso restringido al admin (Fase 34) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 

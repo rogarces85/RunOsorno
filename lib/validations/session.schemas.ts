@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { DEFAULT_NOT_DONE_REASONS } from "@/lib/config/constants";
-
 export const feedbackSchema = z.object({
   assignmentId: z.string().min(1),
   message: z
@@ -70,10 +69,28 @@ export const recordSessionSchema = z
     }
   });
 
+/**
+ * Motivo de "no realizada".
+ *
+ * El schema base solo valida el formato. La lista de motivos válidos se
+ * comprueba en el servicio contra la configuración (Fase 34), porque el
+ * admin puede agregar motivos desde la interfaz y el enum fijo impediría
+ * usar los nuevos.
+ */
+export const notDoneReasonFieldSchema = z
+  .string()
+  .trim()
+  .min(2, "Motivo inválido")
+  .max(40, "Motivo demasiado largo")
+  .regex(
+    /^[a-z0-9_]+$/,
+    "El motivo debe usar solo minúsculas, números y guion bajo",
+  );
+
 export const notDoneSchema = z
   .object({
     assignmentId: z.uuid("ID de sesión inválido"),
-    reason: z.enum(DEFAULT_NOT_DONE_REASONS),
+    reason: notDoneReasonFieldSchema,
     customReason: z
       .string()
       .trim()
@@ -89,6 +106,9 @@ export const notDoneSchema = z
       });
     }
   });
+
+/** Motivos aceptados si la configuración no está disponible (fallback). */
+export const FALLBACK_NOT_DONE_REASONS = [...DEFAULT_NOT_DONE_REASONS];
 
 export type RecordSessionInput = z.infer<typeof recordSessionSchema>;
 export type NotDoneInput = z.infer<typeof notDoneSchema>;

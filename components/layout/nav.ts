@@ -19,8 +19,8 @@ import type { Role } from "@/lib/auth/role";
  * Configuración de menú lateral por rol (Fase 31).
  * Los items con `pending: true` documentan el menú completo del MVP pero se
  * ocultan hasta que su página exista (se desbloquean en sus fases):
- * - Configuración: Fase 34
  * - Logs: Fase 35
+ * - Configuración: desbloqueado en la Fase 34
  * - Exportes: desbloqueado en la Fase 33
  */
 
@@ -43,7 +43,7 @@ const ADMIN_ITEMS: NavItem[] = [
   { label: "Grupos", href: "/admin/groups", icon: IconUsers },
   { label: "Atletas", href: "/admin/athletes", icon: IconRun },
   { label: "Plantillas oficiales", href: "/admin/templates", icon: IconTemplate },
-  { label: "Configuración", href: "/admin/settings", icon: IconSettings, pending: true },
+  { label: "Configuración", href: "/admin/settings", icon: IconSettings },
   { label: "Logs", href: "/admin/logs", icon: IconFileText, pending: true },
   { label: "Exportes", href: "/exports", icon: IconDownload },
 ];
