@@ -12,6 +12,9 @@ import {
   type CreateAthleteFormInput,
 } from "@/lib/validations/athlete.schemas";
 import type { AthleteListItem } from "@/lib/services/athlete.service";
+import { applyServerErrors } from "@/lib/utils/form";
+import type { ActionError } from "@/lib/actions/base";
+import { Alert } from "@/components/ui/Alert";
 
 export type AthleteFormNotice = {
   type: "success" | "danger";
@@ -46,6 +49,8 @@ export function AthleteForm({
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<CreateAthleteFormInput>({
     resolver: zodResolver(createAthleteSchema),
@@ -60,6 +65,10 @@ export function AthleteForm({
       restingHr: "",
     },
   });
+
+  // El error de negocio del servidor vive en `root.server`: `reset()` lo
+  // limpia al reabrir el modal, sin estado adicional.
+  const serverError = errors.root?.server?.message;
 
   useEffect(() => {
     if (open) {
@@ -77,6 +86,12 @@ export function AthleteForm({
   }, [open, athlete, teams, reset]);
 
   const onSubmit = async (data: CreateAthleteFormInput) => {
+    clearErrors();
+    const handleFailure = (result: ActionError) => {
+      applyServerErrors(setError, result.fieldErrors);
+      setError("root.server", { message: result.error });
+    };
+
     if (athlete) {
       const result = await updateAthleteProfileAction({
         athleteId: athlete.id,
@@ -91,10 +106,11 @@ export function AthleteForm({
         onSaved({ type: "success", message: "Atleta actualizado" });
         onClose();
       } else {
-        onSaved({ type: "danger", message: result.error });
+        handleFailure(result);
       }
       return;
     }
+
     const result = await createAthleteAction(data);
     if (result.ok) {
       onSaved({
@@ -104,7 +120,7 @@ export function AthleteForm({
       });
       onClose();
     } else {
-      onSaved({ type: "danger", message: result.error });
+      handleFailure(result);
     }
   };
 
@@ -136,6 +152,15 @@ export function AthleteForm({
                 />
               </div>
               <div className="modal-body">
+                {serverError && (
+                  <Alert
+                    variant="danger"
+                    className="mb-3"
+                    testId="athlete-form-error"
+                  >
+                    {serverError}
+                  </Alert>
+                )}
                 <div className="mb-3">
                   <label className="form-label" htmlFor="athlete-name">
                     Nombre

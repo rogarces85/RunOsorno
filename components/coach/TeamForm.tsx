@@ -8,6 +8,8 @@ import {
   createTeamSchema,
   type CreateTeamInput,
 } from "@/lib/validations/team.schemas";
+import { applyServerErrors } from "@/lib/utils/form";
+import { Alert } from "@/components/ui/Alert";
 
 export type TeamFormNotice = {
   type: "success" | "danger";
@@ -31,11 +33,17 @@ export function TeamForm({
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<CreateTeamInput>({
     resolver: zodResolver(createTeamSchema),
     defaultValues: { name: "" },
   });
+
+  // El error de negocio del servidor vive en `root.server`: `reset()` lo
+  // limpia al reabrir el modal, sin estado adicional.
+  const serverError = errors.root?.server?.message;
 
   useEffect(() => {
     if (open) {
@@ -44,28 +52,24 @@ export function TeamForm({
   }, [open, team, reset]);
 
   const onSubmit = async (data: CreateTeamInput) => {
-    if (team) {
-      const result = await updateTeamAction(team.id, {
-        name: data.name?.trim() || team.name,
-      });
-      if (result.ok) {
-        onSaved({ type: "success", message: "Team actualizado" });
-        onClose();
-      } else {
-        onSaved({ type: "danger", message: result.error });
-      }
-      return;
-    }
-    const result = await createTeamAction(data);
+    clearErrors();
+    const result = team
+      ? await updateTeamAction(team.id, {
+          name: data.name?.trim() || team.name,
+        })
+      : await createTeamAction(data);
     if (result.ok) {
       onSaved({
         type: "success",
-        message: `Team "${result.data.name}" creado`,
+        message: team
+          ? "Team actualizado"
+          : `Team "${result.data.name}" creado`,
       });
       onClose();
-    } else {
-      onSaved({ type: "danger", message: result.error });
+      return;
     }
+    applyServerErrors(setError, result.fieldErrors);
+    setError("root.server", { message: result.error });
   };
 
   if (!open) {
@@ -96,6 +100,15 @@ export function TeamForm({
                 />
               </div>
               <div className="modal-body">
+                {serverError && (
+                  <Alert
+                    variant="danger"
+                    className="mb-3"
+                    testId="team-form-error"
+                  >
+                    {serverError}
+                  </Alert>
+                )}
                 <div className="mb-0">
                   <label className="form-label" htmlFor="team-name">
                     Nombre

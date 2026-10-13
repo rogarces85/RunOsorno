@@ -8,6 +8,9 @@ import {
   createOfficialTemplateAction,
   updateOfficialTemplateAction,
 } from "@/lib/actions/template.actions";
+import { applyServerErrors } from "@/lib/utils/form";
+import type { ActionError } from "@/lib/actions/base";
+import { Alert } from "@/components/ui/Alert";
 import {
   SESSION_TYPE_LABELS,
   SECTION_TYPE_LABELS,
@@ -44,6 +47,8 @@ export function OfficialTemplateForm({
     handleSubmit,
     control,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<TemplateInput>({
     resolver: zodResolver(templateSchema),
@@ -54,6 +59,10 @@ export function OfficialTemplateForm({
     control,
     name: "structure",
   });
+
+  // El error de negocio del servidor vive en `root.server`: `reset()` lo
+  // limpia al reabrir el modal, sin estado adicional.
+  const serverError = errors.root?.server?.message;
 
   useEffect(() => {
     if (open) {
@@ -75,6 +84,7 @@ export function OfficialTemplateForm({
   }, [open, template, reset]);
 
   const onSubmit = async (data: TemplateInput) => {
+    clearErrors();
     const payload: TemplateInput = {
       name: data.name,
       sessionType: data.sessionType,
@@ -83,13 +93,17 @@ export function OfficialTemplateForm({
         order: index,
       })),
     };
+    const handleFailure = (result: ActionError) => {
+      applyServerErrors(setError, result.fieldErrors);
+      setError("root.server", { message: result.error });
+    };
     if (template) {
       const result = await updateOfficialTemplateAction(template.id, payload);
       if (result.ok) {
         onSaved({ type: "success", message: "Plantilla oficial actualizada" });
         onClose();
       } else {
-        onSaved({ type: "danger", message: result.error });
+        handleFailure(result);
       }
       return;
     }
@@ -98,7 +112,7 @@ export function OfficialTemplateForm({
       onSaved({ type: "success", message: "Plantilla oficial creada" });
       onClose();
     } else {
-      onSaved({ type: "danger", message: result.error });
+      handleFailure(result);
     }
   };
 
@@ -138,6 +152,15 @@ export function OfficialTemplateForm({
                 />
               </div>
               <div className="modal-body">
+                {serverError && (
+                  <Alert
+                    variant="danger"
+                    className="mb-3"
+                    testId="official-template-form-error"
+                  >
+                    {serverError}
+                  </Alert>
+                )}
                 <div className="row g-3 mb-3">
                   <div className="col-md-7">
                     <label className="form-label" htmlFor="official-name">

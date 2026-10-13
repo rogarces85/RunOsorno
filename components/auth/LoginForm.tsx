@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
 import { login, type LoginState } from "@/lib/actions/auth.actions";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth.schemas";
+import { Alert } from "@/components/ui/Alert";
 
 const initialState: LoginState = { error: null };
 
@@ -36,14 +37,14 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       {expired && (
-        <div className="alert alert-warning" role="alert">
+        <Alert variant="warning" testId="login-expired">
           Tu sesión ha expirado. Inicia sesión nuevamente.
-        </div>
+        </Alert>
       )}
       {state.error && (
-        <div className="alert alert-danger" role="alert">
+        <Alert variant="danger" testId="login-error">
           {state.error}
-        </div>
+        </Alert>
       )}
       <div className="mb-3">
         <label className="form-label" htmlFor="login-email">

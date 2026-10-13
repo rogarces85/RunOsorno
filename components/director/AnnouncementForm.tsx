@@ -9,6 +9,8 @@ import {
   sendAnnouncementSchema,
   type SendAnnouncementInput,
 } from "@/lib/validations/group.schemas";
+import { applyServerErrors } from "@/lib/utils/form";
+import { Alert } from "@/components/ui/Alert";
 
 export type AnnouncementNotice = {
   type: "success" | "danger";
@@ -36,6 +38,8 @@ export function AnnouncementForm({
     handleSubmit,
     reset,
     control,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<SendAnnouncementInput>({
     resolver: zodResolver(sendAnnouncementSchema),
@@ -46,6 +50,8 @@ export function AnnouncementForm({
   const { title, message } = useWatch({ control });
 
   const onSubmit = async (data: SendAnnouncementInput) => {
+    clearErrors();
+    setNotice(null);
     const result = await sendAnnouncementAction(data);
     if (result.ok) {
       const { notified, emailed } = result.data;
@@ -55,6 +61,7 @@ export function AnnouncementForm({
       });
       reset({ groupId: data.groupId, title: "", message: "" });
     } else {
+      applyServerErrors(setError, result.fieldErrors);
       setNotice({ type: "danger", message: result.error });
     }
   };
@@ -68,18 +75,13 @@ export function AnnouncementForm({
           </div>
           <div className="card-body">
             {notice && (
-              <div
-                className={`alert alert-${notice.type} alert-dismissible`}
-                role="alert"
+              <Alert
+                variant={notice.type}
+                dismissible
+                onDismiss={() => setNotice(null)}
               >
-                <div>{notice.message}</div>
-                <button
-                  type="button"
-                  className="btn-close"
-                  aria-label="Cerrar"
-                  onClick={() => setNotice(null)}
-                />
-              </div>
+                {notice.message}
+              </Alert>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -174,13 +176,14 @@ export function AnnouncementForm({
               <div className="card bg-azure-lt">
                 <div className="card-body">
                   <div className="d-flex align-items-center gap-2 mb-2">
-                    <span className="badge bg-azure text-white">
-                      Anuncio
-                    </span>
+                    <span className="badge bg-azure text-white">Anuncio</span>
                     <span className="text-secondary small">{senderName}</span>
                   </div>
                   <div className="fw-bold mb-1">{title}</div>
-                  <div className="text-secondary" style={{ whiteSpace: "pre-wrap" }}>
+                  <div
+                    className="text-secondary"
+                    style={{ whiteSpace: "pre-wrap" }}
+                  >
                     {message}
                   </div>
                 </div>

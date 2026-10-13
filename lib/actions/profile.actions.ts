@@ -1,12 +1,14 @@
 "use server";
 
-import { ActionFailure, runAction, type ActionResult } from "@/lib/actions/base";
+import {
+  ActionFailure,
+  runAction,
+  toFieldErrors,
+  type ActionResult,
+} from "@/lib/actions/base";
 import { requireAuth } from "@/lib/auth/guards";
 import { getSessionId } from "@/lib/auth/session";
-import {
-  changePassword,
-  updateProfile,
-} from "@/lib/services/profile.service";
+import { changePassword, updateProfile } from "@/lib/services/profile.service";
 import {
   changePasswordSchema,
   updateProfileSchema,
@@ -34,7 +36,9 @@ export async function changePasswordAction(
   if (!parsed.success) {
     return {
       ok: false,
-      error: parsed.error.issues[0]?.message ?? "Revisa los datos del formulario",
+      error:
+        parsed.error.issues[0]?.message ?? "Revisa los datos del formulario",
+      fieldErrors: toFieldErrors(parsed.error),
     };
   }
 

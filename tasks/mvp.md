@@ -695,14 +695,32 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 38. Estados vacíos y mensajes de error (UI)
 
-- [ ] 38.1 Crear componente `EmptyState` en `components/ui/EmptyState.tsx` — icono + mensaje + acción opcional
-- [ ] 38.2 Aplicar `EmptyState` a listados vacíos: "No hay coaches registrados", "No hay atletas en este team", "No hay plantillas", "No hay notificaciones"
-- [ ] 38.3 Crear componente `Alert` wrapper de Tabler para mensajes de error y éxito
-- [ ] 38.4 Integrar mensajes de error de Server Actions en formularios (field-level errors)
-- [ ] 38.5 Verificar: cada listado vacío muestra mensaje orientativo con acción posible
-- [ ] 38.6 Verificar: errores de validación se muestran bajo el campo correspondiente
-- [ ] 38.7 Verificar: errores de negocio muestran `Alert` con mensaje claro
-- [ ] 38.8 Verificar: acciones destructivas piden confirmación con `ConfirmDialog`
+- [x] 38.1 Crear componente `EmptyState` en `components/ui/EmptyState.tsx` — icono + mensaje + acción opcional
+- [x] 38.2 Aplicar `EmptyState` a listados vacíos: "No hay coaches registrados", "No hay atletas en este team", "No hay plantillas", "No hay notificaciones"
+- [x] 38.3 Crear componente `Alert` wrapper de Tabler para mensajes de error y éxito
+- [x] 38.4 Integrar mensajes de error de Server Actions en formularios (field-level errors)
+- [x] 38.5 Verificar: cada listado vacío muestra mensaje orientativo con acción posible
+- [x] 38.6 Verificar: errores de validación se muestran bajo el campo correspondiente
+- [x] 38.7 Verificar: errores de negocio muestran `Alert` con mensaje claro
+- [x] 38.8 Verificar: acciones destructivas piden confirmación con `ConfirmDialog`
+
+> Nota 38.x: `runAction` ahora devuelve `fieldErrors` (mapa
+> `campo → mensaje`) cuando el fallo viene del esquema Zod, y
+> `applyServerErrors` los marca con `setError` en React Hook Form. Antes
+> toda validación del servidor colapsaba en un único "Datos inválidos".
+>
+> El error de negocio del servidor se guarda en `root.server` en vez de
+> en un `useState` aparte: así `reset()` lo limpia al reabrir el modal, sin
+> un segundo efecto. Los modales (`CoachForm`, `GroupForm`, `TeamForm`,
+> `AthleteForm`, `OfficialTemplateForm`) muestran el `Alert` **dentro** del
+> modal; antes se delegaba en el `notice` del listado, que queda detrás del
+> backdrop y el usuario nunca veía.
+>
+> `EmptyState` se aplica a coaches, grupos, equipos, atletas, atletas de un
+> team, plantillas (pestañas Mías/Oficiales/Grupo), plantillas oficiales,
+> notificaciones (centro y aviso de la campanita) y solicitudes pendientes.
+> La acción es opcional a propósito: en el centro de notificaciones el
+> vacío no es "crea algo", es "estás al día".
 
 ---
 
@@ -925,7 +943,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 35. Logs de auditoría | 10 | 10 |
 | 36. Dashboard Admin stats | 4 | 4 |
 | 37. Perfil de usuario | 7 | 7 |
-| 38. Estados vacíos y errores | 8 | 0 |
+| 38. Estados vacíos y errores | 8 | 8 |
 | 39. Responsive | 8 | 0 |
 | 40. Validaciones (completación) | 15 | 0 |
 | 41. Pruebas unitarias | 15 | 0 |
@@ -938,7 +956,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **455** |
+| **TOTAL** | **~578** | **463** |
 
 ---
 
@@ -958,6 +976,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-settings.ts` | Comprueba que la configuración se aplique de verdad: límites leídos de la DB, motivos reflejados en el select del atleta, ventana de edición cambiante y acceso restringido al admin (Fase 34) |
 | `npx tsx scripts/verify-audit-logs.ts` | Genera acciones reales desde la interfaz (crear equipo, aprobar solicitud, trasladar atleta) y comprueba que el log guarde usuario, detalles e IP; valida los filtros por fecha, usuario y acción (Fase 35) |
 | `npx tsx scripts/verify-profile.ts` | Perfil y cambio de contraseña: valida los formularios, que la nueva clave sirva y la anterior no, y que al cambiar queden revocadas todas las sesiones menos la actual (Fase 37) |
+| `npx tsx scripts/verify-empty-states.ts` | Estados vacíos con mensaje orientativo y acción, errores de validación bajo su campo, `Alert` de negocio y `ConfirmDialog` en acciones destructivas (Fase 38) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 

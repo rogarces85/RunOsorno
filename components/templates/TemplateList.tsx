@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconTemplate } from "@tabler/icons-react";
 import {
   deleteTemplateAction,
   unshareTemplateAction,
 } from "@/lib/actions/template.actions";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Alert } from "@/components/ui/Alert";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { GroupBasic } from "@/lib/services/group.service";
 import type { TemplateListItem } from "@/lib/services/template.service";
 import { CloneDialog } from "./CloneDialog";
@@ -28,10 +30,30 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: "group", label: "Grupo" },
 ];
 
-const EMPTY_MESSAGES: Record<TabKey, string> = {
-  own: "Aún no tienes plantillas. Crea la primera con “Nueva plantilla”.",
-  official: "No hay plantillas oficiales disponibles todavía.",
-  group: "Tu grupo aún no tiene plantillas compartidas por otros coaches.",
+const EMPTY: Record<
+  TabKey,
+  {
+    title: string;
+    description: string;
+    action?: { label: string; href: string };
+  }
+> = {
+  own: {
+    title: "No hay plantillas",
+    description:
+      "Crea tu primera plantilla con la estructura del sesión (calentamiento, entrenamiento específico y enfriamiento) para reutilizarla cada semana.",
+    action: { label: "Nueva plantilla", href: "/coach/templates/new" },
+  },
+  official: {
+    title: "No hay plantillas oficiales",
+    description:
+      "El administrador todavía no ha cargado plantillas oficiales. Cuando lo haga, podrás clonarlas y adaptarlas a tus atletas.",
+  },
+  group: {
+    title: "No hay plantillas compartidas",
+    description:
+      "Ningún coach de tu grupo ha compartido plantillas todavía. Las que compartan aparecerán aquí para clonarlas.",
+  },
 };
 
 export function TemplateList({
@@ -99,7 +121,7 @@ export function TemplateList({
       <div className="mb-3 d-flex justify-content-between align-items-center">
         <p className="text-secondary mb-0">
           {templates.length === 0
-            ? "Tu biblioteca está vacía."
+            ? "Tu biblioteca de plantillas"
             : `${templates.length} plantilla${templates.length === 1 ? "" : "s"} en total`}
         </p>
         <Link href="/coach/templates/new" className="btn btn-primary">
@@ -109,18 +131,13 @@ export function TemplateList({
       </div>
 
       {notice && (
-        <div
-          className={`alert alert-${notice.type} alert-dismissible`}
-          role="alert"
+        <Alert
+          variant={notice.type}
+          dismissible
+          onDismiss={() => setNotice(null)}
         >
           {notice.message}
-          <button
-            type="button"
-            className="btn-close"
-            aria-label="Cerrar"
-            onClick={() => setNotice(null)}
-          />
-        </div>
+        </Alert>
       )}
 
       <ul className="nav nav-tabs mb-3" role="tablist">
@@ -146,8 +163,15 @@ export function TemplateList({
         {visible.length === 0 && (
           <div className="col-12">
             <div className="card">
-              <div className="card-body text-secondary text-center py-4">
-                {EMPTY_MESSAGES[tab]}
+              <div className="card-body">
+                <EmptyState
+                  icon={IconTemplate}
+                  title={EMPTY[tab].title}
+                  description={EMPTY[tab].description}
+                  actionLabel={EMPTY[tab].action?.label}
+                  actionHref={EMPTY[tab].action?.href}
+                  actionVariant="outline-primary"
+                />
               </div>
             </div>
           </div>

@@ -19,6 +19,8 @@ import {
   type TemplateInput,
 } from "@/lib/validations/template.schemas";
 import { SectionEditor } from "./SectionEditor";
+import { applyServerErrors } from "@/lib/utils/form";
+import { Alert } from "@/components/ui/Alert";
 
 export const FREE_SESSION_TYPES = [
   "Test/Control",
@@ -69,6 +71,8 @@ export function TemplateEditor({
     register,
     handleSubmit,
     control,
+    setError: setFieldError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<TemplateInput>({
     resolver: zodResolver(templateSchema),
@@ -84,6 +88,7 @@ export function TemplateEditor({
 
   const onSubmit = async (data: TemplateInput) => {
     setError(null);
+    clearErrors();
     const payload: TemplateInput = {
       name: data.name,
       sessionType: data.sessionType,
@@ -100,6 +105,7 @@ export function TemplateEditor({
       router.refresh();
       return;
     }
+    applyServerErrors(setFieldError, result.fieldErrors);
     setError(result.error);
   };
 
@@ -110,15 +116,19 @@ export function TemplateEditor({
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="mb-3">
         <Link href="/coach/templates" className="link-secondary">
-          <IconArrowLeft size={16} stroke={1.75} className="me-1 align-text-bottom" />
+          <IconArrowLeft
+            size={16}
+            stroke={1.75}
+            className="me-1 align-text-bottom"
+          />
           Volver a la biblioteca
         </Link>
       </div>
 
       {error && (
-        <div className="alert alert-danger" role="alert">
+        <Alert variant="danger" testId="template-editor-error">
           {error}
-        </div>
+        </Alert>
       )}
 
       <div className="card mb-3">
@@ -221,9 +231,8 @@ export function TemplateEditor({
       ))}
 
       <p className="text-secondary small">
-        Secciones sugeridas:{" "}
-        {Object.values(SECTION_TYPE_LABELS).join(" · ")}. Puedes reordenarlas,
-        omitir o añadir las que quieras.
+        Secciones sugeridas: {Object.values(SECTION_TYPE_LABELS).join(" · ")}.
+        Puedes reordenarlas, omitir o añadir las que quieras.
       </p>
 
       <div className="d-flex justify-content-end gap-2">

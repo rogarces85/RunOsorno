@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { IconAlertTriangle } from "@tabler/icons-react";
 import { transferAthleteAction } from "@/lib/actions/athlete.actions";
+import { Alert } from "@/components/ui/Alert";
 
 export function TransferDialog({
   open,
@@ -88,9 +90,13 @@ export function TransferDialog({
                 cambio queda registrado en la auditoría.
               </p>
               {error && (
-                <div className="alert alert-danger" role="alert">
+                <Alert
+                  variant="danger"
+                  testId="transfer-error"
+                  icon={<IconAlertTriangle size={16} />}
+                >
                   {error}
-                </div>
+                </Alert>
               )}
               <div className="mb-3">
                 <label className="form-label" htmlFor="transfer-from">

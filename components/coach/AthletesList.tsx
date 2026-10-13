@@ -3,10 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IconEdit, IconPlus, IconTransfer } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconPlus,
+  IconTransfer,
+  IconUserSearch,
+} from "@tabler/icons-react";
 import { formatDateChile } from "@/lib/utils/date";
 import type { AthleteListItem } from "@/lib/services/athlete.service";
 import { Avatar } from "@/components/ui/Avatar";
+import { Alert } from "@/components/ui/Alert";
+import { EmptyState } from "@/components/ui/EmptyState";
 import {
   AthleteForm,
   type AthleteFormNotice,
@@ -35,12 +42,17 @@ export function AthletesList({
     null,
   );
 
+  const openCreate = () => {
+    setEditing(null);
+    setFormOpen(true);
+  };
+
   return (
     <>
       <div className="mb-3 d-flex justify-content-between align-items-center">
         <p className="text-secondary mb-0">
           {athletes.length === 0
-            ? "Aún no hay atletas."
+            ? "Listado de atletas"
             : `${athletes.length} atleta${athletes.length === 1 ? "" : "s"}`}
         </p>
         {editable && (
@@ -51,10 +63,7 @@ export function AthletesList({
             title={
               teams.length === 0 ? "Crea un team antes de agregar atletas" : ""
             }
-            onClick={() => {
-              setEditing(null);
-              setFormOpen(true);
-            }}
+            onClick={openCreate}
           >
             <IconPlus size={18} stroke={1.75} className="me-1" />
             Nuevo atleta
@@ -63,9 +72,10 @@ export function AthletesList({
       </div>
 
       {notice && (
-        <div
-          className={`alert alert-${notice.type} alert-dismissible`}
-          role="alert"
+        <Alert
+          variant={notice.type}
+          dismissible
+          onDismiss={() => setNotice(null)}
         >
           <div>{notice.message}</div>
           {notice.tempPassword && (
@@ -77,113 +87,117 @@ export function AthletesList({
               </span>
             </div>
           )}
-          <button
-            type="button"
-            className="btn-close"
-            aria-label="Cerrar"
-            onClick={() => setNotice(null)}
-          />
-        </div>
+        </Alert>
       )}
 
       <div className="card">
-        <div className="table-responsive">
-          <table className="table table-vcenter card-table">
-            <thead>
-              <tr>
-                <th>Atleta</th>
-                <th>Teams</th>
-                <th>Cumplimiento</th>
-                <th>Última actividad</th>
-                <th className="text-end">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {athletes.length === 0 && (
+        {athletes.length === 0 ? (
+          <div className="card-body">
+            <EmptyState
+              icon={IconUserSearch}
+              title="No hay atletas en este listado"
+              description={
+                teams.length === 0 && editable
+                  ? "Primero crea un team; después podrás dar de alta a tus atletas y asignarlos a ese team."
+                  : "Cuando un atleta se asigne a uno de tus teams aparecerá aquí."
+              }
+              actionLabel={editable ? "Nuevo atleta" : undefined}
+              actionVariant="outline-primary"
+              onAction={editable ? openCreate : undefined}
+            />
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-vcenter card-table">
+              <thead>
                 <tr>
-                  <td colSpan={5} className="text-secondary text-center py-4">
-                    Sin atletas todavía.
-                  </td>
+                  <th>Atleta</th>
+                  <th>Teams</th>
+                  <th>Cumplimiento</th>
+                  <th>Última actividad</th>
+                  <th className="text-end">Acciones</th>
                 </tr>
-              )}
-              {athletes.map((athlete) => (
-                <tr key={athlete.id}>
-                  <td>
-                    <div className="d-flex align-items-center gap-2">
-                      <Avatar
-                        userId={athlete.id}
-                        name={athlete.name}
-                        avatarKey={athlete.avatarKey}
-                        size="sm"
-                      />
-                      <div>
-                        <div className="fw-medium">{athlete.name}</div>
-                        <div className="text-secondary small">
-                          {athlete.email}
+              </thead>
+              <tbody>
+                {athletes.map((athlete) => (
+                  <tr key={athlete.id}>
+                    <td>
+                      <div className="d-flex align-items-center gap-2">
+                        <Avatar
+                          userId={athlete.id}
+                          name={athlete.name}
+                          avatarKey={athlete.avatarKey}
+                          size="sm"
+                        />
+                        <div>
+                          <div className="fw-medium">{athlete.name}</div>
+                          <div className="text-secondary small">
+                            {athlete.email}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="text-secondary">
-                    {athlete.teamNames.length > 0
-                      ? athlete.teamNames.join(", ")
-                      : "Sin team"}
-                  </td>
-                  <td>
-                    {athlete.totalSessions > 0
-                      ? `${Math.round((athlete.completedSessions / athlete.totalSessions) * 100)}% (${athlete.completedSessions}/${athlete.totalSessions})`
-                      : "—"}
-                  </td>
-                  <td className="text-secondary small">
-                    {athlete.lastActivity
-                      ? formatDateChile(athlete.lastActivity)
-                      : "Sin registros"}
-                  </td>
-                  <td className="text-end">
-                    <div className="btn-list flex-nowrap justify-content-end">
-                      {editable && (
-                        <Link
-                          href={`/coach/athletes/${athlete.id}`}
-                          className="btn btn-sm btn-ghost-secondary"
-                        >
-                          Ver
-                        </Link>
-                      )}
-                      {editable && (
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Editar"
-                          onClick={() => {
-                            setEditing({
-                              id: athlete.id,
-                              name: athlete.name,
-                              email: athlete.email,
-                              profile: athlete.profile,
-                            });
-                            setFormOpen(true);
-                          }}
-                        >
-                          <IconEdit size={16} stroke={1.75} />
-                        </button>
-                      )}
-                      {canTransfer && athlete.teamNames.length > 0 && (
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Transferir a otro team"
-                          onClick={() => setTransferring(athlete)}
-                        >
-                          <IconTransfer size={16} stroke={1.75} />
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    </td>
+                    <td className="text-secondary">
+                      {athlete.teamNames.length > 0
+                        ? athlete.teamNames.join(", ")
+                        : "Sin team"}
+                    </td>
+                    <td>
+                      {athlete.totalSessions > 0
+                        ? `${Math.round((athlete.completedSessions / athlete.totalSessions) * 100)}% (${athlete.completedSessions}/${athlete.totalSessions})`
+                        : "—"}
+                    </td>
+                    <td className="text-secondary small">
+                      {athlete.lastActivity
+                        ? formatDateChile(athlete.lastActivity)
+                        : "Sin registros"}
+                    </td>
+                    <td className="text-end">
+                      <div className="btn-list flex-nowrap justify-content-end">
+                        {editable && (
+                          <Link
+                            href={`/coach/athletes/${athlete.id}`}
+                            className="btn btn-sm btn-ghost-secondary"
+                          >
+                            Ver
+                          </Link>
+                        )}
+                        {editable && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-ghost-secondary"
+                            title="Editar"
+                            onClick={() => {
+                              setEditing({
+                                id: athlete.id,
+                                name: athlete.name,
+                                email: athlete.email,
+                                profile: athlete.profile,
+                              });
+                              setFormOpen(true);
+                            }}
+                          >
+                            <IconEdit size={16} stroke={1.75} />
+                          </button>
+                        )}
+                        {canTransfer && athlete.teamNames.length > 0 && (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-ghost-secondary"
+                            title="Transferir a otro team"
+                            onClick={() => setTransferring(athlete)}
+                          >
+                            <IconTransfer size={16} stroke={1.75} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <AthleteForm

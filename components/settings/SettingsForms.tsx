@@ -4,13 +4,18 @@ import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { IconCheck, IconDeviceFloppy, IconX } from "@tabler/icons-react";
-import { updateEmailAction, updateLimitsAction } from "@/lib/actions/settings.actions";
+import {
+  updateEmailAction,
+  updateLimitsAction,
+} from "@/lib/actions/settings.actions";
 import {
   updateEmailSchema,
   updateLimitsSchema,
   type LimitsSettings,
 } from "@/lib/validations/settings.schemas";
 import type { EmailSettings } from "@/lib/services/settings.service";
+import { applyServerErrors } from "@/lib/utils/form";
+import { Alert } from "@/components/ui/Alert";
 
 type Notice = { type: "success" | "danger"; message: string } | null;
 
@@ -48,6 +53,8 @@ export function LimitsForm({ initial }: { initial: LimitsSettings }) {
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<LimitsSettings>({
     resolver: zodResolver(updateLimitsSchema),
@@ -56,12 +63,14 @@ export function LimitsForm({ initial }: { initial: LimitsSettings }) {
 
   const onSubmit = handleSubmit((values) => {
     setNotice(null);
+    clearErrors();
     startTransition(async () => {
       const result = await updateLimitsAction(values);
       if (result.ok) {
         setNotice({ type: "success", message: "Límites actualizados" });
         reset(values);
       } else {
+        applyServerErrors(setError, result.fieldErrors);
         setNotice({
           type: "danger",
           message: result.error ?? "No se pudieron guardar los límites",
@@ -75,14 +84,18 @@ export function LimitsForm({ initial }: { initial: LimitsSettings }) {
   return (
     <form onSubmit={onSubmit} noValidate>
       {notice && (
-        <div className={`alert alert-${notice.type}`} role="alert">
-          {notice.type === "success" ? (
-            <IconCheck size={16} className="me-1" />
-          ) : (
-            <IconX size={16} className="me-1" />
-          )}
+        <Alert
+          variant={notice.type}
+          icon={
+            notice.type === "success" ? (
+              <IconCheck size={16} />
+            ) : (
+              <IconX size={16} />
+            )
+          }
+        >
           {notice.message}
-        </div>
+        </Alert>
       )}
 
       <div className="row">
@@ -151,11 +164,7 @@ export function LimitsForm({ initial }: { initial: LimitsSettings }) {
         </div>
       </div>
 
-      <button
-        type="submit"
-        className="btn btn-primary"
-        disabled={isPending}
-      >
+      <button type="submit" className="btn btn-primary" disabled={isPending}>
         <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
         {isPending ? "Guardando…" : "Guardar límites"}
       </button>
@@ -172,6 +181,8 @@ export function EmailForm({ initial }: { initial: EmailSettings }) {
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<EmailSettings>({
     resolver: zodResolver(updateEmailSchema),
@@ -180,12 +191,14 @@ export function EmailForm({ initial }: { initial: EmailSettings }) {
 
   const onSubmit = handleSubmit((values) => {
     setNotice(null);
+    clearErrors();
     startTransition(async () => {
       const result = await updateEmailAction(values);
       if (result.ok) {
         setNotice({ type: "success", message: "Configuración guardada" });
         reset(values);
       } else {
+        applyServerErrors(setError, result.fieldErrors);
         setNotice({
           type: "danger",
           message: result.error ?? "No se pudo guardar la configuración",
@@ -197,14 +210,18 @@ export function EmailForm({ initial }: { initial: EmailSettings }) {
   return (
     <form onSubmit={onSubmit} noValidate>
       {notice && (
-        <div className={`alert alert-${notice.type}`} role="alert">
-          {notice.type === "success" ? (
-            <IconCheck size={16} className="me-1" />
-          ) : (
-            <IconX size={16} className="me-1" />
-          )}
+        <Alert
+          variant={notice.type}
+          icon={
+            notice.type === "success" ? (
+              <IconCheck size={16} />
+            ) : (
+              <IconX size={16} />
+            )
+          }
+        >
           {notice.message}
-        </div>
+        </Alert>
       )}
 
       <div className="mb-3">
@@ -219,7 +236,9 @@ export function EmailForm({ initial }: { initial: EmailSettings }) {
           {...register("emailFrom")}
         />
         {errors.emailFrom ? (
-          <div className="invalid-feedback d-block">{errors.emailFrom.message}</div>
+          <div className="invalid-feedback d-block">
+            {errors.emailFrom.message}
+          </div>
         ) : (
           <div className="form-hint">
             Debe incluir el nombre y el correo entre angled brackets:

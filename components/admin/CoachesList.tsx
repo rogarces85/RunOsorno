@@ -9,6 +9,7 @@ import {
   IconPower,
   IconRefresh,
   IconTrash,
+  IconUserSearch,
 } from "@tabler/icons-react";
 import {
   deactivateCoachAction,
@@ -20,6 +21,8 @@ import {
 import type { CoachListItem } from "@/lib/services/user.service";
 import { CoachForm, type CoachFormNotice } from "./CoachForm";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Alert } from "@/components/ui/Alert";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type Notice = CoachFormNotice | null;
 
@@ -142,7 +145,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
       <div className="mb-3 d-flex justify-content-between align-items-center">
         <p className="text-secondary mb-0">
           {coaches.length === 0
-            ? "Aún no hay coaches."
+            ? "Listado de coaches"
             : `${coaches.length} coach${coaches.length === 1 ? "" : "es"} en el sistema`}
         </p>
         <button type="button" className="btn btn-primary" onClick={openCreate}>
@@ -152,9 +155,10 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
       </div>
 
       {notice && (
-        <div
-          className={`alert alert-${notice.type} alert-dismissible`}
-          role="alert"
+        <Alert
+          variant={notice.type}
+          dismissible
+          onDismiss={() => setNotice(null)}
         >
           <div>{notice.message}</div>
           {notice.tempPassword && (
@@ -166,117 +170,116 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
               </span>
             </div>
           )}
-          <button
-            type="button"
-            className="btn-close"
-            aria-label="Cerrar"
-            onClick={() => setNotice(null)}
-          />
-        </div>
+        </Alert>
       )}
 
       <div className="card">
-        <div className="table-responsive">
-          <table className="table table-vcenter card-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Estado</th>
-                <th>Grupos</th>
-                <th className="text-end">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {coaches.length === 0 && (
+        {coaches.length === 0 ? (
+          <div className="card-body">
+            <EmptyState
+              icon={IconUserSearch}
+              title="No hay coaches registrados"
+              description="Crea el primer coach para que pueda gestionar sus equipos y atletas. Le llegará un email con su contraseña temporal."
+              actionLabel="Nuevo coach"
+              onAction={openCreate}
+            />
+          </div>
+        ) : (
+          <div className="table-responsive">
+            <table className="table table-vcenter card-table">
+              <thead>
                 <tr>
-                  <td colSpan={5} className="text-secondary text-center py-4">
-                    Sin coaches todavía. Crea el primero con “Nuevo coach”.
-                  </td>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Estado</th>
+                  <th>Grupos</th>
+                  <th className="text-end">Acciones</th>
                 </tr>
-              )}
-              {coaches.map((coach) => (
-                <tr key={coach.id}>
-                  <td>
-                    <span className="fw-medium">{coach.name}</span>
-                  </td>
-                  <td className="text-secondary">{coach.email}</td>
-                  <td>
-                    {coach.isActive ? (
-                      <span className="badge bg-green-lt">Activo</span>
-                    ) : (
-                      <span className="badge bg-red-lt">Inactivo</span>
-                    )}
-                  </td>
-                  <td className="text-secondary">
-                    {coach.groups.length > 0
-                      ? coach.groups.join(", ")
-                      : "Sin grupo"}
-                  </td>
-                  <td className="text-end">
-                    <div className="btn-list flex-nowrap justify-content-end">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-ghost-secondary"
-                        title="Editar"
-                        onClick={() => openEdit(coach)}
-                      >
-                        <IconEdit size={16} stroke={1.75} />
-                      </button>
+              </thead>
+              <tbody>
+                {coaches.map((coach) => (
+                  <tr key={coach.id}>
+                    <td>
+                      <span className="fw-medium">{coach.name}</span>
+                    </td>
+                    <td className="text-secondary">{coach.email}</td>
+                    <td>
                       {coach.isActive ? (
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Desactivar"
-                          onClick={() =>
-                            setConfirm({ kind: "deactivate", coach })
-                          }
-                        >
-                          <IconPower size={16} stroke={1.75} />
-                        </button>
+                        <span className="badge bg-green-lt">Activo</span>
                       ) : (
+                        <span className="badge bg-red-lt">Inactivo</span>
+                      )}
+                    </td>
+                    <td className="text-secondary">
+                      {coach.groups.length > 0
+                        ? coach.groups.join(", ")
+                        : "Sin grupo"}
+                    </td>
+                    <td className="text-end">
+                      <div className="btn-list flex-nowrap justify-content-end">
                         <button
                           type="button"
                           className="btn btn-sm btn-ghost-secondary"
-                          title="Activar"
-                          onClick={() =>
-                            setConfirm({ kind: "activate", coach })
-                          }
+                          title="Editar"
+                          onClick={() => openEdit(coach)}
                         >
-                          <IconPower size={16} stroke={1.75} />
+                          <IconEdit size={16} stroke={1.75} />
                         </button>
-                      )}
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-ghost-secondary"
-                        title="Restablecer contraseña"
-                        onClick={() => setConfirm({ kind: "reset", coach })}
-                      >
-                        <IconKey size={16} stroke={1.75} />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-ghost-secondary"
-                        title="Reenviar invitación"
-                        onClick={() => setConfirm({ kind: "resend", coach })}
-                      >
-                        <IconRefresh size={16} stroke={1.75} />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-ghost-danger"
-                        title="Eliminar"
-                        onClick={() => setConfirm({ kind: "delete", coach })}
-                      >
-                        <IconTrash size={16} stroke={1.75} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                        {coach.isActive ? (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-ghost-secondary"
+                            title="Desactivar"
+                            onClick={() =>
+                              setConfirm({ kind: "deactivate", coach })
+                            }
+                          >
+                            <IconPower size={16} stroke={1.75} />
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            className="btn btn-sm btn-ghost-secondary"
+                            title="Activar"
+                            onClick={() =>
+                              setConfirm({ kind: "activate", coach })
+                            }
+                          >
+                            <IconPower size={16} stroke={1.75} />
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ghost-secondary"
+                          title="Restablecer contraseña"
+                          onClick={() => setConfirm({ kind: "reset", coach })}
+                        >
+                          <IconKey size={16} stroke={1.75} />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ghost-secondary"
+                          title="Reenviar invitación"
+                          onClick={() => setConfirm({ kind: "resend", coach })}
+                        >
+                          <IconRefresh size={16} stroke={1.75} />
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-ghost-danger"
+                          title="Eliminar"
+                          onClick={() => setConfirm({ kind: "delete", coach })}
+                        >
+                          <IconTrash size={16} stroke={1.75} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <CoachForm

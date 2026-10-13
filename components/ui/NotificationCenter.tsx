@@ -7,6 +7,8 @@ import {
   markAllAsReadAction,
   markAsReadAction,
 } from "@/lib/actions/notification.actions";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { IconBellOff, IconChecks } from "@tabler/icons-react";
 
 export type NotificationRow = {
   id: string;
@@ -103,13 +105,34 @@ export function NotificationCenter({
       </div>
 
       {rows.length === 0 ? (
-        <div
-          className="alert alert-secondary"
-          data-testid="notifications-empty"
-        >
-          {filter === "unread"
-            ? "No tienes notificaciones sin leer."
-            : "No tienes notificaciones."}
+        <div className="card" data-testid="notifications-empty">
+          <div className="card-body">
+            <EmptyState
+              icon={IconBellOff}
+              title={
+                filter === "unread"
+                  ? "No tienes notificaciones sin leer"
+                  : "No tienes notificaciones"
+              }
+              description={
+                filter === "unread"
+                  ? "Estás al día. Las nuevas aparecerán en la campanita del encabezado."
+                  : "Aquí verás los avisos de planes, sesiones completadas, comentarios y decisiones sobre tus grupos."
+              }
+              actionLabel={
+                filter === "unread" ? "Ver todas las notificaciones" : undefined
+              }
+              actionHref={filter === "unread" ? "/notifications" : undefined}
+              actionVariant="outline-primary"
+            >
+              {filter === "all" && (
+                <p className="text-secondary small mt-3 mb-0">
+                  <IconChecks size={14} stroke={1.75} className="me-1" />
+                  Los eventos importantes también llegan a tu correo.
+                </p>
+              )}
+            </EmptyState>
+          </div>
         </div>
       ) : (
         <div className="list-group" data-testid="notification-list">
@@ -126,7 +149,9 @@ export function NotificationCenter({
                   <div className="fw-bold">{row.title}</div>
                   <div className="small">{row.message}</div>
                 </div>
-                <small className="text-nowrap">{formatWhen(row.createdAt)}</small>
+                <small className="text-nowrap">
+                  {formatWhen(row.createdAt)}
+                </small>
               </div>
             </button>
           ))}

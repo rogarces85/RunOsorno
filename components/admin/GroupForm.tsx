@@ -11,6 +11,8 @@ import {
   createGroupSchema,
   type CreateGroupInput,
 } from "@/lib/validations/group.schemas";
+import { applyServerErrors } from "@/lib/utils/form";
+import { Alert } from "@/components/ui/Alert";
 
 export type GroupFormNotice = {
   type: "success" | "danger";
@@ -32,11 +34,17 @@ export function GroupForm({
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<CreateGroupInput>({
     resolver: zodResolver(createGroupSchema),
     defaultValues: { name: "", description: "" },
   });
+
+  // El error de negocio del servidor vive en `root.server`: `reset()` lo
+  // limpia al reabrir el modal, sin estado adicional.
+  const serverError = errors.root?.server?.message;
 
   useEffect(() => {
     if (open) {
@@ -45,23 +53,20 @@ export function GroupForm({
   }, [open, group, reset]);
 
   const onSubmit = async (data: CreateGroupInput) => {
-    if (group) {
-      const result = await updateGroupAction(group.id, data);
-      if (result.ok) {
-        onSaved({ type: "success", message: "Grupo actualizado" });
-        onClose();
-      } else {
-        onSaved({ type: "danger", message: result.error });
-      }
+    clearErrors();
+    const result = group
+      ? await updateGroupAction(group.id, data)
+      : await createGroupAction(data);
+    if (result.ok) {
+      onSaved({
+        type: "success",
+        message: group ? "Grupo actualizado" : "Grupo creado",
+      });
+      onClose();
       return;
     }
-    const result = await createGroupAction(data);
-    if (result.ok) {
-      onSaved({ type: "success", message: "Grupo creado" });
-      onClose();
-    } else {
-      onSaved({ type: "danger", message: result.error });
-    }
+    applyServerErrors(setError, result.fieldErrors);
+    setError("root.server", { message: result.error });
   };
 
   if (!open) {
@@ -92,6 +97,15 @@ export function GroupForm({
                 />
               </div>
               <div className="modal-body">
+                {serverError && (
+                  <Alert
+                    variant="danger"
+                    className="mb-3"
+                    testId="group-form-error"
+                  >
+                    {serverError}
+                  </Alert>
+                )}
                 <div className="mb-3">
                   <label className="form-label" htmlFor="group-name">
                     Nombre

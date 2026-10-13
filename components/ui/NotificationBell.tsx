@@ -139,7 +139,10 @@ export function NotificationBell({
             )}
           </div>
           {items.length === 0 ? (
-            <div className="dropdown-item text-secondary" data-testid="notification-empty">
+            <div
+              className="dropdown-item text-secondary"
+              data-testid="notification-empty"
+            >
               No tienes notificaciones.
             </div>
           ) : (

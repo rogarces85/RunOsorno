@@ -14,6 +14,8 @@ import {
   updateProfileSchema,
   type ChangePasswordInput,
 } from "@/lib/validations/auth.schemas";
+import { applyServerErrors } from "@/lib/utils/form";
+import { Alert } from "@/components/ui/Alert";
 
 type Notice = { type: "success" | "danger"; message: string } | null;
 
@@ -22,14 +24,18 @@ function NoticeBox({ notice }: { notice: Notice }) {
     return null;
   }
   return (
-    <div className={`alert alert-${notice.type}`} role="alert">
-      {notice.type === "success" ? (
-        <IconCheck size={16} className="me-1" />
-      ) : (
-        <IconX size={16} className="me-1" />
-      )}
+    <Alert
+      variant={notice.type}
+      icon={
+        notice.type === "success" ? (
+          <IconCheck size={16} />
+        ) : (
+          <IconX size={16} />
+        )
+      }
+    >
       {notice.message}
-    </div>
+    </Alert>
   );
 }
 
@@ -55,6 +61,8 @@ export function ProfileForm({
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isDirty },
   } = useForm<{ name: string }>({
     resolver: zodResolver(updateProfileSchema),
@@ -63,12 +71,14 @@ export function ProfileForm({
 
   const onSubmit = handleSubmit((values) => {
     setNotice(null);
+    clearErrors();
     startTransition(async () => {
       const result = await updateProfileAction(values);
       if (result.ok) {
         setNotice({ type: "success", message: "Datos actualizados" });
         reset(values);
       } else {
+        applyServerErrors(setError, result.fieldErrors);
         setNotice({
           type: "danger",
           message: result.error ?? "No se pudieron guardar los datos",
@@ -148,6 +158,8 @@ export function PasswordChange() {
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<ChangePasswordInput>({
     resolver: zodResolver(changePasswordSchema),
@@ -160,6 +172,7 @@ export function PasswordChange() {
 
   const onSubmit = handleSubmit((values) => {
     setNotice(null);
+    clearErrors();
     startTransition(async () => {
       const result = await changePasswordAction(values);
       if (result.ok) {
@@ -173,6 +186,7 @@ export function PasswordChange() {
         });
         reset({ currentPassword: "", newPassword: "", confirmPassword: "" });
       } else {
+        applyServerErrors(setError, result.fieldErrors);
         setNotice({
           type: "danger",
           message: result.error ?? "No se pudo cambiar la contraseña",
