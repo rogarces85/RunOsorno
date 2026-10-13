@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
@@ -12,7 +12,12 @@ const initialState: LoginState = { error: null };
 export function LoginForm() {
   const searchParams = useSearchParams();
   const expired = searchParams.get("expired") === "1";
-  const [state, formAction, isPending] = useActionState(login, initialState);
+  const [state, formAction, isActionPending] = useActionState(
+    login,
+    initialState,
+  );
+  const [isValidating, startValidation] = useTransition();
+  const isPending = isValidating || isActionPending;
   const {
     register,
     handleSubmit,
@@ -23,11 +28,13 @@ export function LoginForm() {
     const formData = new FormData();
     formData.set("email", data.email);
     formData.set("password", data.password);
-    formAction(formData);
+    // El Server Action debe invocarse dentro de una transition para que
+    // React gestione correctamente el estado pendiente.
+    startValidation(() => formAction(formData));
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} action={formAction} noValidate>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
       {expired && (
         <div className="alert alert-warning" role="alert">
           Tu sesión ha expirado. Inicia sesión nuevamente.

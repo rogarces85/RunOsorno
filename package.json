@@ -12,7 +12,8 @@
     "format:check": "prettier --check .",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx db/seed.ts"
+    "db:seed": "tsx db/seed.ts",
+    "db:seed:demo": "tsx db/seed-demo.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1149.0",

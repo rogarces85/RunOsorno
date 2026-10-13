@@ -540,10 +540,10 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 30.2 Crear `app/(app)/coach/dashboard/page.tsx` — selector de team, stats: cumplimiento promedio, alertas, sesiones de hoy
 - [x] 30.3 Crear `app/(app)/athlete/dashboard/page.tsx` — sesión de hoy, resumen de semana, racha actual, cumplimiento del mes
 - [x] 30.4 Crear `app/(app)/director/dashboard/page.tsx` — resumen del grupo: comparativa teams, alertas, cumplimiento por coach
-- [ ] 30.5 Verificar: cada rol ve su dashboard con datos reales
-- [ ] 30.6 Verificar: admin ve contadores correctos
-- [ ] 30.7 Verificar: coach ve alertas de sus teams
-- [ ] 30.8 Verificar: atleta ve su sesión de hoy y su racha
+- [x] 30.5 Verificar: cada rol ve su dashboard con datos reales
+- [x] 30.6 Verificar: admin ve contadores correctos
+- [x] 30.7 Verificar: coach ve alertas de sus teams
+- [x] 30.8 Verificar: atleta ve su sesión de hoy y su racha
 
 ---
 
@@ -554,8 +554,8 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 31.3 Menú Coach: Dashboard, Mis Teams, Calendario, Biblioteca de plantillas, Atletas, Métricas, Grupos (solicitud), Exportes
 - [x] 31.4 Menú Atleta: Dashboard, Calendario, Mis métricas, Perfil
 - [x] 31.5 Menú Director Técnico: Dashboard, Teams (comparativa), Atletas (lectura), Anuncios, Exportes
-- [ ] 31.6 Verificar: cada rol solo ve los items de su menú
-- [ ] 31.7 Verificar: items de menú navegan a las rutas correctas
+- [x] 31.6 Verificar: cada rol solo ve los items de su menú
+- [x] 31.7 Verificar: items de menú navegan a las rutas correctas
 
 > Nota 31.x: los items Configuración, Logs y Exportes están definidos en `components/layout/nav.ts` con flag `pending: true` y se muestran cuando sus páginas existan (Fases 33–35). "Anuncios" se desbloqueó en la Fase 32. El menú Director Técnico se agrega debajo del menú Coach (los directores inician sesión como coaches).
 
@@ -568,9 +568,9 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 32.3 Crear página `app/(app)/director/announcements/page.tsx` — formulario de anuncio masivo (título, mensaje)
 - [x] 32.4 Crear componente `AnnouncementForm` — con preview y botón enviar
 - [x] 32.5 Integrar `sendAnnouncement` — crea notificaciones in-app + email para todos los miembros del grupo
-- [ ] 32.6 Verificar: Director Técnico ve atletas del grupo en modo lectura (sin botones de edición)
-- [ ] 32.7 Verificar: Director Técnico envía anuncio → todos los miembros reciben notificación in-app y email
-- [ ] 32.8 Verificar: Director Técnico no puede editar planes ni registros
+- [x] 32.6 Verificar: Director Técnico ve atletas del grupo en modo lectura (sin botones de edición)
+- [x] 32.7 Verificar: Director Técnico envía anuncio → todos los miembros reciben notificación in-app y email
+- [x] 32.8 Verificar: Director Técnico no puede editar planes ni registros
 
 ---
 
@@ -629,7 +629,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 36.1 Crear servicio con `getAdminStats()` — conteo de coaches activos/inactivos, grupos, atletas, solicitudes pendientes
 - [x] 36.2 Crear componente `StatsCards` — grid de cards con número + label
 - [x] 36.3 Integrar en `app/(app)/admin/dashboard/page.tsx`
-- [ ] 36.4 Verificar: contadores reflejan datos reales de la DB
+- [x] 36.4 Verificar: contadores reflejan datos reales de la DB
 
 ---
 
@@ -869,13 +869,13 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 27. Métricas — Interfaz | 15 | 15 |
 | 28. Métricas fisiológicas | 7 | 7 |
 | 29. Avatar | 19 | 19 |
-| 30. Dashboard por roles | 8 | 4 |
-| 31. Menú lateral por rol | 7 | 5 |
-| 32. Director Técnico | 8 | 5 |
+| 30. Dashboard por roles | 8 | 8 |
+| 31. Menú lateral por rol | 7 | 7 |
+| 32. Director Técnico | 8 | 8 |
 | 33. Exportación | 13 | 0 |
 | 34. Configuración global | 12 | 0 |
 | 35. Logs de auditoría | 10 | 0 |
-| 36. Dashboard Admin stats | 4 | 3 |
+| 36. Dashboard Admin stats | 4 | 4 |
 | 37. Perfil de usuario | 7 | 0 |
 | 38. Estados vacíos y errores | 8 | 0 |
 | 39. Responsive | 8 | 0 |
@@ -890,4 +890,19 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **400** |
+| **TOTAL** | **~578** | **413** |
+
+---
+
+## Herramientas de verificación
+
+Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automatizada contra la base de datos, no solo por lectura de código.
+
+| Script | Qué comprueba |
+|--------|---------------|
+| `npm run db:seed:demo` | Crea un escenario completo: grupo, 3 coaches, 3 teams, 5 atletas, 8 semanas de planificaciones y registros, alertas y feedback |
+| `npx tsx scripts/verify-roles.ts` | Login real por rol, rutas accesibles y bloqueadas, y items correctos del menú lateral (Fases 30-31) |
+| `npx tsx scripts/verify-dashboards.ts` | Contrasta los números renderizados contra la DB: contadores, cumplimiento, alertas, permisos de lectura y envío de anuncios (Fases 30, 32, 36) |
+| `npx tsx scripts/verify-login.ts` | Credenciales inválidas muestran mensaje genérico sin revelar si el email existe (Fases 4.13, 40.3) |
+
+Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
