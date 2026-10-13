@@ -19,10 +19,9 @@ import type { Role } from "@/lib/auth/role";
  * Configuración de menú lateral por rol (Fase 31).
  * Los items con `pending: true` documentan el menú completo del MVP pero se
  * ocultan hasta que su página exista (se desbloquean en sus fases):
- * - Exportes: Fase 33 (Exportación)
  * - Configuración: Fase 34
  * - Logs: Fase 35
- * - Anuncios: Fase 32
+ * - Exportes: desbloqueado en la Fase 33
  */
 
 export type NavItem = {
@@ -46,7 +45,7 @@ const ADMIN_ITEMS: NavItem[] = [
   { label: "Plantillas oficiales", href: "/admin/templates", icon: IconTemplate },
   { label: "Configuración", href: "/admin/settings", icon: IconSettings, pending: true },
   { label: "Logs", href: "/admin/logs", icon: IconFileText, pending: true },
-  { label: "Exportes", href: "/admin/exports", icon: IconDownload, pending: true },
+  { label: "Exportes", href: "/exports", icon: IconDownload },
 ];
 
 const COACH_ITEMS: NavItem[] = [
@@ -57,7 +56,7 @@ const COACH_ITEMS: NavItem[] = [
   { label: "Atletas", href: "/coach/athletes", icon: IconRun },
   { label: "Métricas", href: "/coach/metrics", icon: IconChartBar },
   { label: "Grupos", href: "/coach/groups", icon: IconBuildingCommunity },
-  { label: "Exportes", href: "/coach/exports", icon: IconDownload, pending: true },
+  { label: "Exportes", href: "/exports", icon: IconDownload },
 ];
 
 const DIRECTOR_ITEMS: NavItem[] = [
@@ -65,7 +64,7 @@ const DIRECTOR_ITEMS: NavItem[] = [
   { label: "Teams (comparativa)", href: "/director/teams", icon: IconTrophy },
   { label: "Atletas (lectura)", href: "/director/athletes", icon: IconRun },
   { label: "Anuncios", href: "/director/announcements", icon: IconSpeakerphone },
-  { label: "Exportes", href: "/director/exports", icon: IconDownload, pending: true },
+  { label: "Exportes", href: "/exports", icon: IconDownload },
 ];
 
 const ATHLETE_ITEMS: NavItem[] = [

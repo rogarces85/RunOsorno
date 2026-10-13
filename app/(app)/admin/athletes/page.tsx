@@ -1,4 +1,5 @@
 import { AthletesList } from "@/components/coach/AthletesList";
+import { ExportButton } from "@/components/export/ExportButton";
 import { requireRole } from "@/lib/auth/guards";
 import {
   getAllAthletes,
@@ -44,7 +45,14 @@ export default async function AdminAthletesPage({
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title">Atletas</h2>
+        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+          <h2 className="page-title mb-0">Atletas</h2>
+          <ExportButton
+            target={{ kind: "global", entity: "athletes", formats: ["csv"] }}
+            label="Exportar CSV"
+            size="sm"
+          />
+        </div>
 
         <form method="get" action="/admin/athletes" className="card mb-3">
           <div className="card-body">

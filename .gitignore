@@ -28,6 +28,9 @@
 # avatares locales (dev sin R2)
 /.data/
 
+# archivos generados al verificar exportaciones
+/.export-check/
+
 # misc
 .DS_Store
 *.pem

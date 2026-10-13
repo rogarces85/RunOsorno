@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ExportButton } from "@/components/export/ExportButton";
 import { requireRole } from "@/lib/auth/guards";
 import { getAthleteDetail } from "@/lib/services/athlete.service";
 import { formatDateChile } from "@/lib/utils/date";
@@ -42,11 +43,18 @@ export default async function CoachAthleteDetailPage({
             <h2 className="page-title mb-1">{athlete.name}</h2>
             <p className="text-secondary mb-0">{athlete.email}</p>
           </div>
-          {athlete.isActive ? (
-            <span className="badge bg-green-lt">Activo</span>
-          ) : (
-            <span className="badge bg-red-lt">Inactivo</span>
-          )}
+          <div className="d-flex align-items-center gap-2">
+            <ExportButton
+              target={{ kind: "athlete", athleteId: athlete.id, formats: ["pdf", "xlsx"] }}
+              size="sm"
+              label="Exportar informe"
+            />
+            {athlete.isActive ? (
+              <span className="badge bg-green-lt">Activo</span>
+            ) : (
+              <span className="badge bg-red-lt">Inactivo</span>
+            )}
+          </div>
         </div>
 
         <div className="row">

@@ -16,7 +16,7 @@
  * Uso:  npx tsx db/seed-demo-clean.ts --yes
  */
 
-import { and, eq, inArray, like, or } from "drizzle-orm";
+import { eq, inArray, like, or } from "drizzle-orm";
 import { db } from "../lib/db/index";
 import {
   athleteProfiles,
@@ -45,9 +45,6 @@ const DEMO_EMAIL_PATTERNS = [
   "coach.pendiente@runosorno.cl",
 ];
 
-/** Acciones de auditoria que solo genera el flujo de anuncios verificado. */
-const DEMO_AUDIT_ACTIONS = ["announcement_sent"];
-
 async function main() {
   const confirmed = process.argv.includes("--yes");
   if (!confirmed) {
@@ -61,17 +58,19 @@ async function main() {
   console.log("Limpiando datos de demostracion...\n");
 
   // --- Identificar el grupo DEMO -----------------------------------------
+  // Puede no existir si una corrida anterior fallo a medias. El script
+  // sigue adelante usando los patrones de email como fuente de verdad.
   const demoGroups = await db
     .select({ id: groups.id, name: groups.name })
     .from(groups)
     .where(like(groups.name, `%${DEMO_GROUP_SUFFIX}`));
 
-  if (demoGroups.length === 0) {
-    console.log("No se encontro ningun grupo DEMO. Nada que limpiar.");
-    process.exit(0);
-  }
   const demoGroupIds = demoGroups.map((g) => g.id);
-  console.log(`  grupo DEMO: ${demoGroups.map((g) => g.name).join(", ")}`);
+  console.log(
+    demoGroups.length > 0
+      ? `  grupo DEMO: ${demoGroups.map((g) => g.name).join(", ")}`
+      : "  grupo DEMO: no existe (corrida previa incompleta)",
+  );
 
   // --- Identificar usuarios demo -----------------------------------------
   const emailConditions = DEMO_EMAIL_PATTERNS.map((pattern) =>
@@ -149,15 +148,14 @@ async function main() {
   await db.delete(notifications).where(inArray(notifications.userId, demoUserIds));
   console.log(`  borradas notificaciones`);
 
+  // Los audit logs tienen FK a users con ON DELETE NO ACTION, asi que
+  // deben borrarse ANTES que los usuarios o el FK bloquea la operacion.
+  // Se borran todos los logs de los usuarios demo, que incluyen los de
+  // anuncios y exportaciones generados durante las verificaciones.
   await db
     .delete(auditLogs)
-    .where(
-      and(
-        inArray(auditLogs.action, DEMO_AUDIT_ACTIONS),
-        inArray(auditLogs.userId, demoUserIds),
-      ),
-    );
-  console.log(`  borrados audit logs de anuncios`);
+    .where(inArray(auditLogs.userId, demoUserIds));
+  console.log(`  borrados audit logs de los usuarios demo`);
 
   await db.delete(athleteProfiles).where(inArray(athleteProfiles.userId, demoUserIds));
   await db
@@ -193,7 +191,9 @@ async function main() {
   console.log(`  borrados ${demoTeamIds.length} teams y ${demoTemplateIds.length} plantillas`);
 
   await db.delete(groups).where(inArray(groups.id, demoGroupIds));
-  console.log(`  borrado el grupo DEMO`);
+  if (demoGroupIds.length > 0) {
+    console.log(`  borrado el grupo DEMO`);
+  }
 
   await db.delete(users).where(inArray(users.id, demoUserIds));
   console.log(`  borrados ${demoUserIds.length} usuarios`);

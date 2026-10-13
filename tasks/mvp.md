@@ -576,19 +576,29 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 33. Exportación de datos
 
-- [ ] 33.1 Instalar `exceljs` y `@react-pdf/renderer`
-- [ ] 33.2 Crear `export.service.ts` con `exportAthletePDF(athleteId, period)` — genera PDF con métricas del atleta
-- [ ] 33.3 Crear servicio con `exportAthleteExcel(athleteId, period)` — genera XLSX con registros y métricas
-- [ ] 33.4 Crear servicio con `exportTeamExcel(teamId, period)` — genera XLSX con resumen del team
-- [ ] 33.5 Crear servicio con `exportGroupExcel(groupId, period)` — genera XLSX con métricas agregadas del grupo
-- [ ] 33.6 Crear servicio con `exportGlobalCSV(entityType)` — genera CSV de coaches, atletas o grupos (admin)
-- [ ] 33.7 Crear Server Actions `exportData` — recibe entityType, format, period, retorna archivo
-- [ ] 33.8 Crear componente `ExportButton` — dropdown con formato (PDF, Excel, CSV) y selector de periodo (temporada, año, personalizado)
-- [ ] 33.9 Integrar `ExportButton` en páginas de métricas y listados
-- [ ] 33.10 Verificar: coach exporta métricas de atleta a PDF → archivo descargable con datos correctos
-- [ ] 33.11 Verificar: coach exporta a Excel → XLSX descargable
-- [ ] 33.12 Verificar: admin exporta listado global a CSV → CSV descargable
-- [ ] 33.13 Verificar: exportar sin datos → mensaje "No hay datos para exportar en el periodo seleccionado"
+- [x] 33.1 Instalar `exceljs` y `@react-pdf/renderer`
+- [x] 33.2 Crear `export.service.ts` con `exportAthletePDF(athleteId, period)` — genera PDF con métricas del atleta
+- [x] 33.3 Crear servicio con `exportAthleteExcel(athleteId, period)` — genera XLSX con registros y métricas
+- [x] 33.4 Crear servicio con `exportTeamExcel(teamId, period)` — genera XLSX con resumen del team
+- [x] 33.5 Crear servicio con `exportGroupExcel(groupId, period)` — genera XLSX con métricas agregadas del grupo
+- [x] 33.6 Crear servicio con `exportGlobalCSV(entityType)` — genera CSV de coaches, atletas o grupos (admin)
+- [x] 33.7 Crear Server Actions `exportData` — recibe entityType, format, period, retorna archivo
+- [x] 33.8 Crear componente `ExportButton` — dropdown con formato (PDF, Excel, CSV) y selector de periodo (temporada, año, personalizado)
+- [x] 33.9 Integrar `ExportButton` en páginas de métricas y listados
+- [x] 33.10 Verificar: coach exporta métricas de atleta a PDF → archivo descargable con datos correctos
+- [x] 33.11 Verificar: coach exporta a Excel → XLSX descargable
+- [x] 33.12 Verificar: admin exporta listado global a CSV → CSV descargable
+- [x] 33.13 Verificar: exportar sin datos → mensaje "No hay datos para exportar en el periodo seleccionado"
+
+> Nota 33.x: los archivos se generan íntegramente en memoria (sin `fs`), para
+> no romper el runtime edge de Cloudflare Workers donde el sistema de archivos
+> es efímero. PDF con `@react-pdf/renderer` (documento en `lib/exports/athlete-report.tsx`,
+> separado del servicio porque usa JSX), XLSX con `exceljs` (workbook en memoria)
+> y CSV con BOM UTF-8 para que Excel lo abra bien. La página `/exports`
+> centraliza los botones y desbloquea el item del menú para Admin, Coach y
+> Director Técnico. Cada exportación queda registrada en `audit_logs` con
+> `action='data_exported'`, y los permisos se validan con `canViewAthlete`,
+> `canManageTeam` e `isDirector`.
 
 ---
 
@@ -872,7 +882,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 30. Dashboard por roles | 8 | 8 |
 | 31. Menú lateral por rol | 7 | 7 |
 | 32. Director Técnico | 8 | 8 |
-| 33. Exportación | 13 | 0 |
+| 33. Exportación | 13 | 13 |
 | 34. Configuración global | 12 | 0 |
 | 35. Logs de auditoría | 10 | 0 |
 | 36. Dashboard Admin stats | 4 | 4 |
@@ -890,7 +900,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **413** |
+| **TOTAL** | **~578** | **426** |
 
 ---
 
@@ -904,5 +914,11 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-roles.ts` | Login real por rol, rutas accesibles y bloqueadas, y items correctos del menú lateral (Fases 30-31) |
 | `npx tsx scripts/verify-dashboards.ts` | Contrasta los números renderizados contra la DB: contadores, cumplimiento, alertas, permisos de lectura y envío de anuncios (Fases 30, 32, 36) |
 | `npx tsx scripts/verify-login.ts` | Credenciales inválidas muestran mensaje genérico sin revelar si el email existe (Fases 4.13, 40.3) |
+| `npx tsx scripts/verify-exports.ts` | Descarga los archivos por HTTP y valida firmas, permisos por rol y respuesta sin datos (Fase 33) |
+| `npx tsx scripts/verify-export-files.ts` | Guarda los archivos en disco y valida que el PDF, XLSX y CSV tengan estructura y datos reales (Fase 33) |
+| `npx tsx scripts/verify-exports-ui.ts` | Página `/exports` por rol y descarga real iniciada desde el botón (Fase 33) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
+
+Los datos de demostración se limpian con `npm run db:seed:demo:clean`, que
+deja la base exactamente como estaba antes del seed.

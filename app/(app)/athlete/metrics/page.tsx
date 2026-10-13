@@ -1,3 +1,4 @@
+import { ExportButton } from "@/components/export/ExportButton";
 import { AthleteMetricsPanel } from "@/components/metrics/AthleteMetricsPanel";
 import { ComplianceChart } from "@/components/metrics/ComplianceChart";
 import { LoadChart } from "@/components/metrics/LoadChart";
@@ -43,7 +44,18 @@ export default async function AthleteMetricsPage({
               km · {metrics.totals.minutes} min
             </div>
           </div>
-          <PeriodSelector basePath="/athlete/metrics" current={period} />
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <PeriodSelector basePath="/athlete/metrics" current={period} />
+            <ExportButton
+              target={{
+                kind: "athlete",
+                athleteId: user.id,
+                formats: ["pdf", "xlsx"],
+              }}
+              period={period}
+              size="sm"
+            />
+          </div>
         </div>
 
         <AthleteMetricsPanel metrics={metrics} />

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ExportButton } from "@/components/export/ExportButton";
 import { GroupMetricsPanel } from "@/components/metrics/GroupMetricsPanel";
 import { PeriodSelector } from "@/components/metrics/PeriodSelector";
 import { requireRole } from "@/lib/auth/guards";
@@ -52,11 +53,18 @@ export default async function DirectorTeamsPage({
             <h2 className="page-title mb-1">Comparativa de {selected.name}</h2>
             <div className="text-secondary">Equipos y coaches del grupo</div>
           </div>
-          <PeriodSelector
-            basePath="/director/teams"
-            current={period}
-            extra={{ group: groupId }}
-          />
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <PeriodSelector
+              basePath="/director/teams"
+              current={period}
+              extra={{ group: groupId }}
+            />
+            <ExportButton
+              target={{ kind: "group", groupId }}
+              period={period}
+              size="sm"
+            />
+          </div>
         </div>
 
         {groups.length > 1 ? (

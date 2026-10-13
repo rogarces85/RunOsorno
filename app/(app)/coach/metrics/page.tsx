@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ExportButton } from "@/components/export/ExportButton";
 import { AthleteComplianceChart } from "@/components/metrics/AthleteComplianceChart";
 import { ComplianceChart } from "@/components/metrics/ComplianceChart";
 import { PeriodSelector } from "@/components/metrics/PeriodSelector";
@@ -79,11 +80,18 @@ export default async function CoachMetricsPage({
               {metrics.period.from} → {metrics.period.to}
             </div>
           </div>
-          <PeriodSelector
-            basePath="/coach/metrics"
-            current={period}
-            extra={{ team: teamId }}
-          />
+          <div className="d-flex flex-wrap align-items-center gap-2">
+            <PeriodSelector
+              basePath="/coach/metrics"
+              current={period}
+              extra={{ team: teamId }}
+            />
+            <ExportButton
+              target={{ kind: "team", teamId }}
+              period={period}
+              size="sm"
+            />
+          </div>
         </div>
 
         {teams.length > 1 ? (
