@@ -1,28 +1,33 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
-import {
-  IconCalendar,
-  IconChartBar,
-  IconDownload,
-  IconHome,
-  IconRun,
-  IconTemplate,
-  IconUsers,
-} from "@tabler/icons-react";
+import type { Role } from "@/lib/auth/role";
+import { navForRole, type NavItem } from "./nav";
 
-const NAV_ITEMS = [
-  { label: "Dashboard", href: "/", icon: IconHome },
-  { label: "Teams", href: "#", icon: IconUsers },
-  { label: "Calendario", href: "#", icon: IconCalendar },
-  { label: "Plantillas", href: "#", icon: IconTemplate },
-  { label: "Atletas", href: "#", icon: IconRun },
-  { label: "Métricas", href: "#", icon: IconChartBar },
-  { label: "Exportes", href: "#", icon: IconDownload },
-];
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/") {
+    return pathname === "/";
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
-export function AppSidebar() {
+/**
+ * Sidebar de la aplicación, con menú según rol (Fase 31).
+ * El rol y la condición de Director Técnico se resuelven en el layout (RSC)
+ * y se pasan como props serializables.
+ */
+export function AppSidebar({
+  role,
+  isDirector,
+}: {
+  role: Role;
+  isDirector: boolean;
+}) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const sections = navForRole(role, isDirector);
 
   return (
     <aside className="navbar navbar-vertical navbar-expand-lg d-print-none">
@@ -41,22 +46,35 @@ export function AppSidebar() {
           id="sidebar-menu"
           className={`collapse navbar-collapse${open ? " show" : ""}`}
         >
-          <ul className="navbar-nav pt-lg-3">
-            {NAV_ITEMS.map((item) => (
-              <li key={item.label} className="nav-item">
-                <a
-                  className="nav-link"
-                  href={item.href}
-                  onClick={() => setOpen(false)}
-                >
-                  <span className="nav-link-icon">
-                    <item.icon size={20} stroke={1.75} />
+          {sections.map((section) => (
+            <ul key={section.key} className="navbar-nav pt-lg-3">
+              {section.header ? (
+                <li className="nav-item">
+                  <span className="nav-link text-secondary small text-uppercase fw-bold">
+                    {section.header}
                   </span>
-                  <span>{item.label}</span>
-                </a>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ) : null}
+              {section.items.map((item: NavItem) => {
+                const active = isActive(pathname, item.href);
+                return (
+                  <li key={item.href} className="nav-item">
+                    <Link
+                      className={`nav-link${active ? " active" : ""}`}
+                      href={item.href}
+                      aria-current={active ? "page" : undefined}
+                      onClick={() => setOpen(false)}
+                    >
+                      <span className="nav-link-icon">
+                        <item.icon size={20} stroke={1.75} />
+                      </span>
+                      <span>{item.label}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          ))}
         </div>
       </div>
     </aside>

@@ -528,6 +528,25 @@ export async function getMyGroups(userId: string): Promise<GroupBasic[]> {
     .orderBy(groups.name);
 }
 
+/**
+ * Grupos donde el usuario es Director Técnico (is_director=true).
+ * Usado por el sidebar (Fase 31) y el dashboard de Director (Fase 30/32).
+ */
+export async function getDirectorGroups(userId: string): Promise<GroupBasic[]> {
+  return db
+    .select({
+      id: groups.id,
+      name: groups.name,
+      description: groups.description,
+    })
+    .from(groupMembers)
+    .innerJoin(groups, eq(groupMembers.groupId, groups.id))
+    .where(
+      and(eq(groupMembers.userId, userId), eq(groupMembers.isDirector, true)),
+    )
+    .orderBy(groups.name);
+}
+
 export async function sendAnnouncement(
   input: SendAnnouncementInput,
   actorId: string,
