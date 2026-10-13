@@ -1,6 +1,5 @@
 "use server";
 
-import { headers } from "next/headers";
 import { ActionFailure, runAction, type ActionResult } from "./base";
 import {
   coachIdSchema,
@@ -16,15 +15,7 @@ import {
   resendInvitation,
   updateCoach,
 } from "@/lib/services/user.service";
-
-async function clientIp(): Promise<string | null> {
-  const headersList = await headers();
-  const forwarded = headersList.get("x-forwarded-for");
-  if (forwarded) {
-    return forwarded.split(",")[0].trim();
-  }
-  return headersList.get("x-real-ip");
-}
+import { getClientIp } from "@/lib/utils/request";
 
 export type CoachCreated = {
   coach: { id: string; name: string; email: string };
@@ -38,7 +29,7 @@ export async function createCoachAction(
     { schema: createCoachSchema, role: "admin" },
     input,
     async (data, user) => {
-      const result = await createCoach(data, user.id, await clientIp());
+      const result = await createCoach(data, user.id, await getClientIp());
       if (!result.ok) {
         throw new ActionFailure(result.error);
       }

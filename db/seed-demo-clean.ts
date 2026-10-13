@@ -171,6 +171,13 @@ async function main() {
     .delete(groupRequests)
     .where(inArray(groupRequests.coachId, demoUserIds));
 
+  // La solicitud del coach pendiente vuelve a estado "pending" para que
+  // verificar la aprobacion (Fase 35) sea repetible.
+  await db
+    .update(groupRequests)
+    .set({ status: "pending", resolvedAt: null, resolvedBy: null })
+    .where(inArray(groupRequests.coachId, demoUserIds));
+
   await db
     .delete(groupMembers)
     .where(

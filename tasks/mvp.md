@@ -630,16 +630,27 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 35. Logs de auditoría (Admin)
 
-- [ ] 35.1 Crear `audit.service.ts` con `log({ userId, action, entityType, entityId?, details?, ipAddress })` — inserta en `audit_logs`
-- [ ] 35.2 Integrar `audit.log()` en todas las acciones críticas: crear/editar/eliminar usuarios, grupos, teams, atletas, plantillas, asignaciones, solicitudes, exports, config
-- [ ] 35.3 Crear servicio con `getLogs(filters)` — listado con filtros por fecha, usuario, tipo de acción
-- [ ] 35.4 Crear página `app/(app)/admin/logs/page.tsx` — tabla de logs con filtros
-- [ ] 35.5 Crear componente `LogsTable` — tabla con columnas: fecha, usuario, acción, entidad, detalles, IP
-- [ ] 35.6 Capturar IP del request: `request.headers.get('cf-connecting-ip')` o `x-forwarded-for`
-- [ ] 35.7 Verificar: crear un coach genera log con `action='coach_created'`
-- [ ] 35.8 Verificar: aprobar solicitud genera log con `action='request_approved'`
-- [ ] 35.9 Verificar: transferir atleta genera log con datos del traslado
-- [ ] 35.10 Verificar: admin puede filtrar logs por fecha y usuario
+- [x] 35.1 Crear `audit.service.ts` con `log({ userId, action, entityType, entityId?, details?, ipAddress })` — inserta en `audit_logs`
+- [x] 35.2 Integrar `audit.log()` en todas las acciones críticas: crear/editar/eliminar usuarios, grupos, teams, atletas, plantillas, asignaciones, solicitudes, exports, config
+- [x] 35.3 Crear servicio con `getLogs(filters)` — listado con filtros por fecha, usuario, tipo de acción
+- [x] 35.4 Crear página `app/(app)/admin/logs/page.tsx` — tabla de logs con filtros
+- [x] 35.5 Crear componente `LogsTable` — tabla con columnas: fecha, usuario, acción, entidad, detalles, IP
+- [x] 35.6 Capturar IP del request: `request.headers.get('cf-connecting-ip')` o `x-forwarded-for`
+- [x] 35.7 Verificar: crear un coach genera log con `action='coach_created'`
+- [x] 35.8 Verificar: aprobar solicitud genera log con `action='request_approved'`
+- [x] 35.9 Verificar: transferir atleta genera log con datos del traslado
+- [x] 35.10 Verificar: admin puede filtrar logs por fecha y usuario
+
+> Nota 35.x: la IP ahora se resuelve **dentro de `logAudit`** (en
+> `lib/utils/request.ts`) en lugar de pasarse desde cada acción. Antes solo
+> `createCoach` la registraba, así que de las 44 llamadas a `logAudit`
+> únicamente 2 guardaban IP; ahora las 44 la registran. El helper valida el
+> formato (IPv4 con octetos 0-255 o IPv6) porque los headers los controla el
+> cliente y el valor va a una columna `varchar(45)`. Si la auditoría corre
+> fuera de un request (seeds, tests) se registra `null` sin romper la acción.
+>
+> La tarea 35.8 nombra la acción `request_approved`, pero la app la registra
+> como `join_approved`; la verificación comprueba el nombre real.
 
 ---
 
@@ -893,7 +904,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 32. Director Técnico | 8 | 8 |
 | 33. Exportación | 13 | 13 |
 | 34. Configuración global | 12 | 12 |
-| 35. Logs de auditoría | 10 | 0 |
+| 35. Logs de auditoría | 10 | 10 |
 | 36. Dashboard Admin stats | 4 | 4 |
 | 37. Perfil de usuario | 7 | 0 |
 | 38. Estados vacíos y errores | 8 | 0 |
@@ -909,7 +920,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **438** |
+| **TOTAL** | **~578** | **448** |
 
 ---
 
@@ -927,6 +938,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-export-files.ts` | Guarda los archivos en disco y valida que el PDF, XLSX y CSV tengan estructura y datos reales (Fase 33) |
 | `npx tsx scripts/verify-exports-ui.ts` | Página `/exports` por rol y descarga real iniciada desde el botón (Fase 33) |
 | `npx tsx scripts/verify-settings.ts` | Comprueba que la configuración se aplique de verdad: límites leídos de la DB, motivos reflejados en el select del atleta, ventana de edición cambiante y acceso restringido al admin (Fase 34) |
+| `npx tsx scripts/verify-audit-logs.ts` | Genera acciones reales desde la interfaz (crear equipo, aprobar solicitud, trasladar atleta) y comprueba que el log guarde usuario, detalles e IP; valida los filtros por fecha, usuario y acción (Fase 35) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 
