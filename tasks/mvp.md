@@ -992,6 +992,26 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 > `localConnectionString` en el binding de Hyperdrive, porque wrangler no puede
 > resolver bindings en local sin ella y el deploy falla.
 
+> **Avería de infraestructura (2026-10-14): el login en producción quedó
+> caído.** Al rotar la credencial de Aiven se creó un usuario nuevo (`admin`) en
+> lugar de cambiar la clave del que Hyperdrive tenía configurado
+> (`avnadmin`). MySQL responde y ambos usuarios dan
+> `ER_ACCESS_DENIED_ERROR`, incluso sin especificar base, así que el sitio
+> carga pero nadie puede autenticarse. **No es un defecto del código**: no se
+> cambió ninguna línea de la aplicación. Se resuelve actualizando el binding de
+> Hyperdrive con credenciales válidas y redesplegando.
+>
+> **Lección sobre contraseñas en capturas:** la contraseña leída de un pantallazo
+> no coincidió con ninguna de las variantes de lectura plausible (`l/1`, `O/0`,
+> `S/5`, `Z/2`, `B/8`), así que a la próxima hay que pasarla escrita en texto.
+>
+> **Un fallo de CI que sólo aparece en GitHub.** Los dos deploys automáticos
+> fallaron con `Missing: esbuild@0.28.2 from lock file`, aunque el lock sí
+> contiene esa versión. Es una diferencia de npm: el lock lo genera npm 11
+> (Node 24) y el workflow corría con Node 22 (npm 10), que construye el árbol
+> buscando esas entradas por su cuenta. En local `npm ci` pasaba sin problema.
+> El workflow quedó en Node 24 para que compile e instale el mismo npm.
+
 > **Tres defectos reales encontrados al ejecutar la app dentro de `workerd`.**
 > Compilar no es lo mismo que funcionar: los tres solo aparecen en el runtime
 > de Cloudflare, nunca en `next dev` ni en `npm run build`.

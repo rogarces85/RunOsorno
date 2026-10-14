@@ -27,7 +27,11 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          # Node 24 y no 22 a proposito: el package-lock.json lo genera npm 11
+          # (el que viene con Node 24). Con Node 22 / npm 10, `npm ci` rehace el
+          # arbol de otra forma y falla pidiendo `esbuild@0.28.2` y sus variantes
+          # por plataforma, que el lock si tiene. Node 24 == el del desarrollo.
+          node-version: 24
           cache: npm
 
       - name: Instalar dependencias
