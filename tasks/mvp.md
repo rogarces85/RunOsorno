@@ -993,13 +993,22 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 > resolver bindings en local sin ella y el deploy falla.
 
 > **Avería de infraestructura (2026-10-14): el login en producción quedó
-> caído.** Al rotar la credencial de Aiven se creó un usuario nuevo (`admin`) en
-> lugar de cambiar la clave del que Hyperdrive tenía configurado
-> (`avnadmin`). MySQL responde y ambos usuarios dan
-> `ER_ACCESS_DENIED_ERROR`, incluso sin especificar base, así que el sitio
-> carga pero nadie puede autenticarse. **No es un defecto del código**: no se
-> cambió ninguna línea de la aplicación. Se resuelve actualizando el binding de
-> Hyperdrive con credenciales válidas y redesplegando.
+> caído y se resolvió.** Al rotar la credencial de Aiven se creó un usuario
+> nuevo (`admin`) en lugar de cambiar la clave del que Hyperdrive tenía
+> configurado (`avnadmin`). MySQL respondía bien pero ambos usuarios daban
+> `ER_ACCESS_DENIED_ERROR`, así que el sitio cargaba sin que nadie pudiera
+> autenticarse. **No era un defecto del código**: no se cambió ninguna línea de
+> la aplicación. Se resolvió actualizando el binding de Hyperdrive con
+> `admin` y redesplegando; `verify-produccion.ts` volvió a dar login, cookie
+> `Secure` + `HttpOnly`, sesión persistente y cero 5xx. El procedimiento quedó
+> escrito en `docs/recuperar-acceso-aiven.md`.
+>
+> **Un segundo fallo de CI, distinto del anterior.** Con `npm ci` ya resuelto,
+> el deploy automático fallaba en `Failed to populate remote R2 bucket
+> "runosorno-cache"` tras 15 reintentos con `aborted due to timeout`. La causa
+> no es el código: OpenNext sube la caché incremental a R2 antes de publicar, y
+> desde los runners de GitHub esa intermittently da tiempo de espera. Como la
+> caché es regenerable, el workflow reintenta el deploy una vez.
 >
 > **Lección sobre contraseñas en capturas:** la contraseña leída de un pantallazo
 > no coincidió con ninguna de las variantes de lectura plausible (`l/1`, `O/0`,

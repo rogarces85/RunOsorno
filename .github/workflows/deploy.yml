@@ -49,7 +49,19 @@ jobs:
       - name: Build para Cloudflare Workers
         run: npx opennextjs-cloudflare build
 
+      # OpenNext sube la caché incremental a R2 antes de publicar el Worker, y
+      # desde los runners de GitHub esa subida falla por tiempo de espera de
+      # forma intermitente ("Failed to send request to R2 worker: ... aborted due
+      # to timeout"), lo que tumba el deploy entero. La caché es regenerable: si
+      # falla, se reintenta el deploy y ya sale. Los reintentos cubren el fallo
+      # sin dejar el sitio sin publicar.
       - name: Desplegar
+        run: npx opennextjs-cloudflare deploy
+        env:
+          NODE_ENV: production
+
+      - name: Reintentar el deploy si la subida de R2 dio tiempo de espera
+        if: failure()
         run: npx opennextjs-cloudflare deploy
         env:
           NODE_ENV: production
