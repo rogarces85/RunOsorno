@@ -35,6 +35,16 @@ describe("calcCompliance (25.11)", () => {
     ]);
     expect(result.percent).toBe(100);
   });
+
+  it("retorna 0% cuando hay sesiones pero ninguna completada (41.3)", () => {
+    const result = calcCompliance([
+      { status: "planned" },
+      { status: "not_done" },
+      { status: "partial" },
+    ]);
+    // La parcial no cuenta como completada: es lo que ve el coach en el panel.
+    expect(result).toEqual({ percent: 0, completed: 0, total: 3 });
+  });
 });
 
 describe("calcWeeklyLoad (25.12)", () => {
@@ -152,6 +162,16 @@ describe("calcStreak (25.13)", () => {
       REFERENCE,
     );
     expect(streak).toBe(2);
+  });
+
+  it("detecta racha larga sin límite (41.7)", () => {
+    // 21 días consecutivos terminando en la fecha de referencia.
+    const registros = Array.from({ length: 21 }, (_, i) => {
+      const day = new Date("2026-10-11T12:00:00Z");
+      day.setUTCDate(day.getUTCDate() - i);
+      return { date: day.toISOString().slice(0, 10), status: "completed" };
+    });
+    expect(calcStreak(registros, REFERENCE)).toBe(21);
   });
 
   it("ignora estados que no son completed y retorna 0 sin racha", () => {

@@ -838,21 +838,67 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 41. Pruebas unitarias (Vitest)
 
-- [ ] 41.1 Instalar y configurar Vitest (`vitest`, `@vitest/coverage-v8`)
-- [ ] 41.2 Configurar `vitest.config.ts` con path aliases
-- [ ] 41.3 Tests de `lib/metrics/compliance.ts` — casos: 100%, 50%, 0%, con datos vacíos
-- [ ] 41.4 Tests de `lib/metrics/load.ts` — suma correcta de km/tiempo, con/sin FC
-- [ ] 41.5 Tests de `lib/metrics/progression.ts` — serie temporal correcta
-- [ ] 41.6 Tests de `lib/metrics/distribution.ts` — porcentajes correctos
-- [ ] 41.7 Tests de `lib/metrics/streaks.ts` — racha con interrupción, racha vacía, racha larga
-- [ ] 41.8 Tests de `lib/metrics/heart-rate.ts` — zonas FC con datos de prueba, TRIMP
-- [ ] 41.9 Tests de `lib/metrics/alerts.ts` — genera alerta cuando corresponde, no genera cuando no
-- [ ] 41.10 Tests de `session.service.canEditRecord` — dentro/fuera de ventana, fecha futura, usuario incorrecto
-- [ ] 41.11 Tests de validaciones Zod — esquemas válidos e inválidos
-- [ ] 41.12 Tests de `lib/auth/guards.ts` — permisos por rol
-- [ ] 41.13 Tests de `lib/permissions/index.ts` — todas las funciones de permiso
-- [ ] 41.14 Ejecutar `npm run test` → todos los tests pasan
-- [ ] 41.15 Configurar cobertura mínima (≥ 80% en `lib/metrics/` y `lib/permissions/`)
+- [x] 41.1 Instalar y configurar Vitest (`vitest`, `@vitest/coverage-v8`)
+- [x] 41.2 Configurar `vitest.config.ts` con path aliases
+- [x] 41.3 Tests de `lib/metrics/compliance.ts` — casos: 100%, 50%, 0%, con datos vacíos
+- [x] 41.4 Tests de `lib/metrics/load.ts` — suma correcta de km/tiempo, con/sin FC
+- [x] 41.5 Tests de `lib/metrics/progression.ts` — serie temporal correcta
+- [x] 41.6 Tests de `lib/metrics/distribution.ts` — porcentajes correctos
+- [x] 41.7 Tests de `lib/metrics/streaks.ts` — racha con interrupción, racha vacía, racha larga
+- [x] 41.8 Tests de `lib/metrics/heart-rate.ts` — zonas FC con datos de prueba, TRIMP
+- [x] 41.9 Tests de `lib/metrics/alerts.ts` — genera alerta cuando corresponde, no genera cuando no
+- [x] 41.10 Tests de `session.service.canEditRecord` — dentro/fuera de ventana, fecha futura, usuario incorrecto
+- [x] 41.11 Tests de validaciones Zod — esquemas válidos e inválidos
+- [x] 41.12 Tests de `lib/auth/guards.ts` — permisos por rol
+- [x] 41.13 Tests de `lib/permissions/index.ts` — todas las funciones de permiso
+- [x] 41.14 Ejecutar `npm run test` → todos los tests pasan
+- [x] 41.15 Configurar cobertura mínima (≥ 80% en `lib/metrics/` y `lib/permissions/`)
+
+> Nota 41.x: `npm test` pasa de 41 a **123 pruebas** en siete archivos.
+> `lib/metrics/` ya venía cubierta de la Fase 25 (41.3-41.9), y se le
+> añadieron los dos casos que faltaban de la lista: 0 % con sesiones pero
+> ninguna completada, y racha larga de 21 días.
+>
+> Lo nuevo de la fase:
+>
+> - **`session.service.canEditRecord`** con los cuatro casos de la tarea, más el
+>   camino feliz: qué filas escribe al registrar (inserta en `session_records`,
+>   actualiza el estado de la asignación) y que solo avisa al coach la primera
+>   vez, no al editar. También se comprueba que la ventana sale de la
+>   configuración: con `edit_window_hours: 2` la misma sesión de hace 10 horas
+>   deja de ser editable, que es exactamente el defecto corregido en la Fase 40.
+> - **Los 13 esquemas Zod** con sus mensajes exactos, que es lo que el
+>   formulario muestra bajo cada campo: RPE fuera de rango, "Otro" sin
+>   descripción, plantilla sin secciones, límites con cero o fuera de rango,
+>   rangos de métricas invertidos, coherencia de `kind`/`format` en las
+>   exportaciones, etc.
+> - **`lib/auth/guards.ts`** al 100 %: qué devuelve con sesión válida, a dónde
+>   manda sin cookie, a dónde manda con sesión caducada (`/login?expired=1`) y
+>   que un rol no llega al dashboard de otro.
+> - **`lib/permissions/index.ts`** al 97,8 %: las cinco funciones puras de rol,
+>   las seis que consultan la base (admin, director, grupo, team, atleta,
+>   feedback) y `canAccessRoute` / `canPerformAction`.
+>
+> Para probar los servicios sin depender de MySQL se añadió
+> `tests/helpers/fakeDb.ts`: un doble de `db` que devuelve, para cada tabla, las
+> filas que la prueba preparó, y que registra las escrituras. Si lo preparado
+> para una tabla es una lista de listas, la trata como cola (una respuesta
+> distinta por consulta), que es lo que hace falta cuando el mismo código
+> pregunta dos veces por `team_members` con criterios distintos. El doble no
+> evalúa condiciones SQL: por eso los tests afirman sobre la *decisión* que
+> toma el servicio a partir del contenido de la fila.
+>
+> La cobertura se mide con `@vitest/coverage-v8` (`npm run test:coverage`) y
+> los umbrales son obligatorios, no informativos: 80 % en `lib/metrics/` y
+> `lib/permissions/`, 90 % en `lib/auth/guards.ts` y 80 % en
+> `session.service.ts` (líneas, sentencias y funciones; 75/70 % en ramas).
+> Cobertura medida hoy: métricas 98,9 %, permisos 97,8 %, guards 100 %,
+> session.service 93,5 %; el conjunto de archivos incluidos, 89,5 % de líneas.
+> `lib/validations/` se mide pero no se exige umbral (67 %): son esquemas
+> declarativos y no contienen lógica.
+>
+> `coverage/`, `playwright-report/` y `test-results/` se agregaron a los ignores
+> de ESLint, que antes recorría el informe HTML generado.
 
 ---
 
@@ -1061,7 +1107,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 38. Estados vacíos y errores | 8 | 8 |
 | 39. Responsive | 8 | 8 |
 | 40. Validaciones (completación) | 15 | 15 |
-| 41. Pruebas unitarias | 15 | 0 |
+| 41. Pruebas unitarias | 15 | 15 |
 | 42. Pruebas E2E | 12 | 12 |
 | 43. Cloudflare | 13 | 0 |
 | 44. Sentry | 6 | 0 |
@@ -1071,7 +1117,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **498** |
+| **TOTAL** | **~578** | **513** |
 
 ---
 
@@ -1095,6 +1141,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-responsive.ts` | Mide la interfaz en 375 / 768 / 1400 px: menú lateral como panel en móvil, área de toque del calendario, scroll horizontal de tablas, ancho de los campos, tamaño real de las gráficas y arrastre con eventos táctiles (Fase 39) |
 | `npx tsx scripts/verify-validations.ts` | Audita las 54 Server Actions (sesión + validación con Zod) y comprueba con datos reales los límites, la ventana de edición, el registro futuro, el RPE, el motivo "Otro", la plantilla vacía, la solicitud duplicada y la pantalla de error (Fase 40) |
 | `npm run test:e2e` | Suite de Playwright en `e2e/`: login por rol, credenciales inválidas, logout, y los flujos completos de admin, coach y atleta con verificación en la base de datos (Fase 42) |
+| `npm run test:coverage` | Vitest con umbral obligatorio: 80 % en `lib/metrics/` y `lib/permissions/`, 90 % en `lib/auth/guards.ts`, 80 % en `session.service.ts` (Fase 41) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 
