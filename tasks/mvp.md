@@ -967,17 +967,30 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 - [x] 43.1 Instalar `@opennextjs/cloudflare` y `wrangler` — `1.20.11` y `4.151.0`
 - [x] 43.2 Configurar `wrangler.jsonc` con nombre del proyecto, R2 bucket binding y Hyperdrive binding
-- [ ] 43.3 Configurar secretos en el Worker (`DATABASE_URL` de MySQL producción, Resend key, R2 credentials, Lucia secret)
-- [ ] 43.4 Configurar Hyperdrive en Cloudflare Dashboard apuntando al MySQL de producción
+- [x] 43.3 Configurar secretos del Worker — `LUCIA_SECRET` (nuevo, 48 caracteres), `APP_URL` y `RESEND_FROM` como variables. `RESEND_API_KEY` y las credenciales de R2 siguen pendientes (43.12 y 43.13)
+- [x] 43.4 Configurar Hyperdrive apuntando al MySQL de producción (Aiven `defaultdb`, MySQL 8.4.11)
 - [x] 43.5 Verificar build local con `npx opennextjs-cloudflare build`
-- [ ] 43.6 Conectar el repositorio de GitHub a Cloudflare Workers
+- [ ] 43.6 Conectar el repositorio de GitHub a Cloudflare Workers — el deploy se hizo desde local con `wrangler login`; falta el API token en los secretos de GitHub
 - [x] 43.7 Configurar GitHub Actions workflow (`.github/workflows/deploy.yml`): install → lint → test → build → deploy
-- [ ] 43.8 Hacer primer deploy a Cloudflare Workers
-- [ ] 43.9 Verificar el sitio accesible en `*.workers.dev`
-- [ ] 43.10 Verificar login funciona en producción (cookies Secure, HTTPS)
-- [ ] 43.11 Verificar conexión a DB funciona desde edge (Hyperdrive)
-- [ ] 43.12 Verificar R2 funciona (subir y ver avatar)
-- [ ] 43.13 Verificar Resend envía emails en producción
+- [x] 43.8 Hacer primer deploy a Cloudflare Workers — versión `f7aca525-ff2e-4cab-993a-e460f39b2e87`
+- [x] 43.9 Verificar el sitio accesible en `*.workers.dev` — `https://runosorno.rodrigo-garces-guerrero.workers.dev`
+- [x] 43.10 Verificar login funciona en producción (cookies Secure, HTTPS) — `auth_session` con `secure=true`, `httpOnly=true`, `sameSite=Lax`
+- [x] 43.11 Verificar conexión a DB funciona desde edge (Hyperdrive) — login real contra Aiven y la sesión sobrevive a una recarga
+- [ ] 43.12 Verificar R2 funciona (subir y ver avatar) — falta crear el API token de R2
+- [ ] 43.13 Verificar Resend envía emails en producción — falta `RESEND_API_KEY`
+
+> **Un cuarto defecto, ya en el despliegue.** `NEXT_PUBLIC_APP_URL` se usaba para
+> armar los enlaces de los correos, pero el prefijo `NEXT_PUBLIC_` hace que Next
+> lo incruste en el bundle **durante el build**: los correos de producción
+> habrían apuntado a `http://localhost:3000`. Como solo se usa en el servidor,
+> se renombró a `APP_URL` y pasa a ser una variable del Worker, cambiable sin
+> recompilar.
+>
+> **Dos cosas del entorno que conviene saber.** El DNS del router no resuelve
+> los hostnames de Aiven (`ENOTFOUND`), aunque los DNS públicos sí; desde este
+> equipo hay que conectar por IP (`167.172.139.215`). Y `wrangler.jsonc` necesita
+> `localConnectionString` en el binding de Hyperdrive, porque wrangler no puede
+> resolver bindings en local sin ella y el deploy falla.
 
 > **Tres defectos reales encontrados al ejecutar la app dentro de `workerd`.**
 > Compilar no es lo mismo que funcionar: los tres solo aparecen en el runtime
@@ -1157,7 +1170,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 40. Validaciones (completación) | 15 | 15 |
 | 41. Pruebas unitarias | 15 | 15 |
 | 42. Pruebas E2E | 12 | 12 |
-| 43. Cloudflare | 13 | 4 |
+| 43. Cloudflare | 13 | 9 |
 | 44. Sentry | 6 | 0 |
 | 45. Seguridad | 10 | 0 |
 | 46. i18n y localización | 5 | 0 |
@@ -1165,7 +1178,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **517** |
+| **TOTAL** | **~578** | **522** |
 
 ---
 
@@ -1192,6 +1205,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npm run test:coverage` | Vitest con umbral obligatorio: 80 % en `lib/metrics/` y `lib/permissions/`, 90 % en `lib/auth/guards.ts`, 80 % en `session.service.ts` (Fase 41) |
 | `npx opennextjs-cloudflare build` | Compila el bundle de Cloudflare Workers. A diferencia de `npm run build`, aquí se detectan incompatibilidades entre Next y el adaptador (Fase 43) |
 | `BASE_URL=http://127.0.0.1:8787 npx playwright test` | Corre la **misma** suite E2E dentro de `workerd`, con `opennextjs-cloudflare preview` en el puerto 8787. Es la única forma de detectar los fallos que solo existen en el runtime de Cloudflare: `new Function` prohibido, I/O que no cruza peticiones y rutas que dan 500 en todas las peticiones (Fase 43) |
+| `npx tsx scripts/verify-produccion.ts` | Login real en el Worker desplegado: llega al dashboard, la cookie de sesión sale `Secure` + `HttpOnly`, la sesión sobrevive a una recarga (o sea, la base de Aiven guardó de verdad), una ruta protegida sin sesión redirige y no aparece ningún 5xx (Fase 43) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 

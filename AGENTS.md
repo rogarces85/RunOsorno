@@ -109,13 +109,13 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 | **Framework SSR** | **Next.js 16.3.x (App Router, React Server Components)** | SSR nativo, auth por cookies, RSC reduce JS cliente, compatible con Cloudflare Workers vía OpenNext. **No subir a 16.4.0**: ver "Restricciones de Cloudflare Workers" |
 | **UI / Design System** | **Tabler** (`@tabler/core` + `@tabler/icons-react`) | `@tabler/core` (HTML/CSS Bootstrap 5-based) + wrappers React propios en `components/ui/` con clases Tabler. Iconos React oficiales. Responsive, dark/light, accesible. |
 | **Estilos** | **`@tabler/core` CSS** | Un solo framework CSS (el de Tabler). Tailwind descartado: conflicta con Bootstrap base de Tabler. Personalización vía CSS custom properties / SCSS de Tabler. |
-| **Base de Datos** | **MySQL** — dev local (XAMPP), prod PlanetScale u otro MySQL + Cloudflare Hyperdrive | Hyperdrive crea connection pooling global y cachea queries en edge. PlanetScale eliminó su free tier (abril 2024, desde $5/mes): desarrollo con MySQL local, producción se decide en Fase 43 (variable `DATABASE_URL`). |
+| **Base de Datos** | **MySQL** — dev local (XAMPP/MariaDB), producción Aiven MySQL 8.4 + Cloudflare Hyperdrive | Hyperdrive crea connection pooling global y cachea queries en edge. Ojo: en desarrollo el motor es MariaDB 10.4 (XAMPP) y en producción MySQL 8.4; el esquema se genera siempre con las migraciones de Drizzle, nunca importando volcados entre motores. |
 | **ORM** | **Drizzle ORM** | Type-safe, ligero, funciona en edge (Cloudflare Workers), migraciones SQL nativas, mejor performance que Prisma en edge |
 | **Autenticación** | **Lucia Auth** | Session-based, cookies HttpOnly/Secure, multi-runtime (Node/Edge), DB-agnostic, sin vendor lock-in. Simple y edge-ready. |
 | **Validación** | **Zod** + **React Hook Form** | Esquemas compartidos server/client, type inference, integra con Drizzle |
 | **Email Transaccional** | **Resend** (SDK edge-compatible) | DX excelente, React Email templates, 3k emails/mes gratis |
 | **Almacenamiento Avatares** | **Cloudflare R2** (bucket privado + signed URLs) | S3-compatible, gratis hasta 10GB, edge caching, sin egress fees. Mejor que filesystem local en Cloudflare (ephemeral). |
-| **Despliegue** | **Cloudflare Workers** (Next.js vía `@opennextjs/cloudflare`) | `@cloudflare/next-on-pages` está deprecado y no soporta Next 16; OpenNext despliega a Workers, no a Pages. Build automático, edge global, gratis generoso. Dominio `*.workers.dev` inicial. |
+| **Despliegue** | **Cloudflare Workers** (Next.js vía `@opennextjs/cloudflare`) | `@cloudflare/next-on-pages` está deprecado y no soporta Next 16; OpenNext despliega a Workers, no a Pages. Build automático, edge global, gratis generoso. En producción: `https://runosorno.rodrigo-garces-guerrero.workers.dev` |
 | **CI/CD** | **GitHub Actions** → Cloudflare Workers (`opennextjs-cloudflare deploy`) | Estándar, gratis para repos privados. |
 | **Testing** | **Vitest** (unit/integration) + **Playwright** (e2e) | Vitest: rápido, compatible edge. Playwright: corre contra preview URLs. |
 | **Observabilidad** | **Sentry** (errores) + **Cloudflare Web Analytics / Logpush** | Sentry: DSN gratis generoso. Logpush → R2/BigQuery para queries SQL. |
@@ -154,6 +154,26 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
    different request`. Por eso el cliente de Drizzle se memoriza junto al
    contexto de Cloudflare (que OpenNext crea nuevo por petición) y se rehace
    cuando cambia. Ver `getDatabase()` en `lib/db/index.ts`.
+4. **Nada de variables `NEXT_PUBLIC_` para datos de servidor.** Next las
+   incrusta en el bundle durante el build, así que un valor de configuración
+   quedaría clavado al momento de compilar. Por eso `APP_URL` (enlaces de los
+   correos) no lleva ese prefijo.
+
+## Notas de la infraestructura de producción (Fase 43)
+
+- **Worker:** `runosorno` → `https://runosorno.rodrigo-garces-guerrero.workers.dev`.
+- **Base:** Aiven MySQL 8.4.11, base `defaultdb`. Esquema creado con
+  `npm run db:migrate` y datos base con `npm run db:seed` (admin, 5 ajustes,
+  5 plantillas oficiales). **No** se importó el volcado de MariaDB: son motores
+  distintos.
+- **Hyperdrive:** binding `HYPERDRIVE`, id `1bffd76cc20d423690c4079891d596eb`.
+  `wrangler.jsonc` declara `localConnectionString` porque wrangler no resuelve
+  bindings sin ella y el deploy falla.
+- **Pendiente:** `RESEND_API_KEY` y las credenciales de R2 (43.12 y 43.13).
+- **Pendiente:** API token de Cloudflare en los secretos de GitHub para que
+  `deploy.yml` funcione sin intervención manual (43.6).
+- El DNS del router de desarrollo no resuelve los hostnames de Aiven; desde la
+  red local hay que conectar por IP. Cloudflare no tiene ese problema.
 
 ---
 

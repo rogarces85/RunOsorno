@@ -19,6 +19,27 @@
       "service": "runosorno"
     }
   ],
+  "hyperdrive": [
+    {
+      // Pool de conexiones y caché de consultas en el edge hacia el MySQL de
+      // Aiven. `lib/db/index.ts` lee `env.HYPERDRIVE.connectionString` en vez
+      // de `DATABASE_URL`, porque un Worker no puede abrir sockets TCP sueltos.
+      "binding": "HYPERDRIVE",
+      "id": "1bffd76cc20d423690c4079891d596eb",
+      // Solo para `wrangler dev`/`preview`: emula el binding contra el MySQL de
+      // XAMPP. Sin esto, wrangler no puede resolver los bindings en local y el
+      // deploy falla con "no local hyperdrive connection string".
+      "localConnectionString": "mysql://root:@localhost:3306/runosorno"
+    }
+  ],
+  "vars": {
+    // Solo se usa para armar los enlaces de los correos. Va como variable (y no
+    // como secreto) porque no es informacion sensible, pero tampoco lleva el
+    // prefijo NEXT_PUBLIC_: esas se incrustan en el bundle al compilar y
+    // quedaria clavada al valor que tuviera en ese momento.
+    "APP_URL": "https://runosorno.rodrigo-garces-guerrero.workers.dev",
+    "RESEND_FROM": "RunOsorno <no-reply@runosorno.cl>"
+  },
   "r2_buckets": [
     {
       // Caché incremental de Next (ISR/SSG). La crea OpenNext sola si no

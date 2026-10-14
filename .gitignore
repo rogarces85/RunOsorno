@@ -35,6 +35,9 @@
 # archivos generados al verificar exportaciones
 /.export-check/
 
+# volcados de la base: contienen hashes de contrasena, nunca al repositorio
+/db/dumps/
+
 # misc
 .DS_Store
 *.pem
