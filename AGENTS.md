@@ -175,6 +175,26 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
 - El DNS del router de desarrollo no resuelve los hostnames de Aiven; desde la
   red local hay que conectar por IP. Cloudflare no tiene ese problema.
 
+## Notas de observabilidad (Fase 44)
+
+Sentry está integrado (`instrumentation.ts`, `sentry.server.config.ts` y
+`sentry.client.config.ts`, este último cargado desde `instrumentation-client.ts`).
+Tres cosas que conviene no deshacer:
+
+1. **La privacidad no es el valor por defecto.** En Sentry v11
+   `dataCollection` es permisivo: cookies, cabeceras, cuerpos de la petición y
+   datos de las consultas se envían salvo que se apaguen. La configuración los
+   apaga uno a uno, y encima pasa el evento por `lib/observability/scrub.ts`.
+   Poner `sendDefaultPii: false` a secas ya no compila: la opción ya no existe.
+2. **`NEXT_PUBLIC_SENTRY_DSN` sí lleva el prefijo**, contra la regla general de
+   las variables de servidor: es la única que necesita el bundle del navegador,
+   y Next solo incrusta ahí las que lo llevan. Queda clavada en el build.
+3. **En `next dev` los eventos no salen** (se capturan pero no se envían; en el
+   build de producción sí). Por eso `verify-sentry.ts` compila y usa `next start`.
+
+Procedimiento para activarlo de verdad (cuenta, secretos, alertas):
+`docs/configurar-sentry.md`.
+
 ---
 
 ## Consideraciones Clave

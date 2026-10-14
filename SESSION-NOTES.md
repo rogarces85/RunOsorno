@@ -319,3 +319,20 @@ npm run dev
 - Scripts scratch se eliminan al cerrar la fase (leftovers: 0)
 - Commits en español sin acentos; push a `origin/main` cuando haya commits nuevos
 - **Fechas en Drizzle**: WHERE con columnas `date` → SIEMPRE `sql` + string ISO (nunca params `Date`); INSERT con `Date` local-noon
+
+## Fase 44 - Sentry (observabilidad de errores) (536/578)
+
+- **SDK**: @sentry/nextjs@11.7.0 (peer `next ^16`: compatible con 16.3.8)
+- **Archivos nuevos**: `instrumentation.ts` (`register()` + `onRequestError = Sentry.captureRequestError`), `instrumentation-client.ts` (`onRouterTransitionStart`), `sentry.server.config.ts`, `sentry.client.config.ts`, `lib/observability/scrub.ts`, `scripts/verify-sentry.ts`, `tests/unit/observability.test.ts`, `docs/configurar-sentry.md`
+- **Next config**: `withSentryConfig` sin opciones `webpack` (el proyecto compila con Turbopack y esa instrumentacion auto no existe ahi); `sourcemaps.disable = !SENTRY_AUTH_TOKEN`
+- **Privacidad**: v11 sustituye `sendDefaultPii` por `dataCollection`, **permisivo por defecto**. Se apagan userInfo/cookies/httpHeaders/httpBodies/urlQueryParams/databaseQueryData/stackFrameVariables, mas un `beforeSend` propio
+- **Defecto 1 (scrub)**: `MAX_DEPTH = 6` cortaba justo en `exception.values[].stacktrace.frames[]` -> todos los frames como `"[truncado]"`. Ahora 20 niveles + `WeakSet` para ciclos; prueba que lo fija
+- **Defecto 2 (migracion)**: `login_attempts` (Fase 45) nunca aplicada en la base local -> **login 500** para todos. Resuelto con `npm run db:migrate`; **pendiente en Aiven**
+- **Limitacion de `next dev`**: los eventos se capturan pero no se envian (ni con `flush()`). En el build de produccion si. Por eso el script compila y usa `next start`
+- **Verificacion**: `npx tsx scripts/verify-sentry.ts` -> **18/18**. Colector falso en 127.0.0.1:8789; provoca fallo de render, excepcion en Server Action y `captureException`; comprueba llegada, stack trace intacto y ausencia de cookie/correos/cabeceras
+- **Dentro de workerd**: comprobado con un Worker minimo con las mismas opciones de `sentry.server.config.ts`: el SDK carga y entrega el evento. No usa `new Function`
+- **Unitarias**: 147/147 (+8 de observabilidad). Lint 0 errores. E2E 15/15
+- **Bloqueo local**: `npm run preview` falla en Windows con `EPERM symlink`; **no es de Sentry** (falla igual con `mysql2`, `prettier`, `@aws-sdk`). OpenNext recrea con `fs.symlinkSync` las junctions que Turbopack crea para paquetes externos, y eso exige Modo desarrollador o administrador. En Linux funciona
+- **Pendiente**: 44.6 (alertas) necesita cuenta de Sentry; el procedimiento esta en `docs/configurar-sentry.md`
+- **Datos de demo**: la base local no tenia el seed de demostracion (`coach.demo@runosorno.cl`, `maria.fernandez@demo.runosorno.cl`), que usan los E2E. Ejecutado `npm run db:seed:demo`
+- **Leftovers**: 0

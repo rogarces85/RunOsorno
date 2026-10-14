@@ -1060,17 +1060,100 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 > 43.8 a 43.13 necesitan el MySQL de producción, Hyperdrive, los secretos del
 > Worker y el primer deploy. Los buckets R2 `runosorno-cache` y
 > `runosorno-avatars` ya están creados.
+>
+> **Aviso de la Fase 44:** la migración `0001_tiresome_thunderbolts.sql`
+> (`login_attempts`, de la Fase 45) **no estaba aplicada** en la base de
+> desarrollo, y eso rompía el login con un 500 (`Table 'runosorno.login_attempts'
+> doesn't exist`). Se aplicó con `npm run db:migrate`. Lo mismo hay que hacer
+> contra el MySQL de Aiven antes del próximo deploy, porque allí el rate
+> limiting del login fallaría igual.
 
 ---
 
 # 44. Sentry (Observabilidad de errores)
 
-- [ ] 44.1 Instalar `@sentry/nextjs`
-- [ ] 44.2 Configurar Sentry con DSN en variables de entorno
-- [ ] 44.3 Configurar source maps para errores legibles
-- [ ] 44.4 Verificar que errores de Server Actions se reportan a Sentry
-- [ ] 44.5 Verificar que errores de rendering se reportan a Sentry
-- [ ] 44.6 Configurar alertas básicas en Sentry (errores nuevos)
+- [x] 44.1 Instalar `@sentry/nextjs` — `11.7.0`
+- [x] 44.2 Configurar Sentry con DSN en variables de entorno
+- [x] 44.3 Configurar source maps para errores legibles
+- [x] 44.4 Verificar que errores de Server Actions se reportan a Sentry
+- [x] 44.5 Verificar que errores de rendering se reportan a Sentry
+- [ ] 44.6 Configurar alertas básicas en Sentry (errores nuevos) — procedimiento escrito en `docs/configurar-sentry.md`; falta la cuenta para crearlas
+
+> **Sentry v11 cambia las reglas del juego y el proyecto tiene que adaptarse.**
+> `sendDefaultPii` ya no existe y, en su lugar, `dataCollection` decide qué se
+> recoge **por defecto de forma permisiva**: cookies, cabeceras HTTP, cuerpos de
+> la petición, parámetros de la URL y datos de las consultas. Es decir, la
+> configuración por defecto de Sentry subiría a un servicio externo la cookie de
+> sesión y los correos de los usuarios. Por eso la configuración apaga categoría
+> por categoría (`userInfo`, `cookies`, `httpHeaders`, `httpBodies`,
+> `urlQueryParams`, `databaseQueryData`, `stackFrameVariables`) en vez de confiar
+> en el valor por defecto, y encima pasa todo el evento por un segundo filtro
+> (`lib/observability/scrub.ts`) que sustituye correos e IPs por marcadores y
+> redacta `authorization`, `cookie` y compañía.
+>
+> **Turbopack, no webpack.** El proyecto compila con Turbopack, y con Turbopack
+> Sentry no puede hacer la instrumentación automática de App Router, middleware y
+> Server Functions que documenta para webpack. No afecta a las tareas 44.4 y
+> 44.5: los errores llegan igual por `onRequestError` (declarado en
+> `instrumentation.ts`) y por el SDK del cliente. Lo que sí hace Sentry con
+> Turbopack es activar `productionBrowserSourceMaps` y subir los mapas al
+> compilar, borrándolos después del upload para que no queden servidos.
+> `sourcemaps.disable` se ata a `SENTRY_AUTH_TOKEN`: sin token no hay a quién
+> subirlos y activarlos solo dejaría los `.map` en `.next`.
+>
+> **Dos defectos encontrados verificando, los dos ya corregidos.**
+>
+> 1. **El scrub se comía el stack trace.** El recorrido se cortaba a 6 niveles de
+>    profundidad y los frames de `exception.values[].stacktrace.frames[]` están a
+>    ese nivel: todos llegaban a Sentry como `"[truncado]"`. El evento pasaba la
+>    verificación de "llega el error" y no servía para nada. Ahora el límite es 20
+>    niveles y hay detección de ciclos; hay una prueba que lo fija
+>    (`tests/unit/observability.test.ts`) y el script comprueba que el evento
+>    conserva su `stacktrace`.
+> 2. **La migración de `login_attempts` nunca se aplicó.** Venía de la Fase 45 y
+>    faltaba en la base de desarrollo, así que el login devolvía 500
+>    (`Table 'runosorno.login_attempts' doesn't exist`). Al usar el login
+>    para las comprobaciones apareció de inmediato: ningún usuario, ni el
+>    administrador, podía entrar. Aplicada con `npm run db:migrate`. **Queda
+>    pendiente aplicarla en el MySQL de Aiven**, donde el fallo sería el mismo.
+>
+> **En `next dev` los eventos no salen.** Se capturan (lo confirma el log del SDK,
+> con `Captured error event`) pero ningún envelope llega al colector, ni después
+> de un `Sentry.flush()` que devuelve `true`; un `fetch` normal desde la misma
+> ruta sí llega, así que no es la red. En el build de producción funciona. Por
+> eso `verify-sentry.ts` compila y arranca `next start`: el servidor de
+> desarrollo habría dado un falso negativo en las cuatro comprobaciones.
+>
+> **Verificación.** `npx tsx scripts/verify-sentry.ts` → **18/18**. El script
+> levanta un colector falso en `127.0.0.1:8789`, compila la app, la arranca en el
+> puerto 3111 con `SENTRY_DSN` apuntando al colector, inicia sesión de verdad y
+> provoca tres errores reales: un fallo de render (comprueba el 500 y que se vea
+> `error.tsx`), una excepción sin controlar en un Server Action y una llamada a
+> `captureException`. Para provocarlos crea `app/sentry-probe/` y lo borra al
+> terminar. Dos detalles que costaron tiempo: el directorio de la sonda **no**
+> puede empezar por `_` (Next trata esas carpetas como privadas y no las
+> compila), y con `cacheComponents` una página que lee `searchParams` necesita
+> `export const instant = false`.
+>
+> Además comprueba que los eventos no llevan la cookie de sesión, ni correos, ni
+> cabeceras HTTP; que un `ActionFailure` (error de negocio) no se reporta como
+> incidencia; y que el stack trace llega intacto.
+>
+> **El SDK dentro de `workerd`.** Al no poder repetir la E2E dentro del runtime de
+> Cloudflare (el build de OpenNext falla en Windows, ver más abajo), se comprobó
+> con un Worker mínimo que inicializa el SDK con **las mismas opciones** de
+> `sentry.server.config.ts` y captura una excepción: dentro de `workerd` el SDK
+> carga y entrega el evento. Es la duda que importaba —que el SDK no usara
+> `new Function` o una API que `workerd` no tenga— y queda cubierta.
+>
+> **Lo que no se pudo verificar aquí, y no es del código:** `npm run preview`
+> falla en esta máquina con `EPERM ... symlink` al copiar el bundle del
+> middleware. No lo provoca Sentry: falla igual con `mysql2`, `prettier` y
+> `@aws-sdk`, y la causa es que Turbopack crea *junctions* para los paquetes
+> externos y OpenNext las reproduce con `fs.symlinkSync`, que en Windows exige el
+> Modo desarrollador o permisos de administrador. En Linux funciona. Para repetir
+> la comprobación completa hay que activar el Modo desarrollador de Windows o
+> compilar desde WSL.
 
 ---
 
@@ -1247,14 +1330,14 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 41. Pruebas unitarias | 15 | 15 |
 | 42. Pruebas E2E | 12 | 12 |
 | 43. Cloudflare | 13 | 9 |
-| 44. Sentry | 6 | 0 |
+| 44. Sentry | 6 | 5 |
 | 45. Seguridad | 10 | 9 |
 | 46. i18n y localización | 5 | 0 |
 | 47. Rendimiento | 8 | 0 |
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **531** |
+| **TOTAL** | **~578** | **536** |
 
 ---
 
@@ -1283,8 +1366,11 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `BASE_URL=http://127.0.0.1:8787 npx playwright test` | Corre la **misma** suite E2E dentro de `workerd`, con `opennextjs-cloudflare preview` en el puerto 8787. Es la única forma de detectar los fallos que solo existen en el runtime de Cloudflare: `new Function` prohibido, I/O que no cruza peticiones y rutas que dan 500 en todas las peticiones (Fase 43) |
 | `npx tsx scripts/verify-produccion.ts` | Login real en el Worker desplegado: llega al dashboard, la cookie de sesión sale `Secure` + `HttpOnly`, la sesión sobrevive a una recarga (o sea, la base de Aiven guardó de verdad), una ruta protegida sin sesión redirige y no aparece ningún 5xx (Fase 43) |
 | `npx tsx scripts/verify-seguridad.ts` | Las 10 tareas de seguridad: flags de la cookie, hashing, ausencia de SQL concatenado y de `dangerouslySetInnerHTML`, rate limiting (límite, ventana, bloqueo real comprobado en la base), firmas de imagen contra HTML/SVG/PDF/ZIP disfrazados, secretos fuera del código y CORS cerrado (Fase 45) |
+| `npx tsx scripts/verify-sentry.ts` | Levanta un colector falso, compila la app y provoca tres errores reales (render, Server Action y `captureException`): comprueba que llegan a Sentry con su stack trace, sin cookie ni correos ni cabeceras, y que la configuración de build de los source maps depende del token (Fase 44) |
 
-Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
+Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`),
+salvo `verify-sentry.ts`, que compila la app y arranca su propio servidor porque
+necesita el `SENTRY_DSN` desde el arranque.
 
 Los datos de demostración se limpian con `npm run db:seed:demo:clean`, que
 deja la base exactamente como estaba antes del seed.
