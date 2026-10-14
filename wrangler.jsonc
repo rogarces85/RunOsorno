@@ -1,0 +1,36 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "main": ".open-next/worker.js",
+  "name": "runosorno",
+  "compatibility_date": "2026-01-15",
+  "compatibility_flags": [
+    // APIs de Node.js: bcryptjs, mysql2, exceljs y @react-pdf/renderer
+    // necesitan `Buffer`, `crypto` y streams.
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "runosorno"
+    }
+  ],
+  "r2_buckets": [
+    {
+      // Caché incremental de Next (ISR/SSG). La crea OpenNext sola si no
+      // existe, pero declararla aquí hace el binding explícito.
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "runosorno-cache"
+    },
+    {
+      // Avatares de los usuarios (Fase 29). Bucket privado: la app sirve las
+      // imágenes con URLs firmadas que genera en `lib/services/avatar.service`.
+      "binding": "AVATARS",
+      "bucket_name": "runosorno-avatars"
+    }
+  ]
+}

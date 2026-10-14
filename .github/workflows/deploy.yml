@@ -1,0 +1,51 @@
+name: Desplegar a Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  # permite redesplegar sin subir un commit
+  workflow_dispatch:
+
+concurrency:
+  # cancela el despliegue anterior si llega un commit nuevo
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Verificar y desplegar
+    runs-on: ubuntu-latest
+
+    env:
+      # Necesarios para que wrangler sepa a que cuenta subir.
+      # Se definen como secretos del repositorio, no en el archivo.
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Pruebas unitarias
+        run: npm test
+
+      # El build no necesita credenciales: `/login` es la unica ruta prerenderizada
+      # y la conexion a la base se resuelve de forma perezosa en el primer uso
+      # (ver `lib/db/index.ts`). Los secretos llegan en tiempo de ejecucion.
+      - name: Build para Cloudflare Workers
+        run: npx opennextjs-cloudflare build
+
+      - name: Desplegar
+        run: npx opennextjs-cloudflare deploy
+        env:
+          NODE_ENV: production

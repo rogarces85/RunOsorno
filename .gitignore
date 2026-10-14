@@ -24,6 +24,10 @@
 
 # cloudflare
 /.wrangler/
+# Bundle que genera OpenNext para Cloudflare Workers (Fase 43)
+/.open-next/
+# Tipos de bindings generados por `wrangler types`
+/cloudflare-env.d.ts
 
 # avatares locales (dev sin R2)
 /.data/
@@ -44,6 +48,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example
+# Secretos locales de `wrangler dev` (equivalente a .env, pero para Cloudflare)
+.dev.vars
+.dev.vars.*
 
 # vercel
 .vercel

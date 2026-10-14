@@ -957,19 +957,67 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 43. Integración y configuración Cloudflare
 
-- [ ] 43.1 Instalar `@cloudflare/next-on-pages` y `wrangler`
-- [ ] 43.2 Configurar `wrangler.toml` con nombre del proyecto, R2 bucket binding, Hyperdrive binding
-- [ ] 43.3 Configurar variables de entorno en Cloudflare Pages (`DATABASE_URL` de MySQL producción, Resend key, R2 credentials, Lucia secret)
-- [ ] 43.4 Configurar Hyperdrive en Cloudflare Dashboard apuntando al MySQL de producción (PlanetScale u otro)
-- [ ] 43.5 Verificar build local con `npx @cloudflare/next-on-pages@latest`
-- [ ] 43.6 Conectar repositorio GitHub a Cloudflare Pages
-- [ ] 43.7 Configurar GitHub Actions workflow (`.github/workflows/deploy.yml`): install → lint → test → build → deploy
-- [ ] 43.8 Hacer primer deploy a Cloudflare Pages
-- [ ] 43.9 Verificar sitio accesible en `*.pages.dev`
+> **Nota de la fase (43.0): el adaptador del plan estaba obsoleto.** La tarea
+> 43.1 pedía `@cloudflare/next-on-pages`, que está deprecado, no soporta
+> Next 16 y despliega a Pages. El adaptador vigente es **OpenNext Cloudflare**
+> (`@opennextjs/cloudflare`), que despliega a **Workers**, no a Pages. Se
+> corrigieron las tareas 43.2, 43.5, 43.6, 43.8 y 43.9 para reflejarlo, y
+> `AGENTS.md` se actualizó en la misma línea. `wrangler.jsonc` reemplaza al
+> `wrangler.toml` de 43.2: es el formato actual y admite comentarios.
+
+- [x] 43.1 Instalar `@opennextjs/cloudflare` y `wrangler` — `1.20.11` y `4.151.0`
+- [x] 43.2 Configurar `wrangler.jsonc` con nombre del proyecto, R2 bucket binding y Hyperdrive binding
+- [ ] 43.3 Configurar secretos en el Worker (`DATABASE_URL` de MySQL producción, Resend key, R2 credentials, Lucia secret)
+- [ ] 43.4 Configurar Hyperdrive en Cloudflare Dashboard apuntando al MySQL de producción
+- [x] 43.5 Verificar build local con `npx opennextjs-cloudflare build`
+- [ ] 43.6 Conectar el repositorio de GitHub a Cloudflare Workers
+- [x] 43.7 Configurar GitHub Actions workflow (`.github/workflows/deploy.yml`): install → lint → test → build → deploy
+- [ ] 43.8 Hacer primer deploy a Cloudflare Workers
+- [ ] 43.9 Verificar el sitio accesible en `*.workers.dev`
 - [ ] 43.10 Verificar login funciona en producción (cookies Secure, HTTPS)
 - [ ] 43.11 Verificar conexión a DB funciona desde edge (Hyperdrive)
 - [ ] 43.12 Verificar R2 funciona (subir y ver avatar)
 - [ ] 43.13 Verificar Resend envía emails en producción
+
+> **Tres defectos reales encontrados al ejecutar la app dentro de `workerd`.**
+> Compilar no es lo mismo que funcionar: los tres solo aparecen en el runtime
+> de Cloudflare, nunca en `next dev` ni en `npm run build`.
+>
+> **1. Next 16.4.0 es incompatible con OpenNext 1.20.11.** La release de 16.4.0
+> incluye *"Move preview props into separate manifest"* (#96004), que genera
+> `.next/server/preview-props.json`. El parche de OpenNext solo inlinea
+> manifiestos que casan con `*-manifest`, `required-server-files` o
+> `prefetch-hints`, así que ese archivo no viaja al bundle y **toda petición
+> devolvía 500** con `Unexpected loadManifest(/.next/server/preview-props.json)
+> call!`. El peer dependency de OpenNext es `next >=16.3.8`, y 16.3.8 no genera
+> ese manifiesto: se fijó Next en `16.3.8`.
+>
+> **2. `mysql2` genera código en tiempo de ejecución y `workerd` lo prohíbe.**
+> `mysql2` compila el parser de filas con `generate-function`, que usa
+> `new Function`; `workerd` responde `Code generation from strings disallowed for
+> this context` y **ninguna consulta a la base funciona**. La salida es la
+> opción `disableEval` que el propio `mysql2` ofrece para entornos sin `eval`:
+> usa su parser estático en vez del compilado. Sin esto, Hyperdrive tampoco
+> habría servido de nada, porque el fallo está en el parser, no en la conexión.
+>
+> **3. La conexión a la base no puede sobrevivir entre peticiones.** El cliente
+> de Drizzle se memorizaba a nivel de módulo; en Workers, un socket creado en la
+> petición A no puede usarse en la B y `mysql2` falla con `Cannot perform I/O on
+> behalf of a different request`. Ahora `lib/db/index.ts` memoriza el cliente
+> junto al contexto de Cloudflare, que OpenNext construye nuevo en cada
+> petición, y lo rehace en cuanto cambia. Fuera de Workers el contexto siempre
+> es `null`, así que la comparación da igual y se reutiliza una sola instancia.
+>
+> **Verificación.** `BASE_URL=http://127.0.0.1:8787 npx playwright test` ejecuta
+> las 15 pruebas E2E contra el bundle servido por `opennextjs-cloudflare preview`,
+> es decir, dentro de `workerd`: **15/15**. En `next dev` también **15/15**, y
+> `npm test` **123/123**. La misma suite que valida el desarrollo local valida
+> el runtime de producción.
+>
+> **Pendiente de infraestructura** (no depende del código): 43.3, 43.4, 43.6 y
+> 43.8 a 43.13 necesitan el MySQL de producción, Hyperdrive, los secretos del
+> Worker y el primer deploy. Los buckets R2 `runosorno-cache` y
+> `runosorno-avatars` ya están creados.
 
 ---
 
@@ -1109,7 +1157,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 40. Validaciones (completación) | 15 | 15 |
 | 41. Pruebas unitarias | 15 | 15 |
 | 42. Pruebas E2E | 12 | 12 |
-| 43. Cloudflare | 13 | 0 |
+| 43. Cloudflare | 13 | 4 |
 | 44. Sentry | 6 | 0 |
 | 45. Seguridad | 10 | 0 |
 | 46. i18n y localización | 5 | 0 |
@@ -1117,7 +1165,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **513** |
+| **TOTAL** | **~578** | **517** |
 
 ---
 
@@ -1142,6 +1190,8 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-validations.ts` | Audita las 54 Server Actions (sesión + validación con Zod) y comprueba con datos reales los límites, la ventana de edición, el registro futuro, el RPE, el motivo "Otro", la plantilla vacía, la solicitud duplicada y la pantalla de error (Fase 40) |
 | `npm run test:e2e` | Suite de Playwright en `e2e/`: login por rol, credenciales inválidas, logout, y los flujos completos de admin, coach y atleta con verificación en la base de datos (Fase 42) |
 | `npm run test:coverage` | Vitest con umbral obligatorio: 80 % en `lib/metrics/` y `lib/permissions/`, 90 % en `lib/auth/guards.ts`, 80 % en `session.service.ts` (Fase 41) |
+| `npx opennextjs-cloudflare build` | Compila el bundle de Cloudflare Workers. A diferencia de `npm run build`, aquí se detectan incompatibilidades entre Next y el adaptador (Fase 43) |
+| `BASE_URL=http://127.0.0.1:8787 npx playwright test` | Corre la **misma** suite E2E dentro de `workerd`, con `opennextjs-cloudflare preview` en el puerto 8787. Es la única forma de detectar los fallos que solo existen en el runtime de Cloudflare: `new Function` prohibido, I/O que no cruza peticiones y rutas que dan 500 en todas las peticiones (Fase 43) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 

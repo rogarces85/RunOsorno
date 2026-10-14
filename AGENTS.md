@@ -106,7 +106,7 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 
 | Capa | Tecnología | Justificación |
 |------|------------|---------------|
-| **Framework SSR** | **Next.js 14+ (App Router, React Server Components)** | SSR nativo, auth por cookies, RSC reduce JS cliente, compatible con Cloudflare Pages (@cloudflare/next-on-pages / OpenNext) |
+| **Framework SSR** | **Next.js 16.3.x (App Router, React Server Components)** | SSR nativo, auth por cookies, RSC reduce JS cliente, compatible con Cloudflare Workers vía OpenNext. **No subir a 16.4.0**: ver "Restricciones de Cloudflare Workers" |
 | **UI / Design System** | **Tabler** (`@tabler/core` + `@tabler/icons-react`) | `@tabler/core` (HTML/CSS Bootstrap 5-based) + wrappers React propios en `components/ui/` con clases Tabler. Iconos React oficiales. Responsive, dark/light, accesible. |
 | **Estilos** | **`@tabler/core` CSS** | Un solo framework CSS (el de Tabler). Tailwind descartado: conflicta con Bootstrap base de Tabler. Personalización vía CSS custom properties / SCSS de Tabler. |
 | **Base de Datos** | **MySQL** — dev local (XAMPP), prod PlanetScale u otro MySQL + Cloudflare Hyperdrive | Hyperdrive crea connection pooling global y cachea queries en edge. PlanetScale eliminó su free tier (abril 2024, desde $5/mes): desarrollo con MySQL local, producción se decide en Fase 43 (variable `DATABASE_URL`). |
@@ -115,8 +115,8 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 | **Validación** | **Zod** + **React Hook Form** | Esquemas compartidos server/client, type inference, integra con Drizzle |
 | **Email Transaccional** | **Resend** (SDK edge-compatible) | DX excelente, React Email templates, 3k emails/mes gratis |
 | **Almacenamiento Avatares** | **Cloudflare R2** (bucket privado + signed URLs) | S3-compatible, gratis hasta 10GB, edge caching, sin egress fees. Mejor que filesystem local en Cloudflare (ephemeral). |
-| **Despliegue** | **Cloudflare Pages** (Next.js via @cloudflare/next-on-pages u OpenNext) | Build automático, preview deployments, edge global, gratis generoso. Dominio `*.pages.dev` inicial. |
-| **CI/CD** | **GitHub Actions** → Cloudflare Pages (wrangler pages deploy) | Estándar, gratis para repos privados. |
+| **Despliegue** | **Cloudflare Workers** (Next.js vía `@opennextjs/cloudflare`) | `@cloudflare/next-on-pages` está deprecado y no soporta Next 16; OpenNext despliega a Workers, no a Pages. Build automático, edge global, gratis generoso. Dominio `*.workers.dev` inicial. |
+| **CI/CD** | **GitHub Actions** → Cloudflare Workers (`opennextjs-cloudflare deploy`) | Estándar, gratis para repos privados. |
 | **Testing** | **Vitest** (unit/integration) + **Playwright** (e2e) | Vitest: rápido, compatible edge. Playwright: corre contra preview URLs. |
 | **Observabilidad** | **Sentry** (errores) + **Cloudflare Web Analytics / Logpush** | Sentry: DSN gratis generoso. Logpush → R2/BigQuery para queries SQL. |
 | **i18n** | **next-intl** (App Router) | Soporte RSC, routing por locale, mensajes en JSON/TS. Solo `es-CL` ahora, listo para futuro. |
@@ -128,10 +128,32 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 - **Autenticación por sesión** (cookies HttpOnly, Secure, SameSite)
 - **Sin API pública** / Sin WebSockets / Sin tiempo real (excepto actualización métricas al guardar)
 - Uso directo vía navegador (responsive)
-- **Runtime Edge (Cloudflare Workers)** — no Node.js completo. APIs como `fs`, `crypto` (algunas), `net` no existen.
-- **Next.js en Cloudflare** via @cloudflare/next-on-pages (estable) u OpenNext (beta). Algunas features (ISR, Image Optimization, Middleware) requieren configuración específica.
+- **Runtime Cloudflare Workers** con `nodejs_compat`. Ojo: `node:fs` existe pero **es efímero y no sirve para guardar nada** — los avatares van a R2 sí o sí.
+- **Next.js en Cloudflare** vía `@opennextjs/cloudflare`. `proxy.ts` (el middleware) corre por el camino *experimental* de Node middleware: funciona, pero conviene revisar el log de OpenNext al compilar.
 - **Base de datos** via Hyperdrive (connection pooler global + query cache, latencia ~1-5ms desde edge).
 - **Archivos** en R2 (no filesystem local — efímero en Cloudflare).
+
+### Restricciones de Cloudflare Workers (descubiertas en la Fase 43)
+
+Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
+`npm run build` pasan sin avisar de ninguna. Antes de tocar el runtime, correr
+`BASE_URL=http://127.0.0.1:8787 npx playwright test` con
+`npm run preview` levantado en otra terminal.
+
+1. **Next.js debe quedar en 16.3.x.** La 16.4.0 genera
+   `.next/server/preview-props.json` y OpenNext 1.20.11 no lo sabe inlinear:
+   *todas* las peticiones devuelven 500. El peer dependency del adaptador es
+   `next >=16.3.8`.
+2. **Prohibido generar código en tiempo de ejecución.** `workerd` responde
+   `Code generation from strings disallowed for this context`. Por eso
+   `lib/db/index.ts` conecta con `disableEval: true`, que hace que `mysql2` use
+   su parser estático en vez de compilar uno con `new Function`. **Cualquier
+   librería nueva que use `eval` o `new Function` rompe en producción.**
+3. **Nada de I/O compartido entre peticiones.** Una conexión creada en la
+   petición A no puede usarse en la B: `Cannot perform I/O on behalf of a
+   different request`. Por eso el cliente de Drizzle se memoriza junto al
+   contexto de Cloudflare (que OpenNext crea nuevo por petición) y se rehace
+   cuando cambia. Ver `getDatabase()` en `lib/db/index.ts`.
 
 ---
 
@@ -151,7 +173,7 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 
 <!-- BEGIN:nextjs-agent-rules -->
 
-## This is NOT the Next.js you know
+# This is NOT the Next.js you know
 
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
 
