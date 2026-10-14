@@ -143,6 +143,15 @@ export function CoachCalendar({
       <div className="row g-3">
         <div className="col-12 col-lg-3">
           <TemplateSidebar templates={templates} />
+          <div
+            className="card d-lg-none"
+            data-testid="template-sidebar-hint"
+          >
+            <div className="card-body text-secondary small">
+              En pantallas pequeñas no se puede arrastrar: toca un día del
+              calendario y elige la plantilla en el panel que se abre.
+            </div>
+          </div>
         </div>
         <div className="col-12 col-lg-9">
           <div className="calendar-toolbar">

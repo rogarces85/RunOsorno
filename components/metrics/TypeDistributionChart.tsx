@@ -1,14 +1,6 @@
-"use client";
-
-import {
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+import { formatSessionType } from "@/lib/utils/format";
 import { colorForIndex } from "./chartColors";
+import { DonutChart } from "./DonutChart";
 
 type TypeDistributionChartProps = {
   distribution: Record<string, number>;
@@ -17,36 +9,31 @@ type TypeDistributionChartProps = {
 export function TypeDistributionChart({
   distribution,
 }: TypeDistributionChartProps) {
-  const data = Object.entries(distribution)
+  const entries = Object.entries(distribution)
     .filter(([, percent]) => percent > 0)
-    .map(([name, value]) => ({ name, value }));
-  if (data.length === 0) {
+    .sort(([, a], [, b]) => b - a);
+
+  if (entries.length === 0) {
     return (
       <div className="text-secondary text-center py-4">
         Sin sesiones con tipo en el periodo.
       </div>
     );
   }
+
+  const slices = entries.map(([type, percent], index) => ({
+    name: formatSessionType(type),
+    value: percent,
+    color: colorForIndex(index),
+  }));
+  const top = slices[0];
+
   return (
-    <div style={{ height: 260 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            innerRadius={55}
-            outerRadius={85}
-            paddingAngle={2}
-          >
-            {data.map((entry, index) => (
-              <Cell key={entry.name} fill={colorForIndex(index)} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+    <DonutChart
+      centerLabel={`${top.value}%`}
+      emptyMessage="Sin sesiones con tipo en el periodo."
+      slices={slices}
+      formatValue={(slice) => `${slice.value}%`}
+    />
   );
 }

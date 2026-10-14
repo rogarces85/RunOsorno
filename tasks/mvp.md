@@ -726,14 +726,56 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 39. Responsive (mobile, tablet, desktop)
 
-- [ ] 39.1 Verificar login responsive en mobile, tablet, desktop
-- [ ] 39.2 Verificar sidebar colapsa en mobile (hamburger menu de Tabler)
-- [ ] 39.3 Verificar calendario es usable en mobile (celdas legibles, tap para detalle)
-- [ ] 39.4 Verificar tablas/listados son responsive (scroll horizontal o layout adaptado)
-- [ ] 39.5 Verificar formularios son usables en mobile (inputs full width)
-- [ ] 39.6 Verificar gráficas de métricas se adaptan al tamaño de pantalla
-- [ ] 39.7 Verificar drag & drop funciona en tablet (o fallback a click-to-assign)
-- [ ] 39.8 Corregir cualquier problema de responsive detectado
+- [x] 39.1 Verificar login responsive en mobile, tablet, desktop
+- [x] 39.2 Verificar sidebar colapsa en mobile (hamburger menu de Tabler)
+- [x] 39.3 Verificar calendario es usable en mobile (celdas legibles, tap para detalle)
+- [x] 39.4 Verificar tablas/listados son responsive (scroll horizontal o layout adaptado)
+- [x] 39.5 Verificar formularios son usables en mobile (inputs full width)
+- [x] 39.6 Verificar gráficas de métricas se adaptan al tamaño de pantalla
+- [x] 39.7 Verificar drag & drop funciona en tablet (o fallback a click-to-assign)
+- [x] 39.8 Corregir cualquier problema de responsive detectado
+
+> Nota 39.x: la revisión encontró cinco problemas reales, todos corregidos:
+>
+> 1. **El sidebar no era un panel, era una franja.** Tabler solo saca el
+>    navbar vertical del flujo normal desde `lg`
+>    (`@media (min-width: 992px) { .navbar-vertical.navbar-expand-lg … }`).
+>    Por debajo seguía `position: relative`, así que ocupaba 56 px sobre el
+>    header en todas las páginas, y su hamburguesa —que estaba dentro del
+>    propio `<aside>`— no aparecía en móvil. Ahora el botón vive en
+>    `AppHeader` (`NavToggle`), el estado se comparte con `NavProvider`, y
+>    por debajo de `lg` el sidebar es un panel flotante: entra desde la
+>    izquierda, oscurece el fondo, bloquea el scroll, cierra con `Escape`,
+>    con el fondo o al navegar. El header pasó de `navbar-expand-md` a
+>    `navbar-expand-lg` para que el breakpoint coincida con el del sidebar.
+> 2. **El contador de notificaciones era invisible en todos los tamaños.**
+>    `NotificationBell` usaba `badge-danger`, clase que ya no existe en
+>    Tabler 1.6 (los colores de badge son `text-bg-*`): el contador se
+>    pintaba blanco sobre blanco. Además flotaba en línea y empujaba el
+>    ícono; ahora va anclado a la esquina con `position: absolute`.
+> 3. **Los anillos de las métricas no se veían en ninguna pantalla.**
+>    Con `ResponsiveContainer`, recharts 3.10.1 suma el `outerRadius` del
+>    `Pie` al offset izquierdo del gráfico polar, así que `cx="50%"` caía en
+>    `ancho/2 + radio` y el círculo se dibujaba medio fuera del SVG (con un
+>    contenedor de 317 px el centro quedaba en x=243). Compensarlo con
+>    `margin.left` negativo tampoco daba un centro estable. Se sustituyó por
+>    `components/metrics/DonutChart.tsx`, un SVG propio con `viewBox` fijo:
+>    el centro es siempre el centro geométrico, escala con el contenedor y
+>    ya no necesita JavaScript. La leyenda pasa a HTML, que además se
+>    envuelve en móvil. Afectaba a `ComplianceChart` y
+>    `TypeDistributionChart`.
+> 4. **En móvil el calendario era ilegible.** En una celda de ~42 px el tipo
+>    de sesión se cortaba a "Te…" y el badge de cumplimiento se comía la
+>    celda. Por debajo de `sm` se ocultan las etiquetas, se compactan celdas
+>    y badges, y quedan el número del día y el punto de estado (que es lo que
+>    anuncia el `aria-label`).
+> 5. **El arrastre con el dedo no arrancaba.** dnd-kit necesita
+>    `touch-action: none` en el elemento arrastrable; sin eso el primer
+>    toque desplazaba la página. Además, en móvil la bandeja queda encima del
+>    calendario, así que arrastrar es imposible: por debajo de `lg` se
+>    oculta y se muestra el aviso de que basta con tocar el día
+>    (`AssignTemplateForm`). Por encima de `lg` el arrastre funciona con
+>    dedo, verificado con eventos táctiles reales vía CDP.
 
 ---
 
@@ -944,7 +986,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 36. Dashboard Admin stats | 4 | 4 |
 | 37. Perfil de usuario | 7 | 7 |
 | 38. Estados vacíos y errores | 8 | 8 |
-| 39. Responsive | 8 | 0 |
+| 39. Responsive | 8 | 8 |
 | 40. Validaciones (completación) | 15 | 0 |
 | 41. Pruebas unitarias | 15 | 0 |
 | 42. Pruebas E2E | 12 | 0 |
@@ -956,7 +998,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **463** |
+| **TOTAL** | **~578** | **471** |
 
 ---
 
@@ -977,6 +1019,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-audit-logs.ts` | Genera acciones reales desde la interfaz (crear equipo, aprobar solicitud, trasladar atleta) y comprueba que el log guarde usuario, detalles e IP; valida los filtros por fecha, usuario y acción (Fase 35) |
 | `npx tsx scripts/verify-profile.ts` | Perfil y cambio de contraseña: valida los formularios, que la nueva clave sirva y la anterior no, y que al cambiar queden revocadas todas las sesiones menos la actual (Fase 37) |
 | `npx tsx scripts/verify-empty-states.ts` | Estados vacíos con mensaje orientativo y acción, errores de validación bajo su campo, `Alert` de negocio y `ConfirmDialog` en acciones destructivas (Fase 38) |
+| `npx tsx scripts/verify-responsive.ts` | Mide la interfaz en 375 / 768 / 1400 px: menú lateral como panel en móvil, área de toque del calendario, scroll horizontal de tablas, ancho de los campos, tamaño real de las gráficas y arrastre con eventos táctiles (Fase 39) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 

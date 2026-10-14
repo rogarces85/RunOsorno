@@ -103,7 +103,7 @@ export function NotificationBell({
         <IconBell size={20} stroke={1.75} />
         {unreadCount > 0 && (
           <span
-            className="badge badge-danger text-white"
+            className="badge notification-badge text-bg-danger"
             data-testid="notification-badge"
           >
             {unreadCount > 99 ? "99+" : unreadCount}

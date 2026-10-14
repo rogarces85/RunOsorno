@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IconLogout } from "@tabler/icons-react";
 import { logout } from "@/lib/actions/auth.actions";
 import { requireAuth } from "@/lib/auth/guards";
 import {
@@ -8,6 +9,7 @@ import {
 import { notificationHref } from "@/lib/utils/notification";
 import { Avatar } from "@/components/ui/Avatar";
 import { NotificationBell } from "@/components/ui/NotificationBell";
+import { NavToggle } from "./NavToggle";
 
 export async function AppHeader() {
   const { user } = await requireAuth();
@@ -21,15 +23,14 @@ export async function AppHeader() {
   }));
 
   return (
-    <header className="navbar d-print-none">
+    <header className="navbar navbar-expand-lg d-print-none app-header">
       <div className="container-fluid">
+        <NavToggle />
         <Link href="/" className="navbar-brand">
           RunOsorno
         </Link>
         <div className="navbar-nav flex-row ms-auto align-items-center">
-          <div className="nav-item">
-            <NotificationBell unreadCount={unreadCount} items={items} />
-          </div>
+          <NotificationBell unreadCount={unreadCount} items={items} />
           <div className="nav-item ms-2">
             <Link
               href="/profile"
@@ -48,10 +49,19 @@ export async function AppHeader() {
             <form action={logout}>
               <button
                 type="submit"
-                className="btn btn-sm btn-ghost-secondary"
+                className="btn btn-sm btn-ghost-secondary app-logout"
                 title="Cerrar sesión"
+                aria-label="Cerrar sesión"
               >
-                Cerrar sesión
+                <IconLogout
+                  size={18}
+                  stroke={1.75}
+                  className="app-logout-icon d-sm-none me-0"
+                  aria-hidden
+                />
+                <span className="app-logout-label d-none d-sm-inline">
+                  Cerrar sesión
+                </span>
               </button>
             </form>
           </div>

@@ -1,13 +1,7 @@
-"use client";
+import { DonutChart } from "./DonutChart";
 
-import {
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
+const COMPLETED_COLOR = "#37b24d";
+const PENDING_COLOR = "#dfe3e6";
 
 type ComplianceChartProps = {
   completed: number;
@@ -22,29 +16,18 @@ export function ComplianceChart({ completed, total }: ComplianceChartProps) {
       </div>
     );
   }
-  const data = [
-    { name: "Completadas", value: completed },
-    { name: "Pendientes", value: Math.max(total - completed, 0) },
-  ];
+  const percent = Math.round((completed / total) * 100);
+  const pending = Math.max(total - completed, 0);
+
   return (
-    <div style={{ height: 260 }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            dataKey="value"
-            nameKey="name"
-            innerRadius={55}
-            outerRadius={85}
-            paddingAngle={2}
-          >
-            <Cell fill="#37b24d" />
-            <Cell fill="#e9ecef" />
-          </Pie>
-          <Tooltip />
-          <Legend />
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
+    <DonutChart
+      centerLabel={`${percent}%`}
+      emptyMessage="Sin sesiones planificadas en el periodo."
+      slices={[
+        { name: "Completadas", value: completed, color: COMPLETED_COLOR },
+        { name: "Pendientes", value: pending, color: PENDING_COLOR },
+      ]}
+      formatValue={(slice) => `${slice.value} de ${total}`}
+    />
   );
 }
