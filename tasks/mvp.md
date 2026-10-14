@@ -858,18 +858,54 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 42. Pruebas E2E (Playwright)
 
-- [ ] 42.1 Instalar y configurar Playwright (`@playwright/test`)
-- [ ] 42.2 Configurar `playwright.config.ts` con URL base (dev server o preview)
-- [ ] 42.3 Test E2E: login con credenciales válidas → redirige a dashboard según rol
-- [ ] 42.4 Test E2E: login con credenciales inválidas → muestra error genérico
-- [ ] 42.5 Test E2E: logout → redirige a login, rutas protegidas bloqueadas
-- [ ] 42.6 Test E2E flujo Admin: crear coach → crear grupo → aprobar solicitud → asignar Director Técnico
-- [ ] 42.7 Test E2E flujo Coach: crear team → crear plantilla → asignar a atleta en calendario
-- [ ] 42.8 Test E2E flujo Atleta: ver calendario → registrar sesión → ver métricas
-- [ ] 42.9 Test E2E flujo Coach: ver registro del atleta → dejar feedback → atleta ve notificación
-- [ ] 42.10 Test E2E: atleta marca sesión "no realizada" con motivo
-- [ ] 42.11 Test E2E: campanita muestra notificaciones no leídas
-- [ ] 42.12 Ejecutar `npx playwright test` → todos los tests pasan
+- [x] 42.1 Instalar y configurar Playwright (`@playwright/test`)
+- [x] 42.2 Configurar `playwright.config.ts` con URL base (dev server o preview)
+- [x] 42.3 Test E2E: login con credenciales válidas → redirige a dashboard según rol
+- [x] 42.4 Test E2E: login con credenciales inválidas → muestra error genérico
+- [x] 42.5 Test E2E: logout → redirige a login, rutas protegidas bloqueadas
+- [x] 42.6 Test E2E flujo Admin: crear coach → crear grupo → aprobar solicitud → asignar Director Técnico
+- [x] 42.7 Test E2E flujo Coach: crear team → crear plantilla → asignar a atleta en calendario
+- [x] 42.8 Test E2E flujo Atleta: ver calendario → registrar sesión → ver métricas
+- [x] 42.9 Test E2E flujo Coach: ver registro del atleta → dejar feedback → atleta ve notificación
+- [x] 42.10 Test E2E: atleta marca sesión "no realizada" con motivo
+- [x] 42.11 Test E2E: campanita muestra notificaciones no leídas
+- [x] 42.12 Ejecutar `npx playwright test` → todos los tests pasan
+
+> Nota 42.x: `@playwright/test` se instala aparte de `playwright` (que ya se
+> usaba en los scripts `verify-*`); los binarios de Chromium ya estaban
+> descargados. La suite vive en `e2e/` y corre con `npm run test:e2e`.
+>
+> `playwright.config.ts` levanta `npm run dev` y reutiliza el servidor si ya está
+> corriendo; con `BASE_URL` definido no arranca nada y apunta a donde se le diga
+> (preview o staging). Fija `locale: es-CL` y `timezoneId: America/Santiago`
+> porque la app formatea fechas en esa zona: sin eso, las pruebas de calendario
+> ven días distintos a los que ve un usuario en Chile. `workers: 1` y
+> `fullyParallel: false` son deliberados, porque los flujos crean datos reales.
+>
+> Los tests no dependen del orden: cada uno crea la sesión que necesita con
+> `addSession()`. La primera versión dejó las sesiones en el fixture
+> compartido y falló de dos maneras que conviene recordar: al crear una sesión
+> en un día que ya tenía otra, el calendario muestra una de las dos (la última
+> que llega en el `Map` por fecha) y la assertion mira a la equivocada; y si un
+> worker se reinicia a mitad de suite, `beforeAll` corre otra vez y el test
+> hereda datos de una fixture anterior.
+>
+> El fixture crea coach, atleta, equipo y plantilla con inserciones directas, no
+> con los servicios, por dos razones concretas: `user.service` y
+> `athlete.service` importan las plantillas de email (`.tsx`), que el
+> transformador de Playwright no resuelve, y el alta de coach dispararía un
+> envío real a Resend. Todo lo que sí se prueba (los flujos de las tareas
+> 42.6-42.11) va por la interfaz.
+>
+> Cada ejecución usa un sufijo único en nombres y emails y `cleanupRun()` borra
+> al final todo lo creado (usuarios, equipos, plantillas, sesiones, feedback,
+> avisos), en cascada para no chocar con las claves foráneas. Verificado tras la
+> corrida: 0 filas residuales con el sufijo.
+>
+> `npm run test:e2e` → 15/15. Aparte de las 12 tareas, la suite cubre también
+> que un rol no entra en el dashboard de otro, que el atleta no abre el
+> calendario del coach, y que el detalle de una sesión muestra el registro
+> guardado.
 
 ---
 
@@ -1026,7 +1062,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 39. Responsive | 8 | 8 |
 | 40. Validaciones (completación) | 15 | 15 |
 | 41. Pruebas unitarias | 15 | 0 |
-| 42. Pruebas E2E | 12 | 0 |
+| 42. Pruebas E2E | 12 | 12 |
 | 43. Cloudflare | 13 | 0 |
 | 44. Sentry | 6 | 0 |
 | 45. Seguridad | 10 | 0 |
@@ -1035,7 +1071,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **486** |
+| **TOTAL** | **~578** | **498** |
 
 ---
 
@@ -1058,6 +1094,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-empty-states.ts` | Estados vacíos con mensaje orientativo y acción, errores de validación bajo su campo, `Alert` de negocio y `ConfirmDialog` en acciones destructivas (Fase 38) |
 | `npx tsx scripts/verify-responsive.ts` | Mide la interfaz en 375 / 768 / 1400 px: menú lateral como panel en móvil, área de toque del calendario, scroll horizontal de tablas, ancho de los campos, tamaño real de las gráficas y arrastre con eventos táctiles (Fase 39) |
 | `npx tsx scripts/verify-validations.ts` | Audita las 54 Server Actions (sesión + validación con Zod) y comprueba con datos reales los límites, la ventana de edición, el registro futuro, el RPE, el motivo "Otro", la plantilla vacía, la solicitud duplicada y la pantalla de error (Fase 40) |
+| `npm run test:e2e` | Suite de Playwright en `e2e/`: login por rol, credenciales inválidas, logout, y los flujos completos de admin, coach y atleta con verificación en la base de datos (Fase 42) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 
