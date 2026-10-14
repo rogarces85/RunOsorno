@@ -4,6 +4,7 @@ import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import { renderWelcomeEmail } from "@/emails/welcome";
 import { env } from "@/lib/config";
 import { db } from "@/lib/db";
+import { BCRYPT_ROUNDS } from "@/lib/security/hashing";
 import {
   athleteProfiles,
   sessionAssignments,
@@ -144,7 +145,7 @@ export async function createAthlete(
     id,
     name: input.name,
     email: input.email,
-    passwordHash: await hash(tempPassword, 10),
+    passwordHash: await hash(tempPassword, BCRYPT_ROUNDS),
     role: "athlete",
     isActive: true,
     mustChangePassword: true,

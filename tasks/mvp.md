@@ -1076,16 +1076,63 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 45. Seguridad — Completación
 
-- [ ] 45.1 Verificar que todas las cookies de sesión tienen flags `HttpOnly`, `Secure`, `SameSite=Lax`
-- [ ] 45.2 Verificar que contraseñas se almacenan con argon2id (o bcrypt ≥ 12 rounds)
-- [ ] 45.3 Verificar que todas las queries usan Drizzle (parametrizadas, sin concatenación SQL)
-- [ ] 45.4 Verificar que no hay `dangerouslySetInnerHTML` con datos de usuario
-- [ ] 45.5 Implementar rate limiting en login (máx 5 intentos por IP en 15 min)
-- [ ] 45.6 Verificar que R2 bucket es privado y solo accesible con URLs firmadas
-- [ ] 45.7 Verificar que variables de entorno (secrets) no están en código fuente
-- [ ] 45.8 Verificar que `.env.local` está en `.gitignore`
-- [ ] 45.9 Verificar que el upload de avatar valida MIME type real y tamaño
-- [ ] 45.10 Verificar que CORS no está abierto innecesariamente (SSR lo maneja, pero verificar API routes)
+- [x] 45.1 Verificar que todas las cookies de sesión tienen flags `HttpOnly`, `Secure`, `SameSite=Lax`
+- [x] 45.2 Verificar que contraseñas se almacenan con argon2id (o bcrypt ≥ 12 rounds)
+- [x] 45.3 Verificar que todas las queries usan Drizzle (parametrizadas, sin concatenación SQL)
+- [x] 45.4 Verificar que no hay `dangerouslySetInnerHTML` con datos de usuario
+- [x] 45.5 Implementar rate limiting en login (máx 5 intentos por IP en 15 min)
+- [ ] 45.6 Verificar que R2 bucket es privado y solo accesible con URLs firmadas — el código ya usa URLs firmadas y no hay URL pública del bucket, pero falta comprobarlo contra el bucket real en Cloudflare
+- [x] 45.7 Verificar que variables de entorno (secrets) no están en código fuente
+- [x] 45.8 Verificar que `.env.local` está en `.gitignore`
+- [x] 45.9 Verificar que el upload de avatar valida MIME type real y tamaño
+- [x] 45.10 Verificar que CORS no está abierto innecesariamente (SSR lo maneja, pero verificar API routes)
+
+> **Dos defectos reales encontrados al auditar.** Las ocho tareas de
+> "verificar" eran en su mayoría correctas, pero dos no lo eran y no se veían
+> leyendo el código.
+>
+> **1. Contraseñas con 10 rondas en tres sitios (45.2).** El perfil del usuario
+> usaba 12 rondas —el mínimo que recomienda OWASP— pero el alta de coach, el
+> alta de atleta y la regeneración de contraseña usaban 10. Ahora las tres usan
+> la constante compartida `BCRYPT_ROUNDS` en `lib/security/hashing.ts`, de modo
+> que no pueden volver a divergir.
+>
+> **2. El avatar no validaba nada (45.9).** `AVATAR_ACCEPTED_TYPES` estaba
+> declarado en `avatar.service.ts` pero **nunca se usaba**, y `storeLocalAvatar`
+> solo miraba el tamaño. Como el `Content-Type` lo declara el cliente,
+> cualquiera podía subir un HTML con un script haciéndose pasar por imagen. Se
+> añadió `sniffImageMime`, que decide por la **firma binaria** del archivo
+> (`FF D8 FF`, `89 50 4E 47`, `RIFF....WEBP`), y se aplicó también al camino de
+> R2: con subida directa al bucket, `confirmUpload` ahora lee el objeto y
+> descarta el archivo si no es una imagen de verdad.
+>
+> **Rate limiting (45.5).** Va en la base de datos y no en memoria: en
+> Cloudflare Workers cada instancia vive poco y hay miles por el edge, así que
+> un contador en memoria dejaría pasar casi todos los intentos. Se suma con
+> `INSERT ... ON DUPLICATE KEY UPDATE` para que dos peticiones simultáneas no
+> se cuelen un intento cada una. El intento se cuenta **antes** de validar la
+> contraseña: si solo se contara al fallar, un atacante vería cómo se le
+> desbloquea la cuenta y podría dosificar el login. Y el login correcto borra
+> los intentos de esa IP, para no castigar a quien se equivocó de verdad.
+>
+> **Un bug que encontró una prueba, no la revisión.** La clave de la ventana se
+> armaba con la hora al minuto (`toISOString().slice(0, 16)`), así que el
+> contador se reiniciaba **cada minuto**, no cada 15: el límite real era 5
+> intentos por minuto. Ahora la clave es el índice de la ventana
+> (`floor(ahora / 15min)`), con las ventanas alineadas a bloques fijos. La
+> regresión queda cubierta en `tests/unit/security.test.ts`.
+>
+> **Consecuencia práctica del rate limiting:** en desarrollo todo el tráfico
+> viene de `127.0.0.1` / `::1`, así que fallar cinco veces bloquea al propio
+> programador durante 15 minutos. Por eso `verify-seguridad.ts` purga la tabla
+> `login_attempts` antes de empezar.
+>
+> **Verificación:** `npx tsx scripts/verify-seguridad.ts` → 30/30, con login
+> real, bloqueo comprobado en pantalla **y respaldado por una fila en la base**,
+> y detección de firmas contra HTML, SVG, PDF, ZIP y un WAV disfrazado de WebP.
+> Unitarias 139/139 (16 nuevas). La cookie `Secure` se comprueba en producción
+> con `verify-produccion.ts`, porque en `http://localhost` el navegador
+> descarta esas cookies y la app las apaga a propósito.
 
 ---
 
@@ -1201,13 +1248,13 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 42. Pruebas E2E | 12 | 12 |
 | 43. Cloudflare | 13 | 9 |
 | 44. Sentry | 6 | 0 |
-| 45. Seguridad | 10 | 0 |
+| 45. Seguridad | 10 | 9 |
 | 46. i18n y localización | 5 | 0 |
 | 47. Rendimiento | 8 | 0 |
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **522** |
+| **TOTAL** | **~578** | **531** |
 
 ---
 
@@ -1235,6 +1282,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx opennextjs-cloudflare build` | Compila el bundle de Cloudflare Workers. A diferencia de `npm run build`, aquí se detectan incompatibilidades entre Next y el adaptador (Fase 43) |
 | `BASE_URL=http://127.0.0.1:8787 npx playwright test` | Corre la **misma** suite E2E dentro de `workerd`, con `opennextjs-cloudflare preview` en el puerto 8787. Es la única forma de detectar los fallos que solo existen en el runtime de Cloudflare: `new Function` prohibido, I/O que no cruza peticiones y rutas que dan 500 en todas las peticiones (Fase 43) |
 | `npx tsx scripts/verify-produccion.ts` | Login real en el Worker desplegado: llega al dashboard, la cookie de sesión sale `Secure` + `HttpOnly`, la sesión sobrevive a una recarga (o sea, la base de Aiven guardó de verdad), una ruta protegida sin sesión redirige y no aparece ningún 5xx (Fase 43) |
+| `npx tsx scripts/verify-seguridad.ts` | Las 10 tareas de seguridad: flags de la cookie, hashing, ausencia de SQL concatenado y de `dangerouslySetInnerHTML`, rate limiting (límite, ventana, bloqueo real comprobado en la base), firmas de imagen contra HTML/SVG/PDF/ZIP disfrazados, secretos fuera del código y CORS cerrado (Fase 45) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 

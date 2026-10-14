@@ -3,6 +3,7 @@ import { and, eq, ne, sql } from "drizzle-orm";
 import { lucia } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sessions, users } from "@/lib/db/schema";
+import { BCRYPT_ROUNDS } from "@/lib/security/hashing";
 import type { ServiceResult } from "@/lib/services/athlete.service";
 import { logAudit } from "@/lib/services/audit.service";
 
@@ -13,9 +14,6 @@ import { logAudit } from "@/lib/services/audit.service";
  * menos la actual (decisión explícita del proyecto): si alguien robó la
  * contraseña, cambiarla debe expulsarlo también.
  */
-
-/** Número de bcrypt: 12 es el mínimo recomendado hoy por OWASP. */
-const BCRYPT_ROUNDS = 12;
 
 /** Cuántas sesiones se conservan tras el cambio de contraseña. */
 const MAX_ACTIVE_SESSIONS = 5;

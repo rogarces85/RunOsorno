@@ -4,6 +4,7 @@ import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { renderWelcomeEmail } from "@/emails/welcome";
 import { env } from "@/lib/config";
 import { db } from "@/lib/db";
+import { BCRYPT_ROUNDS } from "@/lib/security/hashing";
 import {
   groupMembers,
   groups,
@@ -83,7 +84,7 @@ export async function createCoach(
     id,
     name: input.name,
     email: input.email,
-    passwordHash: await hash(tempPassword, 10),
+    passwordHash: await hash(tempPassword, BCRYPT_ROUNDS),
     role: "coach",
     isActive: true,
     mustChangePassword: true,
@@ -276,7 +277,7 @@ async function regeneratePassword(
   await db
     .update(users)
     .set({
-      passwordHash: await hash(tempPassword, 10),
+      passwordHash: await hash(tempPassword, BCRYPT_ROUNDS),
       mustChangePassword: true,
     })
     .where(eq(users.id, id));

@@ -246,6 +246,23 @@ export const settings = mysqlTable("settings", {
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
+/**
+ * Intentos de login por IP y ventana (Fase 45, tarea 45.5).
+ *
+ * Una fila por combinación IP + ventana. El `expiresAt` permite purgar lo viejo
+ * sin cron: la consulta cuenta solo lo que aún no venció.
+ */
+export const loginAttempts = mysqlTable(
+  "login_attempts",
+  {
+    key: varchar("key", { length: 120 }).primaryKey(),
+    ip: varchar("ip", { length: 45 }).notNull(),
+    attempts: int("attempts").notNull().default(0),
+    expiresAt: timestamp("expires_at").notNull(),
+  },
+  (t) => [index("login_attempts_expires_idx").on(t.expiresAt)],
+);
+
 export const sessions = mysqlTable("sessions", {
   id: varchar("id", { length: 255 }).primaryKey(),
   userId: varchar("user_id", { length: 36 })
