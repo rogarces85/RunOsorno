@@ -14,12 +14,15 @@ export function AthleteCalendar({
   month,
   messages,
   reasons,
+  editWindowHours,
 }: {
   items: PlanItem[];
   month: string;
   messages?: Record<string, FeedbackMessage[]>;
   /** Motivos configurables por el admin (Fase 34). */
   reasons: ReasonOption[];
+  /** Ventana de edición configurada por el admin (Fase 34). */
+  editWindowHours: number;
 }) {
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -53,6 +56,7 @@ export function AthleteCalendar({
               record={selectedItem.record}
               status={selectedItem.status}
               reasons={reasons}
+              editWindowHours={editWindowHours}
             />
           ) : null
         }

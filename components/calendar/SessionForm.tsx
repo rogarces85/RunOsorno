@@ -48,8 +48,6 @@ const FIELD_MAP: Record<string, string> = {
   customReason: "customReason",
 };
 
-const EDIT_WINDOW_HOURS = 48;
-
 const BOOT_AT = new Date();
 const TODAY_ISO = toISODate(BOOT_AT);
 
@@ -73,13 +71,21 @@ export function SessionForm({
   record,
   status,
   reasons,
+  editWindowHours,
 }: {
   assignmentId: string;
   dateISO: string;
   record: PlanRecord | null;
   status: PlanStatus;
-  /** Motivos configurables; si viene vacío se usan los de por defecto. */
+  /** Motivos configurables por el admin; si viene vacío se usan los de por defecto. */
   reasons: ReasonOption[];
+  /**
+   * Ventana de edición configurada por el admin (`edit_window_hours`).
+   * Tiene que venir del servidor: el servicio la lee de la tabla `settings`,
+   * así que el formulario la necesita para no prometer una edición que
+   * después el servidor va a rechazar.
+   */
+  editWindowHours: number;
 }) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(() => initialMode(record, status));
@@ -114,7 +120,7 @@ export function SessionForm({
     record !== null &&
     BOOT_AT.getTime() >
       new Date(record.recordedAt).getTime() +
-        EDIT_WINDOW_HOURS * 60 * 60 * 1000;
+        editWindowHours * 60 * 60 * 1000;
   const readonlyMessage = isFuture
     ? "No puedes registrar sesiones de días futuros"
     : expired

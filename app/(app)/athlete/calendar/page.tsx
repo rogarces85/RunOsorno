@@ -2,7 +2,7 @@ import { AthleteCalendar } from "@/components/athlete/AthleteCalendar";
 import { requireRole } from "@/lib/auth/guards";
 import { getMonthFeedback } from "@/lib/services/feedback.service";
 import { getMonthPlan } from "@/lib/services/plan.service";
-import { getNotDoneReasons } from "@/lib/services/settings.service";
+import { getNotDoneReasons, getEditWindowHours } from "@/lib/services/settings.service";
 
 export const instant = false;
 
@@ -23,10 +23,11 @@ export default async function AthleteCalendarPage({
   const month = resolveMonth((await searchParams).month);
   const year = Number(month.slice(0, 4));
   const monthNum = Number(month.slice(5, 7));
-  const [items, messages, reasons] = await Promise.all([
+  const [items, messages, reasons, editWindowHours] = await Promise.all([
     getMonthPlan(user.id, year, monthNum),
     getMonthFeedback(user.id, year, monthNum),
     getNotDoneReasons(),
+    getEditWindowHours(),
   ]);
 
   return (
@@ -43,6 +44,7 @@ export default async function AthleteCalendarPage({
           month={month}
           messages={messages}
           reasons={reasons}
+          editWindowHours={editWindowHours}
         />
       </div>
     </div>

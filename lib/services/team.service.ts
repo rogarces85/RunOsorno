@@ -1,4 +1,4 @@
-import { and, count, desc, eq, inArray } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   sessionAssignments,
@@ -13,7 +13,10 @@ import type {
 } from "@/lib/validations/team.schemas";
 import { logAudit } from "./audit.service";
 import { notify } from "./notification.service";
-import { getMaxAthletesPerTeam } from "./settings.service";
+import {
+  getMaxAthletesPerTeam,
+  getMaxTeamsPerCoach,
+} from "./settings.service";
 
 export type ServiceResult<T> =
   { ok: true; data: T } | { ok: false; error: string };
@@ -71,6 +74,22 @@ export async function createTeam(
     .limit(1);
   if (!coach) {
     return { ok: false, error: "Coach no encontrado" };
+  }
+
+  // Límite global por coach. El admin lo edita en Configuración → Límites y el
+  // valor por defecto (10) viene de `DEFAULT_SETTINGS.maxTeamsPerCoach`. El
+  // límite de atletas por team sí se aplicaba; este se configuraba pero nunca
+  // se comprobaba.
+  const maxTeams = await getMaxTeamsPerCoach();
+  const [current] = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(teams)
+    .where(eq(teams.coachId, coachId));
+  if ((current?.total ?? 0) >= maxTeams) {
+    return {
+      ok: false,
+      error: `Has alcanzado el límite de ${maxTeams} teams. Elimina uno o pide al administrador que lo aumente.`,
+    };
   }
 
   const name = input.name ? input.name : defaultTeamName(coach.name);

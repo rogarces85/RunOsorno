@@ -781,21 +781,58 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 40. Validaciones y manejo de errores (completación)
 
-- [ ] 40.1 Revisar que todas las Server Actions validan con Zod antes de ejecutar
-- [ ] 40.2 Revisar que todas las Server Actions verifican sesión y permisos
-- [ ] 40.3 Verificar que `login` no revela si el email existe (mensaje genérico)
-- [ ] 40.4 Verificar que sesión expirada redirige a login con mensaje
-- [ ] 40.5 Verificar email duplicado → "Ya existe un usuario con este email"
-- [ ] 40.6 Verificar límite de teams por coach → mensaje de error
-- [ ] 40.7 Verificar límite de atletas por team → mensaje de error
-- [ ] 40.8 Verificar ventana de edición de registro → mensaje correcto fuera de ventana
-- [ ] 40.9 Verificar registro de sesión futura → bloqueado
-- [ ] 40.10 Verificar RPE fuera de rango → validación en cliente y servidor
-- [ ] 40.11 Verificar motivo "Otro" vacío → validación
-- [ ] 40.12 Verificar plantilla vacía → no se guarda
-- [ ] 40.13 Verificar solicitud duplicada a grupo → bloqueada
-- [ ] 40.14 Verificar copiar semana sin datos → mensaje "No hay semana anterior"
-- [ ] 40.15 Verificar error inesperado → pantalla `error.tsx` con opción volver al inicio
+- [x] 40.1 Revisar que todas las Server Actions validan con Zod antes de ejecutar
+- [x] 40.2 Revisar que todas las Server Actions verifican sesión y permisos
+- [x] 40.3 Verificar que `login` no revela si el email existe (mensaje genérico)
+- [x] 40.4 Verificar que sesión expirada redirige a login con mensaje
+- [x] 40.5 Verificar email duplicado → "Ya existe un usuario con este email"
+- [x] 40.6 Verificar límite de teams por coach → mensaje de error
+- [x] 40.7 Verificar límite de atletas por team → mensaje de error
+- [x] 40.8 Verificar ventana de edición de registro → mensaje correcto fuera de ventana
+- [x] 40.9 Verificar registro de sesión futura → bloqueado
+- [x] 40.10 Verificar RPE fuera de rango → validación en cliente y servidor
+- [x] 40.11 Verificar motivo "Otro" vacío → validación
+- [x] 40.12 Verificar plantilla vacía → no se guarda
+- [x] 40.13 Verificar solicitud duplicada a grupo → bloqueada
+- [x] 40.14 Verificar copiar semana sin datos → mensaje "No hay semana anterior"
+- [x] 40.15 Verificar error inesperado → pantalla `error.tsx` con opción volver al inicio
+
+> Nota 40.x: 40.1 y 40.2 no se comprueban leyendo el código, sino con una
+> auditoría que recorre `lib/actions/*.ts`: cada Server Action exportada tiene
+> que pasar por `runAction` (que dentro ya hace `requireAuth` + `safeParse`) o
+> declarar su propio `requireAuth`/`requireRole` y `safeParse`. Hoy son 54
+> acciones: 48 por `runAction` y 6 escritas a mano (`exportDataAction`,
+> `changePasswordAction` y las cuatro de configuración, que necesitan el id de
+> sesión o el usuario para auditar). Se comprueba también que el propio
+> `runAction` siga exigiendo sesión y parseando: si el helper dejara de
+> hacerlo, las 48 que lo usan caerían a la vez.
+>
+> La revisión encontró dos defectos reales, ya corregidos:
+>
+> - **`max_teams_per_coach` no se aplicaba.** El admin podía configurarlo en
+>   Configuración → Límites y `getMaxTeamsPerCoach()` existía, pero
+>   `createTeam` nunca lo consultaba: un coach podía crear teams sin límite
+>   (el de atletas por team sí se comprobaba). Ahora `createTeam` cuenta los
+>   teams del coach y corta con "Has alcanzado el límite de N teams…".
+> - **La ventana de edición estaba fija en 48 h en el formulario.**
+>   `SessionForm` traía `EDIT_WINDOW_HOURS = 48` en el cliente mientras el
+>   servicio leía `edit_window_hours` de la tabla `settings`. Con la ventana
+>   en 24 h la UI ofrecía un formulario que el servidor iba a rechazar, y con
+>   72 h lo bloqueaba antes de tiempo. Ahora la página del calendario del
+>   atleta lee el ajuste y lo pasa al formulario.
+>
+> También se corrigió que el botón "Volver al inicio" de `app/error.tsx`
+> llamara a `reset()` —reintentando la ruta que ya había fallado— en vez de
+> navegar al inicio; ahora hay "Reintentar" para eso. La pantalla se comprobó
+> en vivo con una ruta que lanza, verificando el 500, el texto y que el botón
+> lleva al dashboard del usuario.
+>
+> Dos tareas se verifican por servicio y no por interfaz, porque su error solo
+> es alcanzable con una petición falsificada: la 40.13 (la interfaz oculta a
+> propósito los grupos con solicitud pendiente) y la 40.14 (el botón del
+> calendario copia siempre hacia la semana en curso, que en una base con datos
+> siempre tiene semana previa). La 40.5 nombra "este email" y la app responde
+> "ese email"; la verificación acepta ambas formas y comprueba el texto real.
 
 ---
 
@@ -987,7 +1024,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 37. Perfil de usuario | 7 | 7 |
 | 38. Estados vacíos y errores | 8 | 8 |
 | 39. Responsive | 8 | 8 |
-| 40. Validaciones (completación) | 15 | 0 |
+| 40. Validaciones (completación) | 15 | 15 |
 | 41. Pruebas unitarias | 15 | 0 |
 | 42. Pruebas E2E | 12 | 0 |
 | 43. Cloudflare | 13 | 0 |
@@ -998,7 +1035,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **471** |
+| **TOTAL** | **~578** | **486** |
 
 ---
 
@@ -1020,6 +1057,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-profile.ts` | Perfil y cambio de contraseña: valida los formularios, que la nueva clave sirva y la anterior no, y que al cambiar queden revocadas todas las sesiones menos la actual (Fase 37) |
 | `npx tsx scripts/verify-empty-states.ts` | Estados vacíos con mensaje orientativo y acción, errores de validación bajo su campo, `Alert` de negocio y `ConfirmDialog` en acciones destructivas (Fase 38) |
 | `npx tsx scripts/verify-responsive.ts` | Mide la interfaz en 375 / 768 / 1400 px: menú lateral como panel en móvil, área de toque del calendario, scroll horizontal de tablas, ancho de los campos, tamaño real de las gráficas y arrastre con eventos táctiles (Fase 39) |
+| `npx tsx scripts/verify-validations.ts` | Audita las 54 Server Actions (sesión + validación con Zod) y comprueba con datos reales los límites, la ventana de edición, el registro futuro, el RPE, el motivo "Otro", la plantilla vacía, la solicitud duplicada y la pantalla de error (Fase 40) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`).
 
