@@ -1,13 +1,8 @@
 import Link from "next/link";
 import { SESSION_STATUS_META, type SessionStatus } from "@/lib/config/constants";
+import { formatDayShort } from "@/lib/i18n/format";
 import { parseISO } from "@/lib/metrics/utils";
 import type { PlanItem } from "@/lib/services/plan.service";
-
-const DAY_FORMAT = new Intl.DateTimeFormat("es-CL", {
-  weekday: "short",
-  day: "numeric",
-  month: "numeric",
-});
 
 /**
  * Resumen semanal del atleta en su dashboard (Fase 30).
@@ -65,7 +60,7 @@ export function AthleteWeekSummary({
                   <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div>
                       <strong className="text-capitalize">
-                        {DAY_FORMAT.format(parseISO(item.sessionDate))}
+                        {formatDayShort(parseISO(item.sessionDate))}
                         {item.sessionDate === today ? " (hoy)" : ""}
                       </strong>
                       <div className="text-secondary small">

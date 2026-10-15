@@ -7,6 +7,7 @@ import {
   rejectRequestAction,
 } from "@/lib/actions/group.actions";
 import type { PendingRequestItem } from "@/lib/services/group.service";
+import { formatDate } from "@/lib/i18n/format";
 import { Alert } from "@/components/ui/Alert";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { IconUserCheck } from "@tabler/icons-react";
@@ -63,10 +64,7 @@ export function RequestsPending({
               <div className="fw-medium">{request.coachName}</div>
               <div className="text-secondary small">{request.coachEmail}</div>
               <div className="text-secondary small">
-                Solicitó unirse el{" "}
-                {request.requestedAt.toLocaleDateString("es-CL", {
-                  timeZone: "America/Santiago",
-                })}
+                Solicitó unirse el {formatDate(request.requestedAt)}
               </div>
             </div>
             <div className="btn-list flex-nowrap">

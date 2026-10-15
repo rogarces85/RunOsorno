@@ -1,6 +1,7 @@
 import { formatSessionType } from "@/lib/utils/format";
 import { colorForIndex } from "./chartColors";
 import { DonutChart } from "./DonutChart";
+import { formatPercent } from "@/lib/i18n/format";
 
 type TypeDistributionChartProps = {
   distribution: Record<string, number>;
@@ -30,10 +31,10 @@ export function TypeDistributionChart({
 
   return (
     <DonutChart
-      centerLabel={`${top.value}%`}
+      centerLabel={formatPercent(top.value)}
       emptyMessage="Sin sesiones con tipo en el periodo."
       slices={slices}
-      formatValue={(slice) => `${slice.value}%`}
+      formatValue={(slice) => formatPercent(slice.value)}
     />
   );
 }

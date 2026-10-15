@@ -1,4 +1,5 @@
 import { DonutChart } from "./DonutChart";
+import { formatPercent } from "@/lib/i18n/format";
 
 const COMPLETED_COLOR = "#37b24d";
 const PENDING_COLOR = "#dfe3e6";
@@ -21,7 +22,7 @@ export function ComplianceChart({ completed, total }: ComplianceChartProps) {
 
   return (
     <DonutChart
-      centerLabel={`${percent}%`}
+      centerLabel={formatPercent(percent)}
       emptyMessage="Sin sesiones planificadas en el periodo."
       slices={[
         { name: "Completadas", value: completed, color: COMPLETED_COLOR },

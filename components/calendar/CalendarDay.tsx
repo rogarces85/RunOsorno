@@ -1,6 +1,7 @@
 "use client";
 
 import { DAY_STATE_META, type CalendarDayState } from "./dayState";
+import { formatPercent } from "@/lib/i18n/format";
 
 function complianceClass(done: number, total: number): string {
   const pct = Math.round((done / total) * 100);
@@ -56,7 +57,7 @@ export function CalendarDay({
           data-pct={pct}
           title={`Cumplimiento: ${compliance.done}/${compliance.total}`}
         >
-          {pct}%
+          {formatPercent(pct)}
         </span>
       )}
       {sessionLabel && (

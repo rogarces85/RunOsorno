@@ -1,4 +1,6 @@
 import type { AthleteMetrics } from "@/lib/services/metric.service";
+import { formatPercent } from "@/lib/i18n/format";
+import { formatDistance } from "@/lib/utils/format";
 
 type AthleteMetricsPanelProps = {
   metrics: AthleteMetrics;
@@ -41,7 +43,7 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
           <div className="card h-100">
             <div className="card-body">
               <div className="text-secondary mb-1">Cumplimiento</div>
-              <div className="h1 mb-0">{compliance.percent}%</div>
+              <div className="h1 mb-0">{formatPercent(compliance.percent)}</div>
               <div className="text-secondary small">
                 {compliance.completed} de {compliance.total} sesiones
               </div>
@@ -52,7 +54,7 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
           <div className="card h-100">
             <div className="card-body">
               <div className="text-secondary mb-1">Carga semanal</div>
-              <div className="h1 mb-0">{weeklyLoad.km} km</div>
+              <div className="h1 mb-0">{formatDistance(weeklyLoad.km)}</div>
               <div className="text-secondary small">
                 {weeklyLoad.minutes} min · TSS {formatNullable(weeklyLoad.tss)} ·
                 TRIMP {formatNullable(weeklyLoad.trimp)}

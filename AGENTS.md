@@ -195,6 +195,22 @@ Tres cosas que conviene no deshacer:
 Procedimiento para activarlo de verdad (cuenta, secretos, alertas):
 `docs/configurar-sentry.md`.
 
+## Reglas de localización (Fase 46)
+
+- **Ninguna fecha se formatea fuera de `lib/i18n/format.ts`.** Ni
+  `new Intl.DateTimeFormat(...)`, ni `toLocaleString()`, ni `toLocaleDateString()`.
+  Sin `timeZone`, esas API usan la zona del **servidor**, y en Cloudflare Workers
+  el servidor está en UTC: una sesión de las 21:30 se mostraba al día siguiente.
+  `scripts/verify-i18n.ts` falla si alguien vuelve a hacerlo.
+- El locale (`es-CL`) y la zona (`America/Santiago`) están en
+  `lib/i18n/config.ts`. No se repiten en los componentes.
+- Los textos con unidades o plurales salen de `messages/es-CL.json`
+  (`t("units.days", { count: 5 })`), no de plantillas escritas a mano. Las claves
+  están tipadas contra el JSON: una clave inexistente rompe `tsc`.
+- **Pendiente de una migración mayor:** los textos de los ~60 componentes siguen
+  en español dentro del JSX. Con un solo idioma es lo razonable; cuando haya un
+  segundo, se migran a `t()` sin tocar el formateo, que ya está centralizado.
+
 ---
 
 ## Consideraciones Clave

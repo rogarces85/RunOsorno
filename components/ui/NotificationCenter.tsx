@@ -8,6 +8,7 @@ import {
   markAsReadAction,
 } from "@/lib/actions/notification.actions";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { formatDateTime } from "@/lib/i18n/format";
 import { IconBellOff, IconChecks } from "@tabler/icons-react";
 
 export type NotificationRow = {
@@ -20,13 +21,7 @@ export type NotificationRow = {
 };
 
 function formatWhen(iso: string): string {
-  return new Intl.DateTimeFormat("es-CL", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(iso));
+  return formatDateTime(iso);
 }
 
 export function NotificationCenter({

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import type { AuditLogRow } from "@/lib/services/audit-query.service";
 import { auditLogsToQuery } from "@/lib/validations/audit.schemas";
+import { formatDateTime } from "@/lib/i18n/format";
 
 type Props = {
   rows: AuditLogRow[];
@@ -131,10 +132,7 @@ export function LogsTable({ rows, total, page, totalPages, filters }: Props) {
             {rows.map((row) => (
               <tr key={row.id}>
                 <td className="text-secondary">
-                  {row.createdAt.toLocaleString("es-CL", {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
+                  {formatDateTime(row.createdAt)}
                 </td>
                 <td>
                   {row.userName ? (

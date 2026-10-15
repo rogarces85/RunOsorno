@@ -3,23 +3,24 @@
 import { useState } from "react";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import type { PlanItem } from "@/lib/services/plan.service";
+import { formatMonthYear, formatWeekdays } from "@/lib/i18n/format";
 import { toISODate } from "@/lib/utils/date";
 import { formatSessionType } from "@/lib/utils/format";
 import { CalendarDay } from "./CalendarDay";
 import { DroppableDay } from "./DroppableDay";
 import { resolveDayState } from "./dayState";
 
-const WEEKDAYS = ["Lun", "Mar", "MiÃ©", "Jue", "Vie", "SÃ¡b", "Dom"];
+// Las abreviaturas de día vienen de `Intl` (Fase 46): "lun", "mar", "mié"...
+// en el locale activo, en vez de una lista escrita a mano que se queda
+// desincronizada del calendario en cuanto se agrega un idioma.
+const WEEKDAYS = formatWeekdays();
 
 function pad(value: number): string {
   return String(value).padStart(2, "0");
 }
 
 function monthLabel(year: number, month: number): string {
-  return new Intl.DateTimeFormat("es-CL", {
-    month: "long",
-    year: "numeric",
-  }).format(new Date(year, month, 1));
+  return formatMonthYear(year, month);
 }
 
 function parseMonth(value: string): { year: number; month: number } {

@@ -15,11 +15,20 @@ export function isSameWeek(a: Date, b: Date): boolean {
   return getWeekStart(a).getTime() === getWeekStart(b).getTime();
 }
 
+import { formatDate, formatDateTime } from "@/lib/i18n/format";
+
+/**
+ * Fechas en formato chileno, siempre en hora de Santiago.
+ *
+ * El formateo real vive en `lib/i18n/format` (Fase 46); estas funciones se
+ * mantienen porque son la API que usa casi toda la app y porque el nombre
+ * `formatDateChile` documenta la zona horaria en la propia llamada.
+ */
 export function formatDateChile(date: Date): string {
-  return new Intl.DateTimeFormat("es-CL", {
-    timeZone: "America/Santiago",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(date);
+  return formatDate(date);
+}
+
+/** `15/10/2026, 21:30` en hora de Chile. */
+export function formatDateTimeChile(date: Date): string {
+  return formatDateTime(date);
 }

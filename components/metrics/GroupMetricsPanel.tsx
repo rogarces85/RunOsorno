@@ -1,5 +1,6 @@
 import type { GroupMetrics } from "@/lib/services/metric.service";
 import { complianceBadgeClass } from "./chartColors";
+import { formatNumber, formatPercent } from "@/lib/i18n/format";
 
 type GroupMetricsPanelProps = {
   metrics: GroupMetrics;
@@ -43,12 +44,12 @@ export function GroupMetricsPanel({ metrics }: GroupMetricsPanelProps) {
                     <td>{team.coachName}</td>
                     <td className="text-end">
                       <span className={complianceBadgeClass(team.compliance)}>
-                        {team.compliance}%
+                        {formatPercent(team.compliance)}
                       </span>
                     </td>
                     <td className="text-end">{team.sessions}</td>
                     <td className="text-end">{team.completed}</td>
-                    <td className="text-end">{team.km}</td>
+                    <td className="text-end">{formatNumber(team.km, { maximumFractionDigits: 1 })}</td>
                     <td className="text-end">
                       {team.alerts > 0 ? (
                         <span className="badge bg-red-lt text-red">

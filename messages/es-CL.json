@@ -1,0 +1,71 @@
+{
+  "common": {
+    "appName": "RunOsorno",
+    "language": "es-CL",
+    "loading": "Cargando…",
+    "backToHome": "Volver al inicio",
+    "retry": "Reintentar",
+    "empty": "Sin datos",
+    "notAvailable": "—"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendario",
+    "metrics": "Métricas",
+    "profile": "Perfil",
+    "notifications": "Notificaciones",
+    "settings": "Configuración",
+    "exports": "Exportes",
+    "logs": "Logs",
+    "templates": "Plantillas",
+    "teams": "Mis Teams",
+    "athletes": "Atletas",
+    "groups": "Grupos",
+    "announcements": "Anuncios",
+    "logout": "Cerrar sesión"
+  },
+  "units": {
+    "kilometers": "{value} km",
+    "minutes": "{value} min",
+    "hours": "{value} h",
+    "hoursAndMinutes": "{hours} h {minutes} min",
+    "rpe": "{value}/10",
+    "weeks": "{count, plural, one {# semana} other {# semanas}}",
+    "days": "{count, plural, one {# día} other {# días}}",
+    "attempts": "{count, plural, one {# intento} other {# intentos}}",
+    "minutesLeft": "Vuelve a probar en {minutes} minuto(s)."
+  },
+  "sessions": {
+    "planned": "Planificada",
+    "inProgress": "En curso",
+    "completed": "Completada",
+    "partial": "Parcial",
+    "notDone": "No realizada",
+    "rest": "Descanso",
+    "notDoneReasons": {
+      "lesion": "Lesión",
+      "work": "Trabajo",
+      "illness": "Enfermedad",
+      "personal": "Motivo personal",
+      "other": "Otro",
+      "custom": "Otro motivo"
+    }
+  },
+  "dates": {
+    "monthYear": "{month} de {year}",
+    "dayMonthYear": "{day}/{month}/{year}",
+    "at": "a las {time}",
+    "today": "Hoy",
+    "yesterday": "Ayer",
+    "weekOf": "Semana del {date}",
+    "birthDate": "Fecha de nacimiento"
+  },
+  "validation": {
+    "invalidInput": "Datos inválidos",
+    "notAuthorized": "No autorizado",
+    "emailInUse": "Ya existe un usuario con este email",
+    "templateEmpty": "La plantilla necesita al menos una sección con contenido",
+    "otherReasonRequired": "Describe el motivo",
+    "rpeRange": "El RPE debe estar entre 1 y 10"
+  }
+}

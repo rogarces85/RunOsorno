@@ -1221,11 +1221,79 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 46. i18n y localización
 
-- [ ] 46.1 Instalar y configurar `next-intl` con locale `es-CL`
-- [ ] 46.2 Crear estructura de mensajes en `messages/es-CL.json` (textos de UI comunes)
-- [ ] 46.3 Configurar formateo de fechas con timezone `America/Santiago`
-- [ ] 46.4 Verificar que fechas y horas se muestran en formato chileno
-- [ ] 46.5 Verificar que números (distancias, tiempos) se formatean correctamente
+- [x] 46.1 Instalar y configurar `next-intl` con locale `es-CL`
+- [x] 46.2 Crear estructura de mensajes en `messages/es-CL.json` (textos de UI comunes)
+- [x] 46.3 Configurar formateo de fechas con timezone `America/Santiago`
+- [x] 46.4 Verificar que fechas y horas se muestran en formato chileno
+- [x] 46.5 Verificar que números (distancias, tiempos) se formatean correctamente
+
+> **Qué es y qué no es esta fase.** El MVP tiene **un solo idioma** (es-CL), así
+> que la fase se centró en la parte que importa de verdad: que **todas** las
+> fechas, horas y números salgan por un único módulo y en hora de Chile. No se
+> migró el texto de los ~60 componentes a `t()`: con un solo idioma eso no cambia
+> nada en pantalla y sería un refactor grande sobre una app que hoy funciona. Lo
+> que sí queda es la infraestructura para hacerlo después (mensajes tipados,
+> claves validadas por el compilador) y la regla documentada de pasar por
+> `lib/i18n`.
+>
+> **Sobre `next-intl` y por qué no se metió en `proxy.ts`.** Se usa su API de bajo
+> nivel: `createFormatter` para fechas, horas y números, y `createTranslator` para
+> los mensajes. Ambas reciben la configuración explícita y no necesitan
+> `NextIntlClientProvider` ni un `middleware` de enrutado por locale. Enrutar por
+> idioma aquí habría significado **meter un middleware encima de otro**:
+> `proxy.ts` ya verifica la sesión en cada petición, y para un solo locale no
+> aporta nada. Si mañana hay un segundo idioma, se cambia `LOCALE`, se agregan
+> los mensajes y se conecta el enrutado; el resto de la app ya formatea a través
+> de este módulo.
+>
+> **El defecto que motivó la fase: fechas en UTC.** `toLocaleString()` y
+> `new Intl.DateTimeFormat("es-CL", …)` **sin `timeZone` usan la zona del
+> servidor**, y en Cloudflare Workers el servidor corre en UTC. Una notificación
+> creada a las 21:30 en Santiago se mostraba a las 00:30 del día siguiente.
+> Afectaba a `LogsTable` (servidor), a `RequestsPending` y al encabezado del
+> calendario: `new Date(2026, 9, 1)` a medianoche en UTC es `2026-09-30T20:00` en
+> Santiago, así que **octubre se titulaba septiembre**. Ahora todo pasa por
+> `lib/i18n/format.ts`, que fija `America/Santiago` siempre, y los tests fijan
+> los dos casos que rompían.
+>
+> **Lo que encontró la verificación, y estaba roto.** El script comprobó que las
+> distancias no aparecieran con punto decimal (el formato inglés) y encontró
+> **cuatro paneles de métricas que imprimían el número crudo**: `AthleteMetricsPanel`
+> (`{weeklyLoad.km} km`), `TeamMetricsPanel` (`{averageLoadKm} km` y `{athlete.km}`)
+> y `GroupMetricsPanel` (`{team.km}`). Ahora usan `formatDistance`/`formatNumber`.
+> Aprovechando el mismo paso, los porcentajes que se armaban a mano con
+> `${x}%` en doce sitios pasaron por `formatPercent`, que redondea a entero y
+> respeta el locale.
+>
+> **Las abreviaturas del calendario dejaron de estar escritas a mano.** Eran la
+> lista `["Lun", "Mar", "Mié", …]`, que es exactamente lo que hay que mantener
+> sincronizado a mano en cuanto existe un segundo idioma. Ahora salen de `Intl`
+> (`formatWeekdays()`) y arrancan en lunes, que es como el calendario está
+> construido en el resto del proyecto (`getWeekStart` usa lunes).
+>
+> **Sobre el formato de salida.** `Intl` en `es-CL` escribe las fechas con guion
+> (`15-10-2026`) y las abreviaturas sin año con barra (`15/10`). Es la
+> convención de CLDR para ese locale y es la que la app ya mostraba, así que no
+> se tocó para no cambiar el aspecto de todas las pantallas del MVP.
+>
+> **Verificación en tres planos.**
+>
+> - **Unitaria** (`tests/unit/i18n.test.ts`, 15 pruebas): instantes concretos que
+>   en UTC y en Santiago dan días distintos (`2026-10-15T00:30Z` es el **14** en
+>   Chile), el cambio de hora chileno (enero UTC-3, julio UTC-4 con el mismo
+>   instante UTC), la fecha pura `"2026-10-15"` que `new Date()` dejaría en el
+>   día anterior, los plurales de ICU y el formato numérico.
+> - **Auditoría de código** (`scripts/verify-i18n.ts`): recorre `app/`,
+>   `components/`, `lib/` y `emails/` y falla si alguien vuelve a escribir
+>   `new Intl.…` o `toLocaleString()` fuera de `lib/i18n`, o si el calendario
+>   vuelve a declarar sus días a mano. Es la garantía que mantiene esto dentro de
+>   seis meses, cuando nadie se acuerde de la fase.
+> - **Interfaz** (`scripts/verify-i18n.ts`): login real del atleta de demo; el
+>   calendario muestra el mes en español y los siete encabezados de día; las
+>   métricas muestran porcentajes y distancias con coma decimal.
+>
+> Resultado: `npx tsx scripts/verify-i18n.ts` → **12/12**. Unitarias **162/162**
+> (147 → 162), lint 0 errores, build correcto, E2E **15/15**.
 
 ---
 
@@ -1332,12 +1400,12 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 43. Cloudflare | 13 | 9 |
 | 44. Sentry | 6 | 5 |
 | 45. Seguridad | 10 | 9 |
-| 46. i18n y localización | 5 | 0 |
+| 46. i18n y localización | 5 | 5 |
 | 47. Rendimiento | 8 | 0 |
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **536** |
+| **TOTAL** | **~578** | **541** |
 
 ---
 
@@ -1367,6 +1435,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-produccion.ts` | Login real en el Worker desplegado: llega al dashboard, la cookie de sesión sale `Secure` + `HttpOnly`, la sesión sobrevive a una recarga (o sea, la base de Aiven guardó de verdad), una ruta protegida sin sesión redirige y no aparece ningún 5xx (Fase 43) |
 | `npx tsx scripts/verify-seguridad.ts` | Las 10 tareas de seguridad: flags de la cookie, hashing, ausencia de SQL concatenado y de `dangerouslySetInnerHTML`, rate limiting (límite, ventana, bloqueo real comprobado en la base), firmas de imagen contra HTML/SVG/PDF/ZIP disfrazados, secretos fuera del código y CORS cerrado (Fase 45) |
 | `npx tsx scripts/verify-sentry.ts` | Levanta un colector falso, compila la app y provoca tres errores reales (render, Server Action y `captureException`): comprueba que llegan a Sentry con su stack trace, sin cookie ni correos ni cabeceras, y que la configuración de build de los source maps depende del token (Fase 44) |
+| `npx tsx scripts/verify-i18n.ts` | Audita que ninguna fecha se formatee fuera de `lib/i18n` (con `timeZone` fijo, nada sale en UTC) y que el calendario no declare sus días a mano; en la interfaz comprueba el mes y los encabezados en español, los porcentajes y las distancias con coma decimal (Fase 46) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`),
 salvo `verify-sentry.ts`, que compila la app y arranca su propio servidor porque

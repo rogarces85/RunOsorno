@@ -8,6 +8,7 @@ import {
   markAllAsReadAction,
   markAsReadAction,
 } from "@/lib/actions/notification.actions";
+import { formatDateTimeShort } from "@/lib/i18n/format";
 
 export type BellNotification = {
   id: string;
@@ -19,12 +20,9 @@ export type BellNotification = {
 };
 
 function formatWhen(iso: string): string {
-  return new Intl.DateTimeFormat("es-CL", {
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(iso));
+  // Sin el año a propósito: en la campanita casi todo es de los últimos días y
+  // el año solo estorba. La zona horaria sí es obligatoria (Fase 46).
+  return formatDateTimeShort(iso);
 }
 
 export function NotificationBell({

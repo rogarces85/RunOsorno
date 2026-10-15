@@ -1,5 +1,7 @@
 import type { AthleteAlert } from "@/lib/metrics/alerts";
 import type { TeamMetrics } from "@/lib/services/metric.service";
+import { formatNumber, formatPercent } from "@/lib/i18n/format";
+import { formatDistance } from "@/lib/utils/format";
 import { complianceBadgeClass } from "./chartColors";
 
 type TeamMetricsPanelProps = {
@@ -16,7 +18,7 @@ function bucketPct(count: number, total: number): string {
   if (total === 0) {
     return "0%";
   }
-  return `${Math.round((count / total) * 100)}%`;
+  return formatPercent((count / total) * 100);
 }
 
 export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
@@ -79,7 +81,7 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
               <h3 className="card-title">Carga media del team</h3>
             </div>
             <div className="card-body">
-              <div className="h1 mb-0">{averageLoadKm} km</div>
+              <div className="h1 mb-0">{formatDistance(averageLoadKm)}</div>
               <div className="text-secondary small">
                 promedio por atleta en el periodo
               </div>
@@ -114,7 +116,7 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
                           <td className="text-end">
                             {athlete.completed}/{athlete.sessions}
                           </td>
-                          <td className="text-end">{athlete.km}</td>
+                          <td className="text-end">{formatNumber(athlete.km, { maximumFractionDigits: 1 })}</td>
                         </tr>
                       ))
                     )}

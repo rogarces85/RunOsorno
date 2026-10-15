@@ -336,3 +336,17 @@ npm run dev
 - **Pendiente**: 44.6 (alertas) necesita cuenta de Sentry; el procedimiento esta en `docs/configurar-sentry.md`
 - **Datos de demo**: la base local no tenia el seed de demostracion (`coach.demo@runosorno.cl`, `maria.fernandez@demo.runosorno.cl`), que usan los E2E. Ejecutado `npm run db:seed:demo`
 - **Leftovers**: 0
+
+## Fase 46 - i18n y localizacion (541/578)
+
+- **Alcance**: el MVP tiene un solo idioma, asi que la fase centralizo el *formateo* (fechas, horas, numeros) en un unico modulo en vez de migrar los textos de los ~60 componentes a `t()`. Migrarlos no cambia nada en pantalla con un solo locale y seria un refactor grande sobre una app que funciona.
+- **next-intl 4.14.9** usando solo la API de bajo nivel: `createFormatter` (fechas/horas/numeros) y `createTranslator` (mensajes). **No** se metio en `proxy.ts`: el middleware ya verifica la sesion de cada peticion y enrutar por locale con un solo idioma no aporta nada.
+- **Archivos nuevos**: `messages/es-CL.json`, `lib/i18n/config.ts` (locale + zona), `lib/i18n/format.ts`, `tests/unit/i18n.test.ts`, `scripts/verify-i18n.ts`
+- **Defecto real (46.3)**: `toLocaleString()` y `new Intl.DateTimeFormat(..., {timeZone})` sin zona usan la del **servidor**, que en el Worker es UTC. Afectaba a `LogsTable` (servidor) y al encabezado del calendario: `new Date(2026, 9, 1)` a medianoche UTC es 30/sep en Santiago, asi que **octubre se titulaba septiembre**. Ademas las abreviaturas de dia del calendario eran una lista escrita a mano.
+- **Defecto real (46.5)**: el verificador encontro **cuatro paneles de metricas con numeros crudos** (`{weeklyLoad.km} km`, `{averageLoadKm} km`, `{athlete.km}`, `{team.km}`) -> ahora `formatDistance`/`formatNumber`. Los `%` de 12 sitios pasaron por `formatPercent`.
+- **Formato de salida**: CLDR en es-CL escribe `15-10-2026` con guion y `15/10` sin ano. Es lo que la app ya mostraba; no se toco el aspecto de las pantallas.
+- **Verificacion en tres planos**: unitaria (15 casos con instantes que en UTC y en Santiago dan dias distintos, cambio de hora chileno, fecha pura, plurales), auditoria de codigo (falla si alguien formatea una fecha fuera de `lib/i18n`) e interfaz (login real del atleta de demo).
+- **Resultado**: `npx tsx scripts/verify-i18n.ts` **12/12**; unitarias **162/162**; lint 0 errores; build ok; E2E **15/15**
+- **Regla para el futuro**: agregar un idioma = cambiar `LOCALE`, agregar mensajes y conectar el enrutado. El formateo ya esta centralizado.
+- **Pendiente**: migrar los textos del JSX a `t()` cuando exista un segundo idioma
+- **Leftovers**: 0
