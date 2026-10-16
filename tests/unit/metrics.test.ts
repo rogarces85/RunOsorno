@@ -340,6 +340,60 @@ describe("detectAlerts (25.15)", () => {
     );
     expect(alerts).toHaveLength(0);
   });
+
+  // ---------------------------------------------------------------------
+  // 47.5: los registros llegan acotados a una ventana corta, así que la
+  // fecha real del último registro va aparte. Sin esto, un atleta con el
+  // último registro hace meses saldría como "no tiene registros".
+  // ---------------------------------------------------------------------
+  it("usa lastActivity cuando la ventana no alcanza el último registro", () => {
+    const alerts = detectAlerts(
+      [{ id: "a1", name: "Ana" }],
+      [],
+      {},
+      REFERENCE,
+      { a1: "2026-06-01" },
+    );
+    const noLogging = alerts.find((alert) => alert.kind === "no_logging");
+    expect(noLogging?.message).toBe("Ana lleva 132 días sin registrar sesiones.");
+    expect(noLogging?.message).not.toContain("no tiene registros");
+  });
+
+  it("lastActivity manda sobre la fecha deducida de la ventana", () => {
+    const alerts = detectAlerts(
+      [{ id: "a1", name: "Ana" }],
+      [{ athleteId: "a1", date: REFERENCE, status: "completed" }],
+      {},
+      REFERENCE,
+      { a1: "2026-09-20" },
+    );
+    expect(
+      alerts.find((alert) => alert.kind === "no_logging")?.message,
+    ).toContain("21 días");
+  });
+
+  it("sin lastActivity sigue usando la ventana (comportamiento anterior)", () => {
+    const alerts = detectAlerts(
+      [{ id: "a1", name: "Ana" }],
+      [{ athleteId: "a1", date: "2026-10-01", status: "completed" }],
+      {},
+      REFERENCE,
+    );
+    expect(
+      alerts.find((alert) => alert.kind === "no_logging")?.message,
+    ).toContain("10 días");
+  });
+
+  it("un atleta con lastActivity en la ventana no dispara alerta", () => {
+    const alerts = detectAlerts(
+      [{ id: "a1", name: "Ana" }],
+      [{ athleteId: "a1", date: "2026-10-10", status: "completed" }],
+      {},
+      REFERENCE,
+      { a1: "2026-10-10" },
+    );
+    expect(alerts.some((alert) => alert.kind === "no_logging")).toBe(false);
+  });
 });
 
 describe("getMetricsPeriod (26.4)", () => {

@@ -1,14 +1,5 @@
-"use client";
-
-import {
-  Bar,
-  BarChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { CHART_COLORS } from "./chartColors";
+import { formatPercent } from "@/lib/i18n/format";
+import { complianceBadgeClass } from "./chartColors";
 
 type AthleteComplianceChartProps = {
   athletes: { name: string; compliance: number }[];
@@ -18,6 +9,15 @@ function shortName(name: string): string {
   return name.length > 16 ? `${name.slice(0, 15)}…` : name;
 }
 
+/**
+ * Cumplimiento por atleta, en barras horizontales (Fase 27; sin `recharts`
+ * desde la Fase 47).
+ *
+ * Esta no necesita SVG: son filas de HTML con la barra hecha con `width` en
+ * porcentaje. Se pierde el tooltip, pero se gana que no hay nada que hidratar y
+ * que el nombre se puede partear en dos líneas en lugar de truncarse, que es lo
+ * que pasaba con el eje de categorías.
+ */
 export function AthleteComplianceChart({
   athletes,
 }: AthleteComplianceChartProps) {
@@ -28,39 +28,31 @@ export function AthleteComplianceChart({
       </div>
     );
   }
-  const data = athletes.map((athlete) => ({
-    ...athlete,
-    label: shortName(athlete.name),
-  }));
   return (
-    <div style={{ height: Math.max(180, data.length * 44 + 40) }}>
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={data}
-          layout="vertical"
-          margin={{ top: 8, right: 16, left: 0, bottom: 0 }}
-        >
-          <XAxis
-            type="number"
-            domain={[0, 100]}
-            tick={{ fontSize: 12 }}
-            unit="%"
-          />
-          <YAxis
-            type="category"
-            dataKey="label"
-            width={120}
-            tick={{ fontSize: 12 }}
-          />
-          <Tooltip />
-          <Bar
-            dataKey="compliance"
-            name="Cumplimiento"
-            fill={CHART_COLORS[0]}
-            radius={[0, 4, 4, 0]}
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <ul className="metric-bars" data-testid="athlete-compliance-chart">
+      {athletes.map((athlete) => (
+        <li key={athlete.name} className="metric-bars-row">
+          <span className="metric-bars-name" title={athlete.name}>
+            {shortName(athlete.name)}
+          </span>
+          <span
+            className="metric-bars-track"
+            role="img"
+            aria-label={`${athlete.name}: ${formatPercent(athlete.compliance)}`}
+          >
+            <span
+              className="metric-bars-fill"
+              style={{ width: `${Math.min(100, Math.max(0, athlete.compliance))}%` }}
+            />
+          </span>
+          <span
+            className={`badge ${complianceBadgeClass(athlete.compliance)}`}
+            data-testid="athlete-compliance-value"
+          >
+            {formatPercent(athlete.compliance)}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }

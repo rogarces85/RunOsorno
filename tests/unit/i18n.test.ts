@@ -30,6 +30,19 @@ import { formatDistance, formatDuration } from "@/lib/utils/format";
 /** 15/10/2026 00:30 en Santiago (UTC-3) = 15/10/2026 03:30 UTC. */
 const MEDIANOCHE_CHILE = "2026-10-15T03:30:00.000Z";
 
+/**
+ * Normaliza los espacios que `Intl` puede poner entre "p." y "m." / "a." y "m."
+ *
+ * Node 24.11 trae ICU 77.1 y escribe `p.\u00A0m.` (espacio duro); las versiones
+ * anteriores de ICU escribían un espacio normal. Las tres pruebas de hora
+ * fallaban por eso, sin que cambiara nada del proyecto: comparaban un detalle
+ * de implementación de ICU en vez de lo que quieren comprobar (que la hora sea
+ * la de Chile). Se comparan los caracteres, no el tipo de espacio.
+ */
+function normalizar(value: string): string {
+  return value.replace(/[  ]/g, " ");
+}
+
 describe("configuración de localización", () => {
   it("usa el locale y la zona horaria de Chile", () => {
     expect(LOCALE).toBe("es-CL");
@@ -54,20 +67,26 @@ describe("fechas en hora de Chile", () => {
     // 21:30 del 14 en Santiago (UTC-3) = 00:30 UTC del 15. Sin `timeZone`, un
     // servidor en UTC mostraría "15-10-2026" para algo que pasó el 14.
     expect(formatDate("2026-10-15T00:30:00.000Z")).toBe("14-10-2026");
-    expect(formatDateTime("2026-10-15T00:30:00.000Z")).toBe("14-10-2026, 09:30 p. m.");
+    expect(normalizar(formatDateTime("2026-10-15T00:30:00.000Z"))).toBe(
+      "14-10-2026, 09:30 p. m.",
+    );
   });
 
   it("aplica el horario de verano chileno", () => {
     // Enero es UTC-3 y julio UTC-4. El mismo instante UTC produce horas
     // distintas según la fecha: es el cambio de hora chileno, resuelto por Intl.
-    expect(formatTime("2026-01-15T17:00:00.000Z")).toBe("02:00 p. m.");
-    expect(formatTime("2026-07-15T17:00:00.000Z")).toBe("01:00 p. m.");
+    expect(normalizar(formatTime("2026-01-15T17:00:00.000Z"))).toBe("02:00 p. m.");
+    expect(normalizar(formatTime("2026-07-15T17:00:00.000Z"))).toBe("01:00 p. m.");
   });
 
   it("formatea la fecha y la hora separadas", () => {
-    expect(formatDateTime(MEDIANOCHE_CHILE)).toBe("15-10-2026, 12:30 a. m.");
-    expect(formatDateTimeShort(MEDIANOCHE_CHILE)).toBe("15/10, 12:30 a. m.");
-    expect(formatTime(MEDIANOCHE_CHILE)).toBe("12:30 a. m.");
+    expect(normalizar(formatDateTime(MEDIANOCHE_CHILE))).toBe(
+      "15-10-2026, 12:30 a. m.",
+    );
+    expect(normalizar(formatDateTimeShort(MEDIANOCHE_CHILE))).toBe(
+      "15/10, 12:30 a. m.",
+    );
+    expect(normalizar(formatTime(MEDIANOCHE_CHILE))).toBe("12:30 a. m.");
     expect(formatDayShort("2026-10-15T12:00:00.000Z")).toContain("15");
   });
 

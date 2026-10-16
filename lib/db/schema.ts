@@ -226,19 +226,58 @@ export const notifications = mysqlTable(
     entityId: varchar("entity_id", { length: 36 }),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (t) => [index("notifications_user_read_idx").on(t.userId, t.isRead)],
+  // Dos índices en vez del único `(user_id, is_read)` que había antes
+  // (Fase 47, tarea 47.3). Los dos accesos reales son distintos:
+  //
+  // - La campanita y el centro de notificaciones piden `WHERE user_id = ?
+  //   AND is_read = ? ORDER BY created_at DESC`. Con el índice anterior MySQL
+  //   filtraba bien pero tenía que ordenar aparte (`Using filesort`).
+  // - El listado "todas" filtra solo por usuario, así que necesita el orden
+  //   por fecha sin la columna `is_read` en medio.
+  //
+  // Con la fecha al final de cada índice, ambos salen del índice ya ordenados.
+  (t) => [
+    index("notifications_user_read_created_idx").on(
+      t.userId,
+      t.isRead,
+      t.createdAt,
+    ),
+    index("notifications_user_created_idx").on(t.userId, t.createdAt),
+  ],
 );
 
-export const auditLogs = mysqlTable("audit_logs", {
-  id: varchar("id", { length: 36 }).primaryKey(),
-  userId: varchar("user_id", { length: 36 }).references(() => users.id),
-  action: varchar("action", { length: 100 }).notNull(),
-  entityType: varchar("entity_type", { length: 50 }).notNull(),
-  entityId: varchar("entity_id", { length: 36 }),
-  details: json("details"),
-  ipAddress: varchar("ip_address", { length: 45 }),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+/**
+ * Logs de auditoría (Fase 35), con índices propios (Fase 47, tarea 47.3).
+ *
+ * Esta tabla **no tenía ningún índice** aparte de la clave primaria, y es la
+ * que más crece: cada acción crítica inserta una fila. `/admin/logs` filtra
+ * por rango de fechas, por usuario y por tipo de acción, y ordena por
+ * `created_at DESC`, así que MySQL recorría la tabla entera y ordenaba el
+ * resultado en memoria (verificado con `EXPLAIN`: `type = ALL`, `key = NULL`,
+ * `Using where; Using filesort`).
+ */
+export const auditLogs = mysqlTable(
+  "audit_logs",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    userId: varchar("user_id", { length: 36 }).references(() => users.id),
+    action: varchar("action", { length: 100 }).notNull(),
+    entityType: varchar("entity_type", { length: 50 }).notNull(),
+    entityId: varchar("entity_id", { length: 36 }),
+    details: json("details"),
+    ipAddress: varchar("ip_address", { length: 45 }),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (t) => [
+    // Vista por defecto: rango de fechas, del más reciente al más antiguo.
+    index("audit_logs_created_at_idx").on(t.createdAt),
+    // Filtro por usuario + orden por fecha (el más usado de los tres).
+    index("audit_logs_user_created_idx").on(t.userId, t.createdAt),
+    // Filtro por tipo de acción y lista de acciones distintas del filtro.
+    // Con `created_at` al final, el listado de esa acción sale ya ordenado.
+    index("audit_logs_action_created_idx").on(t.action, t.createdAt),
+  ],
+);
 
 export const settings = mysqlTable("settings", {
   key: varchar("key", { length: 100 }).primaryKey(),

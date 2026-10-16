@@ -213,6 +213,36 @@ Procedimiento para activarlo de verdad (cuenta, secretos, alertas):
 
 ---
 
+## Reglas de rendimiento (Fase 47)
+
+- **Las gráficas son SVG propio, no una librería.** `recharts` estuvo hasta la
+  Fase 47 y costaba 387 KB, además de que las gráficas no aparecían en el HTML
+  del servidor: solo se veían tras hidratar. Ahora hay dos piezas:
+  `components/metrics/chartGeometry.ts` (escalas y trazado, funciones puras) y
+  `ChartFrame.tsx` (el marco). `DonutChart` es el mismo patrón desde la Fase 39.
+- **Ningún texto dentro del SVG de una gráfica.** El SVG se estira con
+  `preserveAspectRatio="none"` (por eso los trazos llevan
+  `vector-effect="non-scaling-stroke"`) y los rótulos de los ejes son HTML
+  posicionados con porcentajes. Dentro del SVG, en un móvil de 375 px se leerían
+  a la mitad de tamaño.
+- **Ninguna consulta trae el histórico para filtrar después en memoria.**
+  `metric.service` usa `loadRowsInRange` (acotada por fechas) y `loadLastActivity`.
+  Con un atleta de siete años de datos son 30 filas en vez de 13.862.
+- **`audit_logs` sí tiene índices**, aunque no los parezca: es la tabla que más
+  crece y `/admin/logs` filtra y ordena por fecha. Una migración que borre un
+  índice tiene que respetar las claves foráneas: MySQL usa
+  `notifications_user_read_idx` como índice de la FK de `notifications.user_id`
+  (migración `0002`, reescrita a mano por eso).
+- **`memo` solo sirve con props estables.** En `CalendarDay` la prop de callback
+  es un único `onSelect` de `MonthCalendar`, no una flecha por celda: con
+  `onClick={() => …}` el `memo` no cortaría nada. `DroppableDay` no lleva `memo`
+  a propósito, porque su `children` se recrea en cada render.
+- **Next 16 con Turbopack no imprime la tabla de tamaños del build.** Para
+  medir el bundle está `scripts/verify-rendimiento.ts`, que además comprueba que
+  las gráficas vienen en el HTML y que las páginas no dejan errores en consola.
+
+---
+
 ## Consideraciones Clave
 - Sistema cerrado de tres roles + Director Técnico con permisos diferenciados por jerarquía (Grupo → Team → Atleta)
 - Flujo asíncrono: coach planifica → atleta ejecuta → coach revisa → feedback bidireccional

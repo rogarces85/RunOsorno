@@ -350,3 +350,68 @@ npm run dev
 - **Regla para el futuro**: agregar un idioma = cambiar `LOCALE`, agregar mensajes y conectar el enrutado. El formateo ya esta centralizado.
 - **Pendiente**: migrar los textos del JSX a `t()` cuando exista un segundo idioma
 - **Leftovers**: 0
+
+## Fase 47 - Rendimiento y optimizacion (549/578)
+
+Las ocho tareas eran de "verificar". Tres estaban rotas de verdad y una resulto
+ser imposible tal como estaba escrita.
+
+- **Next 16 no imprime la tabla de tamanos**: con Turbopack el `next build` sale
+  sin la columna de JS por ruta. El verificador mide el bundle por su cuenta.
+- **`recharts` fuera** (387 KB y las graficas no se pintaban en el servidor):
+  `ProgressChart`, `LoadChart` y `AthleteComplianceChart` ahora son SVG propio
+  con `viewBox` y **componentes de servidor**, igual que `DonutChart` (Fase 39).
+  Bundle del cliente **2.627 KB -> 1.574 KB** (-40 %); `/athlete/metrics`
+  descarga 37 KB. La clave del diseno: **el texto de los ejes es HTML**, fuera
+  del SVG, porque dentro se leeria a la mitad de tamano en un movil.
+- **Bug encontrado por la consola**: `points="M 50 200 L 150 2..."` en un
+  `<polyline>` no es un formato valido (quiere "x,y x,y"). El navegador avisaba
+  por consola y **la linea no se dibujaba**. Ahora es `<path d=...>` y
+  `verify-rendimiento.ts` falla ante cualquier error de consola.
+- **`audit_logs` sin un solo indice** (47.3): `/admin/logs` hacia full scan +
+  filesort (`type=ALL`, `key=NULL`). Anadidos `created_at`,
+  `(user_id, created_at)` y `(action, created_at)`. Con 1.058 filas: 0,88 ms
+  escaneando -> 0,44 ms con indice. `notifications` tambien: `created_at` al
+  final del indice quita el `filesort` de la campanita.
+- **`loadJoinedRows` sin filtro de fecha** (47.5): traia todo el historico del
+  equipo y filtraba el periodo en memoria. Ahora tres consultas acotadas
+  (`loadPeriodRows`, `loadRecentRows`, `loadLastActivity`).
+  Medido con un atleta de 2.600 dias: **13.862 filas -> 30**.
+- **`detectAlerts` gana un 5.o parametro** (`lastActivity`): la ventana de 21
+  dias ya no alcanza el ultimo registro, asi que sin esto un atleta con el
+  ultimo registro hace meses saldria como "no tiene registros de sesiones" en
+  vez de "lleva N dias sin registrar". 4 pruebas unitarias nuevas lo fijan.
+- **Trampa de mysql2**: `MAX(session_date)` devuelve **texto**, no `Date`
+  (las columnas `date` si son `Date`, pero una funcion de agregacion no pasa
+  por el conversor del driver). Revienta en ejecucion, no al compilar.
+- **Migracion 0002 reescrita a mano**: MySQL usa `notifications_user_read_idx`
+  como indice de la FK, asi que borrarlo primero da `ERROR 1553`. Se crean los
+  indices nuevos (que empiezan igual por `user_id`) y se borra el viejo al
+  final. Sin tocar, `npm run db:migrate` fallaba.
+- **`memo` en el calendario** (47.8): cada celda recibia
+  `onClick={() => onDayClick(...)}`, una flecha nueva por render, asi que
+  `memo` no habria cortado nada. Ahora un unico `onSelect` con `useCallback` y
+  el indice de sesiones con `useMemo`. Con `MutationObserver`: seleccionar un
+  dia paso de 165 a **1 mutacion**.
+- **`DroppableDay` NO lleva `memo`** a proposito: su `children` se recrea cada
+  render, asi que `memo` seria decorativo.
+- **`FeedbackThread` dejo de ser Client Component**: sin estado, sin eventos y
+  sin nada del navegador.
+- **Fallos anteriores que aparecieron al correr la suite** (no de esta fase):
+  1. `tests/unit/i18n.test.ts` fallaba 3 casos desde antes: Node 24.11 / ICU
+     77.1 escribe `p.\u00A0m.` con espacio duro. Las pruebas comparaban el texto
+     exacto y fallaban por ICU, no por la hora de Chile.
+  2. `verify-settings.ts` fallaba 34.10 y 34.11 porque el seed dejo de tener
+     una sesion dentro de las 48 h. Ahora crea la suya y la borra. Ademas
+     "el servicio rechaza un motivo no configurado" pasaba **por el motivo
+     equivocado** (fallaba antes por la ventana de edicion).
+
+- **Verificacion**: `npx tsx scripts/verify-rendimiento.ts` **25/25**. Siembra
+  2.600 asignaciones para que el `EXPLAIN` sea realista (con 284 filas el
+  optimizador elige otros planes) y las borra al final.
+- **Sin regresiones**: unitarias **182/182** (162 -> 182), E2E **15/15**,
+  verify-roles 60/60, dashboards 19/19, validations 18/18, audit-logs 23/23,
+  settings 15/15, responsive 31/31, i18n 12/12, lint 0 errores, build ok.
+- **Pendiente de esta fase**: nada. Las cuatro siguientes son accesibilidad
+  (48), documentacion (49) y revision final (50).
+- **Leftovers**: 0

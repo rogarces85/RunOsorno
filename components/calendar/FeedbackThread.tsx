@@ -1,5 +1,3 @@
-"use client";
-
 import type { FeedbackMessage } from "@/lib/services/feedback.service";
 import { formatDateChile } from "@/lib/utils/date";
 
@@ -9,6 +7,20 @@ const ROLE_LABEL: Record<string, string> = {
   athlete: "Atleta",
 };
 
+/**
+ * Lista de comentarios de una sesión (Fase 22).
+ *
+ * **No** es un Client Component, aunque lo fuera hasta la Fase 47. No tiene
+ * estado, ni manejadores de eventos, ni importa nada que requiera navegador: es
+ * markup. Al importarlo desde `SessionDetailPanel`, que sí es cliente, el
+ * módulo se incluye igualmente en el bundle del cliente, así que aquí la
+ * ganancia es declarativa; lo que se evita es que un componente de
+ * presentación arrastre la etiqueta `use client` y se vuelva a olvidar al
+ * copiarlo a otro sitio.
+ *
+ * Pasa a ser componente de servidor: si mañana se usa desde una página RSC,
+ * se pinta en el HTML sin enviar JavaScript.
+ */
 export function FeedbackThread({ messages }: { messages: FeedbackMessage[] }) {
   if (messages.length === 0) {
     return null;

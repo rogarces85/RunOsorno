@@ -43,11 +43,35 @@ const DEFAULT_SETTINGS: Required<AlertSettings> = {
   highRpe: 8,
 };
 
+/**
+ * Días de historial que necesitan las alertas (Fase 47, tarea 47.5).
+ *
+ * Las tres reglas miran fechas muy próximas a la de referencia:
+ *
+ * - `no_logging` solo necesita la **última** fecha con registro (o ninguna),
+ *   y esa llega aparte en `lastActivity`.
+ * - `load_drop` compara los últimos 7 días con los 7 anteriores: 14 días.
+ * - `high_rpe` cuenta días seguidos hacia atrás desde hoy o ayer: 2 días.
+ *
+ * Por eso `metric.service` ya no carga todo el histórico del atleta para
+ * detectar alertas, sino esta ventana. Antes leía cada registro histórico del
+ * equipo (medido: 13.862 filas para un atleta con seis años de historial, frente
+ * a 30 con la ventana acotada).
+ */
+export const ALERT_WINDOW_DAYS = 21;
+
 export function detectAlerts(
   athletes: AlertAthlete[],
   records: AlertRecord[],
   settings: AlertSettings = {},
   referenceDateISO: string = todayISO(),
+  /**
+   * Fecha real del último registro por atleta (ISO). Se pasa aparte porque
+   * `records` viene acotado a una ventana corta: sin esto, un atleta que lleva
+   * tres meses sin registrar aparecería como "no tiene registros de sesiones"
+   * en lugar de "lleva 90 días sin registrar sesiones".
+   */
+  lastActivity: Record<string, string> = {},
 ): AthleteAlert[] {
   const config = { ...DEFAULT_SETTINGS, ...settings };
   const alerts: AthleteAlert[] = [];
@@ -55,10 +79,11 @@ export function detectAlerts(
   for (const athlete of athletes) {
     const own = records.filter((record) => record.athleteId === athlete.id);
 
-    const lastDate = own.reduce<string | null>(
+    const windowLastDate = own.reduce<string | null>(
       (max, record) => (!max || record.date > max ? record.date : max),
       null,
     );
+    const lastDate = lastActivity[athlete.id] ?? windowLastDate;
     const idleDays = lastDate
       ? daysBetweenISO(lastDate, referenceDateISO)
       : null;

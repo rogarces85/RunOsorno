@@ -15,6 +15,20 @@
       "when": 1792009882658,
       "tag": "0001_tiresome_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1792153762086,
+      "tag": "0002_bent_jocasta",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1792153840759,
+      "tag": "0003_numerous_baron_zemo",
+      "breakpoints": true
     }
   ]
 }

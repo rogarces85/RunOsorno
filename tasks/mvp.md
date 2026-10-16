@@ -1299,14 +1299,144 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 47. Rendimiento y optimización
 
-- [ ] 47.1 Verificar que las páginas principales son Server Components (no `"use client"` innecesario)
-- [ ] 47.2 Verificar que solo componentes interactivos son Client Components
-- [ ] 47.3 Verificar que las queries de DB tienen índices adecuados (EXPLAIN en MySQL)
-- [ ] 47.4 Verificar que el calendario carga datos de un mes (no todos los históricos)
-- [ ] 47.5 Verificar que las métricas no cargan todos los registros históricos para periodos largos (usar límites)
-- [ ] 47.6 Verificar `next build` no tiene warnings de tamaño de bundle excesivos
-- [ ] 47.7 Verificar imágenes (avatars) cargan con `loading="lazy"` donde corresponde
-- [ ] 47.8 Optimizar re-renders en componentes de calendario (memo donde sea necesario)
+- [x] 47.1 Verificar que las páginas principales son Server Components (no `"use client"` innecesario)
+- [x] 47.2 Verificar que solo componentes interactivos son Client Components
+- [x] 47.3 Verificar que las queries de DB tienen índices adecuados (EXPLAIN en MySQL)
+- [x] 47.4 Verificar que el calendario carga datos de un mes (no todos los históricos)
+- [x] 47.5 Verificar que las métricas no cargan todos los registros históricos para periodos largos (usar límites)
+- [x] 47.6 Verificar `next build` no tiene warnings de tamaño de bundle excesivos
+- [x] 47.7 Verificar imágenes (avatars) cargan con `loading="lazy"` donde corresponde
+- [x] 47.8 Optimizar re-renders en componentes de calendario (memo donde sea necesario)
+
+> **Las ocho tareas eran de "verificar", y tres estaban rotas.** 47.3, 47.5
+> y 47.6 encontraron defectos reales; en 47.8 resultó que el `memo` que se
+> pedía no habría servido de nada tal como estaba el componente.
+>
+> **Next 16 ya no imprime la tabla de tamaños (47.6).** Con Turbopack el
+> `next build` sale sin la columna de JavaScript por ruta, así que no había
+> nada que mirar. El script mide el bundle por su cuenta, y al hacerlo
+> apareció lo grande que era.
+>
+> **`recharts` costaba 387 KB y no se pintaba en el servidor.** Las tres
+> gráficas que quedaban (`ProgressChart`, `LoadChart`,
+> `AthleteComplianceChart`) eran Client Components: el HTML que llegaba al
+> navegador **no tenía ningún `<svg>`** y las gráficas aparecían recién
+> después de hidratar. Ahora son SVG propio con `viewBox` y son componentes
+> de servidor, siguiendo el camino que `DonutChart` ya había abierto en la
+> Fase 39. Se desinstaló `recharts`: el bundle del cliente pasó de **2.627 KB
+> a 1.574 KB** (−40 %), y `/athlete/metrics` descarga **37 KB** de
+> JavaScript. Lo importante no es el tamaño sino que las gráficas ahora
+> existen en el HTML de la primera respuesta.
+>
+> El detalle que evita repetir los problemas de `DonutChart`: **el texto no
+> vive dentro del SVG**. El SVG se estira con `preserveAspectRatio="none"` y
+> los rótulos de los ejes son HTML posicionados con porcentajes sobre la misma
+> caja. Con el texto dentro del SVG, en un móvil de 375 px se leería a la
+> mitad de tamaño.
+>
+> **Un error que solo apareció en consola.** La primera versión pasaba la
+> traza de la línea en el atributo `points` de un `<polyline>`, que espera
+> pares de coordenadas y no un `M … L …`. El navegador avisaba por consola
+> (`<polyline> attribute points: Expected number`) y la línea no se
+> dibujaba: la página se veía bien y la gráfica no estaba. Ahora es un
+> `<path d=…>`, y `verify-rendimiento.ts` falla si las páginas revisadas
+> dejan **cualquier** error en la consola.
+>
+> **`audit_logs` no tenía ningún índice (47.3).** `/admin/logs` filtra por
+> rango de fechas, por usuario y por acción y ordena por `created_at DESC`,
+> así que MySQL recorría la tabla entera y ordenaba el resultado en memoria
+> (`EXPLAIN`: `type = ALL`, `key = NULL`, `Using where; Using filesort`).
+> Es la tabla que más crece, porque cada acción crítica inserta una fila.
+> Se le añadieron tres índices (`created_at`, `(user_id, created_at)`,
+> `(action, created_at)`) y se comparó con datos a escala: con 1.058 filas la
+> misma consulta pasó de **0,88 ms escaneando a 0,44 ms con índice**, sin
+> `filesort`. En `notifications` el índice `(user_id, is_read)` obligaba a
+> ordenar aparte; con `created_at` al final desaparece.
+>
+> **Las métricas se traían el histórico entero (47.5).** `loadJoinedRows`
+> filtraba el periodo **en memoria**, después de pedirle a la base todas las
+> asignaciones de todos los atletas del equipo, de toda la historia. Ahora
+> son tres consultas acotadas: la del periodo, la de una ventana de 21 días
+> para las alertas, y un `MAX(session_date)` por atleta. Medido con un atleta
+> de 2.600 días de historial: **13.862 filas antes, 30 después**.
+>
+> Eso obligó a tocar `detectAlerts`, que ahora acepta la fecha real del
+> último registro por atleta. Sin eso, un atleta con el último registro hace
+> tres meses saldría como "no tiene registros de sesiones" en vez de "lleva
+> 90 días sin registrar sesiones": la ventana ya no alcanza su último
+> registro. Hay cuatro pruebas unitarias que fijan este comportamiento.
+>
+> **`MAX(session_date)` no devuelve un `Date`.** Las columnas `date` las
+> devuelve mysql2 como `Date`, pero al venir de una función de agregación el
+> driver no aplica el conversor y devuelve texto. `tsx` no valida tipos, así
+> que esto reventó en ejecución (`value.toISOString is not a function`) y no
+> en el compilador.
+>
+> **La migración `0002` no se podía aplicar en el orden que generó
+> drizzle-kit.** MySQL necesita un índice sobre `notifications.user_id` para
+> la clave foránea, y ese índice era justamente el que la migración borraba
+> primero: `ERROR 1553: Cannot drop index … needed in a foreign key
+> constraint`. Los índices nuevos empiezan igual por `user_id`, así que la
+> migración se reescribió para crearlos primero y borrar el viejo al final.
+>
+> **`memo` en el calendario (47.8) no habría servido de nada.** Cada
+> `CalendarDay` recibía `onClick={() => onDayClick(dateISO, item)}`: una
+> flecha nueva en cada render, así que la prop cambiaba siempre y React
+> repintaba los 31 días igual. Ahora reciben un único `onSelect` creado con
+> `useCallback`, y el índice fecha → sesión va en `useMemo`. Medido con un
+> `MutationObserver` sobre el grid: seleccionar un día pasa de 165 a **1
+> mutación** en el DOM.
+>
+> `DroppableDay` **no** lleva `memo` a propósito: su `children` es un
+> elemento que el padre crea en cada render, así que la referencia siempre
+> cambia y `memo` daría la impresión de estar optimizado sin estarlo.
+>
+> **Avatares (47.7).** El del header y el del perfil se piden con
+> `loading="eager"` (siempre visibles); los del listado de atletas, que son
+> decenas, con `loading="lazy"`, más `decoding="async"`.
+>
+> **`FeedbackThread` ya no es Client Component.** No tiene estado, ni
+> eventos, ni importa nada del navegador: es markup con un `"use client"`
+> olvidado.
+>
+> **Dos fallos anteriores, ajenos a esta fase, aparecieron al correr la
+> suite.** No los causó la Fase 47, pero quedaban documentados y se
+> corrigieron:
+>
+> 1. **`tests/unit/i18n.test.ts` fallaba en 3 casos desde antes de la
+>    fase.** No por el proyecto: Node 24.11 trae ICU 77.1, que escribe
+>    `p.\u00A0m.` con espacio duro entre "p." y "m.", donde las versiones
+>    anteriores de ICU ponían un espacio normal. Las tres pruebas comparaban
+>    el texto exacto y fallaban por un detalle de ICU, no por la hora de
+>    Chile. Ahora normalizan el espacio y comparan los caracteres.
+> 2. **`verify-settings.ts` fallaba en 34.10 y 34.11 por el paso del
+>    tiempo.** Buscaba la sesión completada más reciente del seed de
+>    demostración; cuando pasaron las 48 h quedó fuera de la ventana de
+>    edición, el formulario salió en solo lectura y no había contra qué
+>    comprobar nada. Ahora el script **crea la sesión que necesita** (ayer,
+>    con el registro de hace 5 horas) y la borra al terminar. De paso, la
+>    comprobación de "el servicio rechaza un motivo no configurado" pasaba
+>    **por el motivo equivocado**: usaba una sesión vieja y `markNotDone`
+>    fallaba antes por la ventana de edición, así que el motivo no llegó a
+>    probarse nunca. Ahora usa la sesión editable y falla de verdad por el
+>    motivo.
+>
+> **Verificación** (`npx tsx scripts/verify-rendimiento.ts` → **25/25**).
+> El script siembra 2.600 asignaciones de prueba para que el `EXPLAIN` se
+> mida sobre un volumen realista — con la base de demostración (284 filas)
+> el optimizador elige planes distintos — y las borra al terminar. Comprueba
+> por código que las 32 páginas siguen siendo RSC, que no queda ningún
+> Client Component sin motivo, que las gráficas no importan una librería y
+> que el calendario mantiene `memo` con props estables; con `EXPLAIN` que
+> el calendario, las métricas, `/admin/logs` y la campanita usan índice; y
+> en el navegador el tamaño del JavaScript, que las gráficas vienen en el
+> HTML y que los avatares van diferidos donde toca.
+>
+> Además, sin regresiones: unitarias **182/182** (162 → 182), E2E **15/15**,
+> `verify-roles` 60/60, `verify-dashboards` 19/19, `verify-validations`
+> 18/18, `verify-audit-logs` 23/23, `verify-settings` 15/15,
+> `verify-responsive` 31/31, `verify-i18n` 12/12, lint 0 errores, build
+> correcto. Restos: 0.
 
 ---
 
@@ -1401,11 +1531,11 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 44. Sentry | 6 | 5 |
 | 45. Seguridad | 10 | 9 |
 | 46. i18n y localización | 5 | 5 |
-| 47. Rendimiento | 8 | 0 |
+| 47. Rendimiento | 8 | 8 |
 | 48. Accesibilidad | 6 | 0 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **541** |
+| **TOTAL** | **~578** | **549** |
 
 ---
 
@@ -1436,6 +1566,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-seguridad.ts` | Las 10 tareas de seguridad: flags de la cookie, hashing, ausencia de SQL concatenado y de `dangerouslySetInnerHTML`, rate limiting (límite, ventana, bloqueo real comprobado en la base), firmas de imagen contra HTML/SVG/PDF/ZIP disfrazados, secretos fuera del código y CORS cerrado (Fase 45) |
 | `npx tsx scripts/verify-sentry.ts` | Levanta un colector falso, compila la app y provoca tres errores reales (render, Server Action y `captureException`): comprueba que llegan a Sentry con su stack trace, sin cookie ni correos ni cabeceras, y que la configuración de build de los source maps depende del token (Fase 44) |
 | `npx tsx scripts/verify-i18n.ts` | Audita que ninguna fecha se formatee fuera de `lib/i18n` (con `timeZone` fijo, nada sale en UTC) y que el calendario no declare sus días a mano; en la interfaz comprueba el mes y los encabezados en español, los porcentajes y las distancias con coma decimal (Fase 46) |
+| `npx tsx scripts/verify-rendimiento.ts` | Las ocho tareas de la Fase 47: audita que las 32 páginas sigan siendo RSC y que no quede ningún Client Component sin motivo; mide el JavaScript que descarga el navegador y comprueba que las gráficas vienen en el HTML; con `EXPLAIN` sobre 2.600 asignaciones de prueba, que el calendario, las métricas, `/admin/logs` y la campanita usan índice; que la ventana de métricas (30 filas) es una fracción del histórico (13.862); que los avatares de listados van diferidos; y que ninguna de esas páginas deja errores en consola (Fase 47) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`),
 salvo `verify-sentry.ts`, que compila la app y arranca su propio servidor porque

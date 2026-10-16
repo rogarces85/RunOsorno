@@ -10,16 +10,24 @@
  *
  * Restaura los valores originales al terminar para no dejar la DB alterada.
  *
+ * Las comprobaciones 34.10 y 34.11 necesitan una sesión **reciente** de María:
+ * la ventana de edición se cuenta desde `recorded_at`, así que una sesión vieja
+ * aparece en solo lectura y no hay formulario contra el que comprobar nada.
+ * Antes el script cogía la más reciente del seed de demostración, y dejó de
+ * funcionar sola cuando pasaron las 48 h. Ahora crea la suya y la borra al
+ * terminar, con lo que da igual qué día sea.
+ *
  * Uso:  npx tsx scripts/verify-settings.ts
  */
 
 import { chromium, type Browser, type Page } from "playwright";
-import { and, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../lib/db/index";
 import {
   sessionAssignments,
   sessionRecords,
   settings,
+  templates,
 } from "../lib/db/schema";
 import {
   getEditWindowHours,
@@ -64,8 +72,79 @@ async function saveLimit(
   await page.waitForTimeout(2500);
 }
 
+/**
+ * Sesión de hace unas horas para probar la ventana de edición.
+ *
+ * Se crea en vez de buscar una del seed: `canEditRecord` cuenta las horas desde
+ * `recorded_at`, así que cualquier sesión del seed envejece y el script empezaría
+ * a fallar por el calendario, no por la configuración que está comprobando.
+ *
+ * Va con `CURDATE() - 1` (ayer) y el registro de hace 5 horas: dentro de la
+ * ventana de 48 h y fuera de la de 1 h, que es justo lo que exige 34.11. Se
+ * inserta con SQL crudo para que `session_date` quede como `DATE` y no como
+ * `Date` con hora, que es la trampa de Drizzle/MySQL de este proyecto.
+ *
+ * Devuelve el id de la asignación y la fecha en formato "YYYY-MM-DD".
+ */
+async function crearSesionReciente(
+  athleteId: string,
+  coachId: string,
+): Promise<{ assignmentId: string; fecha: string }> {
+  const assignmentId = crypto.randomUUID();
+  const recordId = crypto.randomUUID();
+  const templateId = await primeraPlantilla();
+
+  await db.execute(sql`
+    INSERT INTO session_assignments
+      (id, athlete_id, template_id, session_date, week_start, status, created_by)
+    VALUES (${assignmentId}, ${athleteId}, ${templateId},
+            CURDATE() - INTERVAL 1 DAY,
+            CURDATE() - INTERVAL (WEEKDAY(CURDATE()) + 1) DAY,
+            'completed', ${coachId})
+  `);
+  await db.execute(sql`
+    INSERT INTO session_records
+      (id, assignment_id, distance_km, duration_minutes, rpe, recorded_at, updated_at)
+    VALUES (${recordId}, ${assignmentId}, 8.00, 48, 6,
+            NOW() - INTERVAL 5 HOUR, NOW())
+  `);
+
+  const filas = (await db.execute(
+    sql`SELECT date(session_date) AS fecha FROM session_assignments WHERE id = ${assignmentId}`,
+  )) as unknown;
+  // Con una sola columna el driver devuelve la lista de filas directamente;
+  // con varias, `[filas, campos…]`. Aquí solo hay una.
+  const fila = (
+    Array.isArray(filas) && Array.isArray(filas[0]) ? filas[0] : filas
+  ) as { fecha?: string }[];
+  return { assignmentId, fecha: String(fila[0]?.fecha ?? "") };
+}
+
+async function primeraPlantilla(): Promise<string> {
+  const [plantilla] = await db
+    .select({ id: templates.id })
+    .from(templates)
+    .orderBy(templates.createdAt)
+    .limit(1);
+  if (!plantilla) {
+    throw new Error("no hay plantillas: ejecuta npm run db:seed");
+  }
+  return plantilla.id;
+}
+
+async function borrarSesionReciente(assignmentId: string): Promise<void> {
+  await db
+    .delete(sessionRecords)
+    .where(eq(sessionRecords.assignmentId, assignmentId));
+  await db
+    .delete(sessionAssignments)
+    .where(eq(sessionAssignments.id, assignmentId));
+}
+
 async function main() {
   console.log(`Verificando configuración global en ${BASE_URL}\n`);
+  /** Ids de las sesiones creadas por el script, para borrarlas al terminar. */
+  const sesionesCreadas: string[] = [];
 
   const originalRows = await db.select().from(settings);
   console.log(
@@ -240,33 +319,26 @@ async function main() {
         .limit(1)
     )[0].id;
 
-    const mariaSession = (
+    const coachDemo = (
       await db
-        .select({
-          date: sql<string>`date(session_assignments.session_date)`,
-        })
-        .from(sessionAssignments)
-        .where(
-          and(
-            eq(sessionAssignments.athleteId, mariaId),
-            eq(sessionAssignments.status, "completed"),
-            sql`session_assignments.session_date <= curdate()`,
-          ),
-        )
-        .orderBy(sql`session_assignments.session_date desc`)
+        .select({ id: users.id })
+        .from(users)
+        .where(eq(users.email, "coach.demo@runosorno.cl"))
         .limit(1)
-    )[0];
+    )[0].id;
+    const mariaSession = await crearSesionReciente(mariaId, coachDemo);
+    sesionesCreadas.push(mariaSession.assignmentId);
 
     const athCtx = await browser.newContext();
     const athPage = await athCtx.newPage();
     await login(athPage, "maria.fernandez@demo.runosorno.cl", DEMO_PASSWORD);
 
-    if (mariaSession) {
-      const month = mariaSession.date.slice(0, 7);
-      await athPage.goto(`${BASE_URL}/athlete/calendar?month=${month}`, {
-        waitUntil: "networkidle",
-      });
-      const cell = athPage.locator(`[data-date="${mariaSession.date}"]`).first();
+    {
+      await athPage.goto(
+        `${BASE_URL}/athlete/calendar?month=${mariaSession.fecha.slice(0, 7)}`,
+        { waitUntil: "networkidle" },
+      );
+      const cell = athPage.locator(`[data-date="${mariaSession.fecha}"]`).first();
       if ((await cell.count()) > 0) {
         await cell.click();
         await athPage.waitForTimeout(1500);
@@ -290,7 +362,7 @@ async function main() {
       "34.10 el motivo configurado aparece en el select del atleta",
       optionTexts.length > 0
         ? `opciones: ${optionTexts.join(", ")}`
-        : `select no encontrado (sesión ${mariaSession?.date ?? "n/d"})`,
+        : `el formulario de la sesión de prueba (${mariaSession.fecha}) no llegó a abrirse`,
     );
     await athCtx.close();
 
@@ -304,47 +376,13 @@ async function main() {
       .click();
     await adminPage.waitForTimeout(400);
 
-    // La ventana se mide sobre un registro de María, la misma atleta que
-    // inicia sesión: canEditRecord valida que el registro sea suyo.
-    //
-    // Se elige un registro de hace 1-47 horas: con la ventana por defecto
-    // (48h) debe ser editable y con una ventana de 1h no. Un registro mas
-    // antiguo ya estaria vencido antes de tocar la configuracion y la
-    // comprobacion no probaria nada.
-    const mariaForWindow = (
-      await db
-        .select({ id: users.id })
-        .from(users)
-        .where(eq(users.email, "maria.fernandez@demo.runosorno.cl"))
-        .limit(1)
-    )[0].id;
+    // La ventana se mide sobre el registro de María creado más arriba, de hace
+    // 5 horas: `canEditRecord` valida que el registro sea suyo, y con la ventana
+    // por defecto (48h) debe ser editable y con una ventana de 1h no.
+    const mariaForWindow = mariaId;
+    const oldRecord = { assignmentId: mariaSession.assignmentId };
 
-    const oldRecord = (
-      await db
-        .select({ assignmentId: sessionAssignments.id })
-        .from(sessionAssignments)
-        .innerJoin(
-          sessionRecords,
-          eq(sessionRecords.assignmentId, sessionAssignments.id),
-        )
-        .where(
-          and(
-            eq(sessionAssignments.athleteId, mariaForWindow),
-            sql`timestampdiff(hour, ${sessionRecords.recordedAt}, now()) between 1 and 47`,
-          ),
-        )
-        .orderBy(sql`${sessionRecords.recordedAt} desc`)
-        .limit(1)
-    )[0];
-
-    if (!oldRecord) {
-      record(
-        false,
-        "34.11 existe un registro de hace más de 3 horas",
-        "no se encontró para probar",
-      );
-    } else {
-      // Con la ventana por defecto (48h) debe ser editable.
+    {
       const beforeWindow = await getEditWindowHours();
       await saveLimit(adminPage, "editWindowHours", "1");
       const smallWindow = await getEditWindowHours();
@@ -360,7 +398,7 @@ async function main() {
       );
       record(
         !editableWithSmallWindow,
-        "34.11 con ventana de 1h el registro de hace 3h NO es editable",
+        "34.11 con ventana de 1h el registro de hace 5h NO es editable",
         `canEditRecord=${editableWithSmallWindow}`,
       );
 
@@ -379,50 +417,37 @@ async function main() {
 
     // Motivo inválido rechazado por el servicio.
     console.log("\n--- Validación de motivos en el servicio ---");
-    const invalidReasonCheck = await (async () => {
-      const candidate = (
-        await db
-          .select({
-            assignmentId: sessionAssignments.id,
-            athleteId: sessionAssignments.athleteId,
-          })
-          .from(sessionAssignments)
-          .where(
-            sql`exists (
-              select 1 from session_records sr
-              where sr.assignment_id = session_assignments.id
-            )`,
-          )
-          .limit(5)
-      )[0];
-      if (!candidate) {
-        return null;
-      }
-      const result = await markNotDone(
-        {
-          assignmentId: candidate.assignmentId,
-          reason: "motivo_inexistente_xyz",
-        },
-        candidate.athleteId,
-      );
-      return result;
-    })();
-
-    if (invalidReasonCheck === null) {
-      record(false, "el servicio rechaza motivos no configurados", "sin datos");
-    } else {
-      record(
-        !invalidReasonCheck.ok,
-        "el servicio rechaza un motivo no configurado",
-        invalidReasonCheck.ok
-          ? "ACCEPTÓ un motivo inválido"
-          : `rechazado: "${invalidReasonCheck.error}"`,
-      );
-    }
+    // Se usa la sesión de prueba, no una cualquiera del seed: la ventana de
+    // edición se comprueba **antes** que el motivo, así que con una sesión
+    // vieja `markNotDone` falla por la ventana y la comprobación del motivo
+    // pasaba sin llegar a probarlo nunca.
+    const invalidReasonCheck = await markNotDone(
+      {
+        assignmentId: mariaSession.assignmentId,
+        reason: "motivo_inexistente_xyz",
+      },
+      mariaId,
+    );
+    record(
+      !invalidReasonCheck.ok,
+      "el servicio rechaza un motivo no configurado",
+      invalidReasonCheck.ok
+        ? "ACCEPTÓ un motivo inválido"
+        : `rechazado: "${invalidReasonCheck.error}"`,
+    );
 
     await adminCtx.close();
   } finally {
     console.log("\nRestaurando configuración original...");
+    // La sesión de prueba se borra aunque el script haya fallado a mitad: si
+    // se queda, ocupa un día del calendario de María y falsea otras
+    // comprobaciones.
+    for (const id of sesionesCreadas) {
+      await borrarSesionReciente(id);
+    }
+    if (sesionesCreadas.length > 0) {
+      console.log(`  ${sesionesCreadas.length} sesión(es) de prueba eliminadas`);
+    }
     // OJO: la columna `value` es longtext y Drizzle devuelve el JSON ya
     // parseado como string. Si se reescribe ese string tal cual, se escapan
     // las comillas y el valor queda corrupto (por ejemplo "48" en texto en

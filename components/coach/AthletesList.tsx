@@ -128,6 +128,9 @@ export function AthletesList({
                           name={athlete.name}
                           avatarKey={athlete.avatarKey}
                           size="sm"
+                          // Es una tabla de decenas de filas: difiere la carga
+                          // para no competir con el resto del listado (47.7).
+                          loading="lazy"
                         />
                         <div>
                           <div className="fw-medium">{athlete.name}</div>

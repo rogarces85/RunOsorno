@@ -1,4 +1,4 @@
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, exists, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import {
   athleteProfiles,
@@ -11,7 +11,7 @@ import {
   templates,
   users,
 } from "@/lib/db/schema";
-import { detectAlerts, type AthleteAlert } from "@/lib/metrics/alerts";
+import { detectAlerts, ALERT_WINDOW_DAYS, type AthleteAlert } from "@/lib/metrics/alerts";
 import {
   calcCompliance,
   type ComplianceResult,
@@ -39,6 +39,7 @@ import {
   daysBetweenISO,
   parseKm,
   round2,
+  shiftDaysISO,
   todayISO,
   weekStartOfISO,
 } from "@/lib/metrics/utils";
@@ -124,6 +125,19 @@ function toDayISO(value: Date): string {
   return value.toISOString().slice(0, 10);
 }
 
+/**
+ * Igual que `toDayISO`, pero tolerante a que el valor llegue como texto.
+ *
+ * Las columnas `date` las devuelve mysql2 como `Date`, pero **`MAX(date)` no**:
+ * al venir de una función de agregación, el driver no aplica el conversor del
+ * tipo y devuelve el texto crudo ("2026-10-09"). Con solo `toISOString()` eso
+ * revienta con "value.toISOString is not a function" en tiempo de ejecución
+ * (y `tsx` no valida tipos, así que no lo detecta al compilar).
+ */
+function toDayISOFromValue(value: Date | string): string {
+  return typeof value === "string" ? value.slice(0, 10) : toDayISO(value);
+}
+
 // Temporada austral: 1 de agosto → 31 de julio (orientado a Chile).
 export function getMetricsPeriod(period: MetricsPeriod): MetricsRange {
   if (period.kind === "custom") {
@@ -152,33 +166,98 @@ type JoinedRow = {
   rpe: number | null;
 };
 
-async function loadJoinedRows(
+const joinedColumns = {
+  athleteId: sessionAssignments.athleteId,
+  status: sessionAssignments.status,
+  sessionDate: sessionAssignments.sessionDate,
+  recordId: sessionRecords.id,
+  distanceKm: sessionRecords.distanceKm,
+  durationMinutes: sessionRecords.durationMinutes,
+  rpe: sessionRecords.rpe,
+};
+
+/**
+ * Filas de un rango de fechas para los atletas indicados (Fase 47, tarea 47.5).
+ *
+ * Antes esta consulta **no filtraba por fecha**: traía todas las asignaciones
+ * de todos los atletas del equipo, de toda la historia, y el filtrado del
+ * periodo se hacía en memoria. Con seis años de historial eso son miles de
+ * filas por página de métricas. Ahora MySQL devuelve solo lo del rango pedido.
+ *
+ * Se usa dos veces con rangos distintos: el del periodo que se está viendo, y
+ * una ventana corta alrededor de hoy para las alertas (que son estado actual, no
+ * del periodo; ver `ALERT_WINDOW_DAYS`).
+ */
+async function loadRowsInRange(
   athleteIds: string[],
+  from: string,
+  to: string,
 ): Promise<JoinedRow[]> {
   if (athleteIds.length === 0) {
     return [];
   }
   return db
-    .select({
-      athleteId: sessionAssignments.athleteId,
-      status: sessionAssignments.status,
-      sessionDate: sessionAssignments.sessionDate,
-      recordId: sessionRecords.id,
-      distanceKm: sessionRecords.distanceKm,
-      durationMinutes: sessionRecords.durationMinutes,
-      rpe: sessionRecords.rpe,
-    })
+    .select(joinedColumns)
     .from(sessionAssignments)
     .leftJoin(
       sessionRecords,
       eq(sessionRecords.assignmentId, sessionAssignments.id),
     )
-    .where(inArray(sessionAssignments.athleteId, athleteIds));
+    .where(
+      and(
+        inArray(sessionAssignments.athleteId, athleteIds),
+        whereSessionDateBetween(from, to),
+      ),
+    );
 }
 
-function inRange(row: JoinedRow, range: MetricsRange): boolean {
-  const iso = toDayISO(row.sessionDate);
-  return iso >= range.from && iso <= range.to;
+/**
+ * Fecha del último registro real de cada atleta (Fase 47, tarea 47.5).
+ *
+ * Se consulta aparte porque las alertas de "sin registrar" necesitan la fecha
+ * real aunque caiga fuera de la ventana corta. Usa `EXISTS` en vez de un join
+ * para que MySQL recorra las asignaciones del atleta usando
+ * `(athlete_id, session_date)` y compruebe el registro una a una, en vez de
+ * recorrer la tabla entera de `session_records`.
+ */
+async function loadLastActivity(
+  athleteIds: string[],
+): Promise<Record<string, string>> {
+  if (athleteIds.length === 0) {
+    return {};
+  }
+  const rows = await db
+    .select({
+      athleteId: sessionAssignments.athleteId,
+      lastDate: sql<Date | string>`max(${sessionAssignments.sessionDate})`,
+    })
+    .from(sessionAssignments)
+    .where(
+      and(
+        inArray(sessionAssignments.athleteId, athleteIds),
+        exists(
+          db
+            .select({ one: sql`1` })
+            .from(sessionRecords)
+            .where(eq(sessionRecords.assignmentId, sessionAssignments.id)),
+        ),
+      ),
+    )
+    .groupBy(sessionAssignments.athleteId);
+
+  const result: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.lastDate) {
+      result[row.athleteId] = toDayISOFromValue(row.lastDate);
+    }
+  }
+  return result;
+}
+
+/** Ventana de fechas que necesitan las alertas, alrededor de hoy. */
+function alertWindow(): { from: string; to: string } {
+  const to = todayISO();
+  return { from: shiftDaysISO(to, -(ALERT_WINDOW_DAYS - 1)), to };
 }
 
 function toAlertRecords(rows: JoinedRow[]) {
@@ -361,8 +440,13 @@ export async function getTeamMetrics(
     };
   }
 
-  const allRows = await loadJoinedRows(members.map((member) => member.athleteId));
-  const periodRows = allRows.filter((row) => inRange(row, range));
+  const athleteIds = members.map((member) => member.athleteId);
+  const window = alertWindow();
+  const [periodRows, recentRows, lastActivity] = await Promise.all([
+    loadRowsInRange(athleteIds, range.from, range.to),
+    loadRowsInRange(athleteIds, window.from, window.to),
+    loadLastActivity(athleteIds),
+  ]);
 
   const athletes: TeamAthleteMetrics[] = members.map((member) => {
     const own = periodRows.filter((row) => row.athleteId === member.athleteId);
@@ -399,7 +483,10 @@ export async function getTeamMetrics(
 
   const alerts = detectAlerts(
     members.map((member) => ({ id: member.athleteId, name: member.name })),
-    toAlertRecords(allRows),
+    toAlertRecords(recentRows),
+    {},
+    window.to,
+    lastActivity,
   );
 
   return {
@@ -451,11 +538,14 @@ export async function getGroupMetrics(
     .where(inArray(teamMembers.teamId, teamIds))
     .orderBy(users.name);
 
-  const allRows = await loadJoinedRows(
-    athleteRows.map((row) => row.athleteId),
-  );
-  const periodRows = allRows.filter((row) => inRange(row, range));
-  const alertRecords = toAlertRecords(allRows);
+  const groupAthleteIds = athleteRows.map((row) => row.athleteId);
+  const window = alertWindow();
+  const [periodRows, recentRows, lastActivity] = await Promise.all([
+    loadRowsInRange(groupAthleteIds, range.from, range.to),
+    loadRowsInRange(groupAthleteIds, window.from, window.to),
+    loadLastActivity(groupAthleteIds),
+  ]);
+  const alertRecords = toAlertRecords(recentRows);
 
   const teamsMetrics: GroupTeamMetrics[] = teamRows.map((teamRow) => {
     const athleteIds = new Set(
@@ -474,6 +564,9 @@ export async function getGroupMetrics(
         .filter((row) => athleteIds.has(row.athleteId))
         .map((row) => ({ id: row.athleteId, name: row.name })),
       alertRecords.filter((record) => athleteIds.has(record.athleteId)),
+      {},
+      window.to,
+      lastActivity,
     );
     return {
       teamId: teamRow.teamId,

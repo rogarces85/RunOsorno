@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { DAY_STATE_META, type CalendarDayState } from "./dayState";
 import { formatPercent } from "@/lib/i18n/format";
 
@@ -10,7 +11,23 @@ function complianceClass(done: number, total: number): string {
   return "bg-danger";
 }
 
-export function CalendarDay({
+/**
+ * Un día del calendario.
+ *
+ * Va envuelto en `memo` (Fase 47, tarea 47.8) porque el calendario tiene entre
+ * 28 y 42 celdas y se repinta entero en cuanto cambia algo: seleccionar un día,
+ * abrir el panel, recibir un `router.refresh()` tras guardar el registro.
+ * Sin `memo`, cada una de esas pantallas re-renderizaba los ~31 días aunque
+ * 30 de ellos no hubieran cambiado.
+ *
+ * `memo` solo sirve si las props son estables, y aquí lo son por construcción:
+ * `dateISO`, `dayNumber`, `state` y `sessionLabel` son primitivos o cadenas,
+ * `compliance` viene del objeto del servidor (misma referencia mientras no
+ * cambie el mes) y `onSelect` es un único callback creado con `useCallback` en
+ * `MonthCalendar`, no una flecha nueva por día. Por eso `onSelect` recibe solo
+ * la fecha: el ítem lo resuelve el calendario, no cada celda.
+ */
+export const CalendarDay = memo(function CalendarDay({
   dateISO,
   dayNumber,
   isToday,
@@ -18,7 +35,7 @@ export function CalendarDay({
   state,
   sessionLabel,
   compliance,
-  onClick,
+  onSelect,
 }: {
   dateISO: string;
   dayNumber: number;
@@ -27,7 +44,8 @@ export function CalendarDay({
   state: CalendarDayState;
   sessionLabel?: string;
   compliance?: { done: number; total: number };
-  onClick?: () => void;
+  /** Callback estable; la celda no necesita saber qué sesión tiene. */
+  onSelect?: (dateISO: string) => void;
 }) {
   const meta = DAY_STATE_META[state];
   const showCompliance = compliance !== undefined && compliance.total > 0;
@@ -43,7 +61,7 @@ export function CalendarDay({
       data-state={state}
       aria-current={isToday ? "date" : undefined}
       aria-label={`${dateISO}: ${meta.label}`}
-      onClick={onClick}
+      onClick={onSelect ? () => onSelect(dateISO) : undefined}
     >
       <span className="calendar-day-number">{dayNumber}</span>
       <span
@@ -65,4 +83,4 @@ export function CalendarDay({
       )}
     </button>
   );
-}
+});

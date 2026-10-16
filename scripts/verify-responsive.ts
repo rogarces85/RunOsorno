@@ -569,14 +569,18 @@ async function main() {
           const srBox = donutSvg.parentElement.getBoundingClientRect();
           return Math.abs((sr.x + sr.width / 2) - (srBox.x + srBox.width / 2)) <= 2;
         })(),
-        recharts: Array.from(document.querySelectorAll(".recharts-responsive-container svg")).map(describe),
+        // Desde la Fase 47 las gráficas de líneas y barras ya no son de
+        // recharts: son SVG propios con viewBox, marcados como metric-chart.
+        plots: Array.from(
+          document.querySelectorAll(".metric-chart-plot svg"),
+        ).map(describe),
         cardWidth: card ? Math.round(card.getBoundingClientRect().width) : null,
       };
     })()`)) as {
       donut: { w: number; h: number; x: number } | null;
       slices: { w: number; h: number }[];
       donutCentered: boolean;
-      recharts: ({ w: number; h: number; x: number } | null)[];
+      plots: ({ w: number; h: number; x: number } | null)[];
       cardWidth: number | null;
     };
 
@@ -593,27 +597,27 @@ async function main() {
       `svg ${charts.donut?.w}x${charts.donut?.h}px, ${charts.slices.length} sectores, centrado=${charts.donutCentered}`,
     );
 
-    const rechartsOk =
-      charts.recharts.length > 0 &&
-      charts.recharts.every(
+    const plotsOk =
+      charts.plots.length > 0 &&
+      charts.plots.every(
         (r: { w: number; h: number } | null) =>
           r !== null && r.w > 100 && r.h > 100,
       );
     record(
-      rechartsOk,
+      plotsOk,
       `39.6 las gráficas de líneas y barras tienen tamaño real en ${vp.name}`,
-      charts.recharts
+      charts.plots
         .map((r: { w: number; h: number } | null) => `${r?.w}x${r?.h}`)
         .join(", "),
     );
 
     // El ancho del SVG debe seguir al de la ventana, no quedarse pegado al
     // valor con el que se montó.
-    const before = charts.recharts[0]?.w ?? 0;
+    const before = charts.plots[0]?.w ?? 0;
     await page.setViewportSize({ width: vp.width - 60, height: vp.height });
     await page.waitForTimeout(600);
     const after = (await page.evaluate(`(() => {
-      const svg = document.querySelector(".recharts-responsive-container svg");
+      const svg = document.querySelector(".metric-chart-plot svg");
       return svg ? Math.round(svg.getBoundingClientRect().width) : 0;
     })()`)) as number;
     record(

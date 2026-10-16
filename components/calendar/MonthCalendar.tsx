@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import type { PlanItem } from "@/lib/services/plan.service";
 import { formatMonthYear, formatWeekdays } from "@/lib/i18n/format";
@@ -60,9 +60,23 @@ export function MonthCalendar({
   const controlled = month !== undefined;
   const view = controlled ? parseMonth(month) : internalView;
 
-  const itemsByDate = new Map(
-    items.map((item) => [item.sessionDate, item] as const),
+  // El índice fecha → sesión se memoriza (Fase 47, tarea 47.8). Antes se
+  // reconstruía en cada render, aunque `items` no hubiera cambiado.
+  const itemsByDate = useMemo(
+    () => new Map(items.map((item) => [item.sessionDate, item] as const)),
+    [items],
   );
+
+  // Un único callback para las 28-42 celdas. Antes cada `CalendarDay` recibía
+  // una flecha nueva en cada render, lo que anulaba el `memo` del componente:
+  // la prop `onClick` cambiaba siempre y React repintaba todos los días.
+  const handleDayClick = useCallback(
+    (dateISO: string) => {
+      onDayClick?.(dateISO, itemsByDate.get(dateISO) ?? null);
+    },
+    [onDayClick, itemsByDate],
+  );
+
   const firstWeekday = (new Date(view.year, view.month, 1).getDay() + 6) % 7;
   const daysInMonth = new Date(view.year, view.month + 1, 0).getDate();
   const cellCount = Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
@@ -147,7 +161,7 @@ export function MonthCalendar({
                   item?.template ? formatSessionType(item.template.sessionType) : undefined
                 }
                 compliance={compliance?.[dateISO]}
-                onClick={() => onDayClick?.(dateISO, item)}
+                onSelect={handleDayClick}
               />
             );
             if (mode === "coach") {
