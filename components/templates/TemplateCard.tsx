@@ -29,26 +29,26 @@ export function TemplateCard({
     <div className="card h-100">
       <div className="card-body d-flex flex-column">
         <div className="d-flex justify-content-between align-items-start mb-2">
-          <h3 className="card-title mb-0">
+          <h2 className="card-title mb-0">
             <Link
               href={`/coach/templates/${item.id}`}
               className="text-reset text-decoration-none"
             >
               {item.name}
             </Link>
-          </h3>
+          </h2>
           <div className="ms-2 d-flex gap-1 flex-shrink-0">
             {item.isOfficial && (
-              <span className="badge bg-purple-lt">Oficial</span>
+              <span className="badge bg-purple-lt text-purple-ink">Oficial</span>
             )}
             {item.isShared && item.groupName && (
-              <span className="badge bg-blue-lt">Compartida</span>
+              <span className="badge bg-blue-lt text-blue-ink">Compartida</span>
             )}
           </div>
         </div>
 
         <div className="mb-3">
-          <span className="badge bg-secondary-lt text-secondary-emphasis">
+          <span className="badge bg-secondary-lt text-secondary-ink">
             {formatSessionType(item.sessionType)}
           </span>
           <span className="text-secondary small ms-2">

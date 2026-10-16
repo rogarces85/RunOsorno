@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { useRouter } from "next/navigation";
 import { generateWeekAction } from "@/lib/actions/plan.actions";
 import type { TemplateOption } from "./AssignTemplateForm";
@@ -16,7 +17,11 @@ function weeksOfMonth(monthISO: string): { value: string; label: string }[] {
   const start = new Date(year, month - 1, 1 - offset, 12);
   const last = new Date(year, month, 0, 12);
   const weeks: { value: string; label: string }[] = [];
-  for (const cursor = new Date(start); cursor <= last; cursor.setDate(cursor.getDate() + 7)) {
+  for (
+    const cursor = new Date(start);
+    cursor <= last;
+    cursor.setDate(cursor.getDate() + 7)
+  ) {
     weeks.push({
       value: `${cursor.getFullYear()}-${pad(cursor.getMonth() + 1)}-${pad(cursor.getDate())}`,
       label: `Semana del ${pad(cursor.getDate())}-${pad(cursor.getMonth() + 1)}`,
@@ -28,7 +33,12 @@ function weeksOfMonth(monthISO: string): { value: string; label: string }[] {
 function currentWeekStart(): string {
   const now = new Date();
   const offset = (now.getDay() + 6) % 7;
-  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - offset, 12);
+  const monday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate() - offset,
+    12,
+  );
   return `${monday.getFullYear()}-${pad(monday.getMonth() + 1)}-${pad(monday.getDate())}`;
 }
 
@@ -88,7 +98,11 @@ export function WeekGenerator({
       .map((type) => ({ type, count: counts[type] }));
     setBusy(true);
     setError(null);
-    const result = await generateWeekAction({ athleteId, weekStart: week, pattern });
+    const result = await generateWeekAction({
+      athleteId,
+      weekStart: week,
+      pattern,
+    });
     setBusy(false);
     if (!result.ok) {
       setError(result.error);
@@ -99,69 +113,98 @@ export function WeekGenerator({
   };
 
   return (
-    <>
-      <div className="modal modal-blur fade show d-block" tabIndex={-1} role="dialog" aria-modal="true">
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content" data-testid="week-generator">
-            <div className="modal-header">
-              <h5 className="modal-title">Generar semana</h5>
-              <button type="button" className="btn-close" aria-label="Cerrar" onClick={onClose} disabled={busy} />
-            </div>
-            <div className="modal-body">
-              <label className="form-label" htmlFor="wg-week">Semana</label>
-              <select
-                id="wg-week"
-                className="form-select mb-3"
-                data-testid="wg-week"
-                value={week}
-                onChange={(event) => setWeek(event.target.value)}
-              >
-                {weeks.map((entry) => (
-                  <option key={entry.value} value={entry.value}>{entry.label}</option>
-                ))}
-              </select>
-              <div className="row g-2">
-                {sessionTypes.map((type) => (
-                  <div className="col-6 col-md-4" key={type}>
-                    <label className="form-label text-secondary small" htmlFor={`wg-${type}`}>
-                      {type}
-                    </label>
-                    <input
-                      id={`wg-${type}`}
-                      type="number"
-                      min={0}
-                      max={7}
-                      className="form-control"
-                      data-testid={`wg-count-${type}`}
-                      value={counts[type] ?? 0}
-                      onChange={(event) => {
-                        const value = Math.max(0, Math.min(7, Number(event.target.value) || 0));
-                        setCounts((current) => ({ ...current, [type]: value }));
-                        if (error) setError(null);
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
-              <div className="mt-3 text-secondary small" data-testid="wg-summary">
-                Total: {total} · Descanso: {rest} día{rest === 1 ? "" : "s"}
-              </div>
-              {error && (
-                <div className="text-danger small mt-1" data-testid="wg-error">{error}</div>
-              )}
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-link link-secondary" onClick={onClose} disabled={busy}>
-                Cancelar
-              </button>
-              <button type="button" className="btn btn-primary" onClick={submit} disabled={busy} data-testid="wg-submit">
-                {busy ? "Generando…" : "Generar semana"}
-              </button>
-            </div>
-          </div>
-        </div>
+    <ModalShell
+      onClose={onClose}
+      busy={busy}
+      titleId="week-generator-title"
+      dialogTestId="week-generator"
+    >
+      <div className="modal-header">
+        <h2 className="modal-title h5" id="week-generator-title">
+          Generar semana
+        </h2>
+        <button
+          type="button"
+          className="btn-close"
+          aria-label="Cerrar"
+          onClick={onClose}
+          disabled={busy}
+        />
       </div>
-      <div className="modal-backdrop fade show d-block" />
-    </>
+      <div className="modal-body">
+        <label className="form-label" htmlFor="wg-week">
+          Semana
+        </label>
+        <select
+          id="wg-week"
+          className="form-select mb-3"
+          data-testid="wg-week"
+          value={week}
+          onChange={(event) => setWeek(event.target.value)}
+        >
+          {weeks.map((entry) => (
+            <option key={entry.value} value={entry.value}>
+              {entry.label}
+            </option>
+          ))}
+        </select>
+        <div className="row g-2">
+          {sessionTypes.map((type) => (
+            <div className="col-6 col-md-4" key={type}>
+              <label
+                className="form-label text-secondary small"
+                htmlFor={`wg-${type}`}
+              >
+                {type}
+              </label>
+              <input
+                id={`wg-${type}`}
+                type="number"
+                min={0}
+                max={7}
+                className="form-control"
+                data-testid={`wg-count-${type}`}
+                value={counts[type] ?? 0}
+                onChange={(event) => {
+                  const value = Math.max(
+                    0,
+                    Math.min(7, Number(event.target.value) || 0),
+                  );
+                  setCounts((current) => ({ ...current, [type]: value }));
+                  if (error) setError(null);
+                }}
+              />
+            </div>
+          ))}
+        </div>
+        <div className="mt-3 text-secondary small" data-testid="wg-summary">
+          Total: {total} · Descanso: {rest} día{rest === 1 ? "" : "s"}
+        </div>
+        {error && (
+          <div className="text-danger small mt-1" data-testid="wg-error">
+            {error}
+          </div>
+        )}
+      </div>
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn btn-link link-secondary"
+          onClick={onClose}
+          disabled={busy}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={submit}
+          disabled={busy}
+          data-testid="wg-submit"
+        >
+          {busy ? "Generando…" : "Generar semana"}
+        </button>
+      </div>
+    </ModalShell>
   );
 }

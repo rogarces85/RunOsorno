@@ -14,7 +14,7 @@ export default async function DirectorAnnouncementsPage() {
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Anuncios</h2>
+          <h1 className="page-title">Anuncios</h1>
           <div className="card">
             <div className="card-body text-secondary text-center py-4">
               Necesitas ser Director Técnico de un grupo para enviar anuncios.{" "}
@@ -32,7 +32,7 @@ export default async function DirectorAnnouncementsPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title mb-3">Anuncios</h2>
+        <h1 className="page-title mb-3">Anuncios</h1>
 
         {!director ? (
           <div className="alert alert-warning" role="alert">

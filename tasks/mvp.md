@@ -1442,12 +1442,83 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 48. Accesibilidad
 
-- [ ] 48.1 Verificar navegación por teclado en formularios y botones principales
-- [ ] 48.2 Verificar contraste de colores adecuado (WCAG AA) en estados del calendario
-- [ ] 48.3 Verificar que iconos tienen `aria-label` o `alt` text
-- [ ] 48.4 Verificar que modales/paneles pueden cerrarse con Escape
-- [ ] 48.5 Verificar que formularios tienen labels asociados a inputs
-- [ ] 48.6 Verificar que la campanita de notificaciones tiene aria-label descriptivo
+- [x] 48.1 Verificar navegación por teclado en formularios y botones principales
+- [x] 48.2 Verificar contraste de colores adecuado (WCAG AA) en estados del calendario
+- [x] 48.3 Verificar que iconos tienen `aria-label` o `alt` text
+- [x] 48.4 Verificar que modales/paneles pueden cerrarse con Escape
+- [x] 48.5 Verificar que formularios tienen labels asociados a inputs
+- [x] 48.6 Verificar que la campanita de notificaciones tiene aria-label descriptivo
+
+> **Verificación** (`npx tsx scripts/verify-accesibilidad.ts` → **21/21**).
+> El motor es **axe-core 4.14**, que ya venía como dependencia de
+> `eslint-config-next`: escribir el contraste a mano habría sido medir mal.
+> El script recorre 21 páginas de los tres roles y falla si queda **alguna**
+> violación de WCAG 2.0/2.1 A y AA o de *best practice*. Antes de la fase eran
+> **9 tipos de violación en unos 300 nodos**; ahora **0**.
+>
+> **El contraste no se arregla con `text-*` de Tabler (48.2).** Sus
+> utilidades de color llevan `!important`, y `.bg-*-lt` fija además el color
+> del texto, así que **ninguna** combinación `bg-*-lt` + `text-*` de Tabler
+> llega a 4,5:1. Se definieron en `globals.css` las familias `text-*-ink`: el
+> color de Tabler mezclado con negro en `oklab` hasta ~5:1. Se tocaron 33
+> badges en 19 archivos, incluidos los que se pintan con `bg-${color}-lt` en
+> tres páginas de dashboard. Los `Alert` se resuelven por otra vía: Tabler
+> deriva el color de `--tblr-alert-variant-color`, que se redefinió por
+> variante.
+>
+> **El estado del calendario no puede ser solo color (48.2, WCAG 1.4.1).**
+> Cada estado tiene ahora una forma distinta —`border-radius`, triángulo,
+> anillo o hueco— resuelta con `[data-state=…]` en CSS, y `DAY_STATE_META`
+> solo guarda la familia de color.
+>
+> **`aria-label` en el día del calendario rompía WCAG 2.5.3 (48.3).** axe
+> marking `label-content-name-mismatch`: el nombre accesible ("1 de octubre,
+> completada") no contenía el texto visible concatenado ("1CompletadaTempo").
+> Un `<button>` ya toma su texto visible como nombre, así que la solución fue
+> **quitar el `aria-label`** y añadir un `<span className="visually-hidden">`
+> con la etiqueta de estado. 103 nodos → 0.
+>
+> **Los modales eran 12 copias de lo mismo (48.4).** Cada uno repetía el
+> `div.modal` + `role="dialog"` + `.modal-backdrop` a mano, y ninguno cerraba
+> con `Escape` ni movía el foco. Ahora todos pasan por
+> `components/ui/ModalShell.tsx`, que además hace la trampa de foco, pone el
+> foco inicial y **lo devuelve al elemento que abrió el diálogo**. Se migraron
+> de uno en uno con ediciones puntuales, no con un script: un reemplazo por
+> expresiones regulares dejó 0 de 10 bien.
+>
+> **Los errores de los formularios no se anunciaban (48.5).** Los 36 campos con
+> `.invalid-feedback` lo pintaban en rojo y nada más: cero `aria-invalid` y
+> cero `aria-describedby` en todo el proyecto. Ahora cada control lleva
+> `aria-invalid` y apunta con `aria-describedby` al `id` del mensaje. En
+> `SettingsForms` el campo lo escribe el llamador (con su `register`), así que
+> el componente `Field` se lo engancha con `cloneElement`.
+>
+> **Los encabezados no tenían jerarquía.** Los títulos de página eran `<h2>`
+> (41 en 30 archivos) y no había ningún `<h1>` en las páginas de la app: ahora
+> sí, con la clase `h1.page-title` para el aspecto. Los `card-title` pasaron de
+> `<h3>` a `<h2>` (44) y de `<h4>` a `<h3>` (3), los `modal-title` de `<h5>` a
+> `<h2>` (12) y el `alert-title` de `<h4>` a `<h3>`; los que suben de rango
+> llevan la clase `h4`/`h5` de Tabler para que no se note el cambio.
+>
+> **La campanita (48.6).** El `aria-label` decía "Notificaciones" y el contador
+> visible (5) quedaba fuera del nombre accesible. Ahora es "Notificaciones, 5
+> sin leer", con `aria-haspopup`, `aria-expanded`, `Escape` que cierra y
+> devuelve el foco, y el icono y el badge con `aria-hidden`.
+>
+> De paso: `<main id="contenido" tabIndex={-1}>` en los dos layouts y el
+> enlace de salto **dentro** de `<main>` (fuera de él quedaba antes del
+> contenido al que salta), `tabIndex` + `role="region"` en el contenedor con
+> scroll de `/admin/logs`, y `aria-pressed` en vez de `role="tablist"` en
+> `/coach/templates`, donde no hay panels asociados.
+>
+> Además, sin regresiones: unitarias **182/182**, E2E **15/15**,
+> `verify-empty-states` 11/11, `verify-roles` 60/60, `verify-dashboards` 19/19,
+> `verify-validations` 18/18, `verify-settings` 15/15, `verify-responsive`
+> 31/31, `verify-i18n` 12/12, `verify-rendimiento` 25/25, lint 0 errores, build
+> correcto. `verify-empty-states` fallaba en `/notifications` porque cualquier
+> ejecución anterior que aprueba la solicitud del coach de demo le deja un
+> aviso y la lista ya no está vacía: ahora el script purga sus notificaciones
+> antes de comprobar el estado vacío.
 
 ---
 
@@ -1532,10 +1603,10 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 45. Seguridad | 10 | 9 |
 | 46. i18n y localización | 5 | 5 |
 | 47. Rendimiento | 8 | 8 |
-| 48. Accesibilidad | 6 | 0 |
+| 48. Accesibilidad | 6 | 6 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **549** |
+| **TOTAL** | **~578** | **555** |
 
 ---
 
@@ -1567,6 +1638,7 @@ Las tareas marcadas `[x]` que dicen "Verificar" se comprobaron de forma automati
 | `npx tsx scripts/verify-sentry.ts` | Levanta un colector falso, compila la app y provoca tres errores reales (render, Server Action y `captureException`): comprueba que llegan a Sentry con su stack trace, sin cookie ni correos ni cabeceras, y que la configuración de build de los source maps depende del token (Fase 44) |
 | `npx tsx scripts/verify-i18n.ts` | Audita que ninguna fecha se formatee fuera de `lib/i18n` (con `timeZone` fijo, nada sale en UTC) y que el calendario no declare sus días a mano; en la interfaz comprueba el mes y los encabezados en español, los porcentajes y las distancias con coma decimal (Fase 46) |
 | `npx tsx scripts/verify-rendimiento.ts` | Las ocho tareas de la Fase 47: audita que las 32 páginas sigan siendo RSC y que no quede ningún Client Component sin motivo; mide el JavaScript que descarga el navegador y comprueba que las gráficas vienen en el HTML; con `EXPLAIN` sobre 2.600 asignaciones de prueba, que el calendario, las métricas, `/admin/logs` y la campanita usan índice; que la ventana de métricas (30 filas) es una fracción del histórico (13.862); que los avatares de listados van diferidos; y que ninguna de esas páginas deja errores en consola (Fase 47) |
+| `npx tsx scripts/verify-accesibilidad.ts` | Las seis tareas de la Fase 48 con **axe-core** sobre 21 páginas de los tres roles (WCAG 2.0/2.1 A y AA y *best practice*): enlace de salto, alcance con teclado, tabla con scroll, `Escape` en los modales con devolución del foco, contraste medido de los estados del calendario, estados distinguibles sin depender del color, etiquetas de todos los controles visibles y `aria-invalid` + `aria-describedby` en un error real de validación, y nombre accesible de la campanita (Fase 48) |
 
 Los scripts requieren el servidor de desarrollo corriendo (`npm run dev`),
 salvo `verify-sentry.ts`, que compila la app y arranca su propio servidor porque

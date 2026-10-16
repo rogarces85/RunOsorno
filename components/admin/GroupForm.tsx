@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -74,98 +75,93 @@ export function GroupForm({
   }
 
   return (
-    <>
-      <div
-        className="modal modal-blur fade show d-block"
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content">
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {group ? "Editar grupo" : "Nuevo grupo"}
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  aria-label="Cerrar"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                />
+    <ModalShell
+      onClose={onClose}
+      busy={isSubmitting}
+      titleId="group-form-title"
+      dialogTestId="group-form"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className="modal-header">
+          <h2 className="modal-title h5" id="group-form-title">
+            {group ? "Editar grupo" : "Nuevo grupo"}
+          </h2>
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Cerrar"
+            onClick={onClose}
+            disabled={isSubmitting}
+          />
+        </div>
+        <div className="modal-body">
+          {serverError && (
+            <Alert variant="danger" className="mb-3" testId="group-form-error">
+              {serverError}
+            </Alert>
+          )}
+          <div className="mb-3">
+            <label className="form-label" htmlFor="group-name">
+              Nombre
+            </label>
+            <input
+              id="group-name"
+              type="text"
+              className={`form-control ${errors.name ? "is-invalid" : ""}`}
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "group-name-error" : undefined}
+              placeholder="Ej: Escuela de Running Osorno"
+              {...register("name")}
+            />
+            {errors.name && (
+              <div id="group-name-error" className="invalid-feedback">
+                {errors.name.message}
               </div>
-              <div className="modal-body">
-                {serverError && (
-                  <Alert
-                    variant="danger"
-                    className="mb-3"
-                    testId="group-form-error"
-                  >
-                    {serverError}
-                  </Alert>
-                )}
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="group-name">
-                    Nombre
-                  </label>
-                  <input
-                    id="group-name"
-                    type="text"
-                    className={`form-control ${errors.name ? "is-invalid" : ""}`}
-                    placeholder="Ej: Escuela de Running Osorno"
-                    {...register("name")}
-                  />
-                  {errors.name && (
-                    <div className="invalid-feedback">
-                      {errors.name.message}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="group-description">
-                    Descripción
-                  </label>
-                  <textarea
-                    id="group-description"
-                    className={`form-control ${errors.description ? "is-invalid" : ""}`}
-                    rows={3}
-                    placeholder="Opcional"
-                    {...register("description")}
-                  />
-                  {errors.description && (
-                    <div className="invalid-feedback">
-                      {errors.description.message}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-0 text-secondary small">
-                  El logo del grupo se podrá subir en una fase posterior.
-                </div>
+            )}
+          </div>
+          <div className="mb-3">
+            <label className="form-label" htmlFor="group-description">
+              Descripción
+            </label>
+            <textarea
+              id="group-description"
+              className={`form-control ${errors.description ? "is-invalid" : ""}`}
+              aria-invalid={!!errors.description}
+              aria-describedby={
+                errors.description ? "group-description-error" : undefined
+              }
+              rows={3}
+              placeholder="Opcional"
+              {...register("description")}
+            />
+            {errors.description && (
+              <div id="group-description-error" className="invalid-feedback">
+                {errors.description.message}
               </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-link link-secondary"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Guardando…" : "Guardar"}
-                </button>
-              </div>
-            </form>
+            )}
+          </div>
+          <div className="mb-0 text-secondary small">
+            El logo del grupo se podrá subir en una fase posterior.
           </div>
         </div>
-      </div>
-      <div className="modal-backdrop fade show d-block" />
-    </>
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-link link-secondary"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Guardando…" : "Guardar"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
   );
 }

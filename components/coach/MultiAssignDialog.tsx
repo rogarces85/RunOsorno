@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { useRouter } from "next/navigation";
 import { bulkAssignAction } from "@/lib/actions/plan.actions";
 import type { TemplateOption } from "./AssignTemplateForm";
@@ -68,78 +69,105 @@ export function MultiAssignDialog({
   };
 
   return (
-    <>
-      <div className="modal modal-blur fade show d-block" tabIndex={-1} role="dialog" aria-modal="true">
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content" data-testid="multi-assign">
-            <div className="modal-header">
-              <h5 className="modal-title">Multi-asignación</h5>
-              <button type="button" className="btn-close" aria-label="Cerrar" onClick={onClose} disabled={busy} />
-            </div>
-            <div className="modal-body">
-              <div className="mb-3">
-                <label className="form-label" htmlFor="ma-date">Fecha</label>
-                <input
-                  id="ma-date"
-                  type="date"
-                  className="form-control"
-                  data-testid="ma-date"
-                  value={date}
-                  onChange={(event) => setDate(event.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <label className="form-label" htmlFor="ma-template">Plantilla</label>
-                <select
-                  id="ma-template"
-                  className="form-select"
-                  data-testid="ma-template"
-                  value={templateId}
-                  onChange={(event) => setTemplateId(event.target.value)}
-                >
-                  {templates.map((template) => (
-                    <option key={template.id} value={template.id}>
-                      {template.name} ({template.sessionType})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="mb-1 fw-medium">Atletas</div>
-              <div className="list-group mb-2" data-testid="ma-athletes">
-                {athletes.length === 0 ? (
-                  <div className="list-group-item text-secondary">Sin atletas en el team.</div>
-                ) : (
-                  athletes.map((athlete) => (
-                    <label
-                      key={athlete.athleteId}
-                      className="list-group-item list-group-item-action d-flex align-items-center gap-2"
-                    >
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        data-testid={`ma-athlete`}
-                        checked={selected.includes(athlete.athleteId)}
-                        onChange={() => toggle(athlete.athleteId)}
-                      />
-                      <span>{athlete.name}</span>
-                    </label>
-                  ))
-                )}
-              </div>
-              {error && <div className="text-danger small" data-testid="ma-error">{error}</div>}
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-link link-secondary" onClick={onClose} disabled={busy}>
-                Cancelar
-              </button>
-              <button type="button" className="btn btn-primary" onClick={submit} disabled={busy} data-testid="ma-submit">
-                {busy ? "Asignando…" : "Asignar a seleccionados"}
-              </button>
-            </div>
-          </div>
-        </div>
+    <ModalShell
+      onClose={onClose}
+      busy={busy}
+      titleId="multi-assign-title"
+      dialogTestId="multi-assign"
+    >
+      <div className="modal-header">
+        <h2 className="modal-title h5" id="multi-assign-title">
+          Multi-asignación
+        </h2>
+        <button
+          type="button"
+          className="btn-close"
+          aria-label="Cerrar"
+          onClick={onClose}
+          disabled={busy}
+        />
       </div>
-      <div className="modal-backdrop fade show d-block" />
-    </>
+      <div className="modal-body">
+        <div className="mb-3">
+          <label className="form-label" htmlFor="ma-date">
+            Fecha
+          </label>
+          <input
+            id="ma-date"
+            type="date"
+            className="form-control"
+            data-testid="ma-date"
+            value={date}
+            onChange={(event) => setDate(event.target.value)}
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label" htmlFor="ma-template">
+            Plantilla
+          </label>
+          <select
+            id="ma-template"
+            className="form-select"
+            data-testid="ma-template"
+            value={templateId}
+            onChange={(event) => setTemplateId(event.target.value)}
+          >
+            {templates.map((template) => (
+              <option key={template.id} value={template.id}>
+                {template.name} ({template.sessionType})
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-1 fw-medium">Atletas</div>
+        <div className="list-group mb-2" data-testid="ma-athletes">
+          {athletes.length === 0 ? (
+            <div className="list-group-item text-secondary">
+              Sin atletas en el team.
+            </div>
+          ) : (
+            athletes.map((athlete) => (
+              <label
+                key={athlete.athleteId}
+                className="list-group-item list-group-item-action d-flex align-items-center gap-2"
+              >
+                <input
+                  type="checkbox"
+                  className="form-check-input"
+                  data-testid={`ma-athlete`}
+                  checked={selected.includes(athlete.athleteId)}
+                  onChange={() => toggle(athlete.athleteId)}
+                />
+                <span>{athlete.name}</span>
+              </label>
+            ))
+          )}
+        </div>
+        {error && (
+          <div className="text-danger small" data-testid="ma-error">
+            {error}
+          </div>
+        )}
+      </div>
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn btn-link link-secondary"
+          onClick={onClose}
+          disabled={busy}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className="btn btn-primary"
+          onClick={submit}
+          disabled={busy}
+          data-testid="ma-submit"
+        >
+          {busy ? "Asignando…" : "Asignar a seleccionados"}
+        </button>
+      </div>
+    </ModalShell>
   );
 }

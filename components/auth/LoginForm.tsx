@@ -54,12 +54,16 @@ export function LoginForm() {
           id="login-email"
           type="email"
           className={`form-control ${errors.email ? "is-invalid" : ""}`}
+          aria-invalid={!!errors.email}
+          aria-describedby={errors.email ? "login-email-error" : undefined}
           placeholder="tu@email.cl"
           autoComplete="email"
           {...register("email")}
         />
         {errors.email && (
-          <div className="invalid-feedback">{errors.email.message}</div>
+          <div id="login-email-error" className="invalid-feedback">
+            {errors.email.message}
+          </div>
         )}
       </div>
       <div className="mb-3">
@@ -70,12 +74,18 @@ export function LoginForm() {
           id="login-password"
           type="password"
           className={`form-control ${errors.password ? "is-invalid" : ""}`}
+          aria-invalid={!!errors.password}
+          aria-describedby={
+            errors.password ? "login-password-error" : undefined
+          }
           placeholder="Tu contraseña"
           autoComplete="current-password"
           {...register("password")}
         />
         {errors.password && (
-          <div className="invalid-feedback">{errors.password.message}</div>
+          <div id="login-password-error" className="invalid-feedback">
+            {errors.password.message}
+          </div>
         )}
       </div>
       <button

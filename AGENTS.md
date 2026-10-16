@@ -241,6 +241,43 @@ Procedimiento para activarlo de verdad (cuenta, secretos, alertas):
   medir el bundle está `scripts/verify-rendimiento.ts`, que además comprueba que
   las gráficas vienen en el HTML y que las páginas no dejan errores en consola.
 
+## Reglas de accesibilidad (Fase 48)
+
+- **Ningún modal se escribe a mano.** Los 12 pasan por
+  `components/ui/ModalShell.tsx`, que hace `Escape`, foco inicial, trampa de
+  foco y devuelve el foco a quien lo abrió. Un modal nuevo que repita el
+  `div.modal` + `role="dialog"` + `.modal-backdrop` está mal, aunque funcione.
+  Los títulos son `<h2 className="modal-title h5">` con el `id` que recibe
+  `titleId`.
+- **El color de un badge nunca viene de las utilidades de Tabler.** Sus
+  utilidades llevan `!important` y `.bg-*-lt` además fija el color del texto,
+  así que `bg-*-lt` + `text-*` nunca llega a 4,5:1. Para texto sobre fondo
+  claro está la familia `text-*-ink` de `app/globals.css` (hex ya mezclados
+  con negro). Los `Alert` toman el color de `--tblr-alert-variant-color`.
+- **El estado no se comunica solo con color.** Cada estado del calendario
+  tiene forma propia vía `[data-state=…]` en `globals.css` (radio, triángulo,
+  anillo o hueco). Un estado nuevo necesita su forma, no solo su tono.
+- **Ningún `<button>` lleva `aria-label` que reescriba su texto visible.**
+  Rompe WCAG 2.5.3 (axe: `label-content-name-mismatch`), que exige que el
+  nombre accesible contenga el texto visible. Para añadir información se usa
+  `<span className="visually-hidden">` dentro. Por eso `CalendarDay` no tiene
+  `aria-label`.
+- **Cada campo con error se anuncia.** `aria-invalid` y `aria-describedby`
+  apuntando al `id` del `.invalid-feedback`. Si el mensaje no depende de
+  react-hook-form (`SettingsForms`), el `id` es `` `${id}-error` `` y el
+  componente `Field` engancha los atributos con `cloneElement`, porque el
+  control lo escribe el llamador.
+- **El enlace de salto va dentro de `<main>`.** Ambos layouts tienen
+  `<main id="contenido" tabIndex={-1}>`; fuera de `<main>` quedaba antes del
+  contenido al que salta.
+- **Un contenedor con scroll propio necesita `tabIndex={0}`** y
+  `role="region"` con nombre (`.table-responsive` de `/admin/logs`), o no se
+  puede desplazar sin ratón.
+- **`scripts/verify-accesibilidad.ts` corre axe sobre 21 páginas y falla ante
+  cualquier violación.** Es la red de seguridad: si se agrega una pantalla,
+  tiene que entrar en la lista. El motor es `axe-core`, que llega como
+  dependencia de `eslint-config-next` (no se agrega al `package.json`).
+
 ---
 
 ## Consideraciones Clave

@@ -100,10 +100,14 @@ export function ProfileForm({
           id="profile-name"
           type="text"
           className={`form-control ${errors.name ? "is-invalid" : ""}`}
+          aria-invalid={!!errors.name}
+          aria-describedby={errors.name ? "profile-name-error" : undefined}
           {...register("name")}
         />
         {errors.name && (
-          <div className="invalid-feedback">{errors.name.message}</div>
+          <div id="profile-name-error" className="invalid-feedback">
+            {errors.name.message}
+          </div>
         )}
       </div>
 
@@ -209,10 +213,14 @@ export function PasswordChange() {
           type="password"
           autoComplete="current-password"
           className={`form-control ${errors.currentPassword ? "is-invalid" : ""}`}
+          aria-invalid={!!errors.currentPassword}
+          aria-describedby={
+            errors.currentPassword ? "current-password-error" : undefined
+          }
           {...register("currentPassword")}
         />
         {errors.currentPassword && (
-          <div className="invalid-feedback">
+          <div id="current-password-error" className="invalid-feedback">
             {errors.currentPassword.message}
           </div>
         )}
@@ -227,10 +235,16 @@ export function PasswordChange() {
           type="password"
           autoComplete="new-password"
           className={`form-control ${errors.newPassword ? "is-invalid" : ""}`}
+          aria-invalid={!!errors.newPassword}
+          aria-describedby={
+            errors.newPassword ? "new-password-error" : undefined
+          }
           {...register("newPassword")}
         />
         {errors.newPassword && (
-          <div className="invalid-feedback">{errors.newPassword.message}</div>
+          <div id="new-password-error" className="invalid-feedback">
+            {errors.newPassword.message}
+          </div>
         )}
         <div className="form-hint">Mínimo 8 caracteres.</div>
       </div>
@@ -244,10 +258,14 @@ export function PasswordChange() {
           type="password"
           autoComplete="new-password"
           className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
+          aria-invalid={!!errors.confirmPassword}
+          aria-describedby={
+            errors.confirmPassword ? "confirm-password-error" : undefined
+          }
           {...register("confirmPassword")}
         />
         {errors.confirmPassword && (
-          <div className="invalid-feedback">
+          <div id="confirm-password-error" className="invalid-feedback">
             {errors.confirmPassword.message}
           </div>
         )}

@@ -88,14 +88,14 @@ export function TeamsList({
             <div key={team.id} className="col-md-6 col-xl-4 mb-3">
               <div className="card">
                 <div className="card-body">
-                  <h3 className="card-title">
+                  <h2 className="card-title">
                     <Link
                       href={`/coach/teams/${team.id}`}
                       className="text-reset text-decoration-none"
                     >
                       {team.name}
                     </Link>
-                  </h3>
+                  </h2>
                   <p className="text-secondary mb-3">
                     {team.athletesCount} atleta
                     {team.athletesCount === 1 ? "" : "s"}

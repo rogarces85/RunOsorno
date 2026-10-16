@@ -13,7 +13,7 @@ export default async function AdminGroupsPage() {
     <div className="row">
       <div className="col-12">
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h2 className="page-title mb-0">Grupos</h2>
+          <h1 className="page-title mb-0">Grupos</h1>
           <ExportButton
             target={{ kind: "global", entity: "groups", formats: ["csv"] }}
             label="Exportar CSV"

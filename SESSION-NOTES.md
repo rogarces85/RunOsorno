@@ -415,3 +415,67 @@ ser imposible tal como estaba escrita.
 - **Pendiente de esta fase**: nada. Las cuatro siguientes son accesibilidad
   (48), documentacion (49) y revision final (50).
 - **Leftovers**: 0
+
+## Fase 48 - Accesibilidad (555/578)
+
+Las seis tareas tambien eran de "verificar", pero la auditoria inicial dio
+**9 tipos de violacion en unos 300 nodos**. Todo se comprueba en el navegador
+con **axe-core 4.14**, que ya venia como dependencia de `eslint-config-next`:
+el contraste hay que medirlo en la pagina, no deducirlo.
+
+- **El contraste no se arregla con las utilidades de Tabler.** `.bg-*-lt`
+  lleva `!important` **y ademas fija el color del texto**, asi que ninguna
+  combinacion `bg-*-lt` + `text-*` de Tabler llega a 4,5:1. Se definieron en
+  `globals.css` las familias `text-*-ink` (el color de Tabler mezclado con
+  negro en `oklab` hasta ~5:1) y se cambiaron 33 badges en 19 archivos.
+  Los `Alert` van por otra via: Tabler deriva el color de
+  `--tblr-alert-variant-color`, redefinido por variante.
+- **El estado del calendario no puede ser solo color** (WCAG 1.4.1). Cada
+  estado tiene ahora una forma distinta (`border-radius`, triangulo, anillo o
+  hueco) con `[data-state=...]` en CSS, y `DAY_STATE_META` solo guarda la
+  familia de color. **103 nodos con contraste -> 0**.
+- **`aria-label` en el dia del calendario rompia WCAG 2.5.3**: axe marcando
+  `label-content-name-mismatch`, porque el nombre accesible no contenia el
+  texto visible concatenado ("1CompletadaTempo"). Un `<button>` ya toma su
+  texto visible como nombre: se **quito el `aria-label`** y se anadio un
+  `<span className="visually-hidden">` con el estado.
+- **Los 12 modales eran 12 copias** del mismo `div.modal` + `role="dialog"` +
+  `.modal-backdrop`, y ninguno cerraba con `Escape` ni movia el foco. Ahora
+  todos usan `components/ui/ModalShell.tsx`: Escape, foco inicial, trampa de
+  foco y **devolucion del foco** al elemento que abrio el dialogo. Se migraron
+  **de uno en uno**: un script de regex dejo 0 de 10 bien.
+- **Los 36 campos con `.invalid-feedback` no anunciaban el error**: cero
+  `aria-invalid` y cero `aria-describedby` en todo el proyecto. Ahora cada
+  control apunta con `aria-describedby` al `id` del mensaje. En `SettingsForms`
+  el control lo escribe el llamador (con su `register`), asi que el
+  componente `Field` se lo engancha con `cloneElement`.
+- **No habria `<h1>` en ninguna pagina de la app**: los titulos eran `<h2>`
+  (41 en 30 archivos). Ahora si, con `h1.page-title`; los `card-title`
+  `<h3>`->`<h2>` (44), `<h4>`->`<h3>` (3), `modal-title` `<h5>`->`<h2>` y
+  `alert-title` `<h4>`->`<h3>`, siempre conservando el aspecto con las clases
+  `h4`/`h5` de Tabler.
+- **La campanita** decia "Notificaciones" y el contador visible (5) quedaba
+  fuera del nombre accesible. Ahora "Notificaciones, 5 sin leer", con
+  `aria-haspopup`, `aria-expanded`, `Escape` que cierra y devuelve el foco, e
+  icono y badge con `aria-hidden`.
+- **Enlace de salto**: va **dentro** de `<main id="contenido" tabIndex={-1}>`
+  (fuera quedaba antes del contenido al que salta). Ademas
+  `tabIndex` + `role="region"` en el contenedor con scroll de `/admin/logs` y
+  `aria-pressed` en vez de `role="tablist"` en `/coach/templates`.
+
+- **Verificacion**: `npx tsx scripts/verify-accesibilidad.ts` **21/21**.
+  Recorre 21 paginas de los tres roles con axe (WCAG 2.0/2.1 A y AA y
+  *best practice*) y falla ante **cualquier** violacion, mas las seis tareas
+  comprobadas a mano. La de 48.5 se hace **de verdad**: envia el formulario
+  vacio y lee el estado que queda, en vez de marcar el campo desde el script.
+- **Sin regresiones**: unitarias **182/182**, E2E **15/15**, empty-states 11/11,
+  roles 60/60, dashboards 19/19, validations 18/18, settings 15/15,
+  responsive 31/31, i18n 12/12, rendimiento 25/25, lint 0 errores, build ok.
+- **Fallo anterior que aparecio al correr la suite** (no de esta fase):
+  `verify-empty-states.ts` fallaba en `/notifications` porque cualquier
+  ejecucion anterior que aprueba la solicitud del coach de demo le deja un
+  aviso y la lista ya no esta vacia. Ahora el script purga sus notificaciones
+  antes de comprobar el estado vacio.
+- **Pendiente de esta fase**: nada. Siguen la documentacion (49) y la revision
+  final (50).
+- **Leftovers**: 0

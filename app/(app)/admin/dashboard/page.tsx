@@ -12,7 +12,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title mb-3">Dashboard</h2>
+        <h1 className="page-title mb-3">Dashboard</h1>
 
         <StatsCards
           items={[
@@ -48,7 +48,7 @@ export default async function AdminDashboardPage() {
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Solicitudes pendientes</h3>
+                <h2 className="card-title">Solicitudes pendientes</h2>
               </div>
               <div className="card-body">
                 {stats.pendingRequests === 0 ? (
@@ -76,7 +76,7 @@ export default async function AdminDashboardPage() {
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Accesos rápidos</h3>
+                <h2 className="card-title">Accesos rápidos</h2>
               </div>
               <div className="card-body">
                 <div className="d-flex flex-wrap gap-2">

@@ -9,7 +9,7 @@ export default async function NewTemplatePage() {
   return (
     <div className="row">
       <div className="col-12 col-xl-9">
-        <h2 className="page-title">Nueva plantilla</h2>
+        <h1 className="page-title">Nueva plantilla</h1>
         <TemplateEditor />
       </div>
     </div>

@@ -34,7 +34,7 @@ export default async function TemplateDetailPage({
     return (
       <div className="row">
         <div className="col-12 col-xl-9">
-          <h2 className="page-title">Editar plantilla</h2>
+          <h1 className="page-title">Editar plantilla</h1>
           <TemplateEditor
             templateId={template.id}
             initial={{
@@ -58,16 +58,16 @@ export default async function TemplateDetailPage({
         </div>
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>
-            <h2 className="page-title mb-1">{template.name}</h2>
+            <h1 className="page-title mb-1">{template.name}</h1>
             <div className="d-flex gap-1 flex-wrap">
-              <span className="badge bg-secondary-lt text-secondary-emphasis">
+              <span className="badge bg-secondary-lt text-secondary-ink">
                 {formatSessionType(template.sessionType)}
               </span>
               {template.isOfficial && (
-                <span className="badge bg-purple-lt">Oficial</span>
+                <span className="badge bg-purple-lt text-purple-ink">Oficial</span>
               )}
               {template.isShared && template.groupName && (
-                <span className="badge bg-blue-lt">
+                <span className="badge bg-blue-lt text-blue-ink">
                   Compartida · {template.groupName}
                 </span>
               )}
@@ -85,12 +85,12 @@ export default async function TemplateDetailPage({
         {template.structure.map((section, index) => (
           <div className="card mb-3" key={section.id ?? index}>
             <div className="card-header">
-              <h3 className="card-title">
+              <h2 className="card-title">
                 {index + 1}. {section.title}
-                <span className="badge bg-secondary-lt text-secondary-emphasis ms-2">
+                <span className="badge bg-secondary-lt text-secondary-ink ms-2">
                   {SECTION_TYPE_LABELS[section.type] ?? section.type}
                 </span>
-              </h3>
+              </h2>
             </div>
             <div className="card-body">
               <p className="mb-0" style={{ whiteSpace: "pre-wrap" }}>

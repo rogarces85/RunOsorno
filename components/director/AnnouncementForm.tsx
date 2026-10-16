@@ -71,7 +71,7 @@ export function AnnouncementForm({
       <div className="col-lg-7 mb-3">
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title">Nuevo anuncio</h3>
+            <h2 className="card-title">Nuevo anuncio</h2>
           </div>
           <div className="card-body">
             {notice && (
@@ -93,6 +93,10 @@ export function AnnouncementForm({
                   <select
                     id="announcement-group"
                     className={`form-select ${errors.groupId ? "is-invalid" : ""}`}
+                    aria-invalid={!!errors.groupId}
+                    aria-describedby={
+                      errors.groupId ? "announcement-group-error" : undefined
+                    }
                     {...register("groupId")}
                   >
                     {groups.map((group) => (
@@ -102,7 +106,10 @@ export function AnnouncementForm({
                     ))}
                   </select>
                   {errors.groupId && (
-                    <div className="invalid-feedback">
+                    <div
+                      id="announcement-group-error"
+                      className="invalid-feedback"
+                    >
                       {errors.groupId.message}
                     </div>
                   )}
@@ -120,11 +127,20 @@ export function AnnouncementForm({
                   id="announcement-title"
                   type="text"
                   className={`form-control ${errors.title ? "is-invalid" : ""}`}
+                  aria-invalid={!!errors.title}
+                  aria-describedby={
+                    errors.title ? "announcement-title-error" : undefined
+                  }
                   placeholder="Ej: Cambio de horario del entrenamiento"
                   {...register("title")}
                 />
                 {errors.title && (
-                  <div className="invalid-feedback">{errors.title.message}</div>
+                  <div
+                    id="announcement-title-error"
+                    className="invalid-feedback"
+                  >
+                    {errors.title.message}
+                  </div>
                 )}
               </div>
 
@@ -135,12 +151,19 @@ export function AnnouncementForm({
                 <textarea
                   id="announcement-message"
                   className={`form-control ${errors.message ? "is-invalid" : ""}`}
+                  aria-invalid={!!errors.message}
+                  aria-describedby={
+                    errors.message ? "announcement-message-error" : undefined
+                  }
                   rows={6}
                   placeholder="Escribe el anuncio para tu grupo…"
                   {...register("message")}
                 />
                 {errors.message && (
-                  <div className="invalid-feedback">
+                  <div
+                    id="announcement-message-error"
+                    className="invalid-feedback"
+                  >
                     {errors.message.message}
                   </div>
                 )}
@@ -166,7 +189,7 @@ export function AnnouncementForm({
       <div className="col-lg-5 mb-3">
         <div className="card">
           <div className="card-header">
-            <h3 className="card-title">Preview</h3>
+            <h2 className="card-title">Preview</h2>
             <span className="text-secondary small ms-auto">
               Así lo verán tus miembros
             </span>

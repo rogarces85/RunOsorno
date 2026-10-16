@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createTeamAction, updateTeamAction } from "@/lib/actions/team.actions";
@@ -77,88 +78,77 @@ export function TeamForm({
   }
 
   return (
-    <>
-      <div
-        className="modal modal-blur fade show d-block"
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content">
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {team ? "Renombrar team" : "Nuevo team"}
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  aria-label="Cerrar"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                />
+    <ModalShell
+      onClose={onClose}
+      busy={isSubmitting}
+      titleId="team-form-title"
+      dialogTestId="team-form"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className="modal-header">
+          <h2 className="modal-title h5" id="team-form-title">
+            {team ? "Renombrar team" : "Nuevo team"}
+          </h2>
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Cerrar"
+            onClick={onClose}
+            disabled={isSubmitting}
+          />
+        </div>
+        <div className="modal-body">
+          {serverError && (
+            <Alert variant="danger" className="mb-3" testId="team-form-error">
+              {serverError}
+            </Alert>
+          )}
+          <div className="mb-0">
+            <label className="form-label" htmlFor="team-name">
+              Nombre
+            </label>
+            <input
+              id="team-name"
+              type="text"
+              className={`form-control ${errors.name ? "is-invalid" : ""}`}
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "team-name-error" : undefined}
+              placeholder={
+                team ? team.name : `Dejar vacío para usar “${defaultNameHint}”`
+              }
+              {...register("name")}
+            />
+            {errors.name && (
+              <div id="team-name-error" className="invalid-feedback">
+                {errors.name.message}
               </div>
-              <div className="modal-body">
-                {serverError && (
-                  <Alert
-                    variant="danger"
-                    className="mb-3"
-                    testId="team-form-error"
-                  >
-                    {serverError}
-                  </Alert>
-                )}
-                <div className="mb-0">
-                  <label className="form-label" htmlFor="team-name">
-                    Nombre
-                  </label>
-                  <input
-                    id="team-name"
-                    type="text"
-                    className={`form-control ${errors.name ? "is-invalid" : ""}`}
-                    placeholder={
-                      team
-                        ? team.name
-                        : `Dejar vacío para usar “${defaultNameHint}”`
-                    }
-                    {...register("name")}
-                  />
-                  {errors.name && (
-                    <div className="invalid-feedback">
-                      {errors.name.message}
-                    </div>
-                  )}
-                  {!team && (
-                    <div className="form-hint">
-                      Si lo dejas vacío, el nombre será tu apellido (
-                      {defaultNameHint}).
-                    </div>
-                  )}
-                </div>
+            )}
+            {!team && (
+              <div className="form-hint">
+                Si lo dejas vacío, el nombre será tu apellido ({defaultNameHint}
+                ).
               </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-link link-secondary"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Guardando…" : "Guardar"}
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
-      </div>
-      <div className="modal-backdrop fade show d-block" />
-    </>
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-link link-secondary"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Guardando…" : "Guardar"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
   );
 }

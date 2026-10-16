@@ -13,7 +13,7 @@ export default async function AdminCoachesPage() {
     <div className="row">
       <div className="col-12">
         <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h2 className="page-title mb-0">Coaches</h2>
+          <h1 className="page-title mb-0">Coaches</h1>
           <ExportButton
             target={{ kind: "global", entity: "coaches", formats: ["csv"] }}
             label="Exportar CSV"

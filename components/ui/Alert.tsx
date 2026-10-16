@@ -44,7 +44,7 @@ export function Alert({
       role={role ?? "alert"}
       data-testid={testId ?? "alert"}
     >
-      {title && <h4 className="alert-title">{title}</h4>}
+      {title && <h3 className="alert-title h4">{title}</h3>}
       {children && (
         <div className={title ? "text-secondary" : undefined}>
           {icon && <span className="me-1">{icon}</span>}

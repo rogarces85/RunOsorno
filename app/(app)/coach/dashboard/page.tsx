@@ -23,7 +23,7 @@ export default async function CoachDashboardPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Dashboard</h2>
+          <h1 className="page-title">Dashboard</h1>
           <div className="card">
             <div className="card-body text-secondary text-center py-4">
               Primero crea un team para ver tu dashboard.{" "}
@@ -55,7 +55,7 @@ export default async function CoachDashboardPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Dashboard</h2>
+          <h1 className="page-title">Dashboard</h1>
           <div className="alert alert-danger" role="alert">
             {metricsResult.error}
           </div>
@@ -82,7 +82,7 @@ export default async function CoachDashboardPage({
       <div className="col-12">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
           <div>
-            <h2 className="page-title mb-1">Dashboard</h2>
+            <h1 className="page-title mb-1">Dashboard</h1>
             <div className="text-secondary">Resumen de {selected.name}</div>
           </div>
           <div className="d-flex flex-wrap gap-2">
@@ -162,7 +162,7 @@ export default async function CoachDashboardPage({
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Alertas</h3>
+                <h2 className="card-title">Alertas</h2>
               </div>
               <div className="card-body">
                 {metrics.alerts.length === 0 ? (

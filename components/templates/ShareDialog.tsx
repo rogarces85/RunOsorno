@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { useRouter } from "next/navigation";
 import { shareTemplateAction } from "@/lib/actions/template.actions";
 import type { GroupBasic } from "@/lib/services/group.service";
@@ -44,86 +45,77 @@ export function ShareDialog({
   };
 
   return (
-    <>
-      <div
-        className="modal modal-blur fade show d-block"
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content">
-            <form onSubmit={submit} noValidate>
-              <div className="modal-header">
-                <h5 className="modal-title">Compartir plantilla</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  aria-label="Cerrar"
-                  onClick={onClose}
-                  disabled={busy}
-                />
-              </div>
-              <div className="modal-body">
-                {error && (
-                  <div className="alert alert-danger" role="alert">
-                    {error}
-                  </div>
-                )}
-                {groups.length === 0 ? (
-                  <p className="text-secondary mb-0">
-                    No perteneces a ningún grupo todavía. Únete a un grupo para
-                    poder compartir plantillas.
-                  </p>
-                ) : (
-                  <>
-                    <p className="mb-2">
-                      Los coaches del grupo podrán ver y clonar{" "}
-                      <strong>{template.name}</strong> (no editarla).
-                    </p>
-                    <label className="form-label" htmlFor="share-group">
-                      Grupo
-                    </label>
-                    <select
-                      id="share-group"
-                      className="form-select"
-                      value={groupId}
-                      onChange={(event) => setGroupId(event.target.value)}
-                      disabled={busy}
-                    >
-                      {groups.map((group) => (
-                        <option key={group.id} value={group.id}>
-                          {group.name}
-                        </option>
-                      ))}
-                    </select>
-                  </>
-                )}
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-link link-secondary"
-                  onClick={onClose}
-                  disabled={busy}
-                >
-                  Cancelar
-                </button>
-                {groups.length > 0 && (
-                  <button
-                    type="submit"
-                    className="btn btn-primary"
-                    disabled={busy}
-                  >
-                    {busy ? "Compartiendo…" : "Compartir"}
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
+    <ModalShell
+      onClose={onClose}
+      busy={busy}
+      titleId="share-dialog-title"
+      dialogTestId="share-dialog"
+    >
+      <form onSubmit={submit} noValidate>
+        <div className="modal-header">
+          <h2 className="modal-title h5" id="share-dialog-title">
+            Compartir plantilla
+          </h2>
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Cerrar"
+            onClick={onClose}
+            disabled={busy}
+          />
         </div>
-      </div>
-      <div className="modal-backdrop fade show d-block" />
-    </>
+        <div className="modal-body">
+          {error && (
+            <div className="alert alert-danger" role="alert">
+              {error}
+            </div>
+          )}
+          {groups.length === 0 ? (
+            <p className="text-secondary mb-0">
+              No perteneces a ningún grupo todavía. Únete a un grupo para poder
+              compartir plantillas.
+            </p>
+          ) : (
+            <>
+              <p className="mb-2">
+                Los coaches del grupo podrán ver y clonar{" "}
+                <strong>{template.name}</strong> (no editarla).
+              </p>
+              <label className="form-label" htmlFor="share-group">
+                Grupo
+              </label>
+              <select
+                id="share-group"
+                className="form-select"
+                value={groupId}
+                onChange={(event) => setGroupId(event.target.value)}
+                disabled={busy}
+              >
+                {groups.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </>
+          )}
+        </div>
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-link link-secondary"
+            onClick={onClose}
+            disabled={busy}
+          >
+            Cancelar
+          </button>
+          {groups.length > 0 && (
+            <button type="submit" className="btn btn-primary" disabled={busy}>
+              {busy ? "Compartiendo…" : "Compartir"}
+            </button>
+          )}
+        </div>
+      </form>
+    </ModalShell>
   );
 }

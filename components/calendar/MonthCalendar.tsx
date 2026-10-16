@@ -109,9 +109,9 @@ export function MonthCalendar({
   return (
     <div className="card" data-mode={mode}>
       <div className="card-header">
-        <h3 className="card-title" data-testid="calendar-month-label">
+        <h2 className="card-title" data-testid="calendar-month-label">
           {title.charAt(0).toUpperCase() + title.slice(1)}
-        </h3>
+        </h2>
         <div className="btn-list">
           <button
             type="button"

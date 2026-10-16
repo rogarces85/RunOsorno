@@ -43,7 +43,7 @@ export default async function AthleteDashboardPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title mb-3">Hola, {user.name.split(" ")[0]}</h2>
+        <h1 className="page-title mb-3">Hola, {user.name.split(" ")[0]}</h1>
 
         {!metricsResult.ok ? (
           <div className="alert alert-danger" role="alert">
@@ -55,10 +55,10 @@ export default async function AthleteDashboardPage() {
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Tu sesión de hoy</h3>
+                <h2 className="card-title">Tu sesión de hoy</h2>
                 {todayMeta ? (
                   <span
-                    className={`badge bg-${todayMeta.color}-lt text-${todayMeta.color} ms-auto`}
+                    className={`badge bg-${todayMeta.color}-lt text-${todayMeta.color}-ink ms-auto`}
                   >
                     {todayMeta.label}
                   </span>

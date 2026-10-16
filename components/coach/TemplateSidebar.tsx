@@ -51,7 +51,7 @@ export function TemplateSidebar({
   return (
     <div className="card d-none d-lg-block" data-testid="template-sidebar">
       <div className="card-header">
-        <h3 className="card-title">Plantillas</h3>
+        <h2 className="card-title">Plantillas</h2>
       </div>
       <div className="list-group list-group-flush">
         {templates.length === 0 ? (

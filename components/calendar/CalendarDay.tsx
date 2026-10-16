@@ -6,9 +6,13 @@ import { formatPercent } from "@/lib/i18n/format";
 
 function complianceClass(done: number, total: number): string {
   const pct = Math.round((done / total) * 100);
-  if (pct >= 80) return "bg-success";
-  if (pct >= 50) return "bg-warning";
-  return "bg-danger";
+  // Fondo `-lt` con texto `-ink`, no color sólido (Fase 48, tarea 48.2). Un
+  // badge sólido sobre verde no llega a 4,5:1 con texto blanco ni con texto
+  // gris: el gris salía en 1,72:1 y el blanco en 2,7:1. El punto de la celda
+  // ya lleva el color del estado, así que aquí solo hace falta que se lea.
+  if (pct >= 80) return "bg-success-lt text-success-ink";
+  if (pct >= 50) return "bg-warning-lt text-warning-ink";
+  return "bg-danger-lt text-danger-ink";
 }
 
 /**
@@ -53,6 +57,22 @@ export const CalendarDay = memo(function CalendarDay({
     ? Math.round((compliance.done / compliance.total) * 100)
     : 0;
 
+  /*
+   * Nombre accesible del día (Fase 48, tarea 48.3).
+   *
+   * El día **no** lleva `aria-label`. Antes sí lo llevaba
+   * (`"2026-10-01: Completada"`), y el resultado era peor de lo que parecía:
+   * la celda muestra el número, el tipo de sesión y el porcentaje, y el nombre
+   * accesible no contenía nada de eso. Con 42 celdas, axe marcaba las 42.
+   *
+   * El truco está en que el texto visible de un `<button>` **ya es** su nombre
+   * accesible. La regla "Label in Name" (WCAG 2.5.3) pide que el texto visible
+   * esté contenido en ese nombre, y si el nombre se construye a partir del
+   * contenido, se cumple siempre. El estado —un punto de color, que es
+   * justamente lo que no se lee con un lector de pantalla— se añade como texto
+   * oculto visualmente. Así el nombre suena "1, Tempo, Completada": el "1" que
+   * se ve, lo que se lee y el estado que solo estaba en el color.
+   */
   return (
     <button
       type="button"
@@ -60,12 +80,17 @@ export const CalendarDay = memo(function CalendarDay({
       data-date={dateISO}
       data-state={state}
       aria-current={isToday ? "date" : undefined}
-      aria-label={`${dateISO}: ${meta.label}`}
       onClick={onSelect ? () => onSelect(dateISO) : undefined}
     >
       <span className="calendar-day-number">{dayNumber}</span>
+      <span className="visually-hidden">, {meta.label}</span>
+      {/*
+        El punto lleva el color en línea y la forma la pone el CSS según
+        `data-state`: el color no puede ser el único indicio (Fase 48, 48.2).
+      */}
       <span
-        className={`calendar-day-badge ${meta.badgeClass}`}
+        className="calendar-day-badge"
+        style={{ color: `var(--tblr-${meta.color})` }}
         title={meta.label}
       />
       {showCompliance && (

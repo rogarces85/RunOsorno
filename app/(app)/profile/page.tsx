@@ -29,7 +29,7 @@ export default async function ProfilePage() {
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Mi perfil</h2>
+          <h1 className="page-title">Mi perfil</h1>
           <div className="alert alert-danger" role="alert">
             {profile.error}
           </div>
@@ -43,7 +43,7 @@ export default async function ProfilePage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title mb-3">Mi perfil</h2>
+        <h1 className="page-title mb-3">Mi perfil</h1>
 
         <div className="row">
           <div className="col-lg-4 mb-3">
@@ -57,13 +57,17 @@ export default async function ProfilePage() {
                 />
                 <div className="h3 mt-3 mb-0">{data.name}</div>
                 <div className="text-secondary">{data.email}</div>
-                <span className="badge bg-blue-lt text-blue mt-2">
+                <span className="badge bg-blue-lt text-blue-ink mt-2">
                   {ROLE_LABELS[data.role] ?? data.role}
                 </span>
                 {data.isActive ? (
-                  <span className="badge bg-green-lt mt-2 ms-2">Activo</span>
+                  <span className="badge bg-green-lt text-green-ink mt-2 ms-2">
+                    Activo
+                  </span>
                 ) : (
-                  <span className="badge bg-red-lt mt-2 ms-2">Inactivo</span>
+                  <span className="badge bg-red-lt text-red-ink mt-2 ms-2">
+                    Inactivo
+                  </span>
                 )}
                 {data.mustChangePassword && (
                   <div className="alert alert-warning mt-3 mb-0 small">
@@ -75,7 +79,7 @@ export default async function ProfilePage() {
 
             <div className="card mt-3">
               <div className="card-header">
-                <h3 className="card-title">Foto de perfil</h3>
+                <h2 className="card-title">Foto de perfil</h2>
               </div>
               <div className="card-body">
                 <AvatarUpload avatarKey={user.avatarKey} />
@@ -84,7 +88,7 @@ export default async function ProfilePage() {
 
             <div className="card mt-3">
               <div className="card-header">
-                <h3 className="card-title">Cuenta</h3>
+                <h2 className="card-title">Cuenta</h2>
               </div>
               <div className="card-body">
                 <dl className="row mb-0">
@@ -104,7 +108,7 @@ export default async function ProfilePage() {
           <div className="col-lg-8">
             <div className="card mb-3">
               <div className="card-header">
-                <h3 className="card-title">Datos personales</h3>
+                <h2 className="card-title">Datos personales</h2>
               </div>
               <div className="card-body">
                 <ProfileForm
@@ -117,7 +121,7 @@ export default async function ProfilePage() {
 
             <div className="card">
               <div className="card-header">
-                <h3 className="card-title">Seguridad</h3>
+                <h2 className="card-title">Seguridad</h2>
               </div>
               <div className="card-body">
                 <PasswordChange />

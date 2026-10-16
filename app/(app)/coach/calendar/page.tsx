@@ -19,7 +19,7 @@ export default async function CoachCalendarPage({
     return (
       <div className="row">
         <div className="col-12 mb-3">
-          <h2 className="page-title mb-0">Calendario</h2>
+          <h1 className="page-title mb-0">Calendario</h1>
           <div className="text-secondary">Selecciona un team</div>
         </div>
         {teams.length === 0 ? (
@@ -33,7 +33,7 @@ export default async function CoachCalendarPage({
             <div className="col-12 col-md-6 col-lg-4 mb-3" key={team.id}>
               <div className="card">
                 <div className="card-body">
-                  <h3 className="card-title">{team.name}</h3>
+                  <h2 className="card-title">{team.name}</h2>
                   <div className="text-secondary mb-3">
                     {team.athletesCount} atleta{team.athletesCount === 1 ? "" : "s"}
                   </div>
@@ -66,7 +66,7 @@ export default async function CoachCalendarPage({
           <Link href="/coach/calendar" className="btn btn-sm btn-ghost-secondary">
             ← Teams
           </Link>
-          <h2 className="page-title mb-0">Calendario — {team.name}</h2>
+          <h1 className="page-title mb-0">Calendario — {team.name}</h1>
         </div>
         <div className="text-secondary">Selecciona un atleta</div>
       </div>
@@ -81,7 +81,7 @@ export default async function CoachCalendarPage({
           <div className="col-12 col-md-6 col-lg-4 mb-3" key={athlete.athleteId}>
             <div className="card">
               <div className="card-body">
-                <h3 className="card-title">{athlete.name}</h3>
+                <h2 className="card-title">{athlete.name}</h2>
                 <div className="text-secondary mb-1">{athlete.email}</div>
                 <div className="text-secondary small mb-3">
                   {athlete.completedSessions}/{athlete.totalSessions} sesiones completadas

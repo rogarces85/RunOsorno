@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { ModalShell } from "@/components/ui/ModalShell";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -87,96 +88,89 @@ export function CoachForm({
   }
 
   return (
-    <>
-      <div
-        className="modal modal-blur fade show d-block"
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content">
-            <form onSubmit={handleSubmit(onSubmit)} noValidate>
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {coach ? "Editar coach" : "Nuevo coach"}
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  aria-label="Cerrar"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                />
+    <ModalShell
+      onClose={onClose}
+      busy={isSubmitting}
+      titleId="coach-form-title"
+      dialogTestId="coach-form"
+    >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className="modal-header">
+          <h2 className="modal-title h5" id="coach-form-title">
+            {coach ? "Editar coach" : "Nuevo coach"}
+          </h2>
+          <button
+            type="button"
+            className="btn-close"
+            aria-label="Cerrar"
+            onClick={onClose}
+            disabled={isSubmitting}
+          />
+        </div>
+        <div className="modal-body">
+          {serverError && (
+            <Alert variant="danger" className="mb-3" testId="coach-form-error">
+              {serverError}
+            </Alert>
+          )}
+          <div className="mb-3">
+            <label className="form-label" htmlFor="coach-name">
+              Nombre
+            </label>
+            <input
+              id="coach-name"
+              type="text"
+              className={`form-control ${errors.name ? "is-invalid" : ""}`}
+              aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "coach-name-error" : undefined}
+              placeholder="Nombre completo"
+              {...register("name")}
+            />
+            {errors.name && (
+              <div id="coach-name-error" className="invalid-feedback">
+                {errors.name.message}
               </div>
-              <div className="modal-body">
-                {serverError && (
-                  <Alert
-                    variant="danger"
-                    className="mb-3"
-                    testId="coach-form-error"
-                  >
-                    {serverError}
-                  </Alert>
-                )}
-                <div className="mb-3">
-                  <label className="form-label" htmlFor="coach-name">
-                    Nombre
-                  </label>
-                  <input
-                    id="coach-name"
-                    type="text"
-                    className={`form-control ${errors.name ? "is-invalid" : ""}`}
-                    placeholder="Nombre completo"
-                    {...register("name")}
-                  />
-                  {errors.name && (
-                    <div className="invalid-feedback">
-                      {errors.name.message}
-                    </div>
-                  )}
-                </div>
-                <div className="mb-0">
-                  <label className="form-label" htmlFor="coach-email">
-                    Email
-                  </label>
-                  <input
-                    id="coach-email"
-                    type="email"
-                    className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                    placeholder="coach@email.cl"
-                    autoComplete="off"
-                    {...register("email")}
-                  />
-                  {errors.email && (
-                    <div className="invalid-feedback">
-                      {errors.email.message}
-                    </div>
-                  )}
-                </div>
+            )}
+          </div>
+          <div className="mb-0">
+            <label className="form-label" htmlFor="coach-email">
+              Email
+            </label>
+            <input
+              id="coach-email"
+              type="email"
+              className={`form-control ${errors.email ? "is-invalid" : ""}`}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "coach-email-error" : undefined}
+              placeholder="coach@email.cl"
+              autoComplete="off"
+              {...register("email")}
+            />
+            {errors.email && (
+              <div id="coach-email-error" className="invalid-feedback">
+                {errors.email.message}
               </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-link link-secondary"
-                  onClick={onClose}
-                  disabled={isSubmitting}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Guardando…" : "Guardar"}
-                </button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
-      </div>
-      <div className="modal-backdrop fade show d-block" />
-    </>
+        <div className="modal-footer">
+          <button
+            type="button"
+            className="btn btn-link link-secondary"
+            onClick={onClose}
+            disabled={isSubmitting}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Guardando…" : "Guardar"}
+          </button>
+        </div>
+      </form>
+    </ModalShell>
   );
 }

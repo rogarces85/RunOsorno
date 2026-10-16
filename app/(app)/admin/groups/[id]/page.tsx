@@ -36,7 +36,7 @@ export default async function AdminGroupDetailPage({
             ← Volver a grupos
           </Link>
         </div>
-        <h2 className="page-title">{group.name}</h2>
+        <h1 className="page-title">{group.name}</h1>
         {group.description && (
           <p className="text-secondary">{group.description}</p>
         )}
@@ -45,7 +45,7 @@ export default async function AdminGroupDetailPage({
           <div className="col-lg-7">
             <div className="card mb-3">
               <div className="card-header">
-                <h3 className="card-title">Coaches miembros</h3>
+                <h2 className="card-title">Coaches miembros</h2>
               </div>
               <div className="table-responsive">
                 <table className="table table-vcenter card-table">
@@ -88,7 +88,7 @@ export default async function AdminGroupDetailPage({
           <div className="col-lg-5">
             <div className="card">
               <div className="card-header">
-                <h3 className="card-title">Solicitudes pendientes</h3>
+                <h2 className="card-title">Solicitudes pendientes</h2>
               </div>
               <div className="card-body">
                 <RequestsPending requests={requests} />

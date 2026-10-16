@@ -38,7 +38,7 @@ export default async function CoachTeamDetailPage({
             ← Volver a teams
           </Link>
         </div>
-        <h2 className="page-title">{team.name}</h2>
+        <h1 className="page-title">{team.name}</h1>
         <TeamAthletesManager
           teamId={id}
           athletes={athletesResult.data}

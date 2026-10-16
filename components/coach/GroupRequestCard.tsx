@@ -26,13 +26,13 @@ export function GroupRequestCard({ group }: { group: GroupBasic }) {
   return (
     <div className="card">
       <div className="card-body">
-        <h3 className="card-title">{group.name}</h3>
+        <h2 className="card-title">{group.name}</h2>
         {group.description && (
           <p className="text-secondary mb-3">{group.description}</p>
         )}
         {error && <div className="alert alert-danger py-2">{error}</div>}
         {state === "sent" ? (
-          <span className="badge bg-green-lt">Solicitud enviada</span>
+          <span className="badge bg-green-lt text-green-ink">Solicitud enviada</span>
         ) : (
           <button
             type="button"

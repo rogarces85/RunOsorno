@@ -18,7 +18,10 @@
  */
 
 import { readFileSync } from "node:fs";
+import { eq, inArray } from "drizzle-orm";
 import { chromium, type Browser, type Page } from "playwright";
+import { db } from "../lib/db/index";
+import { notifications, users } from "../lib/db/schema";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 const ADMIN_EMAIL = "admin@runosorno.cl";
@@ -112,6 +115,29 @@ async function checkFieldError(
   );
 }
 
+/**
+ * Deja al coach sin datos sin notificaciones.
+ *
+ * El seed lo crea con la solicitud de unirse pendiente, pero cualquier
+ * ejecución anterior que apruebe esa solicitud (u otro flujo que le escriba,
+ * como las pruebas E2E de feedback) le deja un aviso y entonces
+ * `/notifications` ya no está vacío: la comprobación fallaría por el estado de
+ * la base, no por el del componente.
+ */
+async function purgarNotificaciones(email: string): Promise<void> {
+  const destinatarios = await db
+    .select({ id: users.id })
+    .from(users)
+    .where(eq(users.email, email));
+  if (destinatarios.length === 0) return;
+  await db.delete(notifications).where(
+    inArray(
+      notifications.userId,
+      destinatarios.map((u) => u.id),
+    ),
+  );
+}
+
 async function main() {
   console.log(`Verificando estados vacíos y errores en ${BASE_URL}\n`);
 
@@ -123,6 +149,7 @@ async function main() {
   const coachPage = await coachContext.newPage();
 
   try {
+    await purgarNotificaciones(EMPTY_COACH_EMAIL);
     await login(coachPage, EMPTY_COACH_EMAIL, DEMO_PASSWORD);
     record(
       true,

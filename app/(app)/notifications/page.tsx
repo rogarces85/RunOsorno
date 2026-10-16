@@ -27,7 +27,7 @@ export default async function NotificationsPage({
     <div className="row">
       <div className="col-12 col-lg-8 col-xl-6">
         <div className="mb-3">
-          <h2 className="page-title mb-0">Notificaciones</h2>
+          <h1 className="page-title mb-0">Notificaciones</h1>
           <div className="text-secondary">Tus avisos recientes</div>
         </div>
         <NotificationCenter rows={rows} filter={filter} />

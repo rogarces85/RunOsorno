@@ -205,9 +205,9 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
                     <td className="text-secondary">{coach.email}</td>
                     <td>
                       {coach.isActive ? (
-                        <span className="badge bg-green-lt">Activo</span>
+                        <span className="badge bg-green-lt text-green-ink">Activo</span>
                       ) : (
-                        <span className="badge bg-red-lt">Inactivo</span>
+                        <span className="badge bg-red-lt text-red-ink">Inactivo</span>
                       )}
                     </td>
                     <td className="text-secondary">

@@ -42,7 +42,7 @@ export default async function AdminLogsPage({
           </Link>
         </div>
 
-        <h2 className="page-title mb-1">Logs de auditoría</h2>
+        <h1 className="page-title mb-1">Logs de auditoría</h1>
         <p className="text-secondary">
           Registro de las acciones críticas de la plataforma: quién hizo qué,
           cuándo y desde qué dirección IP.

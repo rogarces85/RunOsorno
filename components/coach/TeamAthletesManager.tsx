@@ -83,7 +83,7 @@ export function TeamAthletesManager({
 
       <div className="card mb-3">
         <div className="card-header">
-          <h3 className="card-title">Asignar atleta</h3>
+          <h2 className="card-title">Asignar atleta</h2>
         </div>
         <div className="card-body">
           {assignable.length === 0 ? (
@@ -137,7 +137,7 @@ export function TeamAthletesManager({
 
       <div className="card">
         <div className="card-header">
-          <h3 className="card-title">Atletas del team ({athletes.length})</h3>
+          <h2 className="card-title">Atletas del team ({athletes.length})</h2>
         </div>
         {athletes.length === 0 ? (
           <div className="card-body">

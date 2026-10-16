@@ -63,7 +63,7 @@ export function EmptyState({
       data-testid="empty-state"
     >
       <div className="mb-3">
-        <span className="avatar avatar-md bg-secondary-lt text-secondary">
+        <span className="avatar avatar-md bg-secondary-lt text-secondary-ink">
           <Icon size={24} stroke={1.5} />
         </span>
       </div>

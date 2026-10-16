@@ -140,18 +140,29 @@ export function TemplateList({
         </Alert>
       )}
 
-      <ul className="nav nav-tabs mb-3" role="tablist">
+      {/*
+        Filtros, no pestañas reales (Fase 48).
+
+        Llevaban `role="tablist"` / `role="tab"` sin nada detrás: no hay
+        `tabpanel`, ni `aria-controls`, ni navegación con flechas, que es lo que
+        ese patrón exige. Peor: `tablist` solo admite hijos `tab`, y aquí los
+        hijos son `<li>`, así que axe marcaba tres reglas distintas
+        (`aria-required-children`, `aria-required-parent` y `listitem`).
+
+        Lo que sí es cierto es que son botones que activan y desactivan un
+        filtro, y eso es exactamente lo que dice `aria-pressed`.
+      */}
+      <ul className="nav nav-tabs mb-3">
         {TABS.map((item) => (
           <li className="nav-item" key={item.key}>
             <button
               type="button"
               className={`nav-link ${tab === item.key ? "active" : ""}`}
-              role="tab"
-              aria-selected={tab === item.key}
+              aria-pressed={tab === item.key}
               onClick={() => setTab(item.key)}
             >
               {item.label}
-              <span className="badge bg-secondary-lt text-secondary-emphasis ms-1">
+              <span className="badge bg-secondary-lt text-secondary-ink ms-1">
                 {counts[item.key]}
               </span>
             </button>

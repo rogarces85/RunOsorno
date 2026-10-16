@@ -27,13 +27,13 @@ export function FeedbackThread({ messages }: { messages: FeedbackMessage[] }) {
   }
   return (
     <div className="mt-3 pt-3 border-top" data-testid="feedback-thread">
-      <h6 className="mb-2">Comentarios</h6>
+      <h4 className="h6 mb-2">Comentarios</h4>
       <ul className="list-unstyled mb-0">
         {messages.map((msg) => (
           <li key={msg.id} className="mb-2">
             <div className="d-flex align-items-baseline gap-2">
               <span className="fw-medium">{msg.authorName}</span>
-              <span className="badge bg-secondary-lt">
+              <span className="badge bg-secondary-lt text-secondary-ink">
                 {ROLE_LABEL[msg.authorRole] ?? msg.authorRole}
               </span>
               <span className="text-secondary small">

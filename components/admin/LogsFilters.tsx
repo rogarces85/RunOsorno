@@ -57,10 +57,10 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
     <div className="card mb-3">
       <div className="card-header">
         <div className="d-flex align-items-center">
-          <h3 className="card-title">
+          <h2 className="card-title">
             <IconFilter size={18} stroke={1.75} className="me-1" />
             Filtros
-          </h3>
+          </h2>
           <button
             type="button"
             className="btn btn-sm ms-auto"

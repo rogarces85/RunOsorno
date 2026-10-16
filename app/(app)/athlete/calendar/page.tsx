@@ -34,7 +34,7 @@ export default async function AthleteCalendarPage({
     <div className="row">
       <div className="col-12">
         <div className="mb-3">
-          <h2 className="page-title mb-0">Calendario</h2>
+          <h1 className="page-title mb-0">Calendario</h1>
           <div className="text-secondary">
             {user.name} — tu plan de entrenamiento
           </div>

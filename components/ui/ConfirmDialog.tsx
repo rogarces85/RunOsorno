@@ -1,5 +1,13 @@
 "use client";
 
+import { ModalShell } from "@/components/ui/ModalShell";
+
+/**
+ * Diálogo de confirmación para acciones destructivas (Fase 38).
+ *
+ * `Escape`, foco dentro y vuelta al origen vienen de `ModalShell` (Fase 48,
+ * tarea 48.4).
+ */
 export function ConfirmDialog({
   open,
   title,
@@ -24,50 +32,45 @@ export function ConfirmDialog({
   }
 
   return (
-    <>
-      <div
-        className="modal modal-blur fade show d-block"
-        tabIndex={-1}
-        role="dialog"
-        aria-modal="true"
-      >
-        <div className="modal-dialog modal-dialog-centered" role="document">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">{title}</h5>
-              <button
-                type="button"
-                className="btn-close"
-                aria-label="Cerrar"
-                onClick={onCancel}
-                disabled={busy}
-              />
-            </div>
-            <div className="modal-body">
-              <p className="mb-0">{message}</p>
-            </div>
-            <div className="modal-footer">
-              <button
-                type="button"
-                className="btn btn-link link-secondary"
-                onClick={onCancel}
-                disabled={busy}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className={`btn ${danger ? "btn-danger" : "btn-primary"}`}
-                onClick={onConfirm}
-                disabled={busy}
-              >
-                {busy ? "Procesando…" : confirmLabel}
-              </button>
-            </div>
-          </div>
-        </div>
+    <ModalShell
+      onClose={onCancel}
+      busy={busy}
+      titleId="confirm-dialog-title"
+      dialogTestId="confirm-dialog"
+    >
+      <div className="modal-header">
+        <h2 className="modal-title h5" id="confirm-dialog-title">
+          {title}
+        </h2>
+        <button
+          type="button"
+          className="btn-close"
+          aria-label="Cerrar"
+          onClick={onCancel}
+          disabled={busy}
+        />
       </div>
-      <div className="modal-backdrop fade show d-block" />
-    </>
+      <div className="modal-body">
+        <p className="mb-0">{message}</p>
+      </div>
+      <div className="modal-footer">
+        <button
+          type="button"
+          className="btn btn-link link-secondary"
+          onClick={onCancel}
+          disabled={busy}
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          className={`btn ${danger ? "btn-danger" : "btn-primary"}`}
+          onClick={onConfirm}
+          disabled={busy}
+        >
+          {busy ? "Procesando…" : confirmLabel}
+        </button>
+      </div>
+    </ModalShell>
   );
 }

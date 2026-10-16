@@ -28,7 +28,7 @@ export default async function DirectorDashboardPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Dashboard Director Técnico</h2>
+          <h1 className="page-title">Dashboard Director Técnico</h1>
           <div className="card">
             <div className="card-body text-secondary text-center py-4">
               No perteneces a ningún grupo todavía.{" "}
@@ -54,7 +54,7 @@ export default async function DirectorDashboardPage({
       <div className="col-12">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
           <div>
-            <h2 className="page-title mb-1">Dashboard Director Técnico</h2>
+            <h1 className="page-title mb-1">Dashboard Director Técnico</h1>
             <div className="text-secondary">Resumen de {selected.name}</div>
           </div>
           <PeriodSelector

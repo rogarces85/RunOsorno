@@ -38,7 +38,7 @@ export default async function AthleteMetricsPage({
       <div className="col-12">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
           <div>
-            <h2 className="page-title mb-1">Mis métricas</h2>
+            <h1 className="page-title mb-1">Mis métricas</h1>
             <div className="text-secondary">
               {metrics.period.from} → {metrics.period.to} · {metrics.totals.km}{" "}
               km · {metrics.totals.minutes} min
@@ -64,7 +64,7 @@ export default async function AthleteMetricsPage({
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Progresión semanal</h3>
+                <h2 className="card-title">Progresión semanal</h2>
               </div>
               <div className="card-body">
                 <ProgressChart points={metrics.progression} />
@@ -74,7 +74,7 @@ export default async function AthleteMetricsPage({
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Carga semanal (km + minutos)</h3>
+                <h2 className="card-title">Carga semanal (km + minutos)</h2>
               </div>
               <div className="card-body">
                 <LoadChart points={metrics.progression} />
@@ -84,7 +84,7 @@ export default async function AthleteMetricsPage({
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Distribución por tipo</h3>
+                <h2 className="card-title">Distribución por tipo</h2>
               </div>
               <div className="card-body">
                 <TypeDistributionChart distribution={metrics.distribution} />
@@ -94,7 +94,7 @@ export default async function AthleteMetricsPage({
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Cumplimiento</h3>
+                <h2 className="card-title">Cumplimiento</h2>
               </div>
               <div className="card-body">
                 <ComplianceChart

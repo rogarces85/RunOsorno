@@ -15,7 +15,7 @@ export default async function CoachAthletesPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title">Mis atletas</h2>
+        <h1 className="page-title">Mis atletas</h1>
         <AthletesList
           athletes={athletes}
           teams={teams.map((team) => ({ id: team.id, name: team.name }))}

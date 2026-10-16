@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { cloneElement, useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { IconCheck, IconDeviceFloppy, IconX } from "@tabler/icons-react";
@@ -19,6 +19,13 @@ import { Alert } from "@/components/ui/Alert";
 
 type Notice = { type: "success" | "danger"; message: string } | null;
 
+/** Lo que `Field` le engancha a su control: solo las partes de accesibilidad. */
+type FieldControl = {
+  id: string;
+  "aria-invalid"?: true;
+  "aria-describedby"?: string;
+};
+
 function Field({
   id,
   label,
@@ -32,14 +39,25 @@ function Field({
   error?: string;
   children: React.ReactNode;
 }) {
+  const errorId = `${id}-error`;
   return (
     <div className="mb-3">
       <label className="form-label" htmlFor={id}>
         {label}
       </label>
-      {children}
+      {/* El control lo escribe el llamador (con su `register`), así que aquí se
+          le engancha el estado y la referencia al mensaje: si no, el error solo
+          se vería en rojo y no se anunciaría. */}
+      {cloneElement(children as React.ReactElement<FieldControl>, {
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": error ? errorId : undefined,
+      })}
       {hint && !error && <div className="form-hint">{hint}</div>}
-      {error && <div className="invalid-feedback d-block">{error}</div>}
+      {error && (
+        <div id={errorId} className="invalid-feedback d-block">
+          {error}
+        </div>
+      )}
     </div>
   );
 }

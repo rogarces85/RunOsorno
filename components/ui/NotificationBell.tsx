@@ -36,6 +36,8 @@ export function NotificationBell({
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const botonRef = useRef<HTMLButtonElement>(null);
+  const primerItemRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) {
@@ -51,6 +53,37 @@ export function NotificationBell({
     };
     document.addEventListener("mousedown", onClick);
     return () => document.removeEventListener("mousedown", onClick);
+  }, [open]);
+
+  /**
+   * `Escape` cierra el desplegable y devuelve el foco a la campanita (Fase 48,
+   * tareas 48.4 y 48.6).
+   *
+   * Antes solo se cerraba con el ratón: se cerraba al hacer clic fuera, que con
+   * un lector de pantalla o con teclado no existe. Y al cerrarlo el foco se
+   * perdía en el cuerpo del documento, de modo que quien abría la lista con la
+   * tecla Enter tenía que recorrer toda la página para volver.
+   */
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        setOpen(false);
+        botonRef.current?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  /** Al abrir, el foco entra en la lista y no se queda en la campanita. */
+  useEffect(() => {
+    if (open) {
+      primerItemRef.current?.focus();
+    }
   }, [open]);
 
   const openItem = async (item: BellNotification) => {
@@ -85,24 +118,35 @@ export function NotificationBell({
 
   return (
     <div className="nav-item dropdown" ref={containerRef}>
+      {/*
+        `aria-label` con el número dentro y sin paréntesis (Fase 48, 48.6).
+        El contador es texto visible del botón, y la regla "Label in Name"
+        (WCAG 2.5.3) pide que lo que se ve esté en el nombre accesible: antes
+        decía "Notificaciones (5 sin leer)" y el "5" de la esquina no estaba,
+        así que un lector de pantalla oía un número que no era el que veía.
+        También se dice "5 sin leer" en vez de solo "5", que es más útil.
+      */}
       <button
         type="button"
+        ref={botonRef}
         className="nav-link nav-link-icon"
         title="Notificaciones"
         aria-label={
           unreadCount > 0
-            ? `Notificaciones (${unreadCount} sin leer)`
+            ? `Notificaciones, ${unreadCount} sin leer`
             : "Notificaciones"
         }
         data-testid="notification-bell"
         aria-expanded={open}
+        aria-haspopup="true"
         onClick={() => setOpen((value) => !value)}
       >
-        <IconBell size={20} stroke={1.75} />
+        <IconBell size={20} stroke={1.75} aria-hidden="true" />
         {unreadCount > 0 && (
           <span
             className="badge notification-badge text-bg-danger"
             data-testid="notification-badge"
+            aria-hidden="true"
           >
             {unreadCount > 99 ? "99+" : unreadCount}
           </span>
@@ -144,9 +188,10 @@ export function NotificationBell({
               No tienes notificaciones.
             </div>
           ) : (
-            items.map((item) => (
+            items.map((item, index) => (
               <button
                 key={item.id}
+                ref={index === 0 ? primerItemRef : undefined}
                 type="button"
                 className={`dropdown-item${item.isRead ? "" : " active"}`}
                 data-testid="notification-item"

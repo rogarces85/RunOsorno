@@ -27,7 +27,7 @@ export default async function AdminSettingsPage() {
           </Link>
         </div>
 
-        <h2 className="page-title mb-1">Configuración</h2>
+        <h1 className="page-title mb-1">Configuración</h1>
         <p className="text-secondary">
           Estos valores se aplican a toda la plataforma: límites de equipos y
           atletas, ventana de edición, motivos y tipos de sesión, y el

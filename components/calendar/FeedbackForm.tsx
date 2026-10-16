@@ -36,6 +36,8 @@ export function FeedbackForm({ assignmentId }: { assignmentId: string }) {
       <textarea
         id="feedback-msg"
         className={`form-control${error ? " is-invalid" : ""}`}
+        aria-invalid={!!error}
+        aria-describedby={error ? "feedback-msg-error" : undefined}
         rows={2}
         value={message}
         placeholder="Escribe un comentario…"
@@ -44,7 +46,11 @@ export function FeedbackForm({ assignmentId }: { assignmentId: string }) {
           if (error) setError(null);
         }}
       />
-      {error && <div className="invalid-feedback d-block">{error}</div>}
+      {error && (
+        <div id="feedback-msg-error" className="invalid-feedback d-block">
+          {error}
+        </div>
+      )}
       <button
         type="button"
         className="btn btn-sm btn-primary mt-2"

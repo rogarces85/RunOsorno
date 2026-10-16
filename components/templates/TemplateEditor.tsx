@@ -142,11 +142,17 @@ export function TemplateEditor({
                 id="template-name"
                 type="text"
                 className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                aria-invalid={!!errors.name}
+                aria-describedby={
+                  errors.name ? "template-name-error" : undefined
+                }
                 placeholder="Ej: Series 6×400m con recuperación"
                 {...register("name")}
               />
               {errors.name && (
-                <div className="invalid-feedback">{errors.name.message}</div>
+                <div id="template-name-error" className="invalid-feedback">
+                  {errors.name.message}
+                </div>
               )}
             </div>
             <div className="col-md-5">
@@ -158,6 +164,10 @@ export function TemplateEditor({
                 type="text"
                 list="session-type-options"
                 className={`form-control ${errors.sessionType ? "is-invalid" : ""}`}
+                aria-invalid={!!errors.sessionType}
+                aria-describedby={
+                  errors.sessionType ? "session-type-options-error" : undefined
+                }
                 placeholder="Ej: Series, Tempo, Test/Control…"
                 {...register("sessionType")}
               />
@@ -170,7 +180,10 @@ export function TemplateEditor({
                 ))}
               </datalist>
               {errors.sessionType ? (
-                <div className="invalid-feedback d-block">
+                <div
+                  id="session-type-options-error"
+                  className="invalid-feedback d-block"
+                >
                   {errors.sessionType.message}
                 </div>
               ) : (
@@ -185,12 +198,14 @@ export function TemplateEditor({
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <h3 className="mb-0">
+        {/* `<h2>` y no `<h3>` (Fase 48): dentro de la página, que ya tiene su
+            `<h1>`, este bloque es una sección de primer nivel. */}
+        <h2 className="h3 mb-0">
           Estructura de la sesión
           <span className="text-secondary fs-5 fw-normal ms-2">
             ({fields.length} seccione{fields.length === 1 ? "" : "s"})
           </span>
-        </h3>
+        </h2>
         <button
           type="button"
           className="btn btn-outline-primary btn-sm"

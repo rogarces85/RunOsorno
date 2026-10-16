@@ -21,7 +21,7 @@ export default async function DirectorAthletesPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Atletas del grupo</h2>
+          <h1 className="page-title">Atletas del grupo</h1>
           <div className="card">
             <div className="card-body text-secondary text-center py-4">
               Necesitas ser Director Técnico de un grupo para ver sus atletas.{" "}
@@ -50,7 +50,7 @@ export default async function DirectorAthletesPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Atletas del grupo</h2>
+          <h1 className="page-title">Atletas del grupo</h1>
           <div className="alert alert-warning" role="alert">
             Necesitas ser Director Técnico del grupo para ver sus atletas.
           </div>
@@ -66,7 +66,7 @@ export default async function DirectorAthletesPage({
       <div className="col-12">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
           <div>
-            <h2 className="page-title mb-1">Atletas de {selected.name}</h2>
+            <h1 className="page-title mb-1">Atletas de {selected.name}</h1>
             <div className="text-secondary">
               Vista de solo lectura · {athletes.length} atleta
               {athletes.length === 1 ? "" : "s"} en el grupo

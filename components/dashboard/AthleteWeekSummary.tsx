@@ -29,20 +29,20 @@ export function AthleteWeekSummary({
   return (
     <div className="card h-100">
       <div className="card-header">
-        <h3 className="card-title">Resumen de la semana</h3>
+        <h2 className="card-title">Resumen de la semana</h2>
       </div>
       <div className="card-body">
         <div className="mb-3 d-flex flex-wrap gap-2">
-          <span className="badge bg-secondary-lt text-secondary">
+          <span className="badge bg-secondary-lt text-secondary-ink">
             Planificadas: {counts.planned + counts.in_progress}
           </span>
-          <span className="badge bg-success-lt text-success">
+          <span className="badge bg-success-lt text-success-ink">
             Completadas: {counts.completed}
           </span>
-          <span className="badge bg-warning-lt text-warning">
+          <span className="badge bg-warning-lt text-warning-ink">
             Parciales: {counts.partial}
           </span>
-          <span className="badge bg-danger-lt text-danger">
+          <span className="badge bg-danger-lt text-danger-ink">
             No realizadas: {counts.not_done}
           </span>
         </div>
@@ -71,7 +71,7 @@ export function AthleteWeekSummary({
                       </div>
                     </div>
                     <span
-                      className={`badge bg-${meta.color}-lt text-${meta.color}`}
+                      className={`badge bg-${meta.color}-lt text-${meta.color}-ink`}
                     >
                       {meta.label}
                     </span>

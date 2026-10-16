@@ -80,7 +80,7 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
               ) : (
                 <div className="d-flex flex-wrap gap-1">
                   {distEntries.map(([type, percent]) => (
-                    <span key={type} className="badge bg-blue-lt text-blue">
+                    <span key={type} className="badge bg-blue-lt text-blue-ink">
                       {type} {percent}%
                     </span>
                   ))}
@@ -125,15 +125,15 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
               {rpeDelta === null ? (
                 <div className="text-secondary small">real / planificado</div>
               ) : rpeDelta > 0 ? (
-                <span className="badge bg-red-lt text-red">
+                <span className="badge bg-red-lt text-red-ink">
                   +{rpeDelta} sobre objetivo
                 </span>
               ) : rpeDelta < 0 ? (
-                <span className="badge bg-blue-lt text-blue">
+                <span className="badge bg-blue-lt text-blue-ink">
                   {rpeDelta} bajo objetivo
                 </span>
               ) : (
-                <span className="badge bg-green-lt text-green">
+                <span className="badge bg-green-lt text-green-ink">
                   en objetivo
                 </span>
               )}
@@ -147,7 +147,7 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
           <div className="col-12">
             <div className="card">
               <div className="card-header">
-                <h3 className="card-title">Zonas de FC (Karvonen)</h3>
+                <h2 className="card-title">Zonas de FC (Karvonen)</h2>
               </div>
               <div className="table-responsive">
                 <table className="table table-vcenter table-sm mb-0">

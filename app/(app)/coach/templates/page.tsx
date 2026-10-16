@@ -15,7 +15,7 @@ export default async function CoachTemplatesPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title">Biblioteca de plantillas</h2>
+        <h1 className="page-title">Biblioteca de plantillas</h1>
         <TemplateList templates={templates} groups={groups} />
       </div>
     </div>

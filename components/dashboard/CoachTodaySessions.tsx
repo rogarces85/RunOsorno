@@ -20,9 +20,9 @@ export function CoachTodaySessions({
   return (
     <div className="card h-100">
       <div className="card-header">
-        <h3 className="card-title">Sesiones de hoy</h3>
+        <h2 className="card-title">Sesiones de hoy</h2>
         {sessions.length > 0 ? (
-          <span className="badge bg-blue-lt text-blue ms-auto">
+          <span className="badge bg-blue-lt text-blue-ink ms-auto">
             {sessions.length}
           </span>
         ) : null}
@@ -52,7 +52,7 @@ export function CoachTodaySessions({
                       </div>
                     </div>
                     <span
-                      className={`badge bg-${meta.color}-lt text-${meta.color}`}
+                      className={`badge bg-${meta.color}-lt text-${meta.color}-ink`}
                     >
                       {meta.label}
                     </span>

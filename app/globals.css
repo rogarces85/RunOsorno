@@ -17,6 +17,113 @@ body {
   font-family: var(--tblr-body-font-family);
 }
 
+/* ===== Accesibilidad (Fase 48) ===== */
+/* Al saltar al contenido el foco no debe quedar en un borde invisible: `main`
+   lleva `tabindex="-1"` justo para poder recibirlo, y aquí se marca para que se
+   vea dónde se ha aterrizado. */
+main:focus {
+  outline: none;
+}
+
+main:focus-visible {
+  outline: 2px solid var(--tblr-primary, #206bc4);
+  outline-offset: -2px;
+}
+
+/* Enlace de salto: existe siempre para teclado y lector de pantalla, pero solo
+   se pinta cuando recibe el foco. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1080;
+  padding: 0.5rem 1rem;
+  background-color: var(--tblr-primary, #206bc4);
+  color: #fff;
+  border-radius: 0 0 0.25rem 0;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  left: 0;
+}
+
+/* Las tablas anchas se desplazan en su propio contenedor (Fase 39). Si el
+   contenedor lleva `tabindex="0"` para poder recorrerlo con teclado, hay que
+   mostrar dónde está el foco: sin esto se desplazaría a ciegas. */
+.table-responsive:focus-visible {
+  outline: 2px solid var(--tblr-primary, #206bc4);
+  outline-offset: -2px;
+}
+
+/* Los títulos de página pasan a `<h1>` (Fase 48, tarea 48.1). Tabler da a
+   `.page-title` el tamaño de un `h2`, así que se recupera aquí el de un `h1`
+   real y el aspecto en pantalla no cambia. */
+h1.page-title {
+  font-size: 1.5rem;
+  line-height: 1.75rem;
+  font-weight: 500;
+}
+
+/* ===== Contraste de los badges (Fase 48, tarea 48.2) =====
+   **Ninguna** combinación `bg-*-lt` + `text-*` de Tabler 1.6 cumple WCAG AA.
+   Los fondos `-lt` son muy claros y los textos `-lt` están pensados para
+   superficies grandes, no para 12 px. Medido con axe sobre la app real: 103
+   nodos por debajo del mínimo, con casos tan visibles como
+   `bg-success-lt text-success` en 2,48:1 o `bg-warning-lt text-warning` en
+   1,97:1, cuando se pide 4,5:1.
+
+   La paleta de Tabler no ofrece ningún color de texto accesible sobre esos
+   fondos (comprobado uno a uno), así que se definen aquí: el mismo tono,
+   oscurecido lo justo para llegar a ~5:1. El color sigue siendo reconocible —un
+   badge verde es verde, un amarillo es amarillo— y ahora se lee.
+
+   Cada valor sale de mezclar el color de Tabler con negro en `oklab` hasta
+   cruzar el umbral, y está medido, no estimado:
+   `scripts/verify-accesibilidad.ts` vuelve a comprobarlo en el navegador.
+
+   El `!important` no es descuido: **las utilidades de color de Tabler 1.6
+   también lo llevan** (`.bg-success-lt{color:…!important}`), y además
+   `.bg-*-lt` fija el color del texto, no solo el fondo. Sin `!important` aquí
+   gana Tabler y el badge sigue sin contraste. */
+.text-blue-ink { color: #0564be !important; } /* 5,13:1 sobre rgb(230,241,250) */
+.text-green-ink { color: #1c762a !important; } /* 5,18:1 sobre rgb(234,247,236) */
+.text-orange-ink { color: #ae4603 !important; } /* 5,12:1 sobre rgb(254,240,230) */
+.text-red-ink { color: #ba3030 !important; } /* 5,12:1 sobre rgb(251,235,235) */
+.text-yellow-ink { color: #925d00 !important; } /* 5,13:1 sobre rgb(254,245,230) */
+.text-azure-ink { color: #2d6ca1 !important; } /* 5,05:1 sobre rgb(236,245,252) */
+.text-cyan-ink { color: #0d7181 !important; } /* 5,13:1 sobre rgb(232,246,248) */
+.text-purple-ink { color: #9b36b4 !important; } /* 5,12:1 sobre rgb(247,236,250) */
+.text-indigo-ink { color: #3b59d5 !important; } /* 5,13:1 sobre rgb(236,239,253) */
+.text-teal-ink { color: #067654 !important; } /* 5,06:1 sobre rgb(231,246,242) */
+.text-lime-ink { color: #48750a !important; } /* 5,05:1 sobre rgb(241,248,232) */
+.text-pink-ink { color: #ba2b5d !important; } /* 5,08:1 sobre rgb(251,235,240) */
+.text-primary-ink { color: #0564be !important; } /* 5,13:1 sobre rgb(230,241,250) */
+.text-secondary-ink { color: #666 !important; } /* 5,08:1 sobre rgb(241,241,241) */
+.text-success-ink { color: #1c762a !important; } /* 5,18:1 sobre rgb(234,247,236) */
+.text-warning-ink { color: #925d00 !important; } /* 5,13:1 sobre rgb(254,245,230) */
+.text-danger-ink { color: #ba3030 !important; } /* 5,12:1 sobre rgb(251,235,235) */
+.text-info-ink { color: #2d6ca1 !important; } /* 5,05:1 sobre rgb(236,245,252) */
+
+/* Lo mismo pasa con los `alert`: Tabler 1.6 saca el color del texto de
+   `--tblr-alert-variant-color`, y con el valor de fábrica un `.alert-success`
+   queda en 2,55:1 (verde sobre verde muy claro). Se redefine la variable por
+   variante con el mismo criterio de arriba; el fondo se sigue derivando de ella,
+   así que sigue siendo un tinte claro. */
+.alert-success {
+  --tblr-alert-variant-color: #1c762a;
+}
+.alert-warning {
+  --tblr-alert-variant-color: #925d00;
+}
+.alert-danger {
+  --tblr-alert-variant-color: #ba3030;
+}
+.alert-info {
+  --tblr-alert-variant-color: #2d6ca1;
+}
+
 /* ===== Shell responsive (Fase 39) ===== */
 /* Por debajo de `lg` el sidebar se comporta como off-canvas: sale desde la
    izquierda sobre un fondo oscurecido en vez de empujar el contenido. Antes
@@ -391,13 +498,68 @@ body.app-nav-open {
   line-height: 1;
 }
 
+/*
+ * Punto de estado del día.
+ *
+ * **Cada estado tiene además una forma distinta** (Fase 48, tarea 48.2). El
+ * punto de color era el único indicio: con los seis estados del calendario,
+ * quien tiene daltonismo —o simplemente una pantalla mala— no distinguía
+ * "completada" de "descanso". Eso es justo lo que WCAG 1.4.1 (uso del color)
+ * prohíbe: el color no puede ser el único medio de transmitir información.
+ *
+ * Las formas son deliberadamente contrastadas entre sí y no dependen solo de
+ * distinguir tonos: círculo lleno, cuadrado, triángulo, círculo hueco, anillo
+ * y punto hueco.
+ */
 .calendar-day-badge {
   display: inline-block;
   width: 0.65rem;
   height: 0.65rem;
-  border-radius: 50%;
   flex-shrink: 0;
+  background-color: transparent;
 }
+
+.calendar-day[data-state="completed"] .calendar-day-badge {
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.calendar-day[data-state="partial"] .calendar-day-badge {
+  border-radius: 1px;
+  background-color: currentColor;
+}
+
+.calendar-day[data-state="not_done"] .calendar-day-badge {
+  width: 0;
+  height: 0;
+  border-inline: 0.33rem solid transparent;
+  border-block-start: 0.55rem solid currentColor;
+  border-block-end: 0;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="planned"] .calendar-day-badge {
+  border-radius: 1px;
+  border: 2px solid currentColor;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="in_progress"] .calendar-day-badge {
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="rest"] .calendar-day-badge {
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background-color: transparent;
+  opacity: 0.55;
+}
+
+/* El color del punto lo pone `style="color: var(--tblr-<familia>)"` en
+   `CalendarDay`, así que aquí no hay que repetirlo para los seis estados. */
+
 
 .calendar-day-compliance {
   font-size: 0.65rem;

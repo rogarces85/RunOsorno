@@ -67,7 +67,7 @@ export default async function CoachAthleteCalendarPage({
           >
             ← Atletas
           </Link>
-          <h2 className="page-title mb-0">Calendario — {athlete.name}</h2>
+          <h1 className="page-title mb-0">Calendario — {athlete.name}</h1>
         </div>
         <div className="text-secondary">
           Plan de entrenamiento · click en un día para ver detalle o asignar plantilla

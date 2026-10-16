@@ -1,10 +1,7 @@
 "use client";
 
 import { IconArrowDown, IconArrowUp, IconTrash } from "@tabler/icons-react";
-import {
-  SECTION_TYPE_LABELS,
-  SECTION_TYPES,
-} from "@/lib/config/constants";
+import { SECTION_TYPE_LABELS, SECTION_TYPES } from "@/lib/config/constants";
 import type { UseFormRegister } from "react-hook-form";
 import type { TemplateInput } from "@/lib/validations/template.schemas";
 
@@ -32,7 +29,7 @@ export function SectionEditor({
   return (
     <div className="card mb-3">
       <div className="card-header d-flex justify-content-between align-items-center">
-        <h3 className="card-title mb-0">Sección {index + 1}</h3>
+        <h2 className="card-title mb-0">Sección {index + 1}</h2>
         <div className="btn-list">
           <button
             type="button"
@@ -75,11 +72,20 @@ export function SectionEditor({
               id={`section-title-${index}`}
               type="text"
               className={`form-control ${errors?.title ? "is-invalid" : ""}`}
+              aria-invalid={!!errors?.title}
+              aria-describedby={
+                errors?.title ? `section-title-${index}-error` : undefined
+              }
               placeholder="Ej: Calentamiento, 6×400m, Enfriamiento…"
               {...register(`structure.${index}.title`)}
             />
             {errors?.title && (
-              <div className="invalid-feedback">{errors.title.message}</div>
+              <div
+                id={`section-title-${index}-error`}
+                className="invalid-feedback"
+              >
+                {errors.title.message}
+              </div>
             )}
           </div>
           <div className="col-md-4">
@@ -89,6 +95,10 @@ export function SectionEditor({
             <select
               id={`section-type-${index}`}
               className={`form-select ${errors?.type ? "is-invalid" : ""}`}
+              aria-invalid={!!errors?.type}
+              aria-describedby={
+                errors?.type ? `section-type-${index}-error` : undefined
+              }
               {...register(`structure.${index}.type`)}
             >
               {SECTION_TYPES.map((type) => (
@@ -98,7 +108,12 @@ export function SectionEditor({
               ))}
             </select>
             {errors?.type && (
-              <div className="invalid-feedback">{errors.type.message}</div>
+              <div
+                id={`section-type-${index}-error`}
+                className="invalid-feedback"
+              >
+                {errors.type.message}
+              </div>
             )}
           </div>
           <div className="col-12">
@@ -109,11 +124,20 @@ export function SectionEditor({
               id={`section-content-${index}`}
               rows={3}
               className={`form-control ${errors?.content ? "is-invalid" : ""}`}
+              aria-invalid={!!errors?.content}
+              aria-describedby={
+                errors?.content ? `section-content-${index}-error` : undefined
+              }
               placeholder="Describe la sección: repeticiones, distancias, ritmos, FC, descansos…"
               {...register(`structure.${index}.content`)}
             />
             {errors?.content && (
-              <div className="invalid-feedback">{errors.content.message}</div>
+              <div
+                id={`section-content-${index}-error`}
+                className="invalid-feedback"
+              >
+                {errors.content.message}
+              </div>
             )}
           </div>
         </div>

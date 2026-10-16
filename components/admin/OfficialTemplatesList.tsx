@@ -107,7 +107,7 @@ export function OfficialTemplatesList({
                   <tr key={template.id}>
                     <td className="fw-medium">{template.name}</td>
                     <td>
-                      <span className="badge bg-blue-lt">
+                      <span className="badge bg-blue-lt text-blue-ink">
                         {SESSION_TYPE_LABELS[
                           template.sessionType as keyof typeof SESSION_TYPE_LABELS
                         ] ?? template.sessionType}

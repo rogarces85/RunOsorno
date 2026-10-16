@@ -99,7 +99,7 @@ export function LogsTable({ rows, total, page, totalPages, filters }: Props) {
     <div className="card">
       <div className="card-header">
         <div className="d-flex align-items-center">
-          <h3 className="card-title">Historial de acciones</h3>
+          <h2 className="card-title">Historial de acciones</h2>
           <span className="text-secondary ms-auto">
             {total === 0
               ? "Sin resultados"
@@ -108,7 +108,19 @@ export function LogsTable({ rows, total, page, totalPages, filters }: Props) {
         </div>
       </div>
 
-      <div className="table-responsive">
+      {/*
+        `tabIndex` + `role` para que la tabla se pueda desplazar con el teclado
+        (Fase 48, tarea 48.1). Es la única tabla de la app sin botones ni
+        enlaces dentro, así que el contenedor no tenía nada enfocable y quien
+        no usa ratón no podía moverla. `role="region"` con nombre es lo que pide
+        la regla `scrollable-region-focusable`.
+      */}
+      <div
+        className="table-responsive"
+        tabIndex={0}
+        role="region"
+        aria-label="Logs de auditoría"
+      >
         <table className="table table-vcenter card-table">
           <thead>
             <tr>
@@ -147,7 +159,7 @@ export function LogsTable({ rows, total, page, totalPages, filters }: Props) {
                   )}
                 </td>
                 <td>
-                  <span className="badge bg-secondary-lt">
+                  <span className="badge bg-secondary-lt text-secondary-ink">
                     {actionLabel(row.action)}
                   </span>
                   <div className="text-secondary small">{row.action}</div>

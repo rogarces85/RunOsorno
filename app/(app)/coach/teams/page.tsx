@@ -16,7 +16,7 @@ export default async function CoachTeamsPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title">Mis teams</h2>
+        <h1 className="page-title">Mis teams</h1>
         <TeamsList teams={teams} defaultNameHint={lastName(user.name)} />
       </div>
     </div>

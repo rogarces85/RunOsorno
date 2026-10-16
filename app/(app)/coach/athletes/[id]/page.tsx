@@ -40,7 +40,7 @@ export default async function CoachAthleteDetailPage({
         </div>
         <div className="d-flex justify-content-between align-items-start mb-3">
           <div>
-            <h2 className="page-title mb-1">{athlete.name}</h2>
+            <h1 className="page-title mb-1">{athlete.name}</h1>
             <p className="text-secondary mb-0">{athlete.email}</p>
           </div>
           <div className="d-flex align-items-center gap-2">
@@ -50,9 +50,9 @@ export default async function CoachAthleteDetailPage({
               label="Exportar informe"
             />
             {athlete.isActive ? (
-              <span className="badge bg-green-lt">Activo</span>
+              <span className="badge bg-green-lt text-green-ink">Activo</span>
             ) : (
-              <span className="badge bg-red-lt">Inactivo</span>
+              <span className="badge bg-red-lt text-red-ink">Inactivo</span>
             )}
           </div>
         </div>
@@ -61,7 +61,7 @@ export default async function CoachAthleteDetailPage({
           <div className="col-lg-4">
             <div className="card mb-3">
               <div className="card-header">
-                <h3 className="card-title">Datos físicos</h3>
+                <h2 className="card-title">Datos físicos</h2>
               </div>
               <div className="card-body">
                 <dl className="row mb-0">
@@ -101,7 +101,7 @@ export default async function CoachAthleteDetailPage({
 
             <div className="card mb-3">
               <div className="card-header">
-                <h3 className="card-title">Teams</h3>
+                <h2 className="card-title">Teams</h2>
               </div>
               <div className="card-body">
                 {athlete.teams.length === 0 ? (
@@ -120,7 +120,7 @@ export default async function CoachAthleteDetailPage({
           <div className="col-lg-8">
             <div className="card mb-3">
               <div className="card-header">
-                <h3 className="card-title">Resumen</h3>
+                <h2 className="card-title">Resumen</h2>
               </div>
               <div className="card-body">
                 <div className="row text-center">

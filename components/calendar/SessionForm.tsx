@@ -104,11 +104,14 @@ export function SessionForm({
     defaultValues: {
       distance: record?.distanceKm ?? "",
       duration:
-        record?.durationMinutes !== null && record?.durationMinutes !== undefined
+        record?.durationMinutes !== null &&
+        record?.durationMinutes !== undefined
           ? String(record.durationMinutes)
           : "",
       rpe:
-        record?.rpe !== null && record?.rpe !== undefined ? String(record.rpe) : "",
+        record?.rpe !== null && record?.rpe !== undefined
+          ? String(record.rpe)
+          : "",
       comments: record?.comments ?? "",
       reason: (record?.notDoneReason as string | null) ?? fallbackReason,
       customReason: record?.customReason ?? "",
@@ -119,17 +122,14 @@ export function SessionForm({
   const expired =
     record !== null &&
     BOOT_AT.getTime() >
-      new Date(record.recordedAt).getTime() +
-        editWindowHours * 60 * 60 * 1000;
+      new Date(record.recordedAt).getTime() + editWindowHours * 60 * 60 * 1000;
   const readonlyMessage = isFuture
     ? "No puedes registrar sesiones de días futuros"
     : expired
       ? "La ventana de edición ha expirado"
       : "";
 
-  const applyIssues = (
-    issues: { path: PropertyKey[]; message: string }[],
-  ) => {
+  const applyIssues = (issues: { path: PropertyKey[]; message: string }[]) => {
     for (const issue of issues) {
       const key = issue.path[0] ? String(issue.path[0]) : "root";
       const field = FIELD_MAP[key] ?? "root";
@@ -219,7 +219,11 @@ export function SessionForm({
       noValidate
     >
       <h6 className="mb-2">Registrar sesión</h6>
-      <div className="btn-group w-100 mb-3" role="group" aria-label="Estado de la sesión">
+      <div
+        className="btn-group w-100 mb-3"
+        role="group"
+        aria-label="Estado de la sesión"
+      >
         {modeBtn("completed")}
         {modeBtn("partial")}
         {modeBtn("not_done")}
@@ -238,6 +242,10 @@ export function SessionForm({
                 step="0.01"
                 min="0"
                 className={`form-control form-control-sm ${errors.distance ? "is-invalid" : ""}`}
+                aria-invalid={!!errors.distance}
+                aria-describedby={
+                  errors.distance ? "sf-distance-error" : undefined
+                }
                 data-testid="session-distance"
                 {...register("distance")}
                 onChangeCapture={() => {
@@ -246,7 +254,11 @@ export function SessionForm({
                 }}
               />
               {errors.distance && (
-                <div className="invalid-feedback d-block" data-testid="session-error-distance">
+                <div
+                  id="sf-distance-error"
+                  className="invalid-feedback d-block"
+                  data-testid="session-error-distance"
+                >
                   {errors.distance.message}
                 </div>
               )}
@@ -261,6 +273,10 @@ export function SessionForm({
                 step="1"
                 min="0"
                 className={`form-control form-control-sm ${errors.duration ? "is-invalid" : ""}`}
+                aria-invalid={!!errors.duration}
+                aria-describedby={
+                  errors.duration ? "sf-duration-error" : undefined
+                }
                 data-testid="session-duration"
                 {...register("duration")}
                 onChangeCapture={() => {
@@ -269,7 +285,11 @@ export function SessionForm({
                 }}
               />
               {errors.duration && (
-                <div className="invalid-feedback d-block" data-testid="session-error-duration">
+                <div
+                  id="sf-duration-error"
+                  className="invalid-feedback d-block"
+                  data-testid="session-error-duration"
+                >
                   {errors.duration.message}
                 </div>
               )}
@@ -282,6 +302,8 @@ export function SessionForm({
             <select
               id="sf-rpe"
               className={`form-select form-select-sm ${errors.rpe ? "is-invalid" : ""}`}
+              aria-invalid={!!errors.rpe}
+              aria-describedby={errors.rpe ? "sf-rpe-error" : undefined}
               data-testid="session-rpe"
               {...rpeRegister}
               onChange={(event) => {
@@ -298,7 +320,11 @@ export function SessionForm({
               ))}
             </select>
             {errors.rpe && (
-              <div className="invalid-feedback d-block" data-testid="session-error-rpe">
+              <div
+                id="sf-rpe-error"
+                className="invalid-feedback d-block"
+                data-testid="session-error-rpe"
+              >
                 {errors.rpe.message}
               </div>
             )}
@@ -334,6 +360,10 @@ export function SessionForm({
               <textarea
                 id="sf-custom-reason"
                 className={`form-control form-control-sm ${errors.customReason ? "is-invalid" : ""}`}
+                aria-invalid={!!errors.customReason}
+                aria-describedby={
+                  errors.customReason ? "sf-custom-reason-error" : undefined
+                }
                 rows={2}
                 data-testid="session-custom-reason"
                 {...register("customReason")}
@@ -343,7 +373,11 @@ export function SessionForm({
                 }}
               />
               {errors.customReason && (
-                <div className="invalid-feedback d-block" data-testid="session-error-custom-reason">
+                <div
+                  id="sf-custom-reason-error"
+                  className="invalid-feedback d-block"
+                  data-testid="session-error-custom-reason"
+                >
                   {errors.customReason.message}
                 </div>
               )}
@@ -360,6 +394,8 @@ export function SessionForm({
           <textarea
             id="sf-comments"
             className={`form-control form-control-sm ${errors.comments ? "is-invalid" : ""}`}
+            aria-invalid={!!errors.comments}
+            aria-describedby={errors.comments ? "sf-comments-error" : undefined}
             rows={2}
             data-testid="session-comments"
             {...register("comments")}
@@ -369,7 +405,11 @@ export function SessionForm({
             }}
           />
           {errors.comments && (
-            <div className="invalid-feedback d-block" data-testid="session-error-comments">
+            <div
+              id="sf-comments-error"
+              className="invalid-feedback d-block"
+              data-testid="session-error-comments"
+            >
               {errors.comments.message}
             </div>
           )}
@@ -377,12 +417,18 @@ export function SessionForm({
       )}
 
       {errors.root && (
-        <div className="text-danger small mb-2" data-testid="session-form-error">
+        <div
+          className="text-danger small mb-2"
+          data-testid="session-form-error"
+        >
           {errors.root.message}
         </div>
       )}
       {saved && (
-        <div className="alert alert-success py-2 mb-2" data-testid="session-form-success">
+        <div
+          className="alert alert-success py-2 mb-2"
+          data-testid="session-form-success"
+        >
           Sesión registrada correctamente
         </div>
       )}

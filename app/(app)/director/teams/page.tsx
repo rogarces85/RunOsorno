@@ -24,7 +24,7 @@ export default async function DirectorTeamsPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Comparativa del grupo</h2>
+          <h1 className="page-title">Comparativa del grupo</h1>
           <div className="card">
             <div className="card-body text-secondary text-center py-4">
               No perteneces a ningún grupo todavía.{" "}
@@ -50,7 +50,7 @@ export default async function DirectorTeamsPage({
       <div className="col-12">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
           <div>
-            <h2 className="page-title mb-1">Comparativa de {selected.name}</h2>
+            <h1 className="page-title mb-1">Comparativa de {selected.name}</h1>
             <div className="text-secondary">Equipos y coaches del grupo</div>
           </div>
           <div className="d-flex flex-wrap align-items-center gap-2">

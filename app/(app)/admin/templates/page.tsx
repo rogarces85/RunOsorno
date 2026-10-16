@@ -11,7 +11,7 @@ export default async function AdminTemplatesPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title">Plantillas oficiales</h2>
+        <h1 className="page-title">Plantillas oficiales</h1>
         <OfficialTemplatesList templates={templates} />
       </div>
     </div>

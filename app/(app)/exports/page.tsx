@@ -36,7 +36,7 @@ export default async function ExportsPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h2 className="page-title mb-1">Exportes</h2>
+        <h1 className="page-title mb-1">Exportes</h1>
         <p className="text-secondary">
           Descarga los datos de entrenamiento en PDF, Excel o CSV.
         </p>
@@ -44,7 +44,7 @@ export default async function ExportsPage() {
         {isAdmin && (
           <div className="card mb-3">
             <div className="card-header">
-              <h3 className="card-title">Listados globales (CSV)</h3>
+              <h2 className="card-title">Listados globales (CSV)</h2>
             </div>
             <div className="card-body">
               <div className="row g-3">
@@ -58,7 +58,7 @@ export default async function ExportsPage() {
                   <div key={item.entity} className="col-md-4">
                     <div className="card">
                       <div className="card-body">
-                        <h4 className="card-title">{item.label}</h4>
+                        <h3 className="card-title">{item.label}</h3>
                         <ExportButton
                           target={{
                             kind: "global",
@@ -82,7 +82,7 @@ export default async function ExportsPage() {
             {teams.length > 0 && (
               <div className="card mb-3">
                 <div className="card-header">
-                  <h3 className="card-title">Resumen de teams (Excel)</h3>
+                  <h2 className="card-title">Resumen de teams (Excel)</h2>
                 </div>
                 <div className="card-body">
                   <div className="row g-3">
@@ -90,7 +90,7 @@ export default async function ExportsPage() {
                       <div key={team.id} className="col-md-4">
                         <div className="card">
                           <div className="card-body">
-                            <h4 className="card-title">{team.name}</h4>
+                            <h3 className="card-title">{team.name}</h3>
                             <ExportButton
                               target={{ kind: "team", teamId: team.id }}
                               label="Exportar Excel"
@@ -108,9 +108,9 @@ export default async function ExportsPage() {
             {directorGroups.length > 0 && (
               <div className="card mb-3">
                 <div className="card-header">
-                  <h3 className="card-title">
+                  <h2 className="card-title">
                     Métricas de grupo (Excel)
-                  </h3>
+                  </h2>
                 </div>
                 <div className="card-body">
                   <div className="row g-3">
@@ -118,7 +118,7 @@ export default async function ExportsPage() {
                       <div key={group.id} className="col-md-4">
                         <div className="card">
                           <div className="card-body">
-                            <h4 className="card-title">{group.name}</h4>
+                            <h3 className="card-title">{group.name}</h3>
                             <ExportButton
                               target={{ kind: "group", groupId: group.id }}
                               label="Exportar Excel"

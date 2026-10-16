@@ -13,7 +13,7 @@ export function GroupMetricsPanel({ metrics }: GroupMetricsPanelProps) {
     <>
       <div className="card mb-3">
         <div className="card-header">
-          <h3 className="card-title">Comparativa de teams</h3>
+          <h2 className="card-title">Comparativa de teams</h2>
         </div>
         <div className="table-responsive">
           <table className="table table-vcenter table-hover">
@@ -52,7 +52,7 @@ export function GroupMetricsPanel({ metrics }: GroupMetricsPanelProps) {
                     <td className="text-end">{formatNumber(team.km, { maximumFractionDigits: 1 })}</td>
                     <td className="text-end">
                       {team.alerts > 0 ? (
-                        <span className="badge bg-red-lt text-red">
+                        <span className="badge bg-red-lt text-red-ink">
                           {team.alerts}
                         </span>
                       ) : (
@@ -69,7 +69,7 @@ export function GroupMetricsPanel({ metrics }: GroupMetricsPanelProps) {
 
       <div className="card mb-3">
         <div className="card-header">
-          <h3 className="card-title">Cumplimiento por coach</h3>
+          <h2 className="card-title">Cumplimiento por coach</h2>
         </div>
         <div className="table-responsive">
           <table className="table table-vcenter table-hover">

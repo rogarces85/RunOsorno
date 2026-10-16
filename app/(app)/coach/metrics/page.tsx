@@ -27,7 +27,7 @@ export default async function CoachMetricsPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h2 className="page-title">Métricas del team</h2>
+          <h1 className="page-title">Métricas del team</h1>
           <div className="card">
             <div className="card-body text-secondary text-center py-4">
               Primero crea un team para ver sus métricas.{" "}
@@ -75,7 +75,7 @@ export default async function CoachMetricsPage({
       <div className="col-12">
         <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
           <div>
-            <h2 className="page-title mb-1">Métricas de {selected.name}</h2>
+            <h1 className="page-title mb-1">Métricas de {selected.name}</h1>
             <div className="text-secondary">
               {metrics.period.from} → {metrics.period.to}
             </div>
@@ -118,7 +118,7 @@ export default async function CoachMetricsPage({
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Cumplimiento del team</h3>
+                <h2 className="card-title">Cumplimiento del team</h2>
               </div>
               <div className="card-body">
                 <ComplianceChart
@@ -131,7 +131,7 @@ export default async function CoachMetricsPage({
           <div className="col-lg-6 mb-3">
             <div className="card h-100">
               <div className="card-header">
-                <h3 className="card-title">Cumplimiento por atleta</h3>
+                <h2 className="card-title">Cumplimiento por atleta</h2>
               </div>
               <div className="card-body">
                 <AthleteComplianceChart

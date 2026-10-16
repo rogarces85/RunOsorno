@@ -9,9 +9,9 @@ type TeamMetricsPanelProps = {
 };
 
 const ALERT_LABELS: Record<AthleteAlert["kind"], { label: string; badge: string }> = {
-  no_logging: { label: "Sin registrar", badge: "bg-yellow-lt text-yellow" },
-  load_drop: { label: "Caída de carga", badge: "bg-red-lt text-red" },
-  high_rpe: { label: "RPE alto", badge: "bg-orange-lt text-orange" },
+  no_logging: { label: "Sin registrar", badge: "bg-yellow-lt text-yellow-ink" },
+  load_drop: { label: "Caída de carga", badge: "bg-red-lt text-red-ink" },
+  high_rpe: { label: "RPE alto", badge: "bg-orange-lt text-orange-ink" },
 };
 
 function bucketPct(count: number, total: number): string {
@@ -78,7 +78,7 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-lg-6 mb-3">
           <div className="card h-100">
             <div className="card-header">
-              <h3 className="card-title">Carga media del team</h3>
+              <h2 className="card-title">Carga media del team</h2>
             </div>
             <div className="card-body">
               <div className="h1 mb-0">{formatDistance(averageLoadKm)}</div>
@@ -129,7 +129,7 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-lg-6 mb-3">
           <div className="card h-100">
             <div className="card-header">
-              <h3 className="card-title">Alertas</h3>
+              <h2 className="card-title">Alertas</h2>
             </div>
             <div className="card-body">
               {alerts.length === 0 ? (
