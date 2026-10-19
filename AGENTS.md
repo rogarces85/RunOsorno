@@ -175,6 +175,13 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
   (objetivo: gratis o costo mínimo). La estrategia para resolver el corte está
   en `docs/pendientes.md` (§"Estrategia de costo cero para el login"): cron de
   calentamiento y/o reubicar la autenticación en un runtime con más CPU.
+- **El calentamiento es un Worker aparte, no un handler del principal.**
+  `workers/calentamiento.mjs` + `wrangler.calentamiento.jsonc` (`runosorno-
+  calentamiento`) tiene el Cron Trigger (cada 2 min) y pide `/api/health` por
+  service binding. Se eligió así para no envolver el entry de OpenNext, que es
+  frágil y no se puede validar en Windows por el `EPERM symlink`. Tocar el
+  calentador no afecta al tráfico de la app; se prueba con
+  `npx wrangler deploy --config wrangler.calentamiento.jsonc --dry-run`.
 
 ## Notas de la infraestructura de producción (Fase 43)
 

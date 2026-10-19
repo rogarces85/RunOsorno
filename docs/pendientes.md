@@ -258,9 +258,10 @@ opciones, en orden de esfuerzo:
    middleware). Un cron externo gratuito (cron-job.org o UptimeRobot) la golpea
    cada 1-5 minutos y mantiene el isolate caliente, reduciendo el fallo en frío.
    No elimina el techo de 10 ms por invocación. Procedimiento completo:
-   `docs/calentamiento.md`. La variante con **Cron Trigger nativo** de Cloudflare
-   exige envolver el entry de OpenNext con un handler `scheduled`; queda como
-   opción C en ese documento, a implementar solo si el ping externo no basta.
+   `docs/calentamiento.md`. La variante **nativa de Cloudflare** ya está
+   implementada como un Worker aparte (`workers/calentamiento.mjs`, config
+   `wrangler.calentamiento.jsonc`) con Cron Trigger cada 2 min y service binding
+   al Worker principal; se despliega junto con la app y no toca su entry.
 
 2. **Reubicar la autenticación en un runtime con más CPU (fondo del problema).**
    Un KDF seguro no cabe en 10 ms; la solución de raíz es ejecutar el login en

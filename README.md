@@ -81,6 +81,7 @@ como estaba. **Nunca ejecutes el seed de demo contra producción.**
 | `npm run build` / `npm start` | Build y servidor de producción (Node) |
 | `npm run preview` | Build de OpenNext y vista previa en `workerd` (puerto 8787) |
 | `npm run deploy` | Build y despliegue manual a Cloudflare Workers |
+| `npm run deploy:calentamiento` | Despliega el Worker de calentamiento (cron cada 2 min) |
 | `npm run lint` | ESLint |
 | `npm test` | Vitest |
 | `npm run test:coverage` | Vitest con umbrales de cobertura |

@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "runosorno-calentamiento",
+  "main": "workers/calentamiento.mjs",
+  "compatibility_date": "2026-01-15",
+  // Worker aparte del principal: solo corre por cron y no recibe tráfico.
+  // Se despliega desde `.github/workflows/deploy.yml` tras el Worker principal.
+  "triggers": {
+    // Formato cron de Cloudflare: cada 2 minutos.
+    "crons": ["*/2 * * * *"]
+  },
+  "services": [
+    {
+      // Service binding al Worker principal: evita una ida y vuelta por
+      // Internet y no necesita conocer el dominio público.
+      "binding": "APP",
+      "service": "runosorno"
+    }
+  ]
+}

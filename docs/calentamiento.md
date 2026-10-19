@@ -61,14 +61,23 @@ BASE_URL=http://localhost:3000 npx tsx scripts/verify-health.ts
    - **Monitoring Interval**: 5 minutos (plan gratuito).
 3. Guardar. El panel muestra el historial y envía alertas por correo si falla.
 
-## Opción C — Cron Trigger de Cloudflare (sin servicio externo)
+## Opción C — Cron Trigger nativo de Cloudflare (implementado)
 
-Requiere que el entry del Worker exporte un handler `scheduled`. OpenNext genera
-el entry automáticamente y no lo incluye, así que hay que envolverlo con un
-`worker.ts` propio y declarar `triggers.crons` en `wrangler.jsonc`. Queda
-pendiente de implementar si las opciones A/B no bastan: no se puede validar en
-Windows (el build de OpenNext falla por `EPERM symlink`) y hay que probarlo en
-Linux/CI antes de desplegarlo.
+En el repo vive un Worker aparte, `runosorno-calentamiento`
+(`workers/calentamiento.mjs` + `wrangler.calentamiento.jsonc`), con un Cron
+Trigger de Cloudflare cada 2 minutos. En lugar de envolver el entry de OpenNext
+(frágil y no validable en Windows por el `EPERM symlink`), el calentador pide
+`/api/health` al Worker principal por un **service binding** (`env.APP`), sin
+pasar por Internet.
+
+- **No toca el Worker principal**: si el calentador falla, la app sigue igual.
+- **Se despliega solo**: `.github/workflows/deploy.yml` lo publica después del
+  Worker principal.
+- **Manual**: `npm run deploy:calentamiento`.
+- **Validación local**:
+  `npx wrangler deploy --config wrangler.calentamiento.jsonc --dry-run`.
+
+Este es el camino recomendado si no se quiere depender de un servicio externo.
 
 ## Qué esperar
 
