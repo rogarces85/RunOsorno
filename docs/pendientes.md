@@ -253,11 +253,14 @@ Workers Paid ($5/mes) está descartado por el dueño. El objetivo es que el logi
 deje de caer por `exceededCpu` **sin gasto**, o con el mínimo posible. Las
 opciones, en orden de esfuerzo:
 
-1. **Cron de calentamiento (gratis, sin migrar nada).** Un Cron Trigger de
-   Cloudflare que golpee una ruta ligera cada 1-2 minutos mantiene un isolate
-   caliente y el camino Hyperdrive/`mysql2` ya cargado, reduciendo el fallo en
-   frío. No elimina el techo de 10 ms por invocación, pero puede ser suficiente
-   tras la migración a PBKDF2. Cero coste y cambio mínimo.
+1. **Calentamiento con ping externo (gratis, sin migrar nada).** Ya está
+   desplegada la ruta `GET /api/health` (sin base de datos y fuera del
+   middleware). Un cron externo gratuito (cron-job.org o UptimeRobot) la golpea
+   cada 1-5 minutos y mantiene el isolate caliente, reduciendo el fallo en frío.
+   No elimina el techo de 10 ms por invocación. Procedimiento completo:
+   `docs/calentamiento.md`. La variante con **Cron Trigger nativo** de Cloudflare
+   exige envolver el entry de OpenNext con un handler `scheduled`; queda como
+   opción C en ese documento, a implementar solo si el ping externo no basta.
 
 2. **Reubicar la autenticación en un runtime con más CPU (fondo del problema).**
    Un KDF seguro no cabe en 10 ms; la solución de raíz es ejecutar el login en
@@ -279,8 +282,10 @@ opciones, en orden de esfuerzo:
    de PBKDF2 por debajo de OWASP no es aceptable, y el resto de la CPU del login
    es I/O de base de datos que no se puede eliminar.
 
-**Siguiente paso concreto:** desplegar la migración a PBKDF2, re-medir el login
-en frío y, según el resultado, aplicar (1) y decidir (2). Esto no bloquea el
-resto del MVP: el corte afecta solo al POST de login en frío.
+**Siguiente paso concreto:** la migración a PBKDF2 y `/api/health` ya están
+desplegadas en producción. Falta configurar el ping externo
+(`docs/calentamiento.md`), **re-medir el login en frío** y, según el resultado,
+decidir si hace falta el KDF en el cliente o mover la autenticación. Esto no
+bloquea el resto del MVP: el corte afecta solo al POST de login en frío.
 
 

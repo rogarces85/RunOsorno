@@ -113,10 +113,13 @@ npx tsx scripts/verify-empty-states.ts     # vacíos y errores
 npx tsx scripts/verify-dashboards.ts       # cifras contra la base
 npx tsx scripts/verify-profile.ts          # perfil y cambio de contraseña
 npx tsx scripts/verify-produccion.ts       # login real contra el Worker
+npx tsx scripts/verify-health.ts           # /api/health en producción (sin dev)
 BASE_URL=http://127.0.0.1:8787 npx playwright test  # E2E dentro de workerd
 ```
 
-`verify-sentry.ts` compila la app y levanta su propio servidor.
+`verify-sentry.ts` compila la app y levanta su propio servidor. `verify-health.ts`
+apunta a producción por defecto y sirve de blanco del ping de calentamiento
+([`docs/calentamiento.md`](./docs/calentamiento.md)).
 
 ## Despliegue
 
