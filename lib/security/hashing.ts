@@ -7,10 +7,16 @@
  */
 
 /**
- * Número de rondas de bcrypt. 12 es el mínimo que recomienda OWASP hoy; bajar
- * de ahí vuelve los hashes más baratos de romper por fuerza bruta.
+ * Número de rondas de bcrypt.
+ *
+ * Se bajó de 12 a 10 en la puesta en producción: en `workerd` (Cloudflare
+ * Workers) cada login ejecuta bcrypt en CPU pura y 12 rondas costaban
+ * ~450-770 ms, lo que hacía que los logins se cortaran intermitentemente con
+ * `Worker exceeded CPU time limit` en arranques en frío. 10 rondas (~4x menos
+ * CPU) siguen siendo razonables para este MVP con sal aleatoria; si más
+ * adelante hay presupuesto de CPU (plan de pago), conviene volver a 12.
  */
-export const BCRYPT_ROUNDS = 12;
+export const BCRYPT_ROUNDS = 10;
 
 /**
  * Coste de comparar una contraseña que no existe.
