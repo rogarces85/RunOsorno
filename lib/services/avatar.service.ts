@@ -1,17 +1,32 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
-import {
-  DeleteObjectCommand,
-  GetObjectCommand,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import type { PermissionUser } from "@/lib/permissions";
 import type { ServiceResult } from "@/lib/services/template.service";
+
+/**
+ * El SDK de S3 y el firmador se cargan **bajo demanda** (Fase 47/48): son
+ * grandes y solo hacen falta cuando hay un avatar de por medio, así que no
+ * tienen por qué evaluarse en el arranque del Worker ni ocupar memoria en cada
+ * isolate. Se memoriza la promesa del `import()` para no repetirlo.
+ */
+type ModuloS3 = typeof import("@aws-sdk/client-s3");
+type ModuloPresigner = typeof import("@aws-sdk/s3-request-presigner");
+
+let moduloS3: Promise<ModuloS3> | null = null;
+let moduloPresigner: Promise<ModuloPresigner> | null = null;
+
+function s3(): Promise<ModuloS3> {
+  moduloS3 ??= import("@aws-sdk/client-s3");
+  return moduloS3;
+}
+
+function presigner(): Promise<ModuloPresigner> {
+  moduloPresigner ??= import("@aws-sdk/s3-request-presigner");
+  return moduloPresigner;
+}
 
 export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 export const AVATAR_ACCEPTED_TYPES = [
@@ -77,7 +92,8 @@ function r2Configured(): boolean {
   );
 }
 
-function r2Client(): S3Client {
+async function r2Client() {
+  const { S3Client } = await s3();
   return new S3Client({
     region: "auto",
     endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -102,8 +118,12 @@ export async function getUploadTicket(
 ): Promise<AvatarUploadTicket> {
   const key = avatarKeyFor(user.id);
   if (r2Configured()) {
+    const [{ PutObjectCommand }, { getSignedUrl }] = await Promise.all([
+      s3(),
+      presigner(),
+    ]);
     const url = await getSignedUrl(
-      r2Client(),
+      await r2Client(),
       new PutObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
         Key: key,
@@ -122,7 +142,8 @@ export async function getUploadTicket(
 
 /** Borra un objeto del bucket sin propagar el error si ya no está. */
 async function deleteObjectQuietly(key: string): Promise<void> {
-  await r2Client()
+  const { DeleteObjectCommand } = await s3();
+  await (await r2Client())
     .send(
       new DeleteObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
@@ -167,7 +188,8 @@ export async function confirmUpload(
   // dejar el objeto en el bucket: hasta aquí el archivo existe pero la app no
   // lo sirve (el `avatarKey` del usuario sigue sin seteear).
   if (r2Configured()) {
-    const objeto = await r2Client()
+    const { GetObjectCommand } = await s3();
+    const objeto = await (await r2Client())
       .send(
         new GetObjectCommand({
           Bucket: process.env.R2_BUCKET_NAME,
@@ -211,7 +233,8 @@ export async function deleteAvatar(
     return { ok: false, error: "No tienes foto de perfil" };
   }
   if (r2Configured()) {
-    await r2Client()
+    const { DeleteObjectCommand } = await s3();
+    await (await r2Client())
       .send(
         new DeleteObjectCommand({
           Bucket: process.env.R2_BUCKET_NAME,
@@ -247,8 +270,12 @@ export async function resolveAvatarSource(
     return { kind: "svg", name: row.name };
   }
   if (r2Configured()) {
+    const [{ GetObjectCommand }, { getSignedUrl }] = await Promise.all([
+      s3(),
+      presigner(),
+    ]);
     const url = await getSignedUrl(
-      r2Client(),
+      await r2Client(),
       new GetObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME,
         Key: row.avatarKey,

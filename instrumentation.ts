@@ -1,5 +1,3 @@
-import * as Sentry from "@sentry/nextjs";
-
 /**
  * Instrumentación del servidor (Fase 44).
  *
@@ -9,15 +7,28 @@ import * as Sentry from "@sentry/nextjs";
  * render de un Server Component, una ruta de API o un Server Action que lanza
  * una excepción no controlada— y Sentry lo convierte en un evento.
  *
+ * Importante para el arranque del Worker: **Sentry solo se importa si hay
+ * `SENTRY_DSN`**. El `import` estático de `@sentry/nextjs` se evaluaba en cada
+ * isolate aunque el SDK quedara deshabilitado (`enabled: false`), y ese trabajo
+ * se paga en el arranque en frío. Sin DSN no hay nada que reportar, así que no
+ * hay razón para cargarlo.
+ *
  * Por qué basta una sola rama y no una para `edge`: el proyecto despliega con
  * OpenNext sobre Cloudflare Workers con `nodejs_compat`, así que el runtime de
  * todo el servidor es `nodejs`, incluido el middleware (`proxy.ts`). Añadir la
  * rama `edge` solo traería un bundle que nunca se ejecuta.
  */
 export async function register() {
-  if (process.env.NEXT_RUNTIME === "nodejs") {
+  if (process.env.NEXT_RUNTIME === "nodejs" && process.env.SENTRY_DSN) {
     await import("./sentry.server.config");
   }
 }
 
-export const onRequestError = Sentry.captureRequestError;
+/** Se importa el SDK solo cuando hay un error y hay DSN configurado. */
+export async function onRequestError(
+  ...args: Parameters<typeof import("@sentry/nextjs").captureRequestError>
+) {
+  if (!process.env.SENTRY_DSN) return;
+  const Sentry = await import("@sentry/nextjs");
+  await Sentry.captureRequestError(...args);
+}

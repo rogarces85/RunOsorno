@@ -1,5 +1,4 @@
 import { and, asc, eq, sql } from "drizzle-orm";
-import { renderToBuffer } from "@react-pdf/renderer";
 import { db } from "@/lib/db";
 import {
   groups,
@@ -19,10 +18,7 @@ import {
   getGroupMetrics,
   getTeamMetrics,
 } from "@/lib/services/metric.service";
-import {
-  AthleteReportDocument,
-  type PdfSessionRow,
-} from "@/lib/exports/athlete-report";
+import type { PdfSessionRow } from "@/lib/exports/athlete-report";
 import type { ExportEntity, ExportFile } from "@/lib/validations/export.schemas";
 import type { MetricsPeriod } from "@/lib/validations/metric.schemas";
 
@@ -153,6 +149,14 @@ export async function exportAthletePDF(
     rpe: row.rpe,
     note: row.notDoneReason ?? "",
   }));
+
+  // @react-pdf/renderer y el documento del informe se cargan aquí y no en la
+  // cabecera del módulo: pesan, y solo hacen falta cuando alguien descarga un
+  // PDF. Así no se evalúan en el arranque del Worker ni en cada isolate.
+  const [{ renderToBuffer }, { AthleteReportDocument }] = await Promise.all([
+    import("@react-pdf/renderer"),
+    import("@/lib/exports/athlete-report"),
+  ]);
 
   const doc = AthleteReportDocument({
     athleteName: athlete?.name ?? "Atleta",
