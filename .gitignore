@@ -38,6 +38,10 @@
 # volcados de la base: contienen hashes de contrasena, nunca al repositorio
 /db/dumps/
 
+# notas locales con tokens/secretos pegados (no al repositorio)
+/Cloudflare.txt
+*.secret.txt
+
 # misc
 .DS_Store
 *.pem
