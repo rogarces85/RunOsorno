@@ -56,6 +56,7 @@ export type AuditAction =
   | "email_failed"
   | "data_exported"
   | "settings_updated"
+  | "avatars_cleaned"
   | (string & {});
 
 async function resolveIp(explicit?: string | null): Promise<string | null> {

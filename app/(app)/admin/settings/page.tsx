@@ -4,6 +4,7 @@ import {
   EmailForm,
   LimitsForm,
 } from "@/components/settings/SettingsForms";
+import { MaintenanceCard } from "@/components/settings/MaintenanceCard";
 import { requireRole } from "@/lib/auth/guards";
 import { getAllSettings } from "@/lib/services/settings.service";
 import { SettingsTabs } from "@/components/settings/SettingsTabs";
@@ -40,6 +41,8 @@ export default async function AdminSettingsPage() {
           types={<EditableListForm kind="types" initial={types} />}
           email={<EmailForm initial={email} />}
         />
+
+        <MaintenanceCard />
       </div>
     </div>
   );

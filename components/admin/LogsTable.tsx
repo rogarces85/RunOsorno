@@ -53,6 +53,7 @@ const ACTION_LABELS: Record<string, string> = {
   email_failed: "Fallo al enviar email",
   data_exported: "Datos exportados",
   settings_updated: "Configuración actualizada",
+  avatars_cleaned: "Avatares huérfanos limpiados",
 };
 
 function actionLabel(action: string): string {

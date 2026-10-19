@@ -1,6 +1,6 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { eq } from "drizzle-orm";
+import { eq, isNotNull } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import type { PermissionUser } from "@/lib/permissions";
@@ -296,4 +296,95 @@ export async function readLocalAvatar(
   userId: string,
 ): Promise<Buffer | null> {
   return readFile(localAvatarPath(userId)).catch(() => null);
+}
+
+/**
+ * Objetos de R2 que ya no referencia ningún usuario (función pura, para
+ * probarla sin red). Solo se consideran las claves bajo `avatars/`.
+ */
+export function filtrarHuerfanos(
+  keys: string[],
+  referenciados: Set<string>,
+): string[] {
+  return keys.filter(
+    (key) => key.startsWith("avatars/") && !referenciados.has(key),
+  );
+}
+
+/** Lista los avatares del bucket que no están asociados a ningún usuario. */
+export async function findOrphanAvatars(): Promise<ServiceResult<string[]>> {
+  if (!r2Configured()) {
+    return {
+      ok: false,
+      error:
+        "R2 no está configurado; los avatares locales no se comprueban desde aquí.",
+    };
+  }
+
+  const [{ ListObjectsV2Command }, client] = await Promise.all([
+    s3(),
+    r2Client(),
+  ]);
+
+  const keys: string[] = [];
+  let token: string | undefined;
+  do {
+    const page = await client.send(
+      new ListObjectsV2Command({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Prefix: "avatars/",
+        ContinuationToken: token,
+      }),
+    );
+    for (const object of page.Contents ?? []) {
+      if (object.Key) keys.push(object.Key);
+    }
+    token = page.IsTruncated ? page.NextContinuationToken : undefined;
+  } while (token);
+
+  const rows = await db
+    .select({ key: users.avatarKey })
+    .from(users)
+    .where(isNotNull(users.avatarKey));
+  const referenciados = new Set(
+    rows.map((row) => row.key).filter((key): key is string => Boolean(key)),
+  );
+
+  return { ok: true, data: filtrarHuerfanos(keys, referenciados) };
+}
+
+/** Borra los objetos indicados y devuelve cuántos se eliminaron. */
+export async function deleteAvatarKeys(keys: string[]): Promise<number> {
+  const { DeleteObjectCommand } = await s3();
+  const client = await r2Client();
+  let deleted = 0;
+  for (const key of keys) {
+    try {
+      await client.send(
+        new DeleteObjectCommand({
+          Bucket: process.env.R2_BUCKET_NAME,
+          Key: key,
+        }),
+      );
+      deleted += 1;
+    } catch {
+      // Se sigue con el resto: un objeto que no se puede borrar no debe
+      // impedir la limpieza de los demás.
+    }
+  }
+  return deleted;
+}
+
+export type OrphanCleanup = { found: number; deleted: number };
+
+/** Busca y elimina los avatares huérfanos del bucket. */
+export async function cleanupOrphanAvatars(): Promise<
+  ServiceResult<OrphanCleanup>
+> {
+  const found = await findOrphanAvatars();
+  if (!found.ok) {
+    return { ok: false, error: found.error };
+  }
+  const deleted = await deleteAvatarKeys(found.data);
+  return { ok: true, data: { found: found.data.length, deleted } };
 }
