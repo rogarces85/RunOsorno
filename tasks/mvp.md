@@ -967,16 +967,16 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 - [x] 43.1 Instalar `@opennextjs/cloudflare` y `wrangler` — `1.20.11` y `4.151.0`
 - [x] 43.2 Configurar `wrangler.jsonc` con nombre del proyecto, R2 bucket binding y Hyperdrive binding
-- [x] 43.3 Configurar secretos del Worker — `LUCIA_SECRET` (nuevo, 48 caracteres), `APP_URL` y `RESEND_FROM` como variables. `RESEND_API_KEY` y las credenciales de R2 siguen pendientes (43.12 y 43.13)
+- [x] 43.3 Configurar secretos del Worker — `LUCIA_SECRET` (nuevo, 48 caracteres), `APP_URL` y `RESEND_FROM` como variables. Credenciales de R2 cargadas el 19-10; `RESEND_API_KEY` sigue pendiente (43.13)
 - [x] 43.4 Configurar Hyperdrive apuntando al MySQL de producción (Aiven `defaultdb`, MySQL 8.4.11)
 - [x] 43.5 Verificar build local con `npx opennextjs-cloudflare build`
-- [ ] 43.6 Conectar el repositorio de GitHub a Cloudflare Workers — el deploy se hizo desde local con `wrangler login`; falta el API token en los secretos de GitHub
+- [x] 43.6 Conectar el repositorio de GitHub a Cloudflare Workers — token de cuenta cargado en los secretos; `deploy.yml` desplegó en verde (19-10)
 - [x] 43.7 Configurar GitHub Actions workflow (`.github/workflows/deploy.yml`): install → lint → test → build → deploy
 - [x] 43.8 Hacer primer deploy a Cloudflare Workers — versión `f7aca525-ff2e-4cab-993a-e460f39b2e87`
 - [x] 43.9 Verificar el sitio accesible en `*.workers.dev` — `https://runosorno.rodrigo-garces-guerrero.workers.dev`
 - [x] 43.10 Verificar login funciona en producción (cookies Secure, HTTPS) — `auth_session` con `secure=true`, `httpOnly=true`, `sameSite=Lax`
 - [x] 43.11 Verificar conexión a DB funciona desde edge (Hyperdrive) — login real contra Aiven y la sesión sobrevive a una recarga
-- [ ] 43.12 Verificar R2 funciona (subir y ver avatar) — falta crear el API token de R2
+- [x] 43.12 Verificar R2 funciona (subir y ver avatar) — secretos cargados, CORS configurado y URL prefirmada corregida; subida, servido y borrado comprobados
 - [ ] 43.13 Verificar Resend envía emails en producción — falta `RESEND_API_KEY`
 
 > **Un cuarto defecto, ya en el despliegue.** `NEXT_PUBLIC_APP_URL` se usaba para
@@ -1164,7 +1164,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 45.3 Verificar que todas las queries usan Drizzle (parametrizadas, sin concatenación SQL)
 - [x] 45.4 Verificar que no hay `dangerouslySetInnerHTML` con datos de usuario
 - [x] 45.5 Implementar rate limiting en login (máx 5 intentos por IP en 15 min)
-- [ ] 45.6 Verificar que R2 bucket es privado y solo accesible con URLs firmadas — el código ya usa URLs firmadas y no hay URL pública del bucket, pero falta comprobarlo contra el bucket real en Cloudflare
+- [x] 45.6 Verificar que R2 bucket es privado y solo accesible con URLs firmadas — un GET sin firma devuelve 400 `InvalidArgument`
 - [x] 45.7 Verificar que variables de entorno (secrets) no están en código fuente
 - [x] 45.8 Verificar que `.env.local` está en `.gitignore`
 - [x] 45.9 Verificar que el upload de avatar valida MIME type real y tamaño
@@ -1598,15 +1598,15 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 40. Validaciones (completación) | 15 | 15 |
 | 41. Pruebas unitarias | 15 | 15 |
 | 42. Pruebas E2E | 12 | 12 |
-| 43. Cloudflare | 13 | 9 |
+| 43. Cloudflare | 13 | 11 |
 | 44. Sentry | 6 | 5 |
-| 45. Seguridad | 10 | 9 |
+| 45. Seguridad | 10 | 10 |
 | 46. i18n y localización | 5 | 5 |
 | 47. Rendimiento | 8 | 8 |
 | 48. Accesibilidad | 6 | 6 |
 | 49. Documentación | 5 | 0 |
 | 50. Revisión final | 15 | 4 |
-| **TOTAL** | **~578** | **559** |
+| **TOTAL** | **~578** | **562** |
 
 ---
 
@@ -1646,3 +1646,4 @@ necesita el `SENTRY_DSN` desde el arranque.
 
 Los datos de demostración se limpian con `npm run db:seed:demo:clean`, que
 deja la base exactamente como estaba antes del seed.
+

@@ -23,8 +23,8 @@ externa, documentación y la revisión final** de las fases 49 y 50.
 | Funcionalidades del MVP (`specs/mvp.md` §11) | las 20 están implementadas |
 | Funcionalidades fuera del MVP (§11) | ninguna implementada |
 | Producción | login OK, cookie `Secure`+`HttpOnly`, sesión persistente; 10 rutas y 30 peticiones en paralelo sin 5xx (`verify-produccion.ts`) |
-| Deploy manual | OK: versión 8 del Worker (`9682bf39`), 19-10 |
-| Deploy automático | **Roto**: el token de Cloudflare en GitHub está revocado (ver P1) |
+| Deploy automático | **OK**: token cargado; 4 runs consecutivos en verde |
+| Avatares en R2 | OK: subida prefirmada, servido por URL firmada y borrado, con el bucket privado |
 
 ## P0 — Producción caída (resuelto el 2026-10-19)
 
@@ -55,54 +55,32 @@ login_attempts → ER_NO_SUCH_TABLE (1146)
    `HttpOnly` + `SameSite=Lax`, sesión que sobrevive a una recarga y rutas
    protegidas que redirigen, sin 5xx.
 
-**Despliegue:** se hizo **manual** (`npm run deploy`) el 19-10; la versión
-vigente es la 8 del Worker (`9682bf39`), que incluye el arreglo de conexiones de
-P1.5. Verificado después: login, 10 rutas con 200, 30 peticiones en paralelo sin
-5xx. El deploy automático sigue roto (P1).
+**Despliegue:** el pipeline ya funciona. Tras cargar el token de Cloudflare, los
+últimos runs de `deploy.yml` están en verde y producción sirve el build de
+`main`. Verificado después: login, 10 rutas con 200, 30 peticiones en paralelo
+sin 5xx.
 
-**Pendiente de P0:** nada funcional. Producción ya tiene el código de esta
-revisión; queda la fiabilidad del arranque en frío (P1.5) y el pipeline (P1).
+**Pendiente de P0:** nada funcional.
 
-## P1 — El despliegue automático nunca ha funcionado (43.6)
+## P1 — Deploy automático (resuelto el 2026-10-19)
 
-**Comprobado de nuevo el 2026-10-19** (run 39274499517 y un diagnóstico con
-credenciales del propio CI): sigue fallando, y la causa es más simple de lo que
-parecía. El token guardado en los secretos **no es válido**:
+Los runs de GitHub Actions fallaban con `403 Authentication error` al provisionar
+`runosorno-cache`. El diagnóstico con las credenciales del propio CI mostró que
+el token guardado **no era válido** (`/user/tokens/verify` →
+`{"code":1000,"message":"Invalid API Token"}`): se había regenerado en el panel
+y el secreto de GitHub seguía con el valor viejo.
 
-```
-GET /client/v4/user/tokens/verify
-{"success":false,"errors":[{"code":1000,"message":"Invalid API Token"}]}
-```
+**Qué se hizo:** se cargó un token nuevo de cuenta (Workers Scripts, Workers R2
+Storage, Hyperdrive y Account Settings) con `gh secret set`, se confirmó
+`CLOUDFLARE_ACCOUNT_ID = 519a5439103b90fb074dc2204ef5175e` y se relanzó el
+workflow. **Cuatro despliegues consecutivos en verde**, incluidos el del arreglo
+de conexiones y el de avatares.
 
-Por eso el deploy muere al crear el bucket de caché:
+Nota: el paso "Reintentar el deploy si la subida de R2 dio tiempo de espera"
+sigue en el workflow; ya no hace falta, pero es inocuo. Se puede borrar en la
+fase 50.
 
-```
-Failed to provision remote R2 bucket "runosorno-cache" for binding
-"NEXT_INC_CACHE_R2_BUCKET": ... 403 {"code":10000,"message":"Authentication error"}
-```
-
-No es (solo) que falte el permiso de R2: el token fue revocado o regenerado en
-el panel y el secreto de GitHub quedó con el valor viejo (su última
-actualización es del 2026-10-14). Hasta que se reemplace no hay despliegue
-automático posible.
-
-Tareas:
-
-1. En Cloudflare → **My Profile → API Tokens**, crear un token nuevo con:
-   **Workers Scripts: Edit**, **Workers R2 Storage: Edit** (bucket y objetos),
-   **Hyperdrive: Edit** y **Account Settings: Read**, limitado a la cuenta.
-   Un token "plantilla" ya trae los permisos de Workers pero **no** los de R2.
-2. Actualizar el secreto del repositorio:
-   `gh secret set CLOUDFLARE_API_TOKEN` (y comprobar que `CLOUDFLARE_ACCOUNT_ID`
-   es el de la cuenta donde viven `runosorno`, `runosorno-cache` y
-   `runosorno-avatars`).
-3. Relanzar `gh workflow run deploy.yml` y comprobar que llega al final.
-4. Cuando pase, borrar el paso de reintento de R2 si ya no hace falta: hoy
-   enmascara el error real durante un minuto más (el fallo es inmediato).
-5. Mientras esto no pase, todo despliegue es manual desde local y la rama `main`
-   puede quedar por delante de producción.
-
-## P1.5 — 503 y cuelgues por agotar las conexiones de Hyperdrive (resuelto, 19-10)
+## P1.5 — 503 y cuelgues del Worker (resuelto, 19-10)
 
 Al verificar el despliegue aparecieron dos síntomas: *prefetch* con 503
 "Worker exceeded resource limits" y una petición que se quedó **10 minutos**
@@ -116,35 +94,39 @@ el origen se agotaba y las peticiones se quedaban esperando; el resto de la
 ráfaga moría como `exceededCpu` (el corte se mide en la invocación, pero el
 trabajo ya no era el problema).
 
-**Solución** (`lib/db/index.ts`):
+**Solución:**
 
-- `connectionLimit: 1` en el pool de cada petición: cada una hace sus consultas
-  en serie y no necesita más de una conexión.
-- La cadena de Hyperdrive se usa sin la *query string*: `ssl-mode` no lo
-  entiende mysql2 y avisaba en cada conexión.
+- **`lib/db/index.ts`**: `connectionLimit: 1` en el pool de cada petición (cada
+  una consulta en serie) y la cadena de Hyperdrive sin *query string*, que
+  además quitó el aviso de `ssl-mode` en cada conexión.
+- **Carga bajo demanda** de `@sentry/nextjs` (solo si hay `SENTRY_DSN`),
+  `@react-pdf/renderer` y `@aws-sdk/client-s3`: se evaluaban en cada isolate
+  aunque no se usaran.
+- **Sin *prefetch* en el menú lateral**: al abrir una página, Next pedía de
+  golpe las 10 rutas del menú (10 renders SSR en paralelo) y esa ráfaga era la
+  que el Worker no sostenía. La navegación sigue siendo RSC.
 
-**Verificación con la versión 8 del Worker (`9682bf39`):**
+**Verificación final (versión con los tres cambios):**
 
 - 3 rondas de 10 peticiones en paralelo: **30/30 OK**, sin cuelgues.
-- Navegación por las 10 rutas de administración con `networkidle` (incluye los
-  *prefetch*): **todas 200, sin ningún 5xx**.
+- Navegación por las 10 rutas de administración con `networkidle` dos veces
+  seguidas: **todas 200 y sin ningún 5xx** (antes fallaban 4-6 *prefetch*).
 - `verify-produccion.ts` completo.
 - Sin regresiones en local: 182/182 unitarias, lint 0 errores, `verify-roles`
   60/60.
 
-**Seguimiento sugerido:** si el tráfico crece, subir
-`origin_connection_limit` de Hyperdrive (hoy 20) o añadir un `waitUntil` con
-reintento; y medir de nuevo con `wrangler tail --format json` (el campo
-`cpuTime` y el `outcome` por petición son la mejor señal).
+**Seguimiento sugerido:** si el tráfico crece, subir `origin_connection_limit`
+de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
+`cpuTime` y `outcome` por petición son la mejor señal).
 
 ## P2 — Servicios externos sin configurar
 
-| Tarea | Qué falta | Efecto actual |
+| Tarea | Estado | Detalle |
 |---|---|---|
-| **43.12** | API token/keys de R2 y secretos `R2_ACCOUNT_ID`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME` | En el Worker el código cae al modo local (`node:fs` efímero): subir un avatar en producción no persiste |
-| **43.13** | `RESEND_API_KEY` | `email.service` registra en consola y no envía: no salen los 3 correos críticos (plan publicado, sesión completada, anuncios) |
-| **44.6** | Cuenta de Sentry y alertas (procedimiento en `docs/configurar-sentry.md`) | Los 500 de producción no generan aviso; hoy solo hay el digest |
-| **45.6** | Comprobar contra Cloudflare que `runosorno-avatars` es privado y solo sirve URLs firmadas | Sin verificar en el bucket real |
+| **43.12** | **Hecho** | Secretos de R2 en el Worker, CORS del bucket para el origen del sitio y URL prefirmada corregida. Verificado: subir, servir por URL firmada (200 `image/webp`) y borrar. |
+| **45.6** | **Hecho** | `GET` del objeto sin firma → **400 `InvalidArgument`**; el bucket no es público. |
+| **43.13** | Pendiente | Falta `RESEND_API_KEY`: `email.service` registra en consola y no envía, así que no salen los 3 correos críticos (plan publicado, sesión completada, anuncios). |
+| **44.6** | Pendiente | Cuenta de Sentry y alertas (procedimiento en `docs/configurar-sentry.md`). El SDK ya no se carga si no hay DSN. |
 
 ## P3 — Documentación (fase 49)
 
@@ -168,10 +150,10 @@ reintento; y medir de nuevo con `wrangler tail --format json` (el campo
 | 50.6 build | **Hecho** (2026-10-19) |
 | 50.7 pruebas unitarias | **Hecho**: 182/182 |
 | 50.8 pruebas E2E | **Hecho**: 15/15 |
-| 50.9 deploy final | Bloqueado por P0 y P1 |
-| 50.10 flujo completo en producción | Bloqueado por P0 |
+| 50.9 deploy final | **Hecho** el 19-10 por CI (varios runs en verde); repetir al cerrar la entrega |
+| 50.10 flujo completo en producción | Pendiente: el login y las 10 rutas de admin están verificados; falta el recorrido coach → atleta → feedback con datos reales |
 | 50.11 responsive en dispositivos reales | Pendiente: hay medición a 375/768/1400 px, falta el dispositivo físico |
-| 50.12 sin errores de consola | **Hecho en local**: `verify-rendimiento` cubre cinco páginas, incluidas la campanita y el calendario con drag & drop; falta repetirlo en producción después de P0 |
+| 50.12 sin errores de consola | **Hecho en local y en producción**: `verify-rendimiento` cubre cinco páginas y la navegación real por 10 rutas no deja 5xx ni errores |
 | 50.13 sin errores en Sentry | Bloqueado por 44.6 |
 | 50.14 tag `v0.1.0-mvp` | Pendiente, después de 50.9–50.12 |
 | 50.15 MVP listo para entrega | Pendiente |
@@ -218,17 +200,15 @@ reintento; y medir de nuevo con `wrangler tail --format json` (el campo
   documentado con un `eslint-disable-next-line` y el motivo.
 - **Textos en el JSX**: la fase 46 centralizó el formateo, no los textos. Se
   migran a `t()` cuando haya un segundo idioma.
-- **`.env.local` sin R2 ni Resend**: el desarrollo usa el fallback local y los
-  correos por consola, así que el camino real de R2/Resend solo se prueba en
-  producción (por eso 43.12 y 43.13 están abiertos).
+- **`.env.local` sin R2 ni Resend**: en producción los secretos de R2 ya están
+  cargados y el avatar funciona; en desarrollo se sigue usando el fallback local.
+  Resend sigue sin API key (43.13), así que los correos solo se registran en
+  consola.
 - **Hyperdrive cachea las consultas sueltas** (se vio al aplicar migraciones: un
   `SELECT` después de un `INSERT` devolvía el estado anterior). Las lecturas
   dentro de una transacción sí son frescas. Conviene comprobar en 50.10 si un
   atleta que registra una sesión y recarga el calendario ve el dato al instante;
   si no, hay que envolver esas lecturas o desactivar el caché para esa ruta.
-  Además mysql2 avisa `Ignoring invalid configuration option passed to
-  Connection: ssl-mode`; no rompe nada, pero es ruido que aparece en cada
-  consulta y conviene quitar de la configuración.
 - **`npm run format:check` no sirve en Windows**: falla en 148 archivos porque
   `core.autocrlf=true` deja el árbol de trabajo en CRLF y `.prettierrc` pide
   `endOfLine: "lf"`. En Linux (CI) pasaría; el workflow no lo ejecuta, así que
