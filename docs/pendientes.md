@@ -22,7 +22,8 @@ externa, documentación y la revisión final** de las fases 49 y 50.
 | Migraciones Drizzle | 4 aplicadas, `drizzle-kit generate` sin cambios |
 | Funcionalidades del MVP (`specs/mvp.md` §11) | las 20 están implementadas |
 | Funcionalidades fuera del MVP (§11) | ninguna implementada |
-| Producción | login OK, cookie `Secure`+`HttpOnly`, sesión persistente y sin 5xx (`verify-produccion.ts`) |
+| Producción | login OK, cookie `Secure`+`HttpOnly`, sesión persistente y sin 5xx en navegación normal (`verify-produccion.ts`); 503 intermitentes en frío (P1.5) |
+| Deploy manual | OK: versión 7 del Worker (`fe4013ed`), 19-10 |
 | Deploy automático | **Roto**: el token de Cloudflare en GitHub está revocado (ver P1) |
 
 ## P0 — Producción caída (resuelto el 2026-10-19)
@@ -54,10 +55,12 @@ login_attempts → ER_NO_SUCH_TABLE (1146)
    `HttpOnly` + `SameSite=Lax`, sesión que sobrevive a una recarga y rutas
    protegidas que redirigen, sin 5xx.
 
-**Pendiente de P0:** producción sigue sirviendo el build del 16-10; los arreglos
-de localización e hidratación de esta revisión no están desplegados (ver P1 y
-"Correcciones"). No requiere rotar credenciales de Aiven: el usuario `admin` y
-Hyperdrive funcionan.
+**Despliegue:** se hizo **manual** (`npm run deploy`) el 19-10; versión 7 del
+Worker (`fe4013ed`). Verificado después: login, 10 rutas de administración con
+200 y sin 5xx en navegación normal. El deploy automático sigue roto (P1).
+
+**Pendiente de P0:** nada funcional. Producción ya tiene el código de esta
+revisión; queda la fiabilidad del arranque en frío (P1.5) y el pipeline (P1).
 
 ## P1 — El despliegue automático nunca ha funcionado (43.6)
 
@@ -97,6 +100,48 @@ Tareas:
    enmascara el error real durante un minuto más (el fallo es inmediato).
 5. Mientras esto no pase, todo despliegue es manual desde local y la rama `main`
    puede quedar por delante de producción.
+
+## P1.5 — 503 intermitentes por límite de CPU en arranque en frío (nuevo, 19-10)
+
+Detectado al verificar el despliegue: algunas peticiones —sobre todo los
+*prefetch* que hace Next (`?_rsc=…`)— devolvieron **503 "Worker exceeded
+resource limits"**, y dos navegaciones completas fallaron justo después de
+desplegar.
+
+Evidencia recogida con `wrangler tail --format json`:
+
+- Las peticiones que fallan se cortan con `outcome: exceededCpu` y
+  `cpuTime: 10 ms` (una con 13 ms de pared, otra con 184 ms).
+- En el **mismo** Worker, otras peticiones consumen 644–819 ms de CPU y
+  responden 200; `/login` llegó a 644 ms por bcrypt.
+- Un Worker de prueba con 100 000 000 de iteraciones responde 200, así que el
+  límite real no es de 10 ms por petición: el corte ocurre en otra fase (arranque
+  del isolate / concurrencia), no en el render.
+- Con el Worker caliente y en serie: `/login` 20/20 (0,4–0,5 s) y las 10 rutas
+  de administración en 200. El fallo se concentra en frío y en ráfagas.
+- Una ráfaga de 20 peticiones paralelas no terminó en 10 minutos: con renders de
+  0,5–0,8 s de CPU y Hyperdrive con `origin_connection_limit: 20`, la
+  concurrencia no se sostiene.
+
+Causa probable: el coste de arranque del bundle (32 MB, 6,9 MB gzip) más la
+inicialización de Sentry y mysql2. En frío, ese trabajo se cobra contra el
+presupuesto de CPU de la invocación y la petición muere antes de renderizar.
+
+Mitigaciones propuestas, de menor a mayor riesgo:
+
+1. **No cargar Sentry si no hay DSN.** Hoy `instrumentation.ts` importa
+   `@sentry/nextjs` y ejecuta `Sentry.init` en cada isolate aunque
+   `enabled: false`; el propio log avisa de que registra hooks.
+2. **Importar bajo demanda las librerías que solo usan algunas rutas**:
+   `exceljs` y `@react-pdf/renderer` (exportaciones) y
+   `@aws-sdk/client-s3` + presigner (avatares). Hoy se evalúan en el arranque del
+   Worker.
+3. **Quitar los parámetros de la connection string de Hyperdrive** antes de
+   pasársela a mysql2: evita el aviso `ssl-mode` y su parseo en cada conexión.
+4. **Medir de nuevo con `wrangler tail`** tras cada cambio. Si persiste, revisar
+   el plan/CPU del Worker en Cloudflare.
+5. **Comprobar si ya ocurría en la versión anterior** (rollback temporal a la
+   versión 6) antes de atribuirlo a este despliegue.
 
 ## P2 — Servicios externos sin configurar
 
