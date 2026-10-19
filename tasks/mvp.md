@@ -977,7 +977,7 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [x] 43.10 Verificar login funciona en producción (cookies Secure, HTTPS) — `auth_session` con `secure=true`, `httpOnly=true`, `sameSite=Lax`
 - [x] 43.11 Verificar conexión a DB funciona desde edge (Hyperdrive) — login real contra Aiven y la sesión sobrevive a una recarga
 - [x] 43.12 Verificar R2 funciona (subir y ver avatar) — secretos cargados, CORS configurado y URL prefirmada corregida; subida, servido y borrado comprobados
-- [ ] 43.13 Verificar Resend envía emails en producción — falta `RESEND_API_KEY`
+- [x] 43.13 Verificar Resend envía emails en producción — key cargada; envío directo y correo de bienvenida de la app recibidos en tesoreriaor@gmail.com, sin `email_failed`. Remitente de pruebas `onboarding@resend.dev` hasta verificar un dominio
 
 > **Un cuarto defecto, ya en el despliegue.** `NEXT_PUBLIC_APP_URL` se usaba para
 > armar los enlaces de los correos, pero el prefijo `NEXT_PUBLIC_` hace que Next
@@ -1524,11 +1524,11 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 49. Documentación necesaria
 
-- [ ] 49.1 Actualizar `README.md` con: descripción del proyecto, stack, setup, comandos dev/build/test
-- [ ] 49.2 Documentar variables de entorno requeridas en `.env.example`
-- [ ] 49.3 Documentar proceso de setup de servicios externos: MySQL de producción (PlanetScale u otro), Cloudflare, Resend, R2, Sentry
-- [ ] 49.4 Documentar flujo de deploy (GitHub → Cloudflare Pages)
-- [ ] 49.5 Documentar estructura de DB (schema referenciado)
+- [x] 49.1 Actualizar `README.md` con: descripción del proyecto, stack, setup, comandos dev/build/test
+- [x] 49.2 Documentar variables de entorno requeridas en `.env.example` — se quitaron `LUCIA_SECRET` y `R2_PUBLIC_URL`, que ya no se usan
+- [x] 49.3 Documentar proceso de setup de servicios externos: MySQL de producción, Cloudflare, Resend, R2, Sentry — `docs/setup-servicios.md`
+- [x] 49.4 Documentar flujo de deploy (GitHub → Cloudflare Workers) — `docs/despliegue.md`
+- [x] 49.5 Documentar estructura de DB (schema referenciado) — `docs/base-de-datos.md`
 
 ---
 
@@ -1598,15 +1598,15 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 40. Validaciones (completación) | 15 | 15 |
 | 41. Pruebas unitarias | 15 | 15 |
 | 42. Pruebas E2E | 12 | 12 |
-| 43. Cloudflare | 13 | 11 |
+| 43. Cloudflare | 13 | 12 |
 | 44. Sentry | 6 | 5 |
 | 45. Seguridad | 10 | 10 |
 | 46. i18n y localización | 5 | 5 |
 | 47. Rendimiento | 8 | 8 |
 | 48. Accesibilidad | 6 | 6 |
-| 49. Documentación | 5 | 0 |
+| 49. Documentación | 5 | 5 |
 | 50. Revisión final | 15 | 4 |
-| **TOTAL** | **~578** | **562** |
+| **TOTAL** | **~578** | **568** |
 
 ---
 
@@ -1646,4 +1646,6 @@ necesita el `SENTRY_DSN` desde el arranque.
 
 Los datos de demostración se limpian con `npm run db:seed:demo:clean`, que
 deja la base exactamente como estaba antes del seed.
+
+
 

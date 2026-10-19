@@ -25,6 +25,7 @@ externa, documentación y la revisión final** de las fases 49 y 50.
 | Producción | login OK, cookie `Secure`+`HttpOnly`, sesión persistente; 10 rutas y 30 peticiones en paralelo sin 5xx (`verify-produccion.ts`) |
 | Deploy automático | **OK**: token cargado; 4 runs consecutivos en verde |
 | Avatares en R2 | OK: subida prefirmada, servido por URL firmada y borrado, con el bucket privado |
+| Emails (Resend) | **Verificado**: envío directo y correo de bienvenida de la app recibidos en la cuenta de pruebas |
 
 ## P0 — Producción caída (resuelto el 2026-10-19)
 
@@ -125,18 +126,19 @@ de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
 |---|---|---|
 | **43.12** | **Hecho** | Secretos de R2 en el Worker, CORS del bucket para el origen del sitio y URL prefirmada corregida. Verificado: subir, servir por URL firmada (200 `image/webp`) y borrar. |
 | **45.6** | **Hecho** | `GET` del objeto sin firma → **400 `InvalidArgument`**; el bucket no es público. |
-| **43.13** | Pendiente | Falta `RESEND_API_KEY`: `email.service` registra en consola y no envía, así que no salen los 3 correos críticos (plan publicado, sesión completada, anuncios). |
+| **43.13** | **Hecho** | Key cargada; envío directo y correo de bienvenida de la app **recibidos** en la cuenta de pruebas, sin `email_failed`. El remitente es `onboarding@resend.dev`. |
+| **Dominio de correo** | Pendiente | `runosorno.cl` no existe en DNS, así que Resend no puede verificarlo. Hoy se envía desde `onboarding@resend.dev`, que **solo entrega al correo dueño de la cuenta**. Para que atletas y coaches reciban correos hay que registrar/verificar un dominio (SPF, DKIM, DMARC) y actualizar `RESEND_FROM`. |
 | **44.6** | Pendiente | Cuenta de Sentry y alertas (procedimiento en `docs/configurar-sentry.md`). El SDK ya no se carga si no hay DSN. |
 
-## P3 — Documentación (fase 49)
+## P3 — Documentación (fase 49) — completada
 
-| Tarea | Estado | Qué falta |
-|---|---|---|
-| 49.1 | Pendiente | `README.md` solo nombra el stack: falta descripción, requisitos reales, setup de DB, seed, scripts de verificación y enlace a los docs |
-| 49.2 | Casi hecho | `.env.example` documenta todo, pero incluye **`LUCIA_SECRET`** y **`R2_PUBLIC_URL`**, que ya no se leen en ningún sitio (ver deuda técnica) |
-| 49.3 | Pendiente | Guía de alta de servicios: Aiven/MySQL, Hyperdrive, R2, Resend, Sentry |
-| 49.4 | Pendiente | Flujo de deploy (`.github/workflows/deploy.yml`, secretos, `preview` local, verificación posterior) |
-| 49.5 | Pendiente | Estructura de la base: 14 tablas, relaciones, índices e historial de migraciones |
+| Tarea | Estado |
+|---|---|
+| 49.1 README | **Hecho**: descripción, stack, requisitos, puesta en marcha, credenciales de demo, scripts, verificadores, despliegue y estructura |
+| 49.2 `.env.example` | **Hecho**: cada variable documentada; se quitaron `LUCIA_SECRET` (Lucia 3 no la usa) y `R2_PUBLIC_URL` (los avatares van por URL firmada) |
+| 49.3 Servicios externos | **Hecho**: `docs/setup-servicios.md` (Aiven, Hyperdrive, R2 + CORS, Resend, token de CI) |
+| 49.4 Deploy | **Hecho**: `docs/despliegue.md` (pipeline, secretos, migraciones, verificación, rollback y problemas conocidos) |
+| 49.5 Estructura de la base | **Hecho**: `docs/base-de-datos.md` (tablas, relaciones, índices y migraciones) |
 
 ## P4 — Revisión final (fase 50)
 
@@ -188,9 +190,6 @@ de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
 
 ## Deuda técnica menor (no bloquea el MVP)
 
-- **Configuración muerta**: `LUCIA_SECRET` y `R2_PUBLIC_URL` siguen en
-  `.env.example` y en `lib/config/index.ts` pero no se leen en ningún sitio
-  (Lucia 3 no usa secreto de sesión y los avatares van por URL firmada).
 - **`.dev.vars` incompleto**: solo tiene `DATABASE_URL`; `npm run preview`
   arranca sin `APP_URL` ni `RESEND_FROM`, así que los correos y enlaces locales
   no representan producción. (En Windows `preview` además falla por `EPERM
@@ -200,10 +199,10 @@ de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
   documentado con un `eslint-disable-next-line` y el motivo.
 - **Textos en el JSX**: la fase 46 centralizó el formateo, no los textos. Se
   migran a `t()` cuando haya un segundo idioma.
-- **`.env.local` sin R2 ni Resend**: en producción los secretos de R2 ya están
-  cargados y el avatar funciona; en desarrollo se sigue usando el fallback local.
-  Resend sigue sin API key (43.13), así que los correos solo se registran en
-  consola.
+- **`.env.local` sin R2 ni Resend**: en producción los secretos de R2 y Resend ya
+  están cargados; en desarrollo se sigue usando el fallback local y los correos
+  por consola. El remitente de producción es `onboarding@resend.dev` hasta que
+  haya un dominio verificado (ver P2).
 - **Hyperdrive cachea las consultas sueltas** (se vio al aplicar migraciones: un
   `SELECT` después de un `INSERT` devolvía el estado anterior). Las lecturas
   dentro de una transacción sí son frescas. Conviene comprobar en 50.10 si un
