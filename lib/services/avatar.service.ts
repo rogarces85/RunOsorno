@@ -101,6 +101,11 @@ async function r2Client() {
       accessKeyId: process.env.R2_ACCESS_KEY_ID ?? "",
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY ?? "",
     },
+    // Sin esto, el SDK añade a la URL prefirmada un checksum CRC32 calculado
+    // sobre un cuerpo vacío y firma `content-length`; el navegador sube otros
+    // bytes y R2 responde `SignatureDoesNotMatch`. Con `WHEN_REQUIRED` la firma
+    // solo cubre lo que de verdad se manda.
+    requestChecksumCalculation: "WHEN_REQUIRED",
   });
 }
 
@@ -128,10 +133,10 @@ export async function getUploadTicket(
         Bucket: process.env.R2_BUCKET_NAME,
         Key: key,
         ContentType: "image/webp",
-        // El navegador no puede subir un archivo mayor a 2 MB por esta URL, pero
-        // S3/R2 tampoco rechaza los tipos que no sean imagen: esa comprobación
-        // la hace `confirmUpload`, que lee el archivo antes de confirmarlo.
-        ContentLength: AVATAR_MAX_BYTES,
+        // No se firma `ContentLength`: al prefirmar, el SDK lo incluiría en la
+        // firma y el tamaño real del archivo (redimensionado en el navegador)
+        // no tiene por qué coincidir. El límite de 2 MB se comprueba en
+        // `confirmUpload`, que lee el objeto antes de confirmarlo.
       }),
       { expiresIn: 300 },
     );
