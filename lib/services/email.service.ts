@@ -23,7 +23,6 @@ export type SendEmailInput = {
   subject: string;
   html: string;
 };
-
 export type SendEmailResult = {
   ok: boolean;
   skipped?: boolean;
@@ -45,6 +44,10 @@ async function attemptSend(
       to: input.to,
       subject: input.subject,
       html: input.html,
+      // Las respuestas van al buzón del administrador, no al remitente de
+      // pruebas (que no recibe correo). Resend no permite usar un Gmail como
+      // `from`, así que esto es lo que hace que responder te llegue.
+      ...(env.resendReplyTo ? { reply_to: env.resendReplyTo } : {}),
     });
     if (error) {
       return { ok: false, error: error.message };

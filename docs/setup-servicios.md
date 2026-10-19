@@ -147,6 +147,10 @@ wrangler secret put RESEND_API_KEY
 - **Producción:** verificar un dominio en Resend (registros SPF, DKIM y DMARC) y
   usar, por ejemplo, `RunOsorno <no-reply@tudominio.cl>`.
 
+`RESEND_REPLY_TO` indica a qué buzón llegan las respuestas. Un Gmail **no puede
+ser `from`** en Resend (el dominio no es verificable), así que se usa como
+destino de respuestas (`RunOsorno <rodrigo.garces.guerrero@gmail.com>`).
+
 `runosorno.cl` no existe en DNS, así que hoy no se puede verificar; mientras
 tanto el remitente es el de pruebas.
 

@@ -4,6 +4,10 @@ export const env = {
   databaseUrl: process.env.DATABASE_URL ?? "",
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   resendFrom: process.env.RESEND_FROM ?? "",
+  // Dirección a la que van las respuestas de los correos. Resend no permite
+  // usar un Gmail como `from` (el dominio no es verificable), así que el
+  // remitente es un dominio verificado y las respuestas se redirigen aquí.
+  resendReplyTo: process.env.RESEND_REPLY_TO ?? "",
   // Sin el prefijo NEXT_PUBLIC_ a proposito: esas variables se incrustan en el
   // bundle durante el build, y como aqui solo se usa para armar enlaces de
   // correo, quedaria clavada al valor que tuviera al compilar. Como variable
