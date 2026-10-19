@@ -147,6 +147,7 @@ docs/           guías de operación e informe de pendientes
 
 - [`AGENTS.md`](./AGENTS.md) — reglas del proyecto y decisiones de arquitectura.
 - [`docs/pendientes.md`](./docs/pendientes.md) — estado del sistema y tareas que quedan.
+- [`docs/revision-mvp.md`](./docs/revision-mvp.md) — revisión de las 20 funcionalidades, criterios y flujos.
 - [`docs/setup-servicios.md`](./docs/setup-servicios.md) — Aiven, Hyperdrive, R2, Resend, Sentry.
 - [`docs/despliegue.md`](./docs/despliegue.md) — pipeline, secretos y verificación.
 - [`docs/base-de-datos.md`](./docs/base-de-datos.md) — tablas, relaciones e índices.

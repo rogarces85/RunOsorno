@@ -1534,18 +1534,18 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 
 # 50. Revisión final y preparación del MVP
 
-- [ ] 50.1 Revisar que todas las funcionalidades de `specs/mvp.md` Sección 11 "Incluido en el MVP" están implementadas (checklist de 20 funcionalidades)
-- [ ] 50.2 Revisar que los criterios de aceptación de `specs/mvp.md` Sección 10 se cumplen (checklist completo)
-- [ ] 50.3 Revisar que los flujos principales de `specs/mvp.md` Sección 5 funcionan de extremo a extremo (8 flujos)
-- [ ] 50.4 Verificar que NO se implementaron funcionalidades fuera del MVP (lista "Fuera del MVP" de Sección 11)
+- [x] 50.1 Revisar que todas las funcionalidades de `specs/mvp.md` Sección 11 "Incluido en el MVP" están implementadas (checklist de 20 funcionalidades) — `docs/revision-mvp.md`
+- [x] 50.2 Revisar que los criterios de aceptación de `specs/mvp.md` Sección 10 se cumplen (checklist completo) — se cerró el hueco de mantenimiento (limpieza de avatares huérfanos)
+- [x] 50.3 Revisar que los flujos principales de `specs/mvp.md` Sección 5 funcionan de extremo a extremo (8 flujos) — 1–6 en E2E; 7–8 por verificadores
+- [x] 50.4 Verificar que NO se implementaron funcionalidades fuera del MVP (lista "Fuera del MVP" de Sección 11)
 - [x] 50.5 Ejecutar `npm run lint` → sin errores
 - [x] 50.6 Ejecutar `npm run build` → build exitoso sin errores
 - [x] 50.7 Ejecutar `npm run test` → todos los tests unitarios pasan
 - [x] 50.8 Ejecutar `npx playwright test` → todos los tests E2E pasan
-- [ ] 50.9 Hacer deploy final a Cloudflare Pages
+- [x] 50.9 Hacer deploy final a Cloudflare Workers — pipeline en verde; repetir al cerrar la entrega
 - [ ] 50.10 Verificar flujo completo en producción: admin crea coach → coach crea team y plantilla → coach planifica → atleta registra → coach revisa y comenta → métricas se calculan → notificaciones llegan
 - [ ] 50.11 Revisar que el sitio es responsive en dispositivos reales (mobile, tablet)
-- [ ] 50.12 Revisar que no hay errores en consola del navegador
+- [x] 50.12 Revisar que no hay errores en consola del navegador — local y producción (10 rutas, 0 5xx)
 - [ ] 50.13 Revisar que no hay errores en Sentry
 - [ ] 50.14 Tag `v0.1.0-mvp` en Git
 - [ ] 50.15 MVP listo para entrega
@@ -1605,8 +1605,8 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 47. Rendimiento | 8 | 8 |
 | 48. Accesibilidad | 6 | 6 |
 | 49. Documentación | 5 | 5 |
-| 50. Revisión final | 15 | 4 |
-| **TOTAL** | **~578** | **568** |
+| 50. Revisión final | 15 | 10 |
+| **TOTAL** | **~578** | **574** |
 
 ---
 
@@ -1646,6 +1646,7 @@ necesita el `SENTRY_DSN` desde el arranque.
 
 Los datos de demostración se limpian con `npm run db:seed:demo:clean`, que
 deja la base exactamente como estaba antes del seed.
+
 
 
 

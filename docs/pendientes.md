@@ -11,7 +11,7 @@ externa, documentación y la revisión final** de las fases 49 y 50.
 |---|---|
 | `npm run lint` | 0 errores, 1 aviso (`<img>` en `components/ui/Avatar.tsx`) |
 | `npm run build` (Next 16.3.8) | OK |
-| `npm run test` | 182/182 |
+| `npm run test` | 185/185 |
 | `npx playwright test` | 15/15 |
 | `npx tsx scripts/verify-roles.ts` | 60/60 |
 | `npx tsx scripts/verify-accesibilidad.ts` | 21/21 (axe, 0 violaciones) |
@@ -113,7 +113,7 @@ trabajo ya no era el problema).
 - Navegación por las 10 rutas de administración con `networkidle` dos veces
   seguidas: **todas 200 y sin ningún 5xx** (antes fallaban 4-6 *prefetch*).
 - `verify-produccion.ts` completo.
-- Sin regresiones en local: 182/182 unitarias, lint 0 errores, `verify-roles`
+- Sin regresiones en local: 185/185 unitarias, lint 0 errores, `verify-roles`
   60/60.
 
 **Seguimiento sugerido:** si el tráfico crece, subir `origin_connection_limit`
@@ -144,13 +144,13 @@ de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
 
 | Tarea | Estado |
 |---|---|
-| 50.1 Checklist de las 20 funcionalidades del MVP | Pendiente (revisión funcional con el cliente) |
-| 50.2 Criterios de aceptación (§10) | Pendiente |
-| 50.3 Los 8 flujos de extremo a extremo | Pendiente: los E2E recorren los flujos 1–6; el 7 y el 8 están cubiertos por `verify-dashboards`, `verify-exports` y `verify-audit-logs`, pero no en una sola pasada |
+| 50.1 Checklist de las 20 funcionalidades del MVP | **Hecho**: las 20 implementadas, con evidencia en `docs/revision-mvp.md` |
+| 50.2 Criterios de aceptación (§10) | **Hecho**: cubiertos por E2E/verificadores/manual; se cerró el hueco de mantenimiento |
+| 50.3 Los 8 flujos de extremo a extremo | **Hecho**: flujos 1–6 en E2E; 7–8 por verificadores (detalle en `docs/revision-mvp.md`) |
 | 50.4 Sin funcionalidades fuera del MVP | **Hecho**: no hay rastros de pagos, wearables, WebSockets ni API pública |
 | 50.5 lint | **Hecho** (2026-10-19) |
 | 50.6 build | **Hecho** (2026-10-19) |
-| 50.7 pruebas unitarias | **Hecho**: 182/182 |
+| 50.7 pruebas unitarias | **Hecho**: 185/185 |
 | 50.8 pruebas E2E | **Hecho**: 15/15 |
 | 50.9 deploy final | **Hecho** el 19-10 por CI (varios runs en verde); repetir al cerrar la entrega |
 | 50.10 flujo completo en producción | Pendiente: el login y las 10 rutas de admin están verificados; falta el recorrido coach → atleta → feedback con datos reales |
@@ -213,3 +213,4 @@ de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
   `endOfLine: "lf"`. En Linux (CI) pasaría; el workflow no lo ejecuta, así que
   no rompe nada, pero conviene añadir un `.gitattributes` con `* text=auto
   eol=lf` para que el resultado sea el mismo en ambos sistemas.
+
