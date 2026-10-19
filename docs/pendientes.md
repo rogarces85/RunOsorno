@@ -283,10 +283,10 @@ opciones, en orden de esfuerzo:
    de PBKDF2 por debajo de OWASP no es aceptable, y el resto de la CPU del login
    es I/O de base de datos que no se puede eliminar.
 
-**Siguiente paso concreto:** la migración a PBKDF2 y `/api/health` ya están
-desplegadas en producción. Falta configurar el ping externo
-(`docs/calentamiento.md`), **re-medir el login en frío** y, según el resultado,
-decidir si hace falta el KDF en el cliente o mover la autenticación. Esto no
-bloquea el resto del MVP: el corte afecta solo al POST de login en frío.
+**Siguiente paso concreto:** PBKDF2, `/api/health` y el Worker de calentamiento
+(`runosorno-calentamiento`, Cron Trigger cada 2 min) ya están desplegados en
+producción. Falta **re-medir el login en frío** y, según el resultado, decidir si
+hace falta el KDF en el cliente o mover la autenticación. Esto no bloquea el
+resto del MVP: el corte afecta solo al POST de login en frío.
 
 

@@ -81,6 +81,11 @@ Este es el camino recomendado si no se quiere depender de un servicio externo.
 
 ## Qué esperar
 
+- **`/api/health` se sirve desde la caché de Next** (`x-nextjs-cache: HIT`): la
+  petición ejecuta el Worker, pero no carga `mysql2`/Drizzle ni los módulos de
+  auth. Si el login en frío sigue cortando, el siguiente paso es una ruta de
+  calentamiento que haga un `SELECT 1` (protegida con un header secreto) para
+  cargar ese camino.
 - Reduce los fallos de login **en frío**; no cambia el coste de CPU de una
   invocación ya caliente.
 - Cloudflare tiene isolates por colocación: calienta los que reciben el ping, no
