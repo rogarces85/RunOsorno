@@ -1538,10 +1538,10 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 - [ ] 50.2 Revisar que los criterios de aceptación de `specs/mvp.md` Sección 10 se cumplen (checklist completo)
 - [ ] 50.3 Revisar que los flujos principales de `specs/mvp.md` Sección 5 funcionan de extremo a extremo (8 flujos)
 - [ ] 50.4 Verificar que NO se implementaron funcionalidades fuera del MVP (lista "Fuera del MVP" de Sección 11)
-- [ ] 50.5 Ejecutar `npm run lint` → sin errores
-- [ ] 50.6 Ejecutar `npm run build` → build exitoso sin errores
-- [ ] 50.7 Ejecutar `npm run test` → todos los tests unitarios pasan
-- [ ] 50.8 Ejecutar `npx playwright test` → todos los tests E2E pasan
+- [x] 50.5 Ejecutar `npm run lint` → sin errores
+- [x] 50.6 Ejecutar `npm run build` → build exitoso sin errores
+- [x] 50.7 Ejecutar `npm run test` → todos los tests unitarios pasan
+- [x] 50.8 Ejecutar `npx playwright test` → todos los tests E2E pasan
 - [ ] 50.9 Hacer deploy final a Cloudflare Pages
 - [ ] 50.10 Verificar flujo completo en producción: admin crea coach → coach crea team y plantilla → coach planifica → atleta registra → coach revisa y comenta → métricas se calculan → notificaciones llegan
 - [ ] 50.11 Revisar que el sitio es responsive en dispositivos reales (mobile, tablet)
@@ -1605,8 +1605,8 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 | 47. Rendimiento | 8 | 8 |
 | 48. Accesibilidad | 6 | 6 |
 | 49. Documentación | 5 | 0 |
-| 50. Revisión final | 15 | 0 |
-| **TOTAL** | **~578** | **555** |
+| 50. Revisión final | 15 | 4 |
+| **TOTAL** | **~578** | **559** |
 
 ---
 
