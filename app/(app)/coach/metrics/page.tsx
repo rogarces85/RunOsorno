@@ -6,6 +6,7 @@ import { ComplianceChart } from "@/components/metrics/ComplianceChart";
 import { PeriodSelector } from "@/components/metrics/PeriodSelector";
 import { TeamMetricsPanel } from "@/components/metrics/TeamMetricsPanel";
 import { requireRole } from "@/lib/auth/guards";
+import { formatDate } from "@/lib/i18n/format";
 import { canManageTeam } from "@/lib/permissions";
 import { getTeamMetrics } from "@/lib/services/metric.service";
 import { getTeamsByCoach } from "@/lib/services/team.service";
@@ -77,7 +78,8 @@ export default async function CoachMetricsPage({
           <div>
             <h1 className="page-title mb-1">Métricas de {selected.name}</h1>
             <div className="text-secondary">
-              {metrics.period.from} → {metrics.period.to}
+              {formatDate(metrics.period.from)} →{" "}
+              {formatDate(metrics.period.to)}
             </div>
           </div>
           <div className="d-flex flex-wrap align-items-center gap-2">
@@ -102,7 +104,9 @@ export default async function CoachMetricsPage({
                   key={team.id}
                   href={`/coach/metrics?${periodToQuery(period)}&team=${team.id}`}
                   className={`btn btn-sm ${
-                    team.id === teamId ? "btn-secondary" : "btn-outline-secondary"
+                    team.id === teamId
+                      ? "btn-secondary"
+                      : "btn-outline-secondary"
                   }`}
                 >
                   {team.name}

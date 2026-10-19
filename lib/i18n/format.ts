@@ -1,4 +1,5 @@
 import { createFormatter, createTranslator, type NestedKeyOf } from "next-intl";
+import type { DateTimeFormatOptions } from "use-intl";
 import { LOCALE, TIME_ZONE, type AppMessages } from "./config";
 import messages from "@/messages/es-CL.json";
 
@@ -31,6 +32,29 @@ const config = {
 const format = createFormatter(config);
 const translate = createTranslator(config);
 
+/**
+ * Espacios que ICU usa según quién lo ejecute.
+ *
+ * En `es-CL` la hora se escribe `06:09 a. m.` con un espacio duro (U+00A0) o
+ * estrecho (U+202F) delante de `m.`, y el motor que lo genera no es el mismo en
+ * el servidor (Node) que en el navegador (Chromium). El texto se ve igual pero
+ * los caracteres son distintos, y React lo detecta como error de hidratación:
+ * "server rendered text didn't match the client". Se normalizan a un espacio
+ * normal en el propio formateador, que es el único sitio por el que pasan todas
+ * las fechas y números de la app.
+ */
+const ESPACIOS_ICU = /[\u00A0\u202F\u2007\u2060]/g;
+
+function normalizarEspacios(texto: string): string {
+  return texto.replace(ESPACIOS_ICU, " ");
+}
+
+/** `format.dateTime` con los espacios normalizados. */
+function fecha(value: Date | string, options: DateTimeFormatOptions): string {
+  return normalizarEspacios(format.dateTime(asDate(value), options));
+}
+
+
 export { format };
 
 /**
@@ -58,7 +82,7 @@ export function t(key: MessageKey, values?: Record<string, unknown>): string {
 
 /** `15/10/2026` */
 export function formatDate(value: Date | string): string {
-  return format.dateTime(asDate(value), {
+  return fecha(value, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -67,7 +91,7 @@ export function formatDate(value: Date | string): string {
 
 /** `15/10/2026, 21:30` */
 export function formatDateTime(value: Date | string): string {
-  return format.dateTime(asDate(value), {
+  return fecha(value, {
     day: "2-digit",
     month: "2-digit",
     year: "numeric",
@@ -78,7 +102,7 @@ export function formatDateTime(value: Date | string): string {
 
 /** `15/10/2026, 21:30:05` — para logs y auditoría, donde el segundo importa. */
 export function formatDateTimeSeconds(value: Date | string): string {
-  return format.dateTime(asDate(value), {
+  return fecha(value, {
     dateStyle: "short",
     timeStyle: "medium",
   });
@@ -86,7 +110,7 @@ export function formatDateTimeSeconds(value: Date | string): string {
 
 /** `15/10, 21:30` — sin año, para listas de lo reciente (campanita). */
 export function formatDateTimeShort(value: Date | string): string {
-  return format.dateTime(asDate(value), {
+  return fecha(value, {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
@@ -96,7 +120,7 @@ export function formatDateTimeShort(value: Date | string): string {
 
 /** `21:30` */
 export function formatTime(value: Date | string): string {
-  return format.dateTime(asDate(value), {
+  return fecha(value, {
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -111,7 +135,7 @@ export function formatTime(value: Date | string): string {
  * *septiembre*. El mediodía UTC deja el instante dentro del mismo día en Chile.
  */
 export function formatMonthYear(year: number, month: number): string {
-  return format.dateTime(new Date(Date.UTC(year, month, 1, 12)), {
+  return fecha(new Date(Date.UTC(year, month, 1, 12)), {
     month: "long",
     year: "numeric",
   });
@@ -130,13 +154,13 @@ export function formatWeekdays(): string[] {
   return Array.from({ length: 7 }, (_, i) => {
     const dia = new Date(domingo);
     dia.setUTCDate(domingo.getUTCDate() + ((i + 1) % 7));
-    return format.dateTime(dia, { weekday: "short" });
+    return fecha(dia, { weekday: "short" });
   });
 }
 
 /** `lun 15` — día suelto en un resumen semanal. */
 export function formatDayShort(value: Date | string): string {
-  return format.dateTime(asDate(value), {
+  return fecha(value, {
     weekday: "short",
     day: "numeric",
     month: "numeric",
@@ -152,10 +176,12 @@ export function formatNumber(
   value: number,
   options: { maximumFractionDigits?: number; minimumFractionDigits?: number } = {},
 ): string {
-  return format.number(value, {
-    maximumFractionDigits: options.maximumFractionDigits ?? 2,
-    minimumFractionDigits: options.minimumFractionDigits ?? 0,
-  });
+  return normalizarEspacios(
+    format.number(value, {
+      maximumFractionDigits: options.maximumFractionDigits ?? 2,
+      minimumFractionDigits: options.minimumFractionDigits ?? 0,
+    }),
+  );
 }
 
 /**
@@ -165,10 +191,12 @@ export function formatNumber(
  * porque en pantalla un `82,3%` no aporta nada.
  */
 export function formatPercent(value: number): string {
-  return format.number(value / 100, {
-    style: "percent",
-    maximumFractionDigits: 0,
-  });
+  return normalizarEspacios(
+    format.number(value / 100, {
+      style: "percent",
+      maximumFractionDigits: 0,
+    }),
+  );
 }
 
 /**

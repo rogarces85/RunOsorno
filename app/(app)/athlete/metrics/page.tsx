@@ -6,6 +6,8 @@ import { PeriodSelector } from "@/components/metrics/PeriodSelector";
 import { ProgressChart } from "@/components/metrics/ProgressChart";
 import { TypeDistributionChart } from "@/components/metrics/TypeDistributionChart";
 import { requireRole } from "@/lib/auth/guards";
+import { formatDate } from "@/lib/i18n/format";
+import { formatDistance, formatDuration } from "@/lib/utils/format";
 import { getAthleteMetrics } from "@/lib/services/metric.service";
 import { periodFromSearchParams } from "@/lib/validations/metric.schemas";
 
@@ -40,8 +42,10 @@ export default async function AthleteMetricsPage({
           <div>
             <h1 className="page-title mb-1">Mis métricas</h1>
             <div className="text-secondary">
-              {metrics.period.from} → {metrics.period.to} · {metrics.totals.km}{" "}
-              km · {metrics.totals.minutes} min
+              {formatDate(metrics.period.from)} →{" "}
+              {formatDate(metrics.period.to)} ·{" "}
+              {formatDistance(metrics.totals.km)} ·{" "}
+              {formatDuration(metrics.totals.minutes)}
             </div>
           </div>
           <div className="d-flex flex-wrap align-items-center gap-2">

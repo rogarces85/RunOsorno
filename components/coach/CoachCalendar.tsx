@@ -134,6 +134,7 @@ export function CoachCalendar({
 
   return (
     <DndContext
+      id="coach-calendar"
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={handleDragStart}
