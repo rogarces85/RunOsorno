@@ -22,7 +22,7 @@ externa, documentación y la revisión final** de las fases 49 y 50.
 | Migraciones Drizzle | 4 aplicadas, `drizzle-kit generate` sin cambios |
 | Funcionalidades del MVP (`specs/mvp.md` §11) | las 20 están implementadas |
 | Funcionalidades fuera del MVP (§11) | ninguna implementada |
-| Producción | login OK, cookie `Secure`+`HttpOnly`, sesión persistente; 10 rutas y 30 peticiones en paralelo sin 5xx (`verify-produccion.ts`) |
+| Producción | login OK, cookie `Secure`+`HttpOnly`, sesión persistente; 10 rutas y 30 peticiones en paralelo sin 5xx (`verify-produccion.ts`) — pero el login da 503 intermitente por CPU (P1.5) |
 | Deploy automático | **OK**: token cargado; 4 runs consecutivos en verde |
 | Avatares en R2 | OK: subida prefirmada, servido por URL firmada y borrado, con el bucket privado |
 | Emails (Resend) | **Verificado**: envío directo y correo de bienvenida de la app recibidos en la cuenta de pruebas |
@@ -81,7 +81,7 @@ Nota: el paso "Reintentar el deploy si la subida de R2 dio tiempo de espera"
 sigue en el workflow; ya no hace falta, pero es inocuo. Se puede borrar en la
 fase 50.
 
-## P1.5 — 503 y cuelgues del Worker (resuelto, 19-10)
+## P1.5 — 503 y cuelgues del Worker (parcialmente resuelto, 19-10)
 
 Al verificar el despliegue aparecieron dos síntomas: *prefetch* con 503
 "Worker exceeded resource limits" y una petición que se quedó **10 minutos**
@@ -120,6 +120,32 @@ trabajo ya no era el problema).
 de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
 `cpuTime` y `outcome` por petición son la mejor señal).
 
+### Queda: login intermitente por límite de CPU
+
+Al recorrer el flujo 50.10 en producción, **el POST de login falla ~50% de las
+veces** con `503 Worker exceeded CPU time limit`. El tail lo corta con
+`outcome: exceededCpu` y `cpuTime: 12 ms` / `wallTime: 92 ms`, **justo después
+de conectar con Hyperdrive y antes de bcrypt** (los `diagnosticsChannelEvents`
+llegan a `pool:connect:end` y ahí muere). No es un bug de la app: la misma
+petición en caliente consume 450-770 ms de CPU y responde 200.
+
+Es decir: los arreglos anteriores (pool de 1 conexión, sin prefetch, imports
+diferidos, bcrypt a 10 rondas) redujeron el problema, pero **el Worker queda al
+borde del límite de CPU de Cloudflare en arranques en frío** y el login
+(conexión a Hyperdrive + bcrypt + sesión) es el que más lo nota.
+
+**Causa probable:** la cuenta está en Workers **Free** (10 ms de CPU) o con un
+límite de CPU máximo bajo. Los logins usan cientos de ms, así que en frío se
+cortan.
+
+**Mitigaciones aplicadas hoy:** bcrypt 12→10 rondas (`lib/security/hashing.ts`),
+sin prefetch en el menú, Sentry/react-pdf/aws-sdk bajo demanda y `connectionLimit:
+1`.
+
+**Pendiente (decisión del dueño):** subir a **Workers Paid** ($5/mes, CPU de 30 s
+por defecto) para eliminar el corte, o revisar el límite de CPU configurado en
+Cloudflare. Después hay que re-medir el login y cerrar 50.10.
+
 ## P2 — Servicios externos sin configurar
 
 | Tarea | Estado | Detalle |
@@ -153,7 +179,7 @@ de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
 | 50.7 pruebas unitarias | **Hecho**: 185/185 |
 | 50.8 pruebas E2E | **Hecho**: 15/15 |
 | 50.9 deploy final | **Hecho** el 19-10 por CI (varios runs en verde); repetir al cerrar la entrega |
-| 50.10 flujo completo en producción | Pendiente: el login y las 10 rutas de admin están verificados; falta el recorrido coach → atleta → feedback con datos reales |
+| 50.10 flujo completo en producción | Casi: el flujo coach → atleta → feedback → métricas → notificaciones funciona en producción, pero el login falla ~50% por límite de CPU (ver P1.5); pendiente re-medir tras subir de plan |
 | 50.11 responsive en dispositivos reales | Pendiente: hay medición a 375/768/1400 px, falta el dispositivo físico |
 | 50.12 sin errores de consola | **Hecho en local y en producción**: `verify-rendimiento` cubre cinco páginas y la navegación real por 10 rutas no deja 5xx ni errores |
 | 50.13 sin errores en Sentry | Bloqueado por 44.6 |

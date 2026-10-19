@@ -7,6 +7,12 @@ import { chromium } from "@playwright/test";
  */
 const BASE = process.env.BASE_URL ?? "https://runosorno.rodrigo-garces-guerrero.workers.dev";
 
+// Credenciales de producción. Se pueden pasar por entorno para no dejar la
+// contraseña en el código: ADMIN_EMAIL / ADMIN_PASSWORD. El valor por defecto
+// es el admin del seed local, no el de producción.
+const EMAIL = process.env.ADMIN_EMAIL ?? "admin@runosorno.cl";
+const PASSWORD = process.env.ADMIN_PASSWORD ?? "Admin1234!";
+
 async function main() {
   const browser = await chromium.launch();
   const page = await browser.newPage({ locale: "es-CL", timezoneId: "America/Santiago" });
@@ -24,8 +30,8 @@ async function main() {
   const antes = await page.context().cookies();
   console.log(`cookies antes del login: ${antes.length}`);
 
-  await page.fill('input[name="email"]', "admin@runosorno.cl");
-  await page.fill('input[name="password"]', "Admin1234!");
+  await page.fill('input[name="email"]', EMAIL);
+  await page.fill('input[name="password"]', PASSWORD);
   await page.click('button[type="submit"]');
 
   try {
