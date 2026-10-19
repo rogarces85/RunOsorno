@@ -153,7 +153,7 @@ Cloudflare. Después hay que re-medir el login y cerrar 50.10.
 | **43.12** | **Hecho** | Secretos de R2 en el Worker, CORS del bucket para el origen del sitio y URL prefirmada corregida. Verificado: subir, servir por URL firmada (200 `image/webp`) y borrar. |
 | **45.6** | **Hecho** | `GET` del objeto sin firma → **400 `InvalidArgument`**; el bucket no es público. |
 | **43.13** | **Hecho** | Key cargada; envío directo y correo de bienvenida de la app **recibidos** en la cuenta de pruebas, sin `email_failed`. El remitente es `onboarding@resend.dev`. |
-| **Dominio de correo** | Pendiente | `runosorno.cl` no existe en DNS, así que Resend no puede verificarlo. Hoy se envía desde `onboarding@resend.dev`, que **solo entrega al correo dueño de la cuenta**. Para que atletas y coaches reciban correos hay que registrar/verificar un dominio (SPF, DKIM, DMARC) y actualizar `RESEND_FROM`. |
+| **Dominio de correo** | Pendiente | `runosorno.cl` no existe y **`*.workers.dev` no es verificable** (no tienes control del DNS). Hay que registrar un dominio real (p. ej. `runosorno.cl`) y verificar en Resend con SPF/DKIM/DMARC; hasta entonces los correos salen de `onboarding@resend.dev` y solo llegan al dueño de la cuenta (`rodrigo.garces.guerrero@gmail.com`). |
 | **44.6** | Pendiente | Cuenta de Sentry y alertas (procedimiento en `docs/configurar-sentry.md`). El SDK ya no se carga si no hay DSN. |
 
 ## P3 — Documentación (fase 49) — completada

@@ -151,6 +151,13 @@ wrangler secret put RESEND_API_KEY
 ser `from`** en Resend (el dominio no es verificable), así que se usa como
 destino de respuestas (`RunOsorno <rodrigo.garces.guerrero@gmail.com>`).
 
+> **Sin dominio propio no hay envío real.** `*.workers.dev` **no se puede
+> verificar** (Cloudflare controla ese DNS). Para que atletas y coaches reciban
+> correos hay que registrar un dominio (p. ej. `runosorno.cl`) y verificar en
+> Resend los registros SPF/DKIM/DMARC. Hasta entonces, el único remitente válido
+> es `onboarding@resend.dev`, que solo entrega al correo dueño de la cuenta de
+> Resend.
+
 `runosorno.cl` no existe en DNS, así que hoy no se puede verificar; mientras
 tanto el remitente es el de pruebas.
 
