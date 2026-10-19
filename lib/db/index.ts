@@ -10,9 +10,15 @@ if (!process.env.DATABASE_URL && existsSync(".env.local")) {
 type Database = ReturnType<typeof createDatabase>;
 
 function createDatabase(uri: string) {
+  // La cadena de Hyperdrive puede traer parametros (`ssl-mode`, etc.) que
+  // mysql2 no entiende: avisa "Ignoring invalid configuration option" en cada
+  // conexion y ensucia los logs. El proxy de Hyperdrive no necesita TLS entre
+  // el Worker y el edge, asi que se descarta la query string.
+  const sinParametros = uri.split("?")[0];
+
   return drizzle({
     connection: {
-      uri,
+      uri: sinParametros,
       // `disableEval` es obligatorio en Cloudflare Workers y opcional en el
       // resto. mysql2 arma el parser de filas con `generate-function`, que
       // compila código con `new Function`; workerd prohíbe generar código desde
@@ -23,6 +29,13 @@ function createDatabase(uri: string) {
       // camino que el propio mysql2 ofrece para entornos sin `eval`, y en Node
       // no aporta nada negativo.
       disableEval: true,
+      // Un pool **por petición** (Workers no permite compartir I/O entre
+      // peticiones), pero de **una sola conexión**. El valor por defecto de
+      // mysql2 es 10, y Hyperdrive tiene `origin_connection_limit: 20`: con
+      // tres o cuatro prefetch simultáneos el origen se agota y las peticiones
+      // se quedan esperando (se vio una colgada 10 minutos). Como cada
+      // petición solo hace consultas en serie, no necesita más de una.
+      connectionLimit: 1,
     },
     schema,
     mode: "default",
