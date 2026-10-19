@@ -663,13 +663,39 @@ async function verificarEnElNavegador(browser: Awaited<ReturnType<typeof chromiu
     `loading="${header}"`,
   );
 
+  // La campanita y el calendario del coach con drag & drop son las dos páginas
+  // donde se hidratan cosas que no salen en las gráficas: horas escritas por
+  // ICU y el `aria-describedby` que genera dnd-kit. Ahí aparecieron dos errores
+  // de consola que el resto de las páginas no destapaba.
+  await page.goto(`${BASE_URL}/notifications`, { waitUntil: "networkidle" });
+  await page.goto(`${BASE_URL}/coach/calendar`, { waitUntil: "networkidle" });
+  // Se recorren los teams hasta dar con uno que tenga atletas: el primero de la
+  // lista puede estar vacío, y el calendario con drag & drop vive en el detalle
+  // del atleta.
+  const enlacesTeam = (await page
+    .locator('a[href^="/coach/calendar?team="]')
+    .evaluateAll((enlaces) =>
+      enlaces.map((enlace) => enlace.getAttribute("href")),
+    )) as (string | null)[];
+  for (const enlaceTeam of enlacesTeam) {
+    if (!enlaceTeam) continue;
+    await page.goto(`${BASE_URL}${enlaceTeam}`, { waitUntil: "networkidle" });
+    const enlaceAtleta = (await page.evaluate(
+      'document.querySelector(\'a[href^="/coach/calendar/"]\')?.getAttribute("href") ?? null',
+    )) as string | null;
+    if (enlaceAtleta) {
+      await page.goto(`${BASE_URL}${enlaceAtleta}`, { waitUntil: "networkidle" });
+      break;
+    }
+  }
+
   // 47.6: una gráfica que no se dibuja no se ve, pero tampoco rompe la página.
   // Solo el aviso del navegador delata un atributo mal formado.
   record(
     erroresConsola.length === 0,
     "47.6 las páginas revisadas no dejan errores en la consola",
     erroresConsola.length === 0
-      ? "sin errores en /athlete/metrics, /coach/metrics ni /coach/athletes"
+      ? "sin errores en /athlete/metrics, /coach/metrics, /coach/athletes, /notifications ni el calendario del coach"
       : erroresConsola.slice(0, 3).join(" | "),
   );
 

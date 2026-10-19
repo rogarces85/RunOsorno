@@ -19,12 +19,20 @@
  * Uso:  npx tsx scripts/verify-validations.ts
  */
 
+import { randomUUID } from "node:crypto";
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { eq, sql } from "drizzle-orm";
 import { chromium, type Browser, type Page } from "playwright";
 import { db } from "../lib/db/index";
-import { groups, sessions, teamMembers, teams, users } from "../lib/db/schema";
+import {
+  groups,
+  sessionAssignments,
+  sessions,
+  teamMembers,
+  teams,
+  users,
+} from "../lib/db/schema";
 import { requestJoin } from "../lib/services/group.service";
 import { copyPreviousWeek } from "../lib/services/plan.service";
 import { getNumberSetting, setSetting } from "../lib/services/settings.service";
@@ -479,8 +487,12 @@ async function main() {
         `edit_window_hours=8760, formulario editable=${editableWithWideWindow} (antes: 48h hardcodeado en el formulario)`,
       );
 
-      // 40.9: día futuro con sesión planificada.
-      const futureDay = await page.evaluate(`(() => {
+      // 40.9: día futuro con sesión planificada. El seed de demostración solo
+      // planifica hasta el domingo de la semana en curso, así que en cuanto la
+      // semana avanza no queda ningún día futuro y la comprobación no tendría
+      // nada que abrir. Se crea la asignación que falta y se borra al terminar.
+      const findFutureDay = () =>
+        page.evaluate(`(() => {
         const today = new Date().toISOString().slice(0, 10);
         const cells = Array.from(document.querySelectorAll(".calendar-day"));
         const hit = cells.find(
@@ -489,6 +501,46 @@ async function main() {
         );
         return hit ? hit.getAttribute("data-date") : null;
       })()`);
+
+      let futureDay = await findFutureDay();
+      let fixtureId: string | null = null;
+      if (!futureDay) {
+        const [origen] = await db
+          .select({ templateId: sessionAssignments.templateId })
+          .from(sessionAssignments)
+          .where(eq(sessionAssignments.athleteId, athleteId!))
+          .limit(1);
+        if (origen) {
+          const isoDe = (d: Date) =>
+            `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          const hoyDate = new Date();
+          const manana = new Date(hoyDate);
+          manana.setDate(manana.getDate() + 1);
+          const iso = isoDe(manana);
+          // `week_start` es el lunes de esa semana, como en el resto del esquema.
+          const lunes = new Date(manana);
+          lunes.setDate(
+            lunes.getDate() + (lunes.getDay() === 0 ? -6 : 1 - lunes.getDay()),
+          );
+          fixtureId = randomUUID();
+          await db.insert(sessionAssignments).values({
+            id: fixtureId,
+            athleteId: athleteId!,
+            templateId: origen.templateId,
+            sessionDate: new Date(`${iso}T00:00:00`),
+            weekStart: new Date(`${isoDe(lunes)}T00:00:00`),
+            status: "planned",
+            createdBy: coachId!,
+          });
+          await goto(page, "/athlete/calendar");
+          // Si mañana ya es otro mes, el día no está en el calendario visible.
+          if (iso.slice(0, 7) !== isoDe(hoyDate).slice(0, 7)) {
+            await page.click('[aria-label="Mes siguiente"]');
+            await page.waitForTimeout(500);
+          }
+          futureDay = await findFutureDay();
+        }
+      }
       let futureMessage = "";
       if (futureDay) {
         await page.click(`[data-date="${futureDay}"]`);
@@ -498,12 +550,17 @@ async function main() {
         );
         await closePanel(page);
       }
+      if (fixtureId) {
+        await db
+          .delete(sessionAssignments)
+          .where(eq(sessionAssignments.id, fixtureId));
+      }
       record(
         !!futureDay && /días futuros/i.test(futureMessage),
         "40.9 no se puede registrar una sesión futura",
         futureDay
-          ? `día ${futureDay}: "${futureMessage}"`
-          : "no hay días futuros planificados",
+          ? `día ${futureDay}: "${futureMessage}"${fixtureId ? " (asignación de prueba creada y borrada)" : ""}`
+          : "no hay días futuros planificados y no se pudo crear la asignación de prueba",
       );
       await ctx.close();
     }
