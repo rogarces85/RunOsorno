@@ -38,7 +38,12 @@
     // prefijo NEXT_PUBLIC_: esas se incrustan en el bundle al compilar y
     // quedaria clavada al valor que tuviera en ese momento.
     "APP_URL": "https://runosorno.rodrigo-garces-guerrero.workers.dev",
-    "RESEND_FROM": "RunOsorno <no-reply@runosorno.cl>"
+    // TEMPORAL: `runosorno.cl` no existe en DNS, así que Resend no puede
+    // verificar el dominio y rechaza `no-reply@runosorno.cl`. Mientras no haya
+    // un dominio verificado se usa el remitente de pruebas de Resend, que solo
+    // entrega al correo dueño de la cuenta. Cambiar aquí (y redesplegar) cuando
+    // se verifique el dominio real.
+    "RESEND_FROM": "RunOsorno <onboarding@resend.dev>"
   },
   "r2_buckets": [
     {
