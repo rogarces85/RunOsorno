@@ -69,6 +69,12 @@ export function AppSidebar({
                       <Link
                         className={`nav-link${active ? " active" : ""}`}
                         href={item.href}
+                        // Sin prefetch: al abrir una página, Next pedía de golpe
+                        // todas las rutas del menú (10 renders SSR en paralelo).
+                        // El Worker no sostiene esa ráfaga y Cloudflare cortaba
+                        // algunas con 503 "exceeded CPU". La navegación sigue
+                        // siendo RSC, solo deja de calentar rutas por adelantado.
+                        prefetch={false}
                         aria-current={active ? "page" : undefined}
                         onClick={close}
                       >
