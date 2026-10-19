@@ -1,4 +1,4 @@
-import { and, eq, gt, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { loginAttempts } from "@/lib/db/schema";
 import {
@@ -22,25 +22,25 @@ export const storeRateLimitDb: RateLimitStore = {
     const key = rateLimitKey(ip, ahora);
     const expira = new Date(ahora + VIGENCIA_MS);
 
-    await db
-      .insert(loginAttempts)
-      .values({ key, ip, attempts: 1, expiresAt: expira })
-      .onDuplicateKeyUpdate({
-        set: {
-          attempts: sql`${loginAttempts.attempts} + 1`,
-          expiresAt: expira,
-        },
-      });
+    // Una sola escritura con `LAST_INSERT_ID` para leer el contador sin una
+    // segunda lectura sobre la tabla. En el INSERT nuevo el contador arranca en
+    // 1; cuando la clave ya existe, `LAST_INSERT_ID(attempts + 1)` deja el
+    // valor listo para leerlo con un `SELECT LAST_INSERT_ID()` trivial.
+    await db.execute(sql`
+      INSERT INTO login_attempts (\`key\`, ip, attempts, expires_at)
+      VALUES (${key}, ${ip}, LAST_INSERT_ID(1), ${expira})
+      ON DUPLICATE KEY UPDATE
+        attempts = LAST_INSERT_ID(attempts + 1),
+        expires_at = ${expira}
+    `);
 
-    const [fila] = await db
-      .select({ attempts: loginAttempts.attempts })
-      .from(loginAttempts)
-      .where(
-        and(eq(loginAttempts.key, key), gt(loginAttempts.expiresAt, new Date(ahora))),
-      )
-      .limit(1);
-
-    return fila?.attempts ?? 1;
+    const filas = (await db.execute(
+      sql`SELECT LAST_INSERT_ID() AS intentos`,
+    )) as unknown;
+    const fila = (Array.isArray(filas) ? filas[0] : filas) as
+      | { intentos: number }
+      | undefined;
+    return fila?.intentos ?? 1;
   },
 };
 

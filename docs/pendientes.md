@@ -120,31 +120,38 @@ trabajo ya no era el problema).
 de Hyperdrive (hoy 20); y medir con `wrangler tail --format json` (los campos
 `cpuTime` y `outcome` por petición son la mejor señal).
 
-### Queda: login intermitente por límite de CPU
+### Queda: login intermitente por límite de CPU (estrategia de costo cero)
 
 Al recorrer el flujo 50.10 en producción, **el POST de login falla ~50% de las
 veces** con `503 Worker exceeded CPU time limit`. El tail lo corta con
 `outcome: exceededCpu` y `cpuTime: 12 ms` / `wallTime: 92 ms`, **justo después
-de conectar con Hyperdrive y antes de bcrypt** (los `diagnosticsChannelEvents`
-llegan a `pool:connect:end` y ahí muere). No es un bug de la app: la misma
-petición en caliente consume 450-770 ms de CPU y responde 200.
+de conectar con Hyperdrive y antes del hashing** (los `diagnosticsChannelEvents`
+llegan a `pool:connect:end` y ahí muere). No es un bug de la app.
 
-Es decir: los arreglos anteriores (pool de 1 conexión, sin prefetch, imports
-diferidos, bcrypt a 10 rondas) redujeron el problema, pero **el Worker queda al
-borde del límite de CPU de Cloudflare en arranques en frío** y el login
-(conexión a Hyperdrive + bcrypt + sesión) es el que más lo nota.
+**Causa:** Workers **Free** = **10 ms de CPU por invocación**. Un login por
+contraseña (conexión a Hyperdrive + KDF + ~7 consultas + sesión) no entra en
+10 ms ni en caliente.
 
-**Causa probable:** la cuenta está en Workers **Free** (10 ms de CPU) o con un
-límite de CPU máximo bajo. Los logins usan cientos de ms, así que en frío se
-cortan.
+**Hecho (2026-10-19):** se migró el hashing de `bcryptjs` (Blowfish interpretado,
+~450-770 ms) a **PBKDF2-HMAC-SHA512 nativo vía WebCrypto** (210 000 iteraciones,
+~50-100× menos CPU), con migración transparente de los hashes bcrypt heredados
+en el primer login. También se simplificó el rate-limit (lectura por
+`LAST_INSERT_ID` en vez de una segunda consulta con `WHERE`). Ver
+`lib/security/hashing.ts` y `lib/services/rate-limit.service.ts`.
 
-**Mitigaciones aplicadas hoy:** bcrypt 12→10 rondas (`lib/security/hashing.ts`),
-sin prefetch en el menú, Sentry/react-pdf/aws-sdk bajo demanda y `connectionLimit:
-1`.
+**Decisión del dueño:** **Workers Paid ($5/mes) NO es viable** — se busca un
+sistema **gratis o de costo mínimo**. El corte de CPU hay que resolverlo sin
+subir de plan.
 
-**Pendiente (decisión del dueño):** subir a **Workers Paid** ($5/mes, CPU de 30 s
-por defecto) para eliminar el corte, o revisar el límite de CPU configurado en
-Cloudflare. Después hay que re-medir el login y cerrar 50.10.
+**Pendiente (estrategia de costo cero):**
+
+1. Desplegar la migración a PBKDF2 y **re-medir** el login en frío
+   (`npx wrangler tail runosorno --format json`). Puede que ya no corte tanto,
+   pero 10 ms sigue siendo un techo muy bajo para un login con base de datos.
+2. Si sigue cortando, evaluar las opciones de "Estrategia de costo cero" al
+   final de este documento: cron de calentamiento y/o reubicar la autenticación
+   en un runtime con más CPU (sin coste).
+
 
 ## P2 — Servicios externos sin configurar
 
@@ -239,4 +246,41 @@ Cloudflare. Después hay que re-medir el login y cerrar 50.10.
   `endOfLine: "lf"`. En Linux (CI) pasaría; el workflow no lo ejecuta, así que
   no rompe nada, pero conviene añadir un `.gitattributes` con `* text=auto
   eol=lf` para que el resultado sea el mismo en ambos sistemas.
+
+## Estrategia de costo cero para el login (P1.5)
+
+Workers Paid ($5/mes) está descartado por el dueño. El objetivo es que el login
+deje de caer por `exceededCpu` **sin gasto**, o con el mínimo posible. Las
+opciones, en orden de esfuerzo:
+
+1. **Cron de calentamiento (gratis, sin migrar nada).** Un Cron Trigger de
+   Cloudflare que golpee una ruta ligera cada 1-2 minutos mantiene un isolate
+   caliente y el camino Hyperdrive/`mysql2` ya cargado, reduciendo el fallo en
+   frío. No elimina el techo de 10 ms por invocación, pero puede ser suficiente
+   tras la migración a PBKDF2. Cero coste y cambio mínimo.
+
+2. **Reubicar la autenticación en un runtime con más CPU (fondo del problema).**
+   Un KDF seguro no cabe en 10 ms; la solución de raíz es ejecutar el login en
+   un entorno con presupuesto de CPU real, manteniendo la app en Workers si
+   conviene. Candidatos sin coste o de costo mínimo:
+   - **Oracle Cloud Always Free**: VM ARM (4 OCPU, 24 GB RAM) gratis de por
+     vida; correr `next start` (Node) sin límite de CPU.
+   - **VPS de bajo costo** (~$3-5/mes: Hetzner, Racknerd, etc.) si Oracle no
+     alcanza.
+   - **Tiers gratuitos de Render/Fly/Railway**: con limitaciones (spin-down,
+     horas mensuales).
+   Implica decidir entre: (a) mover **todo** el despliegue de Workers → VM, o
+   (b) dejar la app en Workers y exponer solo `/login` (o una mini API de
+   autenticación) desde la VM. La opción (b) es más quirúrgica pero parte la
+   sesión entre dos runtimes.
+
+3. **Seguir apretando la CPU dentro de Workers.** Ya se hizo lo razonable
+   (PBKDF2 nativo, menos round-trips, imports diferidos). Bajar las iteraciones
+   de PBKDF2 por debajo de OWASP no es aceptable, y el resto de la CPU del login
+   es I/O de base de datos que no se puede eliminar.
+
+**Siguiente paso concreto:** desplegar la migración a PBKDF2, re-medir el login
+en frío y, según el resultado, aplicar (1) y decidir (2). Esto no bloquea el
+resto del MVP: el corte afecta solo al POST de login en frío.
+
 

@@ -1,4 +1,3 @@
-import { hashSync } from "bcryptjs";
 import { and, eq } from "drizzle-orm";
 import {
   BASE_SESSION_TYPES,
@@ -6,6 +5,7 @@ import {
 } from "../lib/config/constants";
 import { db } from "../lib/db/index";
 import { settings, templates, users, type TemplateSection } from "../lib/db/schema";
+import { hashPassword } from "../lib/security/hashing";
 
 const ADMIN_EMAIL = "admin@runosorno.cl";
 const ADMIN_PASSWORD = "Admin1234!";
@@ -162,7 +162,7 @@ async function main() {
       id: crypto.randomUUID(),
       name: "Administrador",
       email: ADMIN_EMAIL,
-      passwordHash: hashSync(ADMIN_PASSWORD, 10),
+      passwordHash: await hashPassword(ADMIN_PASSWORD),
       role: "admin",
       isActive: true,
       mustChangePassword: true,

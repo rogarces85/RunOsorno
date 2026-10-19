@@ -1,9 +1,8 @@
-import { compare, hash } from "bcryptjs";
 import { and, eq, ne, sql } from "drizzle-orm";
 import { lucia } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { sessions, users } from "@/lib/db/schema";
-import { BCRYPT_ROUNDS } from "@/lib/security/hashing";
+import { hashPassword, verifyPassword } from "@/lib/security/hashing";
 import type { ServiceResult } from "@/lib/services/athlete.service";
 import { logAudit } from "@/lib/services/audit.service";
 
@@ -75,7 +74,7 @@ export async function pruneOldSessions(userId: string): Promise<void> {
  *
  * - Verifica que la contraseña actual sea correcta (para confirmar que es
  *   el titular de la cuenta y no alguien con la sesión abierta).
- * - Actualiza el hash con bcrypt a 12 rondas.
+ * - Actualiza el hash con PBKDF2-HMAC-SHA512 (nativo, sin bcrypt en CPU).
  * - Revoca todas las sesiones salvo la actual.
  * - Limpia `must_change_password`, que era lo que forzó el cambio al crear
  *   la cuenta.
@@ -101,12 +100,15 @@ export async function changePassword(
     return { ok: false, error: "Usuario no encontrado" };
   }
 
-  const currentMatches = await compare(input.currentPassword, user.passwordHash);
+  const currentMatches = await verifyPassword(
+    input.currentPassword,
+    user.passwordHash,
+  );
   if (!currentMatches) {
     return { ok: false, error: "La contraseña actual no es correcta" };
   }
 
-  const passwordHash = await hash(input.newPassword, BCRYPT_ROUNDS);
+  const passwordHash = await hashPassword(input.newPassword);
   await db
     .update(users)
     .set({ passwordHash, mustChangePassword: false })

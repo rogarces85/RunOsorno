@@ -159,6 +159,23 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
    quedaría clavado al momento de compilar. Por eso `APP_URL` (enlaces de los
    correos) no lleva ese prefijo.
 
+## Notas de seguridad y límite de CPU (Fase 45 + P1.5)
+
+- **Contraseñas con PBKDF2-HMAC-SHA512 nativo (WebCrypto), no bcrypt.** `bcryptjs`
+  es Blowfish interpretado (~450-770 ms por login) y no cabía en el límite de
+  CPU de Workers. `lib/security/hashing.ts` expone `hashPassword`,
+  `verifyPassword`, `needsRehash` y `DUMMY_PASSWORD_HASH`; el formato es
+  `pbkdf2-sha512$<iteraciones>$<salt>$<hash>` con 210 000 iteraciones (OWASP).
+  Los hashes bcrypt heredados (`$2a/$2b/$2y`) se siguen verificando con un
+  import perezoso y se reescriben a PBKDF2 en el primer login correcto. **No
+  reintroducir `bcryptjs` para hashear contraseñas nuevas**; el único uso
+  legítimo es el fallback de verificación de cuentas antiguas.
+- **Workers Free = 10 ms de CPU por invocación.** Un login con base de datos no
+  entra en ese techo. Workers Paid ($5/mes) está **descartado por el dueño**
+  (objetivo: gratis o costo mínimo). La estrategia para resolver el corte está
+  en `docs/pendientes.md` (§"Estrategia de costo cero para el login"): cron de
+  calentamiento y/o reubicar la autenticación en un runtime con más CPU.
+
 ## Notas de la infraestructura de producción (Fase 43)
 
 - **Worker:** `runosorno` → `https://runosorno.rodrigo-garces-guerrero.workers.dev`.

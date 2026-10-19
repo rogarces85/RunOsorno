@@ -17,9 +17,9 @@
  * Uso:  npm run db:seed:demo
  */
 
-import { hashSync } from "bcryptjs";
 import { eq } from "drizzle-orm";
 import { db } from "../lib/db/index";
+import { hashPassword } from "../lib/security/hashing";
 import {
   athleteProfiles,
   groupMembers,
@@ -320,7 +320,7 @@ async function main() {
 
   console.log("Generando datos de demostracion...");
   const today = toISODate(new Date());
-  const passwordHash = hashSync(DEMO_PASSWORD, 10);
+  const passwordHash = await hashPassword(DEMO_PASSWORD);
 
   // --- Grupo -------------------------------------------------------------
   const groupId = crypto.randomUUID();

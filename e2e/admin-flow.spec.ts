@@ -10,6 +10,7 @@ import { expect, test } from "@playwright/test";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { groupMembers, groupRequests, groups, users } from "@/lib/db/schema";
+import { hashPassword } from "@/lib/security/hashing";
 import { ADMIN, RUN, cleanupRun, login } from "./helpers";
 
 test.describe("Flujo del administrador", () => {
@@ -56,12 +57,11 @@ test.describe("Flujo del administrador", () => {
 
     // El alta genera una contraseña temporal que solo conoce el servicio, así
     // que se fija una conocida para poder entrar en la interfaz.
-    const { hashSync } = await import("bcryptjs");
     const tempPassword = `E2e${RUN}!`;
     await db
       .update(users)
       .set({
-        passwordHash: hashSync(tempPassword, 10),
+        passwordHash: await hashPassword(tempPassword),
         mustChangePassword: false,
       })
       .where(eq(users.id, coach!.id));

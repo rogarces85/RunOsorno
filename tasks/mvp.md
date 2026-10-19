@@ -1180,6 +1180,12 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 > la constante compartida `BCRYPT_ROUNDS` en `lib/security/hashing.ts`, de modo
 > que no pueden volver a divergir.
 >
+> **Actualización (P1.5, 2026-10-19):** esas 10-12 rondas de bcrypt (`bcryptjs`)
+> no cabían en el límite de CPU de Workers Free (10 ms), así que se migró a
+> **PBKDF2-HMAC-SHA512 nativo vía WebCrypto** (210 000 iteraciones), con
+> reescritura automática de los hashes heredados al hacer login. La constante
+> `BCRYPT_ROUNDS` ya no existe; ver `lib/security/hashing.ts`.
+>
 > **2. El avatar no validaba nada (45.9).** `AVATAR_ACCEPTED_TYPES` estaba
 > declarado en `avatar.service.ts` pero **nunca se usaba**, y `storeLocalAvatar`
 > solo miraba el tamaño. Como el `Content-Type` lo declara el cliente,

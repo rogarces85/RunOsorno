@@ -20,7 +20,7 @@ Reglas del proyecto:
 
 | Tabla | Contenido | Claves |
 |---|---|---|
-| `users` | Todos los usuarios: admin, coach, atleta | `email` único, `role` (`admin`/`coach`/`athlete`), `password_hash` (bcrypt), `avatar_key`, `is_active`, `must_change_password` |
+| `users` | Todos los usuarios: admin, coach, atleta | `email` único, `role` (`admin`/`coach`/`athlete`), `password_hash` (PBKDF2-SHA512 nativo; bcrypt heredado se migra al login), `avatar_key`, `is_active`, `must_change_password` |
 | `sessions` | Sesiones de Lucia | `id` (varchar 255), `user_id` → `users`, `expires_at` |
 | `login_attempts` | Rate limiting del login | `key` (ventana + IP), `ip`, `attempts`, `expires_at`; índice por `expires_at` |
 | `athlete_profiles` | Datos fisiológicos del atleta | `user_id` PK → `users`; `birth_date`, `weight_kg`, `height_cm`, `max_hr`, `resting_hr` |

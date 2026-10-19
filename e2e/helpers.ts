@@ -10,6 +10,7 @@
 import { expect, type Page } from "@playwright/test";
 import { and, eq, inArray, like } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { hashPassword } from "@/lib/security/hashing";
 import {
   athleteProfiles,
   auditLogs,
@@ -120,8 +121,6 @@ export async function createTrainingFixture(): Promise<{
   teamId: string;
   templateId: string;
 }> {
-  const { hashSync } = await import("bcryptjs");
-
   const coachId = crypto.randomUUID();
   const athleteId = crypto.randomUUID();
   const teamId = crypto.randomUUID();
@@ -134,14 +133,14 @@ export async function createTrainingFixture(): Promise<{
       id: coachId,
       name: `Coach ${RUN}`,
       email: `coach.${RUN}@runosorno.cl`,
-      passwordHash: hashSync(coachPassword, 10),
+      passwordHash: await hashPassword(coachPassword),
       role: "coach",
     },
     {
       id: athleteId,
       name: `Atleta ${RUN}`,
       email: `atleta.${RUN}@runosorno.cl`,
-      passwordHash: hashSync(athletePassword, 10),
+      passwordHash: await hashPassword(athletePassword),
       role: "athlete",
     },
   ]);
