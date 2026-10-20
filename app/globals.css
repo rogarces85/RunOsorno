@@ -1,8 +1,14 @@
 @import "@tabler/core/dist/css/tabler.min.css";
+@import "./styles/tokens.css";
+@import "./styles/components.css";
 
+/*
+ * La paleta, la tipografía y las medidas viven en `styles/tokens.css` (Fase A).
+ * Aquí solo se enlaza la familia tipográfica con el cuerpo del documento: el resto
+ * de variables que Tabler consulta (`--tblr-body-bg`, `--tblr-primary`,
+ * `--tblr-border-color`…) se mapean allí y no se repiten en este archivo.
+ */
 :root {
-  --tblr-body-bg: light-dark(oklch(98.51% 0 0deg), oklch(20.46% 0 0deg));
-  --tblr-primary: oklch(54.6% 0.1724 254.2deg);
   --tblr-body-font-family: var(--tblr-font-sans-serif);
 }
 
@@ -58,12 +64,14 @@ main:focus-visible {
 }
 
 /* Los títulos de página pasan a `<h1>` (Fase 48, tarea 48.1). Tabler da a
-   `.page-title` el tamaño de un `h2`, así que se recupera aquí el de un `h1`
-   real y el aspecto en pantalla no cambia. */
+   `.page-title` el tamaño de un `h2`, así que se recupera aquí el de un `h1`.
+   Desde la Fase A toma la escala del sistema visual en lugar de valores sueltos. */
 h1.page-title {
-  font-size: 1.5rem;
-  line-height: 1.75rem;
-  font-weight: 500;
+  font-size: var(--app-text-h1);
+  line-height: var(--app-leading-tight);
+  font-weight: 600;
+  letter-spacing: var(--app-tracking-tight);
+  color: var(--app-ink);
 }
 
 /* ===== Contraste de los badges (Fase 48, tarea 48.2) =====
@@ -99,12 +107,41 @@ h1.page-title {
 .text-teal-ink { color: #067654 !important; } /* 5,06:1 sobre rgb(231,246,242) */
 .text-lime-ink { color: #48750a !important; } /* 5,05:1 sobre rgb(241,248,232) */
 .text-pink-ink { color: #ba2b5d !important; } /* 5,08:1 sobre rgb(251,235,240) */
-.text-primary-ink { color: #0564be !important; } /* 5,13:1 sobre rgb(230,241,250) */
+.text-primary-ink { color: #0564be !important; } /* 5,05:1 sobre el tinte vigente de `--tblr-primary` (medido por verify-tokens) */
 .text-secondary-ink { color: #666 !important; } /* 5,08:1 sobre rgb(241,241,241) */
 .text-success-ink { color: #1c762a !important; } /* 5,18:1 sobre rgb(234,247,236) */
 .text-warning-ink { color: #925d00 !important; } /* 5,13:1 sobre rgb(254,245,230) */
 .text-danger-ink { color: #ba3030 !important; } /* 5,12:1 sobre rgb(251,235,235) */
 .text-info-ink { color: #2d6ca1 !important; } /* 5,05:1 sobre rgb(236,245,252) */
+
+/* En tema oscuro el tinte del badge es oscuro: los `-ink` de arriba quedarían
+   ilegibles (2,5:1 medido). Se redefine la misma familia con tonos claros de la
+   misma gama; el par y el ratio se comprueban en `scripts/verify-tokens.ts`. */
+[data-bs-theme="dark"] .text-blue-ink,
+[data-bs-theme="dark"] .text-primary-ink,
+[data-bs-theme="dark"] .text-info-ink { color: #8fb8f5 !important; }
+[data-bs-theme="dark"] .text-green-ink,
+[data-bs-theme="dark"] .text-success-ink { color: #8fd79a !important; }
+[data-bs-theme="dark"] .text-yellow-ink,
+[data-bs-theme="dark"] .text-warning-ink { color: #efc97e !important; }
+[data-bs-theme="dark"] .text-red-ink,
+[data-bs-theme="dark"] .text-danger-ink { color: #f3a3a3 !important; }
+[data-bs-theme="dark"] .text-orange-ink { color: #f3b37a !important; }
+[data-bs-theme="dark"] .text-azure-ink { color: #8fc7e8 !important; }
+[data-bs-theme="dark"] .text-cyan-ink { color: #82d3d8 !important; }
+[data-bs-theme="dark"] .text-purple-ink { color: #c9a6f0 !important; }
+[data-bs-theme="dark"] .text-indigo-ink { color: #a9b4f5 !important; }
+[data-bs-theme="dark"] .text-teal-ink { color: #7fd3b4 !important; }
+[data-bs-theme="dark"] .text-lime-ink { color: #b9d97a !important; }
+[data-bs-theme="dark"] .text-pink-ink { color: #f0a2c0 !important; }
+[data-bs-theme="dark"] .text-secondary-ink { color: #b9c1cc !important; }
+
+/* Y lo mismo con los avisos: su texto sale de `--tblr-alert-variant-color`, que en
+   oscuro necesita el tono claro o queda en 2,5:1 sobre su propio tinte. */
+[data-bs-theme="dark"] .alert-success { --tblr-alert-variant-color: #8fd79a; }
+[data-bs-theme="dark"] .alert-warning { --tblr-alert-variant-color: #efc97e; }
+[data-bs-theme="dark"] .alert-danger { --tblr-alert-variant-color: #f3a3a3; }
+[data-bs-theme="dark"] .alert-info { --tblr-alert-variant-color: #9cc7ee; }
 
 /* Lo mismo pasa con los `alert`: Tabler 1.6 saca el color del texto de
    `--tblr-alert-variant-color`, y con el valor de fábrica un `.alert-success`
@@ -143,8 +180,8 @@ h1.page-title {
     transform: translateX(-100%);
     visibility: hidden;
     transition:
-      transform 0.25s ease,
-      visibility 0s linear 0.25s;
+      transform var(--app-dur-base) var(--app-ease),
+      visibility 0s linear var(--app-dur-base);
     box-shadow: var(--tblr-box-shadow);
   }
 
@@ -152,7 +189,7 @@ h1.page-title {
     transform: translateX(0);
     visibility: visible;
     transition:
-      transform 0.25s ease,
+      transform var(--app-dur-base) var(--app-ease),
       visibility 0s;
   }
 
@@ -371,7 +408,7 @@ body.app-nav-open {
   flex: 1 1 auto;
   min-width: 0;
   height: 0.75rem;
-  border-radius: 4px;
+  border-radius: var(--app-radius-full);
   background: var(--tblr-gray-200, #e9ecef);
   overflow: hidden;
 }
@@ -379,7 +416,7 @@ body.app-nav-open {
 .metric-bars-fill {
   display: block;
   height: 100%;
-  border-radius: 4px;
+  border-radius: var(--app-radius-full);
   background: var(--tblr-primary, #206bc4);
 }
 
@@ -616,4 +653,78 @@ body.app-nav-open {
     padding: 0 3px;
     line-height: 1.2;
   }
+}
+
+/* ===== Tipografía del sistema visual (Fase A, tarea 2.5) =====
+   Una sola escala para toda la app. Los tamaños, pesos e interlineados salen de
+   `styles/tokens.css`; aquí solo se declaran las clases que los componentes usan.
+   Ningún componente debe escribir `font-size` suelto: usa una de estas clases. */
+body {
+  font-size: var(--app-text-body);
+  line-height: var(--app-leading-body);
+  color: var(--app-ink);
+}
+
+.app-h2 {
+  font-size: var(--app-text-h3);
+  line-height: var(--app-leading-snug);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--app-ink);
+}
+
+.app-h3 {
+  font-size: var(--app-text-lead);
+  line-height: var(--app-leading-snug);
+  font-weight: 600;
+  color: var(--app-ink);
+}
+
+.app-card-title {
+  font-size: var(--app-text-body);
+  line-height: var(--app-leading-snug);
+  font-weight: 600;
+  color: var(--app-ink);
+}
+
+.app-lead {
+  font-size: var(--app-text-lead);
+  line-height: var(--app-leading-body);
+  color: var(--app-ink-2);
+}
+
+.app-muted {
+  color: var(--app-ink-2);
+}
+
+.app-caption {
+  font-size: var(--app-text-caption);
+  line-height: 1.4;
+  color: var(--app-ink-3);
+}
+
+/* Rótulo de dato: versalitas pequeñas sobre superficies y tablas. */
+.app-label {
+  font-size: 0.6875rem;
+  line-height: var(--app-leading-tight);
+  font-weight: 600;
+  letter-spacing: var(--app-tracking-label);
+  text-transform: uppercase;
+  color: var(--app-ink-3);
+}
+
+/* Cifras: sin esto las columnas de métricas bailan de ancho entre valores. */
+.app-numeric {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.app-metric {
+  font-size: var(--app-text-metric);
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: var(--app-tracking-tight);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+  color: var(--app-ink);
 }

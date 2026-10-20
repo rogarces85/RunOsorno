@@ -1,8 +1,8 @@
 import { DonutChart } from "./DonutChart";
 import { formatPercent } from "@/lib/i18n/format";
 
-const COMPLETED_COLOR = "#37b24d";
-const PENDING_COLOR = "#dfe3e6";
+const COMPLETED_COLOR = "var(--app-chart-3)";
+const PENDING_COLOR = "var(--app-surface-3)";
 
 type ComplianceChartProps = {
   completed: number;

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
 import { IconLogout } from "@tabler/icons-react";
 import { logout } from "@/lib/actions/auth.actions";
 import { requireAuth } from "@/lib/auth/guards";
@@ -7,12 +8,17 @@ import {
   getUnreadCount,
 } from "@/lib/services/notification.service";
 import { notificationHref } from "@/lib/utils/notification";
+import { THEME_COOKIE, themeFromCookie } from "@/lib/ui/theme";
 import { Avatar } from "@/components/ui/Avatar";
 import { NotificationBell } from "@/components/ui/NotificationBell";
+import { Logo } from "./Logo";
 import { NavToggle } from "./NavToggle";
+import { ThemeToggle } from "./ThemeToggle";
 
 export async function AppHeader() {
   const { user } = await requireAuth();
+  const cookieStore = await cookies();
+  const theme = themeFromCookie(cookieStore.get(THEME_COOKIE)?.value);
   const [unreadCount, recent] = await Promise.all([
     getUnreadCount(user.id),
     getNotifications(user.id, { limit: 8 }),
@@ -26,10 +32,11 @@ export async function AppHeader() {
     <header className="navbar navbar-expand-lg d-print-none app-header">
       <div className="container-fluid">
         <NavToggle />
-        <Link href="/" className="navbar-brand">
-          RunOsorno
+        <Link href="/" className="navbar-brand d-lg-none" aria-label="RunOsorno Training">
+          <Logo variant="mark" />
         </Link>
         <div className="navbar-nav flex-row ms-auto align-items-center">
+          <ThemeToggle initialTheme={theme} />
           <NotificationBell unreadCount={unreadCount} items={items} />
           <div className="nav-item ms-2">
             <Link

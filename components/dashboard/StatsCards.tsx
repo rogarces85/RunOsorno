@@ -18,10 +18,14 @@ export type StatCardItem = {
 
 const TONE_CLASS: Record<NonNullable<StatCardItem["tone"]>, string> = {
   default: "",
-  success: "text-green",
-  warning: "text-yellow",
-  danger: "text-red",
-  primary: "text-blue",
+  // Familia de contraste del proyecto: las utilidades crudas de Tabler
+  // (`text-green`, `text-yellow`…) no alcanzan 4,5:1 sobre fondo claro y axe las
+  // reporta. El tono se refuerza además con la etiqueta del dato, nunca solo con
+  // color.
+  success: "text-success-ink",
+  warning: "text-warning-ink",
+  danger: "text-danger-ink",
+  primary: "text-primary-ink",
 };
 
 export function StatsCards({ items }: { items: StatCardItem[] }) {
@@ -32,7 +36,7 @@ export function StatsCards({ items }: { items: StatCardItem[] }) {
           <div className="card-body">
             <div className="text-secondary mb-1">{item.label}</div>
             <div
-              className={`h1 mb-0 ${TONE_CLASS[item.tone ?? "default"]}`.trim()}
+              className={`h1 mb-0 app-numeric ${TONE_CLASS[item.tone ?? "default"]}`.trim()}
             >
               {item.value}
             </div>

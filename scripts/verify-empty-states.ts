@@ -338,10 +338,18 @@ async function verifyEmptyTeam(
       card.locator('a.btn:has-text("Ver")').click(),
     ]);
 
-    const empty = page.locator('[data-testid="empty-state"]').first();
+    // La página tiene dos estados vacíos posibles (el del listado del team y el del
+    // selector "Asignar atleta"). Se apunta al del listado, que es el que esta
+    // comprobación mide: con todos los atletas ya asignados, el primero del DOM es
+    // el del selector.
+    const listaTeam = page
+      .locator(".card")
+      .filter({ hasText: "Atletas del team" })
+      .first();
+    const empty = listaTeam.locator('[data-testid="empty-state"]').first();
     await empty.waitFor({ state: "visible", timeout: 15_000 });
     const title = (
-      await page
+      await listaTeam
         .locator('[data-testid="empty-state-title"]')
         .first()
         .innerText()

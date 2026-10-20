@@ -1,0 +1,379 @@
+schema: spec-driven
+
+# Contexto del proyecto (se inyecta en TODAS las instrucciones de artefactos).
+# Solo restricciones y decisiones que un agente no puede deducir leyendo el código.
+context: |
+  RunOsorno — plataforma SSR de gestión de entrenamiento de running (coach ↔ atleta,
+  con admin y director técnico). El MVP está cerrado y lo nuevo se planifica sobre
+  `docs/roadmap.md` (fases 51–59).
+
+  ═══════════════════════════════════════════════════════════════════════════
+  1. IDIOMA — REGLA DURA
+  ═══════════════════════════════════════════════════════════════════════════
+  - Todos los artefactos OpenSpec (proposal, specs, design, tasks), los mensajes de
+    commit, los comentarios de código y la documentación en `docs/` se escriben en
+    español (es-CL). Nunca en inglés, ni siquiera como borrador intermedio.
+  - El código (identificadores, nombres de tablas y columnas, URLs) se queda en
+    inglés como ya está; lo que se traduce es el texto que lee una persona.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  2. PRODUCTO Y ALCANCE
+  ═══════════════════════════════════════════════════════════════════════════
+  - Ciclo que digitaliza: el coach planifica, el atleta ejecuta y registra, el coach
+    revisa y responde. Reemplaza planillas, hojas de cálculo y mensajes dispersos.
+  - `specs/mvp.md` es el contrato funcional del producto y manda sobre cualquier
+    resumen: §4 funcionalidades (4.1–4.17), §5 los 8 flujos, §6 interfaz, §7 datos,
+    §8 las 35 reglas de negocio, §9 los casos límite, §10 los criterios de
+    aceptación y §11 el alcance.
+  - Las 20 funcionalidades incluidas del §11 ya están implementadas y no se
+    rediscuten. Lo nuevo va a una fase 51–59 de `docs/roadmap.md` o a la deuda
+    técnica D1–D7.
+  - Todo lo listado como «Fuera del MVP» (API pública, WebSockets, app nativa,
+    wearables/GPS, evidencia fotográfica, pagos, chat en tiempo real, multi-idioma,
+    festivos automáticos, lesiones, planes por objetivo, competencias, IA, dominio
+    propio) exige un cambio de alcance explícito y su fase de roadmap. No se cuela
+    dentro de un cambio del MVP.
+  - Toda propuesta declara su costo (gratis, mínimo o servicio pago): el dueño
+    descartó Workers Paid.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  3. JERARQUÍA Y PERMISOS
+  ═══════════════════════════════════════════════════════════════════════════
+  - Grupo/Escuela (solo el admin lo crea) contiene coaches N:M (un coach puede
+    estar en varios grupos) y cada coach tiene N teams; cada team tiene N atletas
+    N:M (un atleta puede estar en varios teams, incluso del mismo coach).
+  - El team NO tiene grupo: la relación team → grupo es transitiva vía el coach.
+    No reintroducir `group_id` en teams (decisión cerrada del plan original).
+  - Admin (global): crea coaches, grupos, aprueba solicitudes de unión, asigna
+    Director Técnico, gestiona atletas, configuración global, plantillas oficiales,
+    auditoría y exports globales.
+  - Director Técnico (su grupo): visibilidad total de los atletas del grupo en
+    lectura, métricas agregadas y comparativa entre teams, cumplimiento por coach
+    (sin ranking), anuncios masivos al grupo. No edita planes ni registros.
+  - Coach (sus teams): gestiona sus teams, planifica, deja feedback y exporta. Ve el
+    detalle de sus atletas y solo lectura más métricas agregadas de atletas de otros
+    coaches del mismo grupo.
+  - Atleta (sus teams): ve su grupo, sus teams y su calendario; registra y corrige
+    sus sesiones; ve su historial y métricas personales. No modifica el plan.
+  - Un coach solo planifica para atletas de sus teams; un atleta solo ve y registra
+    en su propio calendario. Los permisos se centralizan en `lib/permissions/` y
+    `lib/auth/guards.ts`.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  4. DOMINIO DE ENTRENAMIENTO
+  ═══════════════════════════════════════════════════════════════════════════
+  Plantillas
+  - Privadas por defecto. Compartir al grupo (`is_shared` + `group_id`) las hace
+    visibles y clonables por los coaches del grupo, no editables por ellos.
+  - Las oficiales (`is_official`) se clonan; editarlas crea una copia propia y
+    nunca modifica la oficial.
+  - Estructura mínima calentamiento → entrenamiento específico → enfriamiento, más
+    secciones opcionales (estiramientos, recuperación, musculación). El coach puede
+    reordenar, omitir o añadir secciones. Se guarda como JSON en
+    `templates.structure` con tipos `warmup`, `main`, `cooldown`, `stretching`,
+    `recovery`, `strength`, `custom`.
+  - Tipos base series, intervalos, fondos, tempo, recuperación y descanso, más los
+    tipos libres que cree el coach.
+
+  Planificación
+  - La semana es la unidad base (`week_start` = lunes). Un día sin plantilla es
+    Descanso.
+  - Herramientas del coach: drag & drop al calendario, generador de semana tipo
+    (por ejemplo 3 fondos + 1 series + 1 tempo + 2 descanso), multi-asignación a
+    varios atletas y copiar la semana anterior (editable después).
+  - Solo el coach dueño del atleta (o el admin) modifica el plan.
+
+  Registro de sesiones
+  - Estados: `planned`, `in_progress` (la sesión de hoy), `completed`, `partial`,
+    `not_done`.
+  - Distancia y tiempo son obligatorios para marcar completada o parcial; el RPE
+    (1–10) y los comentarios son opcionales. No se registran días futuros.
+  - La ventana de edición es configurable en `settings.edit_window_hours` (48 por
+    defecto; la spec habla de 24–48 h). Fuera de la ventana el registro queda
+    bloqueado.
+  - «No realizada» exige un motivo predefinido (lesión, trabajo, enfermedad,
+    personal, otro) y texto libre obligatorio cuando el motivo es «otro». Los
+    motivos predefinidos son configurables.
+  - El atleta deja comentarios o preguntas en la sesión y el coach responde en la
+    misma asignación; la conversación es por asignación, no hay chat global.
+
+  Métricas
+  - Atleta: cumplimiento, carga semanal (km, minutos y TSS/TRIMP si hay FC),
+    progresión de 4–12 semanas, distribución por tipo, RPE medio frente al
+    planificado, rachas, VO2max estimado, FC de umbral y zonas de FC/potencia.
+  - Team: porcentaje de atletas en >80, 50–80 y <50 de cumplimiento, carga media y
+    alertas (sin registrar más de X días, caída de carga, RPE alto sostenido).
+  - Grupo: comparativa entre teams y cumplimiento por coach, nunca un ranking.
+  - Se recalculan al guardar el registro (sin WebSockets ni polling), se exportan a
+    PDF y Excel y se consultan por temporada, año o rango personalizado.
+  - No se precalculan ni se persisten: se calculan al vuelo con consultas acotadas
+    por fecha.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  5. NOTIFICACIONES
+  ═══════════════════════════════════════════════════════════════════════════
+  - In-app para todos los eventos, con campanita y contador de no leídas.
+  - Email solo para tres eventos críticos: plan publicado, sesión completada y
+    anuncios masivos de admin o director técnico. El email no es configurable por
+    el usuario; las plantillas HTML las edita el admin.
+  - Un envío fallido no bloquea la acción principal: se reintenta una vez, se
+    registra en auditoría y no se muestra el detalle al usuario.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  6. DATOS Y DECISIONES CERRADAS
+  ═══════════════════════════════════════════════════════════════════════════
+  - Tablas: `users`, `athlete_profiles`, `groups`, `group_members`,
+    `group_requests`, `teams`, `team_members`, `templates`, `session_assignments`,
+    `session_records`, `session_feedback`, `notifications`, `audit_logs`,
+    `settings`, `sessions` y `login_attempts`. Columnas, enums e índices en
+    `lib/db/schema.ts` y `docs/base-de-datos.md`.
+  - Roles en `users.role` son solo `admin`, `coach` y `athlete`: el Director Técnico
+    es una bandera `is_director` en `group_members`, no un rol nuevo.
+  - Soft delete de coaches con `is_active = false`. La eliminación definitiva solo
+    aplica a cuentas sin teams, planificaciones, plantillas ni membresías (el
+    servicio lo rechaza y sugiere desactivar).
+  - `settings` guarda la configuración global con valores por defecto:
+    `max_teams_per_coach` 10, `max_athletes_per_team` 50, `edit_window_hours` 48,
+    `alert_no_record_days` 7, `not_done_reasons` y `base_session_types`.
+  - Rate limit de login por IP en `login_attempts`; sesiones de Lucia en `sessions`.
+  - NO se re-litigan estas decisiones: soft delete de coaches, ventana de edición
+    configurable, team sin `group_id`, estructura de plantilla en JSON, métricas
+    calculadas al vuelo y Server Actions en vez de API pública. Cambiar cualquiera
+    exige un proposal que explique el costo y la migración.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  7. ARQUITECTURA DE LA APLICACIÓN
+  ═══════════════════════════════════════════════════════════════════════════
+  - Capas: `app/` (RSC) → `lib/actions/` (Server Actions: sesión, permiso, Zod,
+    servicio, auditoría, notificación) → `lib/services/` (lógica de negocio
+    testeable) → `lib/metrics/` (funciones puras, sin DB) → `lib/db/` (Drizzle).
+  - Las mutaciones usan Server Actions con `revalidatePath`; no hay API REST
+    pública. El cliente solo maneja estado local de UI (`useState`), sin estado
+    global ni polling.
+  - Las páginas que leen la sesión declaran `export const instant = false` para
+    renderizarse dinámicamente en el servidor.
+  - Los formularios validan con Zod en cliente y servidor con el mismo esquema de
+    `lib/validations/`; nunca se confía en el cliente.
+  - UI: `@tabler/core` con wrappers propios en `components/ui/`; Tailwind está
+    descartado. Iconos `@tabler/icons-react`. Nada de librerías de gráficas.
+  - Los exports (`@react-pdf/renderer`, `exceljs`) y Sentry se importan de forma
+    perezosa para no cargarlos en cada isolate.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  8. RUNTIME Y RESTRICCIONES DE CLOUDFLARE WORKERS
+  ═══════════════════════════════════════════════════════════════════════════
+  - Next.js debe quedarse en 16.3.x porque 16.4.0 rompe OpenNext y devuelve 500 en
+    todas las peticiones.
+  - Prohibido generar código en tiempo de ejecución (eval, new Function,
+    compiladores dinámicos): workerd responde «Code generation from strings
+    disallowed». Por eso `lib/db/index.ts` conecta con `disableEval: true`.
+  - Prohibido compartir I/O entre peticiones: una conexión creada en la petición A
+    no se puede usar en la B. El cliente de Drizzle se memoriza junto al contexto
+    de Cloudflare y los pools son por petición con `connectionLimit: 1`.
+  - `node:fs` existe pero es efímero: los archivos van a R2.
+  - Nada de `NEXT_PUBLIC_` para datos de servidor (Next los incrusta en el build).
+    `APP_URL` va sin prefijo; `NEXT_PUBLIC_SENTRY_DSN` es la única excepción.
+  - No hay cron dentro del Worker principal: el calentamiento es un Worker aparte
+    (`workers/calentamiento.mjs` + `wrangler.calentamiento.jsonc`) con Cron Trigger
+    cada 2 minutos. `proxy.ts` corre por el camino experimental de Node middleware.
+  - Workers Free da 10 ms de CPU por invocación y el login con base de datos ya
+    corta (alrededor de la mitad de los POST en frío, `outcome: exceededCpu`).
+    Cualquier diseño que toque autenticación, hashing, consultas en cadena o nuevos
+    middlewares debe explicar cómo cabe o qué se mueve de runtime.
+  - Hashing con PBKDF2-HMAC-SHA512 nativo (WebCrypto, 210 000 iteraciones). No
+    reintroducir bcryptjs para hashes nuevos; solo verifica hashes heredados y los
+    reescribe en el primer login correcto.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  9. CONVENCIONES QUE ROMPEN LOS VERIFICADORES SI SE IGNORAN
+  ═══════════════════════════════════════════════════════════════════════════
+  - Ninguna fecha ni número se formatea fuera de `lib/i18n/format.ts` (ni
+    `Intl.DateTimeFormat`, ni `toLocaleDateString`, ni `toLocaleString`), porque
+    `scripts/verify-i18n.ts` falla. Locale es-CL y zona America/Santiago viven en
+    `lib/i18n/config.ts`; los textos con unidades o plurales salen de
+    `messages/es-CL.json`.
+  - Ningún modal se escribe a mano: todos pasan por `components/ui/ModalShell.tsx`
+    (Escape, foco inicial, trampa de foco y devolución del foco).
+  - El color de un badge no sale de utilidades de Tabler porque llevan `!important`
+    y dan bajo contraste; para texto sobre fondo claro se usa la familia
+    `text-*-ink` de `app/globals.css`. El estado nunca se comunica solo con color:
+    cada estado del calendario tiene forma propia vía `[data-state=…]`.
+  - Ningún `<button>` lleva `aria-label` que reescriba su texto visible (rompe
+    WCAG 2.5.3); para añadir información se usa `<span className="visually-hidden">`.
+  - Cada campo con error se anuncia con `aria-invalid` y `aria-describedby`, y el
+    enlace de salto va dentro de `<main id="contenido">`.
+  - Un contenedor con scroll propio necesita `tabIndex={0}`, `role="region"` y nombre.
+  - Las gráficas son SVG propio (`components/metrics/chartGeometry.ts` y
+    `ChartFrame.tsx`), sin librería. Nada de texto dentro del SVG: los rótulos son
+    HTML posicionado con porcentajes.
+  - Ninguna consulta trae el histórico para filtrar en memoria: se acota por fechas
+    (`loadRowsInRange`, `loadLastActivity`).
+  - Toda pantalla nueva entra en la lista de `scripts/verify-accesibilidad.ts` (hoy
+    21 páginas con axe). Si no está en la lista, no está verificada.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  10. BASE DE DATOS Y GOTCHAS DE MIGRACIÓN
+  ═══════════════════════════════════════════════════════════════════════════
+  - Desarrollo con MariaDB 10.4 (XAMPP) y producción con MySQL 8.4.11 en Aiven más
+    Hyperdrive. Son motores distintos: el esquema se genera SIEMPRE con migraciones
+    de Drizzle (`npm run db:generate`), nunca importando un volcado entre motores.
+  - `drizzle-kit` no emite `NULL` en columnas `timestamp`: tras cada `generate`,
+    revisar el SQL y reescribir `timestamp,` como `timestamp NULL DEFAULT NULL`
+    antes de `migrate`, o MySQL y MariaDB fallan con ERROR 1067.
+  - Una migración que borre o reordene índices debe respetar las claves foráneas
+    (por ejemplo `notifications_user_read_idx` es el índice de la FK de
+    `notifications.user_id`).
+  - Hyperdrive cachea consultas sueltas: hay que comprobar la lectura tras
+    escritura antes de dar por buena una pantalla que muestra lo recién guardado.
+  - `npm run db:seed` es idempotente (admin, 5 ajustes y 5 plantillas oficiales);
+    `npm run db:seed:demo` crea el escenario de demostración y `db:seed:demo:clean`
+    lo borra. Nunca se ejecuta el seed de demo contra producción.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  11. SEGURIDAD Y PRIVACIDAD
+  ═══════════════════════════════════════════════════════════════════════════
+  - Sesión por cookie HttpOnly, Secure y SameSite; CSRF lo cubren las Server
+    Actions; las queries van parametrizadas por Drizzle.
+  - Los mensajes de login son genéricos («Email o contraseña incorrectos») y no
+    revelan si la cuenta existe; una cuenta desactivada responde con su propio
+    mensaje.
+  - Rate limiting de login por IP (5 intentos por ventana) e IP de auditoría desde
+    `cf-connecting-ip`.
+  - Sentry apaga cookies, cabeceras, cuerpos y datos de consultas, y los eventos
+    pasan por `lib/observability/scrub.ts`. Nada de PII en logs, mensajes de error
+    ni URLs.
+  - Los avatares viven en un bucket privado de R2, se sirven con URL firmada y se
+    guardan sin EXIF, redimensionados a 256×256 px (512 opcional).
+
+  ═══════════════════════════════════════════════════════════════════════════
+  12. GATES DE VERIFICACIÓN
+  ═══════════════════════════════════════════════════════════════════════════
+  - `npm run lint`, `npm run build`, `npm run test` (Vitest) y `npx playwright test`
+    (E2E contra el dev server o contra `BASE_URL`).
+  - Verificadores por área en `scripts/`: `verify-roles`, `verify-accesibilidad`,
+    `verify-i18n`, `verify-validations`, `verify-seguridad`, `verify-rendimiento`,
+    `verify-responsive`, `verify-settings`, `verify-exports`, `verify-audit-logs`,
+    `verify-dashboards`, `verify-empty-states`, `verify-profile`, `verify-login`,
+    `verify-health` y `verify-produccion` (este último apunta al Worker).
+  - En Windows `npm run preview` falla por `EPERM symlink`, una limitación conocida
+    de OpenNext; el comportamiento dentro de workerd se valida en producción o CI.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  13. DÓNDE ESTÁ CADA COSA
+  ═══════════════════════════════════════════════════════════════════════════
+  - `AGENTS.md` — restricciones técnicas y convenciones vivas del proyecto.
+  - `specs/mvp.md` — contrato funcional (qué debe hacer el producto).
+  - `plan/mvp.md` — plan técnico original; es histórico (ver punto 14).
+  - `tasks/mvp.md` — registro de las fases 1–50 ya ejecutadas; historial, no plan
+    vigente.
+  - `docs/roadmap.md` — pendientes del MVP (M1–M6), deuda técnica D1–D7, fases
+    51–59 y las cuentas para probar.
+  - `docs/pendientes.md` — revisión del 2026-10-19 (producción, CPU del login,
+    servicios externos).
+  - `docs/revision-mvp.md` — evidencia de las 20 funcionalidades y los 8 flujos.
+  - `docs/base-de-datos.md`, `docs/setup-servicios.md`, `docs/despliegue.md`,
+    `docs/calentamiento.md`, `docs/configurar-sentry.md` — operación e
+    infraestructura.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  14. DOCUMENTOS HISTÓRICOS Y CONTRADICCIONES RESUELTAS
+  ═══════════════════════════════════════════════════════════════════════════
+  `plan/mvp.md` sigue siendo útil para el modelo de datos, las capas y el orden de
+  implementación, pero varias decisiones ya se reemplazaron. Cuando choque con
+  `AGENTS.md`, con el código o con este contexto, manda el código:
+  - Cloudflare Pages y `@cloudflare/next-on-pages` → Cloudflare Workers con
+    `@opennextjs/cloudflare`.
+  - PlanetScale → Aiven MySQL 8.4 con Hyperdrive.
+  - Next.js 14+ → Next.js 16.3.x (no subir a 16.4).
+  - Recharts → SVG propio (`chartGeometry.ts` y `ChartFrame.tsx`).
+  - bcrypt o argon2 → PBKDF2-HMAC-SHA512 nativo.
+  - `@tabler/icons-react` ya está; el JavaScript de Tabler no se usa para modales,
+    dropdowns ni tabs, que se manejan con estado de React.
+  - `alert_no_record_days` es 7, no 3.
+  No cites `plan/mvp.md` como fuente de verdad de una decisión técnica sin
+  comprobarla en el código.
+
+  ═══════════════════════════════════════════════════════════════════════════
+  15. DATOS DE PRUEBA
+  ═══════════════════════════════════════════════════════════════════════════
+  - Las cuentas de demostración están documentadas en `docs/roadmap.md` sección 4.
+  - La base local debe quedar sin usuarios ni teams de prueba sueltos: si una tarea
+    crea datos, la misma tarea los borra al terminar, como hacen los `verify-*`.
+  - Un cambio que agregue datos base (tipos, motivos, plantillas oficiales o
+    ajustes nuevos) incluye su actualización en `db/seed.ts` para que `db:seed`
+    siga siendo idempotente y reproducible.
+
+# Reglas por artefacto (se suman a las que ya trae el esquema spec-driven).
+rules:
+  proposal:
+    - "Escribe el proposal completo en español (es-CL), incluidos los títulos."
+    - "Declara siempre qué queda FUERA del alcance y por qué. Si la funcionalidad no está entre las 20 del MVP (`specs/mvp.md` sección 11) ni en las fases 51–59 de `docs/roadmap.md`, dilo explícitamente."
+    - "Indica la fase del roadmap a la que pertenece el cambio (MVP, 51–59 o deuda técnica D1–D7) y si desbloquea o depende de otra fase."
+    - "Cuando el cambio toque una regla de negocio, cita el número de la regla en `specs/mvp.md` sección 8 y el criterio de aceptación de la sección 10 que se modifican."
+    - "Si el cambio contradice una de las decisiones cerradas del contexto (soft delete, ventana configurable, team sin grupo, plantilla en JSON, métricas al vuelo, Server Actions), justifícalo y describe la migración."
+    - "Declara el costo de la propuesta (gratis, mínimo o requiere plan o servicio pago), porque el dueño descartó Workers Paid."
+    - "Nombra las capacidades existentes en `openspec/specs/` que se modifican, usando su ruta exacta, y no inventes capacidades casi duplicadas."
+    - "Si el cambio toca autenticación, migraciones, R2, Resend, Hyperdrive o el runtime de Workers, dilo en la sección Impact y enlaza la sección de `AGENTS.md` o el documento de `docs/` que corresponda."
+    - "No incluyas secretos, credenciales ni URLs de producción con tokens."
+
+  specs:
+    - "Escribe specs y escenarios en español. Usa DEBE o DEBERÁ (equivalente a SHALL/MUST) y evita «podría» o «quizás» para requisitos normativos."
+    - "Usa la terminología del dominio tal cual: Grupo, Team, Plantilla, Asignación, Registro, Feedback, y los estados Planificada, En curso, Completada, Parcial y No realizada. No inventes sinónimos."
+    - "Cada requisito declara el rol o roles afectados (admin, director técnico, coach, atleta) y qué ocurre con los demás roles, respetando la jerarquía del contexto."
+    - "Reutiliza las reglas de negocio de `specs/mvp.md` sección 8 en vez de reescribirlas, y cubre los casos límite de la sección 9 como escenarios de error cuando apliquen."
+    - "Todo requisito que muestre fechas, horas o números exige el formato es-CL y la zona America/Santiago, sin nombrar `lib/i18n/format.ts`, porque eso es implementación."
+    - "Incluye al menos un escenario de error o de permiso denegado por requisito, no solo el camino feliz."
+    - "Todo requisito con interfaz incluye un escenario de accesibilidad (navegación con teclado, foco visible y estado no comunicado solo por color)."
+    - "Todo requisito que modifique datos incluye el escenario de auditoría cuando la acción sea crítica (usuarios, grupos, asignaciones, exportes)."
+    - "Mantén la descripción de cada requisito en 500 caracteres o menos, con un comportamiento por requisito y los casos borde en escenarios."
+    - "No menciones frameworks, librerías, nombres de tablas ni de funciones, porque la spec describe comportamiento observable."
+    - "No escribas la sección Purpose en deltas de capacidades existentes; sí en capacidades nuevas, con una o dos frases."
+
+  design:
+    - "Escribe el design en español y enlaza `proposal.md` en vez de repetir el porqué."
+    - "Toda decisión que agregue dependencias justifica por qué no rompe Workers, es decir sin eval ni new Function, con I/O por petición y con el presupuesto de CPU declarado."
+    - "Si el cambio toca el login o cualquier ruta con hashing, incluye una sección con la medición de CPU esperada y cómo se comprobará con `npx wrangler tail runosorno --format json`."
+    - "Ubica cada pieza en su capa: Server Action en `lib/actions/`, lógica en `lib/services/`, cálculo puro en `lib/metrics/` y esquema Zod en `lib/validations/`. Un cálculo dentro de un componente es un error de diseño."
+    - "Reutiliza los componentes existentes (`ModalShell`, `ChartFrame`, `Avatar`, tablas y formularios de `components/ui/`); si hace falta uno nuevo, justifícalo y describe su accesibilidad."
+    - "Describe el plan de migración cuando haya cambios de esquema: migración Drizzle generada, corrección de `timestamp` sin `NULL`, respeto de claves foráneas e índices, orden de despliegue y rollback."
+    - "Explica cómo se verifica el cambio (qué script de `scripts/` lo cubre o cuál se crea) y qué se agrega a `scripts/verify-accesibilidad.ts` si hay pantallas nuevas."
+    - "Declara el impacto en privacidad y seguridad (PII, Sentry, cookies, URLs firmadas y mensajes de error genéricos)."
+    - "Incluye los riesgos con su mitigación en formato «riesgo → mitigación» y deja en Open Questions solo dudas que no cambien specs, enfoque ni tareas."
+
+  tasks:
+    - "Escribe las tareas en español, agrupadas por fase funcional y ordenadas por dependencia."
+    - "Cada tarea termina con su verificación concreta (comando, prueba, archivo o comportamiento observable); nada de «probar que funciona»."
+    - "Reparte pruebas y documentación en el grupo que las debe, no en un grupo final de tests."
+    - "La primera tarea de todo cambio verifica el estado de partida (rama limpia, migraciones al día y `npm run test` en verde)."
+    - "Si hay cambio de esquema, la tarea incluye `npm run db:generate`, la revisión del SQL generado y el arreglo de los `timestamp` sin `NULL`, sin importar volcados entre MariaDB y MySQL."
+    - "Si hay datos base nuevos, la tarea incluye actualizar `db/seed.ts` y comprobar que `npm run db:seed` sigue siendo idempotente."
+    - "Si hay pantallas nuevas o modificadas, incluye la tarea de añadirlas a `scripts/verify-accesibilidad.ts` y de pasar `verify-i18n` cuando se muestren fechas o números."
+    - "Si se toca autenticación, rendimiento o el runtime, incluye la verificación en producción con `verify-produccion` o `wrangler tail`."
+    - "Si la tarea crea datos de prueba en la base local, añade la tarea de borrarlos y de comprobar que no quedan huérfanos."
+    - "Si el cambio altera el alcance, añade la tarea de actualizar `specs/mvp.md` (secciones 8, 10 u 11 según corresponda); si altera una restricción técnica, actualiza `AGENTS.md`."
+    - "Cierra con un grupo de integración solo para comprobaciones cruzadas (lint, build, unitarias y E2E), nunca para las pruebas que un grupo anterior debía."
+
+# Guía por operación (apply y archive). Es orientativa, no sustituye a las reglas.
+operations:
+  apply:
+    guidance:
+      - "Trabaja en español y deja cada tarea marcada en el mismo paso en que la terminas."
+      - "Antes de escribir código, relee la regla de negocio que estás tocando en `specs/mvp.md` sección 8 y el criterio de aceptación de la sección 10."
+      - "Ejecuta el verificador del área que tocaste (`verify-roles`, `verify-i18n`, `verify-accesibilidad`, `verify-validations`, `verify-seguridad`, etc.) en vez de confiar solo en las unitarias."
+      - "Si tocaste fechas o números corre `npx tsx scripts/verify-i18n.ts`; si tocaste una pantalla corre `npx tsx scripts/verify-accesibilidad.ts`."
+      - "No modifiques la base de producción ni ejecutes `db:seed:demo` fuera de local. Para comprobar producción usa `verify-produccion` o `wrangler tail`."
+      - "Si el cambio agrega dependencias, revisa que no usen eval ni new Function y vuelve a medir el bundle con `npx tsx scripts/verify-rendimiento.ts`."
+      - "Mantén el estilo del código vecino (Tabler más los wrappers de `components/ui/`, servicios en `lib/services/` y validaciones Zod compartidas)."
+      - "No copies decisiones técnicas de `plan/mvp.md` sin comprobarlas en el código: ese documento es histórico y contradice el stack actual en varios puntos."
+      - "Actualiza la documentación afectada en el mismo cambio: `docs/roadmap.md` cuando cierres un pendiente, `AGENTS.md` cuando cambie una restricción del runtime, `specs/mvp.md` cuando cambie una regla de negocio y `README.md` cuando cambien scripts o credenciales."
+      - "Detente y pregunta si aparece una decisión de producto, un cambio de alcance o un costo nuevo; no la resuelvas por tu cuenta."
+
+  archive:
+    guidance:
+      - "Antes de archivar, confirma que `openspec validate --strict` pasa sin errores y que todas las tareas están marcadas."
+      - "Resume el resultado en español: qué cambió, migraciones aplicadas, verificadores ejecutados con su resultado y qué queda pendiente."
+      - "Sincroniza las specs principales y revisa que las capacidades nuevas tengan un Purpose real, sin el marcador TBD."
+      - "Comprueba que `specs/mvp.md` quedó coherente con el cambio (reglas de negocio, criterios de aceptación y alcance) y que `AGENTS.md` refleja cualquier restricción nueva."
+      - "Deja la base local limpia de datos de prueba y confirma que no quedan registros huérfanos."
+      - "Recuerda que producción se despliega con CI (`deploy.yml`) y que la entrega del MVP sigue las tareas M1–M6 de `docs/roadmap.md`."
+      - "Si el cambio cerró una deuda o un pendiente, muévelo a Hecho en `docs/roadmap.md` en vez de borrar información."

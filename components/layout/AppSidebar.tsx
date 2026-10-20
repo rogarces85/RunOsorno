@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import type { Role } from "@/lib/auth/role";
+import { Logo } from "./Logo";
 import { useNav } from "./NavProvider";
 import { navForRole, type NavItem } from "./nav";
 
@@ -52,6 +53,13 @@ export function AppSidebar({
         aria-label="Menú de navegación"
       >
         <div className="container-fluid">
+          {/* Marca en el sidebar solo desde `lg`: en móvil ya está en el header y
+              repetirla dentro del panel off-canvas consume el alto útil del menú. */}
+          <div className="app-sidebar-brand d-none d-lg-flex">
+            <Link href="/" className="app-brand" prefetch={false} onClick={close}>
+              <Logo />
+            </Link>
+          </div>
           <div className={`collapse navbar-collapse${open ? " show" : ""}`}>
             {sections.map((section) => (
               <ul key={section.key} className="navbar-nav pt-lg-3">

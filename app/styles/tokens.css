@@ -1,0 +1,184 @@
+/*
+ * Tokens del sistema visual RunOsorno Training.
+ *
+ * Paleta oficial:
+ *   - Azul profundo  #101827 (confianza)  → texto en claro y lienzo en oscuro.
+ *   - Azul tecnológico #1675DF (energía)  → color de marca.
+ *   - Blanco         #FFFFFF (claridad)   → lienzo del modo claro.
+ *
+ * El azul de marca no se usa como texto ni como fondo de botón: sobre blanco da
+ * 4,21:1 y no llega al mínimo de 4,5:1. Para acciones hay una variante de la misma
+ * familia, `--app-accent` (#0F63C4 en claro, #4E9BF0 en oscuro), que sí cumple.
+ * `verify-tokens.ts` comprueba ambos usos.
+ *
+ * Este archivo es la única fuente de verdad del color, la tipografía, el espaciado,
+ * los radios, las sombras y el movimiento. Ningún componente escribe un hex suelto.
+ *
+ * `color-scheme` se declara en el tema (no se hereda del sistema operativo): el tema
+ * lo decide `data-bs-theme`, que es lo que Tabler y este archivo entienden.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ---- Superficies y texto ---- */
+  --app-canvas: #ffffff;
+  --app-surface: #ffffff;
+  --app-surface-2: #f3f6fb;
+  --app-surface-3: #e8eef7;
+  --app-border: #e3e9f2;
+  /* Borde de controles: 3:1 sobre blanco (WCAG 1.4.11). */
+  --app-border-strong: #7c8da9;
+  --app-ink: #101827;
+  --app-ink-2: #3c4a61;
+  --app-ink-3: #5b6b85;
+
+  /* ---- Marca y acciones ---- */
+  --app-brand: #1675df;
+  --app-accent: #0f63c4;
+  --app-accent-hover: #0b52a5;
+  --app-accent-soft: #e7f0fb;
+  --app-accent-on: #ffffff;
+
+  /* ---- Semánticos ---- */
+  --app-success: #1c762a;
+  --app-warning: #925d00;
+  --app-danger: #ba3030;
+  --app-danger-on: #ffffff;
+  --app-info: #2d6ca1;
+  --app-purple: #9b36b4;
+  --app-success-soft: #eaf7ec;
+  --app-warning-soft: #fef5e6;
+  --app-danger-soft: #fbebeb;
+  --app-info-soft: #ecf5fc;
+
+  /* ---- Tipografía ---- */
+  --app-font-sans:
+    var(--font-archivo), system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", sans-serif;
+
+  --app-text-caption: 0.75rem; /* 12 px */
+  --app-text-sm: 0.8125rem; /* 13 px */
+  --app-text-body: 0.875rem; /* 14 px */
+  --app-text-lead: 1rem; /* 16 px */
+  --app-text-h3: 1.125rem; /* 18 px */
+  --app-text-h2: 1.375rem; /* 22 px */
+  --app-text-h1: 1.5rem; /* 24 px */
+  --app-text-display: 2rem; /* 32 px */
+  --app-text-metric: 2.25rem; /* 36 px */
+
+  --app-leading-tight: 1.2;
+  --app-leading-snug: 1.3;
+  --app-leading-body: 1.55;
+  --app-tracking-tight: -0.02em;
+  --app-tracking-label: 0.04em;
+
+  /* ---- Espaciado (base 4 px) ---- */
+  --app-space-1: 0.25rem;
+  --app-space-2: 0.5rem;
+  --app-space-3: 0.75rem;
+  --app-space-4: 1rem;
+  --app-space-5: 1.25rem;
+  --app-space-6: 1.5rem;
+  --app-space-8: 2rem;
+  --app-space-10: 2.5rem;
+  --app-space-12: 3rem;
+  --app-space-16: 4rem;
+
+  /* ---- Radios ---- */
+  --app-radius-chip: 6px;
+  --app-radius-control: 8px;
+  --app-radius-card: 12px;
+  --app-radius-modal: 16px;
+  --app-radius-full: 999px;
+
+  /* ---- Sombras (siempre acompañadas de borde de 1 px) ---- */
+  --app-shadow-1: 0 1px 2px rgba(16, 24, 39, 0.06);
+  --app-shadow-2: 0 2px 8px rgba(16, 24, 39, 0.08);
+  --app-shadow-3: 0 8px 24px rgba(16, 24, 39, 0.12);
+
+  /* ---- Series de gráfica (3:1 contra lienzo y superficie) ---- */
+  --app-chart-1: #1675df;
+  --app-chart-2: #0e7c86;
+  --app-chart-3: #6b7f3a;
+  --app-chart-4: #8b5e83;
+  --app-chart-5: #8f6c00;
+
+  /* ---- Movimiento ---- */
+  --app-dur-fast: 120ms;
+  --app-dur-base: 180ms;
+  --app-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* ---- Medidas de shell ---- */
+  --app-header-height: 56px;
+  --app-sidebar-width: 264px;
+
+  /* ---- Mapa a Tabler ----
+   * Se sobreescriben variables de tema, no utilidades: Tabler deriva de ellas los
+   * tintes (`--tblr-primary-lt` = color-mix al 10 %), así que cambiar el acento
+   * arrastra badges, botones y enlaces sin tocar una sola clase.
+   */
+  --tblr-primary: var(--app-accent);
+  --tblr-primary-fg: var(--app-accent-on);
+  /* El gris de fábrica de Tabler (#737373) queda en 4,42:1 sobre lienzo blanco,
+     justo por debajo del mínimo. Se reemplaza por el texto secundario del sistema. */
+  --tblr-secondary: var(--app-ink-2);
+  --tblr-nav-link-color: var(--app-ink-2);
+  --tblr-nav-link-hover-color: var(--app-ink);
+  --tblr-body-bg: var(--app-canvas);
+  --tblr-body-color: var(--app-ink);
+  --tblr-border-color: var(--app-border);
+  --tblr-border-radius: var(--app-radius-control);
+  --tblr-box-shadow: var(--app-shadow-1);
+  --tblr-font-sans-serif: var(--app-font-sans);
+  --tblr-sidebar-width: var(--app-sidebar-width);
+  --tblr-heading-color: var(--app-ink);
+  --tblr-secondary-color: var(--app-ink-2);
+  --tblr-link-color: var(--app-accent);
+  --tblr-link-hover-color: var(--app-accent-hover);
+}
+
+[data-bs-theme="dark"] {
+  color-scheme: dark;
+
+  --app-canvas: #101827;
+  --app-surface: #151f33;
+  --app-surface-2: #1b2740;
+  --app-surface-3: #223050;
+  --app-border: #283554;
+  --app-border-strong: #6e7f9e;
+  --app-ink: #edf2f9;
+  --app-ink-2: #afbbd0;
+  --app-ink-3: #8695b0;
+
+  /* En oscuro el acento se aclara: #1675DF sobre #101827 da 3,9:1 y no sirve
+     como texto; #4E9BF0 llega a 6,2:1 y mantiene la misma familia. */
+  --app-brand: #1675df;
+  --app-accent: #4e9bf0;
+  --app-accent-hover: #6fb0f5;
+  --app-accent-soft: #14294a;
+  --app-accent-on: #101827;
+
+  --app-success: #6ec27a;
+  --app-warning: #e0b25c;
+  --app-danger: #f08c8c;
+  --app-danger-on: #1a0c0c;
+  --app-info: #82b6e0;
+  --app-purple: #c9a6f0;
+
+  /* En oscuro el tinte se logra subiendo de superficie, no con sombra densa. */
+  --app-success-soft: #16241a;
+  --app-warning-soft: #2a2113;
+  --app-danger-soft: #2a1717;
+  --app-info-soft: #16232c;
+
+  --app-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --app-shadow-2: 0 2px 8px rgba(0, 0, 0, 0.45);
+  --app-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.55);
+
+  --app-chart-1: #7aa7ff;
+  --app-chart-2: #5fd3cb;
+  --app-chart-3: #a8bf6f;
+  --app-chart-4: #c9a6f0;
+  --app-chart-5: #e0c06b;
+}
