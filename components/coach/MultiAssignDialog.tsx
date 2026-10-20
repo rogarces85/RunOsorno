@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { bulkAssignAction } from "@/lib/actions/plan.actions";
 import type { TemplateOption } from "./AssignTemplateForm";
@@ -150,23 +151,17 @@ export function MultiAssignDialog({
         )}
       </div>
       <div className="modal-footer">
-        <button
-          type="button"
-          className="btn btn-link link-secondary"
-          onClick={onClose}
-          disabled={busy}
-        >
+        <Button variant="ghost" onClick={onClose} disabled={busy}>
           Cancelar
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
+        </Button>
+        <Button
           onClick={submit}
           disabled={busy}
-          data-testid="ma-submit"
+          loading={busy}
+          testId="ma-submit"
         >
           {busy ? "Asignando…" : "Asignar a seleccionados"}
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );

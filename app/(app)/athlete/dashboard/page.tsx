@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { AthleteWeekSummary } from "@/components/dashboard/AthleteWeekSummary";
 import { StatsCards } from "@/components/dashboard/StatsCards";
-import { SESSION_STATUS_META, type SessionStatus } from "@/lib/config/constants";
+import { Alert } from "@/components/ui/Alert";
+import { Badge, badgeToneFromColor } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { buttonClassName } from "@/components/ui/Button";
+import {
+  SESSION_STATUS_META,
+  type SessionStatus,
+} from "@/lib/config/constants";
 import { requireRole } from "@/lib/auth/guards";
 import { parseISO, todayISO, weekStartOfISO } from "@/lib/metrics/utils";
 import { getMonthPlan, getWeekPlan } from "@/lib/services/plan.service";
@@ -10,7 +18,12 @@ import { formatDateChile } from "@/lib/utils/date";
 
 export const instant = false;
 
-function monthRange(today: string): { year: number; month: number; from: string; to: string } {
+function monthRange(today: string): {
+  year: number;
+  month: number;
+  from: string;
+  to: string;
+} {
   const [year, month] = today.split("-").map(Number);
   const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const pad = (value: number) => String(value).padStart(2, "0");
@@ -33,7 +46,8 @@ export default async function AthleteDashboardPage() {
     getAthleteMetrics(user.id, { kind: "custom", from, to }),
   ]);
 
-  const todaySession = monthItems.find((item) => item.sessionDate === today) ?? null;
+  const todaySession =
+    monthItems.find((item) => item.sessionDate === today) ?? null;
   const metrics = metricsResult.ok ? metricsResult.data : null;
 
   const todayMeta = todaySession
@@ -43,70 +57,78 @@ export default async function AthleteDashboardPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h1 className="page-title mb-3">Hola, {user.name.split(" ")[0]}</h1>
+        <PageHeader
+          title={`Hola, ${user.name.split(" ")[0]}`}
+          description="Tu sesión de hoy y el resumen de la semana."
+        />
 
         {!metricsResult.ok ? (
-          <div className="alert alert-danger" role="alert">
-            {metricsResult.error}
-          </div>
+          <Alert variant="danger">{metricsResult.error}</Alert>
         ) : null}
 
         <div className="row">
           <div className="col-lg-6 mb-3">
-            <div className="card h-100">
-              <div className="card-header">
-                <h2 className="card-title">Tu sesión de hoy</h2>
-                {todayMeta ? (
-                  <span
-                    className={`badge bg-${todayMeta.color}-lt text-${todayMeta.color}-ink ms-auto`}
-                  >
+            <Card
+              title="Tu sesión de hoy"
+              className="h-100"
+              actions={
+                todayMeta ? (
+                  <Badge tone={badgeToneFromColor(todayMeta.color)}>
                     {todayMeta.label}
-                  </span>
-                ) : null}
-              </div>
-              <div className="card-body">
-                {todaySession ? (
-                  <>
-                    <div className="h2 mb-1">
-                      {todaySession.template?.name ?? "Sesión"}
-                    </div>
+                  </Badge>
+                ) : null
+              }
+            >
+              {todaySession ? (
+                <>
+                  <div className="h2 mb-1">
+                    {todaySession.template?.name ?? "Sesión"}
+                  </div>
+                  <div className="text-secondary mb-3">
+                    {formatDateChile(parseISO(today))}
+                    {todaySession.template?.sessionType
+                      ? ` · ${todaySession.template.sessionType}`
+                      : ""}
+                  </div>
+                  {todaySession.record ? (
                     <div className="text-secondary mb-3">
-                      {formatDateChile(parseISO(today))}
-                      {todaySession.template?.sessionType
-                        ? ` · ${todaySession.template.sessionType}`
+                      {todaySession.record.distanceKm
+                        ? `${todaySession.record.distanceKm} km · `
                         : ""}
+                      {todaySession.record.durationMinutes
+                        ? `${todaySession.record.durationMinutes} min · `
+                        : ""}
+                      {todaySession.record.rpe
+                        ? `RPE ${todaySession.record.rpe}`
+                        : "Sin RPE"}
                     </div>
-                    {todaySession.record ? (
-                      <div className="text-secondary mb-3">
-                        {todaySession.record.distanceKm
-                          ? `${todaySession.record.distanceKm} km · `
-                          : ""}
-                        {todaySession.record.durationMinutes
-                          ? `${todaySession.record.durationMinutes} min · `
-                          : ""}
-                        {todaySession.record.rpe
-                          ? `RPE ${todaySession.record.rpe}`
-                          : "Sin RPE"}
-                      </div>
-                    ) : null}
-                    <Link href="/athlete/calendar" className="btn btn-primary btn-sm">
-                      {todaySession.record
-                        ? "Ver detalle"
-                        : "Registrar la sesión"}
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-secondary mb-3">
-                      Hoy no tienes sesión planificada. ¡Día de descanso!
-                    </div>
-                    <Link href="/athlete/calendar" className="btn btn-outline-secondary btn-sm">
-                      Ver calendario
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
+                  ) : null}
+                  <Link
+                    href="/athlete/calendar"
+                    className={buttonClassName({ size: "sm" })}
+                  >
+                    {todaySession.record
+                      ? "Ver detalle"
+                      : "Registrar la sesión"}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <div className="text-secondary mb-3">
+                    Hoy no tienes sesión planificada. ¡Día de descanso!
+                  </div>
+                  <Link
+                    href="/athlete/calendar"
+                    className={buttonClassName({
+                      variant: "secondary",
+                      size: "sm",
+                    })}
+                  >
+                    Ver calendario
+                  </Link>
+                </>
+              )}
+            </Card>
           </div>
           <div className="col-lg-6 mb-3">
             <AthleteWeekSummary items={weekItems} today={today} />
@@ -144,13 +166,16 @@ export default async function AthleteDashboardPage() {
         />
 
         {metrics && metrics.totals.sessions === 0 ? (
-          <div className="alert alert-secondary" role="alert">
+          <Alert variant="secondary">
             Aún no tienes sesiones este mes. Tu coach publicará tu plan pronto.
-          </div>
+          </Alert>
         ) : null}
 
         <div className="mt-2">
-          <Link href="/athlete/metrics" className="btn btn-outline-secondary btn-sm">
+          <Link
+            href="/athlete/metrics"
+            className={buttonClassName({ variant: "secondary", size: "sm" })}
+          >
             Ver mis métricas completas
           </Link>
         </div>

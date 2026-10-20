@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { IconCopy } from "@tabler/icons-react";
+import { Button } from "@/components/ui/Button";
 import { CloneDialog } from "./CloneDialog";
 
 export function CloneButton({
@@ -15,14 +16,10 @@ export function CloneButton({
 
   return (
     <>
-      <button
-        type="button"
-        className={`btn btn-${variant}`}
-        onClick={() => setOpen(true)}
-      >
+      <Button variant={variant} onClick={() => setOpen(true)}>
         <IconCopy size={18} stroke={1.75} className="me-1" />
         Clonar plantilla
-      </button>
+      </Button>
       {open && (
         <CloneDialog template={template} onClose={() => setOpen(false)} />
       )}

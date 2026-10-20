@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { assignSessionAction } from "@/lib/actions/plan.actions";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 
 export type TemplateOption = {
   id: string;
@@ -57,7 +59,9 @@ export function AssignTemplateForm({
 
   return (
     <div className="mt-3 pt-3 border-top" data-testid="assign-form">
-      <h6 className="mb-2">{occupied ? "Reemplazar sesión" : "Asignar plantilla"}</h6>
+      <h6 className="mb-2">
+        {occupied ? "Reemplazar sesión" : "Asignar plantilla"}
+      </h6>
       {templates.length === 0 ? (
         <p className="mb-0 text-secondary small">
           No tienes plantillas disponibles.
@@ -81,38 +85,42 @@ export function AssignTemplateForm({
           </select>
           {error && <div className="text-danger small mt-1">{error}</div>}
           {confirming ? (
-            <div className="alert alert-warning py-2 mt-2 mb-0" data-testid="assign-confirm">
+            <Alert
+              variant="warning"
+              className="py-2 mt-2 mb-0"
+              testId="assign-confirm"
+            >
               <div className="small mb-2">
                 Ya hay una sesión ese día. ¿Reemplazar la plantilla existente?
               </div>
               <div className="btn-list">
-                <button
-                  type="button"
-                  className="btn btn-sm btn-danger"
-                  disabled={pending}
+                <Button
+                  variant="danger"
+                  size="sm"
+                  loading={pending}
                   onClick={() => submit(true)}
                 >
                   {pending ? "Reemplazando…" : "Reemplazar"}
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-secondary"
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   disabled={pending}
                   onClick={() => setConfirming(false)}
                 >
                   Cancelar
-                </button>
+                </Button>
               </div>
-            </div>
+            </Alert>
           ) : (
-            <button
-              type="button"
-              className="btn btn-sm btn-primary mt-2"
-              disabled={pending}
+            <Button
+              size="sm"
+              className="mt-2"
+              loading={pending}
               onClick={() => submit(false)}
             >
               {pending ? "Asignando…" : "Asignar"}
-            </button>
+            </Button>
           )}
         </>
       )}

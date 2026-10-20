@@ -1,4 +1,5 @@
 import { TeamsList } from "@/components/coach/TeamsList";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { getTeamsByCoach } from "@/lib/services/team.service";
 
@@ -16,7 +17,10 @@ export default async function CoachTeamsPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h1 className="page-title">Mis teams</h1>
+        <PageHeader
+          title="Mis teams"
+          description="Cada team reúne a tus atletas y se planifica por separado."
+        />
         <TeamsList teams={teams} defaultNameHint={lastName(user.name)} />
       </div>
     </div>

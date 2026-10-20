@@ -502,23 +502,25 @@ async function main() {
         wrapperScrollW: wrapper.scrollWidth,
         overflowX: getComputedStyle(wrapper).overflowX,
         tableW: Math.round(table.getBoundingClientRect().width),
+        stacked: table.classList.contains("app-table-stack"),
       };
     })()`)) as {
       wrapperW: number;
       wrapperScrollW: number;
       overflowX: string;
       tableW: number;
+      stacked: boolean;
     } | null;
     const overflow = await horizontalOverflow(page);
 
     record(
       tableInfo !== null &&
         ["auto", "scroll"].includes(tableInfo.overflowX) &&
-        tableInfo.tableW > tableInfo.wrapperW &&
+        (tableInfo.tableW > tableInfo.wrapperW || tableInfo.stacked) &&
         overflow <= 1,
-      "39.4 la tabla de coaches hace scroll propio en mobile",
+      "39.4 la tabla de coaches cabe en mobile con scroll propio o patrón tarjeta",
       tableInfo
-        ? `contenedor ${tableInfo.wrapperW}px, tabla ${tableInfo.tableW}px, overflow-x=${tableInfo.overflowX}, página=${overflow}px`
+        ? `contenedor ${tableInfo.wrapperW}px, tabla ${tableInfo.tableW}px, apilada=${tableInfo.stacked}, overflow-x=${tableInfo.overflowX}, página=${overflow}px`
         : "no se encontró .table-responsive",
     );
     await ctx.close();

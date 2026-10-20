@@ -72,14 +72,18 @@ npx openspec list                        # cambios en vuelo y su progreso
 npx openspec status --change "ui-atletico-editorial"
 ```
 
-- **`ui-atletico-editorial`** — sistema visual: quedan **15 tareas** (adoptar
-  `PageHeader` y las primitivas `Button`, `Field`, `Card`, `Table` y `Badge` en las
-  pantallas, la revisión de densidad a 375 px y el cierre de producción).
+- **`ui-atletico-editorial`** — **48/49**. La adopción de `PageHeader`, `Button`,
+  `Field`, `Card`, `Table` y `Badge` está cerrada; queda solo la **9.5**, que
+  necesita el despliegue por CI y la medición de `cpuTime` con `wrangler tail`.
 - **`landing-publica`** — **completo** (25/25). Se puede archivar con `/opsx-archive`
   cuando se revise.
 
-Para continuar, en el editor se usa el comando `/opsx-apply ui-atletico-editorial` (o
-`/opsx-apply` a secas para el único cambio pendiente).
+Para continuar, en el editor se usa el comando `/opsx-apply ui-atletico-editorial`.
+La única tarea abierta es la 9.5 (verificación en producción tras el despliegue).
+
+Los verificadores que abren páginas resuelven los ids del escenario DEMO en la
+base de datos: los UUID cambian en cada `db:seed:demo`, así que no están
+clavados en los scripts.
 
 ## Marca
 

@@ -1,5 +1,6 @@
 import { formatPercent } from "@/lib/i18n/format";
-import { complianceBadgeClass } from "./chartColors";
+import { Badge, complianceTone } from "@/components/ui/Badge";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type AthleteComplianceChartProps = {
   athletes: { name: string; compliance: number }[];
@@ -23,9 +24,11 @@ export function AthleteComplianceChart({
 }: AthleteComplianceChartProps) {
   if (athletes.length === 0) {
     return (
-      <div className="text-secondary text-center py-4">
-        Sin atletas con plan en el periodo.
-      </div>
+      <EmptyState
+        title="Sin atletas con plan"
+        description="No hay atletas con plan en el periodo seleccionado."
+        compact
+      />
     );
   }
   return (
@@ -42,15 +45,14 @@ export function AthleteComplianceChart({
           >
             <span
               className="metric-bars-fill"
-              style={{ width: `${Math.min(100, Math.max(0, athlete.compliance))}%` }}
+              style={{
+                width: `${Math.min(100, Math.max(0, athlete.compliance))}%`,
+              }}
             />
           </span>
-          <span
-            className={`badge ${complianceBadgeClass(athlete.compliance)}`}
-            data-testid="athlete-compliance-value"
-          >
+          <Badge tone={complianceTone(athlete.compliance)}>
             {formatPercent(athlete.compliance)}
-          </span>
+          </Badge>
         </li>
       ))}
     </ul>

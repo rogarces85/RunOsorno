@@ -1,10 +1,8 @@
 import Link from "next/link";
 import { EditableListForm } from "@/components/settings/EditableListForm";
-import {
-  EmailForm,
-  LimitsForm,
-} from "@/components/settings/SettingsForms";
+import { EmailForm, LimitsForm } from "@/components/settings/SettingsForms";
 import { MaintenanceCard } from "@/components/settings/MaintenanceCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { getAllSettings } from "@/lib/services/settings.service";
 import { SettingsTabs } from "@/components/settings/SettingsTabs";
@@ -28,12 +26,10 @@ export default async function AdminSettingsPage() {
           </Link>
         </div>
 
-        <h1 className="page-title mb-1">Configuración</h1>
-        <p className="text-secondary">
-          Estos valores se aplican a toda la plataforma: límites de equipos y
-          atletas, ventana de edición, motivos y tipos de sesión, y el
-          remitente de los correos.
-        </p>
+        <PageHeader
+          title="Configuración"
+          description="Estos valores se aplican a toda la plataforma: límites de equipos y atletas, ventana de edición, motivos y tipos de sesión, y el remitente de los correos."
+        />
 
         <SettingsTabs
           limits={<LimitsForm initial={limits} />}

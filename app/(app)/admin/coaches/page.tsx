@@ -1,5 +1,6 @@
 import { CoachesList } from "@/components/admin/CoachesList";
 import { ExportButton } from "@/components/export/ExportButton";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { getCoaches } from "@/lib/services/user.service";
 
@@ -12,14 +13,17 @@ export default async function AdminCoachesPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h1 className="page-title mb-0">Coaches</h1>
-          <ExportButton
-            target={{ kind: "global", entity: "coaches", formats: ["csv"] }}
-            label="Exportar CSV"
-            size="sm"
-          />
-        </div>
+        <PageHeader
+          title="Coaches"
+          description="Altas, estado y acceso de los entrenadores de la plataforma."
+          actions={
+            <ExportButton
+              target={{ kind: "global", entity: "coaches", formats: ["csv"] }}
+              label="Exportar CSV"
+              size="sm"
+            />
+          }
+        />
         <CoachesList coaches={coaches} />
       </div>
     </div>

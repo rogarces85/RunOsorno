@@ -8,6 +8,7 @@ import { toISODate } from "@/lib/utils/date";
 import { formatSessionType } from "@/lib/utils/format";
 import { CalendarDay } from "./CalendarDay";
 import { DroppableDay } from "./DroppableDay";
+import { Button } from "@/components/ui/Button";
 import { resolveDayState } from "./dayState";
 
 // Las abreviaturas de día vienen de `Intl` (Fase 46): "lun", "mar", "mié"...
@@ -113,24 +114,26 @@ export function MonthCalendar({
           {title.charAt(0).toUpperCase() + title.slice(1)}
         </h2>
         <div className="btn-list">
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost-secondary"
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
             aria-label="Mes anterior"
             title="Mes anterior"
             onClick={goPrev}
           >
             <IconChevronLeft size={18} stroke={1.75} />
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost-secondary"
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
             aria-label="Mes siguiente"
             title="Mes siguiente"
             onClick={goNext}
           >
             <IconChevronRight size={18} stroke={1.75} />
-          </button>
+          </Button>
         </div>
       </div>
       <div className="card-body">
@@ -158,7 +161,9 @@ export function MonthCalendar({
                 isSelected={dateISO === (selectedDate ?? null)}
                 state={state}
                 sessionLabel={
-                  item?.template ? formatSessionType(item.template.sessionType) : undefined
+                  item?.template
+                    ? formatSessionType(item.template.sessionType)
+                    : undefined
                 }
                 compliance={compliance?.[dateISO]}
                 onSelect={handleDayClick}
@@ -171,7 +176,11 @@ export function MonthCalendar({
                 </DroppableDay>
               );
             }
-            return <div key={cell} className="calendar-cell">{day}</div>;
+            return (
+              <div key={cell} className="calendar-cell">
+                {day}
+              </div>
+            );
           })}
         </div>
       </div>

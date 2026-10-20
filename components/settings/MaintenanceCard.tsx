@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { IconTrash } from "@tabler/icons-react";
 import { cleanupOrphanAvatarsAction } from "@/lib/actions/avatar.actions";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 
 /**
  * Mantenimiento del admin: borra del bucket los avatares que ya no pertenecen a
@@ -11,9 +13,10 @@ import { cleanupOrphanAvatarsAction } from "@/lib/actions/avatar.actions";
  */
 export function MaintenanceCard() {
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ found: number; deleted: number } | null>(
-    null,
-  );
+  const [result, setResult] = useState<{
+    found: number;
+    deleted: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   async function run() {
@@ -40,26 +43,21 @@ export function MaintenanceCard() {
           usuario, por ejemplo las de cuentas eliminadas. No toca las fotos en
           uso.
         </p>
-        <button
-          type="button"
-          className="btn btn-outline-danger"
-          onClick={() => void run()}
-          disabled={busy}
-        >
+        <Button variant="danger" onClick={() => void run()} loading={busy}>
           <IconTrash size={18} stroke={1.75} className="me-1" />
           {busy ? "Revisando…" : "Limpiar avatares huérfanos"}
-        </button>
+        </Button>
 
         {result ? (
-          <div className="alert alert-success mt-3 mb-0" role="status">
+          <Alert variant="success" className="mt-3 mb-0" role="status">
             Revisados: se encontraron {result.found} y se eliminaron{" "}
             {result.deleted}.
-          </div>
+          </Alert>
         ) : null}
         {error ? (
-          <div className="alert alert-danger mt-3 mb-0" role="alert">
+          <Alert variant="danger" className="mt-3 mb-0">
             {error}
-          </div>
+          </Alert>
         ) : null}
       </div>
     </div>

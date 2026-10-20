@@ -13,6 +13,8 @@ import {
   updateBaseSessionTypesAction,
   updateNotDoneReasonsAction,
 } from "@/lib/actions/settings.actions";
+import { Table } from "@/components/ui/Table";
+import { Button } from "@/components/ui/Button";
 
 type Item = { id: string; label: string };
 
@@ -49,8 +51,7 @@ export function EditableListForm({ kind, initial }: Props) {
   const [notice, setNotice] = useState<Notice>(null);
   const [isPending, startTransition] = useTransition();
 
-  const singular =
-    kind === "reasons" ? "el motivo" : "el tipo de sesión";
+  const singular = kind === "reasons" ? "el motivo" : "el tipo de sesión";
   const idLabel = kind === "reasons" ? "Identificador" : "ID";
 
   function addItem() {
@@ -102,7 +103,9 @@ export function EditableListForm({ kind, initial }: Props) {
       });
       return;
     }
-    setItems(items.map((item, i) => (i === editingIndex ? { id, label } : item)));
+    setItems(
+      items.map((item, i) => (i === editingIndex ? { id, label } : item)),
+    );
     setEditingIndex(null);
     setDraft({ id: "", label: "" });
     setNotice(null);
@@ -156,154 +159,162 @@ export function EditableListForm({ kind, initial }: Props) {
         </div>
       )}
 
-      <div className="table-responsive">
-        <table className="table table-vcenter card-table">
-          <thead>
-            <tr>
-              <th style={{ width: "35%" }}>Etiqueta visible</th>
-              <th>Identificador</th>
-              <th style={{ width: "20%" }} className="text-end">
-                Acciones
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item, index) => (
-              <tr key={`${item.id}-${index}`}>
-                <td>
-                  {editingIndex === index ? (
-                    <input
-                      type="text"
-                      className="form-control form-control-sm"
-                      value={draft.label}
-                      aria-label={`Etiqueta de ${item.id}`}
-                      onChange={(e) =>
-                        setDraft({ ...draft, label: e.target.value })
-                      }
-                    />
-                  ) : (
-                    item.label
-                  )}
-                </td>
-                <td>
-                  {editingIndex === index ? (
-                    <input
-                      type="text"
-                      className="form-control form-control-sm"
-                      value={draft.id}
-                      aria-label={`${idLabel} del elemento`}
-                      onChange={(e) =>
-                        setDraft({ ...draft, id: e.target.value })
-                      }
-                    />
-                  ) : (
-                    <code>{item.id}</code>
-                  )}
-                </td>
-                <td className="text-end">
-                  {editingIndex === index ? (
-                    <div className="btn-group">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-primary"
-                        aria-label="Guardar cambios"
-                        onClick={saveEdit}
-                      >
-                        <IconCheck size={16} stroke={1.75} />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm"
-                        aria-label="Cancelar edición"
-                        onClick={() => {
-                          setEditingIndex(null);
-                          setDraft({ id: "", label: "" });
-                        }}
-                      >
-                        <IconX size={16} stroke={1.75} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="btn-group">
-                      <button
-                        type="button"
-                        className="btn btn-sm"
-                        aria-label={`Editar ${item.label}`}
-                        onClick={() => startEdit(index)}
-                      >
-                        <IconPencil size={16} stroke={1.75} />
-                      </button>
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-danger"
-                        aria-label={`Eliminar ${item.label}`}
-                        disabled={items.length <= 1}
-                        onClick={() => removeItem(index)}
-                      >
-                        <IconTrash size={16} stroke={1.75} />
-                      </button>
-                    </div>
-                  )}
-                </td>
-              </tr>
-            ))}
-
-            {adding && (
-              <tr>
-                <td>
+      <Table
+        label={
+          kind === "reasons"
+            ? "Motivos de sesión no realizada"
+            : "Tipos de sesión"
+        }
+        stackOnMobile
+      >
+        <thead>
+          <tr>
+            <th style={{ width: "35%" }}>Etiqueta visible</th>
+            <th>Identificador</th>
+            <th style={{ width: "20%" }} className="text-end">
+              Acciones
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item, index) => (
+            <tr key={`${item.id}-${index}`}>
+              <td data-label="Etiqueta visible">
+                {editingIndex === index ? (
                   <input
                     type="text"
                     className="form-control form-control-sm"
-                    placeholder="Ej: Baja médica"
-                    aria-label="Nueva etiqueta"
                     value={draft.label}
-                    onChange={(e) => setDraft({ ...draft, label: e.target.value })}
+                    aria-label={`Etiqueta de ${item.id}`}
+                    onChange={(e) =>
+                      setDraft({ ...draft, label: e.target.value })
+                    }
                   />
-                </td>
-                <td>
+                ) : (
+                  item.label
+                )}
+              </td>
+              <td data-label="Identificador">
+                {editingIndex === index ? (
                   <input
                     type="text"
                     className="form-control form-control-sm"
-                    placeholder={toId(draft.label) || "baja_medica"}
-                    aria-label="Nuevo identificador"
                     value={draft.id}
+                    aria-label={`${idLabel} del elemento`}
                     onChange={(e) => setDraft({ ...draft, id: e.target.value })}
                   />
-                </td>
-                <td className="text-end">
+                ) : (
+                  <code>{item.id}</code>
+                )}
+              </td>
+              <td className="text-end" data-label="Acciones">
+                {editingIndex === index ? (
                   <div className="btn-group">
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-primary"
-                      aria-label="Agregar elemento"
-                      onClick={addItem}
+                    <Button
+                      size="sm"
+                      iconOnly
+                      aria-label="Guardar cambios"
+                      onClick={saveEdit}
                     >
                       <IconCheck size={16} stroke={1.75} />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm"
-                      aria-label="Cancelar"
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      iconOnly
+                      aria-label="Cancelar edición"
                       onClick={() => {
-                        setAdding(false);
+                        setEditingIndex(null);
                         setDraft({ id: "", label: "" });
                       }}
                     >
                       <IconX size={16} stroke={1.75} />
-                    </button>
+                    </Button>
                   </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+                ) : (
+                  <div className="btn-group">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      iconOnly
+                      aria-label={`Editar ${item.label}`}
+                      onClick={() => startEdit(index)}
+                    >
+                      <IconPencil size={16} stroke={1.75} />
+                    </Button>
+                    <Button
+                      variant="danger-ghost"
+                      size="sm"
+                      iconOnly
+                      aria-label={`Eliminar ${item.label}`}
+                      disabled={items.length <= 1}
+                      onClick={() => removeItem(index)}
+                    >
+                      <IconTrash size={16} stroke={1.75} />
+                    </Button>
+                  </div>
+                )}
+              </td>
+            </tr>
+          ))}
+
+          {adding && (
+            <tr>
+              <td data-label="Etiqueta visible">
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder="Ej: Baja médica"
+                  aria-label="Nueva etiqueta"
+                  value={draft.label}
+                  onChange={(e) =>
+                    setDraft({ ...draft, label: e.target.value })
+                  }
+                />
+              </td>
+              <td data-label="Identificador">
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  placeholder={toId(draft.label) || "baja_medica"}
+                  aria-label="Nuevo identificador"
+                  value={draft.id}
+                  onChange={(e) => setDraft({ ...draft, id: e.target.value })}
+                />
+              </td>
+              <td className="text-end" data-label="Acciones">
+                <div className="btn-group">
+                  <Button
+                    size="sm"
+                    iconOnly
+                    aria-label="Agregar elemento"
+                    onClick={addItem}
+                  >
+                    <IconCheck size={16} stroke={1.75} />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    iconOnly
+                    aria-label="Cancelar"
+                    onClick={() => {
+                      setAdding(false);
+                      setDraft({ id: "", label: "" });
+                    }}
+                  >
+                    <IconX size={16} stroke={1.75} />
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </Table>
 
       <div className="d-flex gap-2">
         {!adding && (
-          <button
-            type="button"
-            className="btn btn-outline-primary"
+          <Button
+            variant="secondary"
             onClick={() => {
               setAdding(true);
               setEditingIndex(null);
@@ -312,17 +323,12 @@ export function EditableListForm({ kind, initial }: Props) {
           >
             <IconPlus size={16} stroke={1.75} className="me-1" />
             Agregar
-          </button>
+          </Button>
         )}
-        <button
-          type="button"
-          className="btn btn-primary"
-          disabled={isPending}
-          onClick={onSave}
-        >
+        <Button loading={isPending} onClick={onSave}>
           <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
           {isPending ? "Guardando…" : "Guardar lista"}
-        </button>
+        </Button>
       </div>
 
       <p className="form-hint mt-2">

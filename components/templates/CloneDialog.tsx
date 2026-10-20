@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { cloneTemplateAction } from "@/lib/actions/template.actions";
 
@@ -61,11 +63,7 @@ export function CloneDialog({
           />
         </div>
         <div className="modal-body">
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
+          {error && <Alert variant="danger">{error}</Alert>}
           <label className="form-label" htmlFor="clone-name">
             Nombre de la copia
           </label>
@@ -83,17 +81,12 @@ export function CloneDialog({
           </div>
         </div>
         <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-link link-secondary"
-            onClick={onClose}
-            disabled={busy}
-          >
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
-          <button type="submit" className="btn btn-primary" disabled={busy}>
+          </Button>
+          <Button type="submit" loading={busy}>
             {busy ? "Clonando…" : "Clonar"}
-          </button>
+          </Button>
         </div>
       </form>
     </ModalShell>

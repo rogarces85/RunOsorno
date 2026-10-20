@@ -15,6 +15,8 @@ import {
 import { MonthCalendar } from "@/components/calendar/MonthCalendar";
 import { SessionDetailPanel } from "@/components/calendar/SessionDetailPanel";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 import {
   assignSessionAction,
   copyPreviousWeekAction,
@@ -22,10 +24,7 @@ import {
 import type { FeedbackMessage } from "@/lib/services/feedback.service";
 import type { PlanItem } from "@/lib/services/plan.service";
 import { formatDateChile, getWeekStart, toISODate } from "@/lib/utils/date";
-import {
-  AssignTemplateForm,
-  type TemplateOption,
-} from "./AssignTemplateForm";
+import { AssignTemplateForm, type TemplateOption } from "./AssignTemplateForm";
 import { MultiAssignDialog } from "./MultiAssignDialog";
 import { TemplateSidebar } from "./TemplateSidebar";
 import { WeekGenerator } from "./WeekGenerator";
@@ -144,10 +143,7 @@ export function CoachCalendar({
       <div className="row g-3">
         <div className="col-12 col-lg-3">
           <TemplateSidebar templates={templates} />
-          <div
-            className="card d-lg-none"
-            data-testid="template-sidebar-hint"
-          >
+          <div className="card d-lg-none" data-testid="template-sidebar-hint">
             <div className="card-body text-secondary small">
               En pantallas pequeñas no se puede arrastrar: toca un día del
               calendario y elige la plantilla en el panel que se abre.
@@ -156,35 +152,31 @@ export function CoachCalendar({
         </div>
         <div className="col-12 col-lg-9">
           <div className="calendar-toolbar">
-            <button
-              type="button"
-              className="btn btn-primary"
-              data-testid="btn-generate-week"
+            <Button
+              testId="btn-generate-week"
               onClick={() => setTool("generate")}
             >
               Generar semana
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              data-testid="btn-copy-week"
+            </Button>
+            <Button
+              variant="secondary"
+              testId="btn-copy-week"
               onClick={() => setConfirmCopy(true)}
             >
               Copiar semana anterior
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline-primary"
-              data-testid="btn-multi-assign"
+            </Button>
+            <Button
+              variant="secondary"
+              testId="btn-multi-assign"
               onClick={() => setTool("multi")}
             >
               Multi-asignar
-            </button>
+            </Button>
           </div>
           {error && (
-            <div className="alert alert-danger" role="alert" data-testid="coach-error">
+            <Alert variant="danger" testId="coach-error">
               {error}
-            </div>
+            </Alert>
           )}
           <MonthCalendar
             items={items}

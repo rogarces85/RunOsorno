@@ -30,35 +30,35 @@
 - [x] 4.1 Crear `components/layout/BrandMark.tsx` (wordmark y mark, tamaños y área de resguardo de `design.md` §9) y `app/icon.svg` derivado del mark; verificar que sidebar, header y login muestran la marca y que `/icon.svg` responde 200.
 - [x] 4.2 Rediseñar `AppSidebar` (264 px, secciones rotuladas, ítem activo con barra de acento, hover) sin tocar `nav.ts` ni los permisos; verificar navegación completa con cada rol y que el off-canvas bajo 992 px sigue cerrando con `Escape` (`npx tsx scripts/verify-responsive.ts`).
 - [x] 4.3 Rediseñar `AppHeader` (56 px, sticky, marca, campanita, avatar y salir) conservando el contador de no leídas y los nombres accesibles; verificar que el contador coincide con `/notifications` y que el foco recorre los controles en orden visual.
-- [ ] 4.4 Crear `components/ui/PageHeader.tsx` y adoptarlo en las 21 pantallas de la lista de axe, retirando los títulos y contenedores duplicados; verificar que cada página tiene un solo `h1` con su nombre y `npx tsx scripts/verify-accesibilidad.ts` sin violaciones.
+- [x] 4.4 Crear `components/ui/PageHeader.tsx` y adoptarlo en las 21 pantallas de la lista de axe, retirando los títulos y contenedores duplicados; verificar que cada página tiene un solo `h1` con su nombre y `npx tsx scripts/verify-accesibilidad.ts` sin violaciones.
 - [x] 4.5 Rediseñar la entrada: `app/(auth)/layout.tsx` y `app/(auth)/login/page.tsx` con marca, claim y tarjeta de 420 px, sin imagen; verificar el login de los tres roles y que el error genérico sigue apareciendo igual.
 - [x] 4.6 Verificar el shell completo: `npx tsx scripts/verify-accesibilidad.ts`, `npx tsx scripts/verify-responsive.ts` y navegación manual por las 10 rutas de admin y coach sin errores de consola.
 - [x] 4.7 Aplicar la paleta oficial (#101827 / #1675DF / #FFFFFF), generar los derivados de marca con `scripts/generar-marca.mjs` y sustituir la marca provisional por `Logo` en sidebar, header, login e iconos; verificar `verify-tokens` (63/63), axe (23x2) y que `/icon.png` responde 200.
 
 ## 5. Primitivas (fase C)
 
-- [ ] 5.1 Crear `Button` con variantes, tamaños, estados y `loading` según `design.md` §8, sustituyendo los `btn` sueltos en las pantallas ya migradas; verificar con teclado los estados hover, focus, disabled en `/admin/coaches`.
-- [ ] 5.2 Crear `Field` para input, select, textarea, checkbox, radio y switch, con label, ayuda, error anunciado (`aria-invalid` + `aria-describedby`) y anillo de foco; verificar en `/admin/settings` y en el formulario de plantilla que un error se anuncia al lector y no depende del color.
-- [ ] 5.3 Crear `Card` (con cabecera, acciones y variante interactiva) y adoptarlo en dashboards y paneles; verificar que los dashboards de los tres roles mantienen sus datos y que no aparecen sombras fuera de la variante interactiva.
-- [ ] 5.4 Crear `Table` con cabecera en versalitas, cifras a la derecha, hover y variante `stack` en móvil, conservando `tabIndex={0}`, `role="region"` y nombre accesible; verificar con teclado en `/admin/logs` (desplazamiento) y a 375 px en `/admin/coaches`.
-- [ ] 5.5 Crear `Badge` con punto y familia `text-*-ink`, variante neutra incluida; verificar cada estado del calendario y del listado de coaches a escala de grises.
-- [ ] 5.6 Ajustar visualmente `Alert`, `EmptyState`, `ConfirmDialog` y `ModalShell` sin alterar su contrato; verificar `Escape`, foco inicial, trampa de foco y devolución del foco en el modal de detalle de sesión y en un `ConfirmDialog`.
+- [x] 5.1 Crear `Button` con variantes, tamaños, estados y `loading` según `design.md` §8, sustituyendo los `btn` sueltos en las pantallas ya migradas; verificar con teclado los estados hover, focus, disabled en `/admin/coaches`.
+- [x] 5.2 Crear `Field` para input, select, textarea, checkbox, radio y switch, con label, ayuda, error anunciado (`aria-invalid` + `aria-describedby`) y anillo de foco; verificar en `/admin/settings` y en el formulario de plantilla que un error se anuncia al lector y no depende del color.
+- [x] 5.3 Crear `Card` (con cabecera, acciones y variante interactiva) y adoptarlo en dashboards y paneles; verificar que los dashboards de los tres roles mantienen sus datos y que no aparecen sombras fuera de la variante interactiva.
+- [x] 5.4 Crear `Table` con cabecera en versalitas, cifras a la derecha, hover y variante `stack` en móvil, conservando `tabIndex={0}`, `role="region"` y nombre accesible; verificar con teclado en `/admin/logs` (desplazamiento) y a 375 px en `/admin/coaches`.
+- [x] 5.5 Crear `Badge` con punto y familia `text-*-ink`, variante neutra incluida; verificar cada estado del calendario y del listado de coaches a escala de grises.
+- [x] 5.6 Ajustar visualmente `Alert`, `EmptyState`, `ConfirmDialog` y `ModalShell` sin alterar su contrato; verificar `Escape`, foco inicial, trampa de foco y devolución del foco en el modal de detalle de sesión y en un `ConfirmDialog`.
 - [x] 5.7 Documentar el contrato de cada primitiva en su archivo (props, estados y reglas de accesibilidad) para que las fases 51–59 no las reinventen; verificar que cada componente nuevo tiene su docblock en español.
 
 ## 6. Adopción en pantallas
 
-- [ ] 6.1 Migrar las tablas existentes (coaches, grupos, atletas, logs, teams, plantillas, notificaciones) a `Table`; verificar que ninguna pierde columnas, filtros ni paginación y que axe sigue en verde.
-- [ ] 6.2 Migrar los formularios de alta y edición a `Field` (coach, grupo, team, atleta, plantilla, configuración, perfil); verificar en cada uno que los errores de validación se muestran y se anuncian igual que antes.
-- [ ] 6.3 Migrar tarjetas de métricas, resúmenes y paneles a `Card` con `.app-numeric` en las cifras; verificar en `/coach/metrics`, `/athlete/metrics` y `/coach/dashboard` que los valores coinciden con los de antes del cambio.
-- [ ] 6.4 Sustituir badges y avisos sueltos por `Badge` y `Alert`; verificar los cinco estados de sesión, las alertas de team y los avisos de error en ambos temas.
+- [x] 6.1 Migrar las tablas existentes (coaches, grupos, atletas, logs, teams, plantillas, notificaciones) a `Table`; verificar que ninguna pierde columnas, filtros ni paginación y que axe sigue en verde.
+- [x] 6.2 Migrar los formularios de alta y edición a `Field` (coach, grupo, team, atleta, plantilla, configuración, perfil); verificar en cada uno que los errores de validación se muestran y se anuncian igual que antes.
+- [x] 6.3 Migrar tarjetas de métricas, resúmenes y paneles a `Card` con `.app-numeric` en las cifras; verificar en `/coach/metrics`, `/athlete/metrics` y `/coach/dashboard` que los valores coinciden con los de antes del cambio.
+- [x] 6.4 Sustituir badges y avisos sueltos por `Badge` y `Alert`; verificar los cinco estados de sesión, las alertas de team y los avisos de error en ambos temas.
 - [x] 6.5 Revisar el calendario sin reescribir su marcado: confirmar que hereda tokens y que las formas de `[data-state]`, el drag & drop y los badges siguen funcionando; verificar arrastrando una plantilla a un día y comprobando el estado visual.
-- [ ] 6.6 Revisar en móvil (375 px) las pantallas migradas y ajustar densidad de tablas, cabeceras y acciones; verificar que ningún control accionable queda por debajo de 44×44 px.
+- [x] 6.6 Revisar en móvil (375 px) las pantallas migradas y ajustar densidad de tablas, cabeceras y acciones; verificar que ningún control accionable queda por debajo de 44×44 px.
 
 ## 7. Datos y gráficas
 
 - [x] 7.1 Convertir `components/metrics/chartColors.ts` en una función que resuelva la paleta desde los tokens del tema, con juegos claro y oscuro, y ajustar los componentes que lo consumen; verificar en `/athlete/metrics` y `/coach/metrics` que las gráficas se ven correctamente en ambos temas.
 - [x] 7.2 Agregar `tests/unit/chart-colors.test.ts` que compruebe que ambos juegos existen, que ninguna serie se repite y que cada serie conserva contraste suficiente contra su fondo; verificar con `npm run test`.
-- [ ] 7.3 Revisar que cada serie se distinga además por etiqueta o leyenda y que un periodo sin datos muestre el estado vacío; verificar en `/athlete/metrics` con un rango sin registros.
+- [x] 7.3 Revisar que cada serie se distinga además por etiqueta o leyenda y que un periodo sin datos muestre el estado vacío; verificar en `/athlete/metrics` con un rango sin registros.
 
 ## 8. Verificación y documentación
 
@@ -73,5 +73,5 @@
 - [x] 9.1 Ejecutar `npm run lint` y `npm run build`; verificar 0 errores y que el aviso de `<img>` en `Avatar` sigue siendo el único.
 - [x] 9.2 Ejecutar `npm run test` y `npx playwright test` completos; verificar que ninguna aserción funcional tuvo que cambiar.
 - [x] 9.3 Ejecutar `npx tsx scripts/verify-i18n.ts`, `verify-empty-states.ts`, `verify-rendimiento.ts` y `verify-responsive.ts`; verificar que siguen en verde sin tocar sus listas salvo la incorporación de `/login`.
-- [ ] 9.4 Comparar las capturas finales con las de referencia del punto 1.3 y revisar las seis pantallas en ambos temas a 1400 y 375 px; dejar la conclusión en `notas-implementacion.md`.
+- [x] 9.4 Comparar las capturas finales con las de referencia del punto 1.3 y revisar las seis pantallas en ambos temas a 1400 y 375 px; dejar la conclusión en `notas-implementacion.md`.
 - [ ] 9.5 Verificar en producción tras el despliegue por CI: `npx tsx scripts/verify-produccion.ts` y `npx wrangler tail runosorno --format json` sobre un login, comprobando que el `cpuTime` del POST no cambia respecto de la línea base anotada en 1.2.

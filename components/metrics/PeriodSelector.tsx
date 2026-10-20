@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { MetricsPeriod } from "@/lib/validations/metric.schemas";
+import { Button } from "@/components/ui/Button";
 
 type PeriodSelectorProps = {
   basePath: string;
@@ -77,9 +78,9 @@ export function PeriodSelector({
           aria-label="Hasta"
           required
         />
-        <button type="submit" className="btn btn-sm btn-outline-secondary">
+        <Button type="submit" variant="secondary" size="sm">
           Ir
-        </button>
+        </Button>
       </form>
     </div>
   );

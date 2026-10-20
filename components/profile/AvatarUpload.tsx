@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconPhoto, IconTrash } from "@tabler/icons-react";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 import {
   confirmAvatarAction,
   deleteAvatarAction,
@@ -141,37 +143,35 @@ export function AvatarUpload({ avatarKey }: AvatarUploadProps) {
             }
           }}
         />
-        <button
-          type="button"
-          className="btn btn-primary"
+        <Button
           disabled={busy}
+          loading={busy}
           onClick={() => inputRef.current?.click()}
         >
           <IconPhoto size={18} stroke={1.75} className="me-1" />
           {busy ? "Procesando..." : "Subir foto"}
-        </button>
-        <button
-          type="button"
-          className="btn btn-outline-danger"
+        </Button>
+        <Button
+          variant="danger"
           disabled={busy || !hasAvatar}
           onClick={() => void handleDelete()}
         >
           <IconTrash size={18} stroke={1.75} className="me-1" />
           Eliminar foto
-        </button>
+        </Button>
       </div>
       <div className="text-secondary small mt-2">
         JPG, PNG o WebP · máximo 2 MB · se recorta a 256×256 px
       </div>
       {error ? (
-        <div className="alert alert-danger mt-2 mb-0" role="alert">
+        <Alert variant="danger" className="mt-2 mb-0">
           {error}
-        </div>
+        </Alert>
       ) : null}
       {notice ? (
-        <div className="alert alert-success mt-2 mb-0" role="status">
+        <Alert variant="success" className="mt-2 mb-0" role="status">
           {notice}
-        </div>
+        </Alert>
       ) : null}
     </div>
   );

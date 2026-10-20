@@ -1,5 +1,6 @@
 import type { FeedbackMessage } from "@/lib/services/feedback.service";
 import { formatDateChile } from "@/lib/utils/date";
+import { Badge } from "@/components/ui/Badge";
 
 const ROLE_LABEL: Record<string, string> = {
   admin: "Admin",
@@ -33,9 +34,9 @@ export function FeedbackThread({ messages }: { messages: FeedbackMessage[] }) {
           <li key={msg.id} className="mb-2">
             <div className="d-flex align-items-baseline gap-2">
               <span className="fw-medium">{msg.authorName}</span>
-              <span className="badge bg-secondary-lt text-secondary-ink">
+              <Badge tone="neutral" dot={false}>
                 {ROLE_LABEL[msg.authorRole] ?? msg.authorRole}
-              </span>
+              </Badge>
               <span className="text-secondary small">
                 {formatDateChile(new Date(msg.createdAt))}
               </span>

@@ -11,6 +11,8 @@ import {
 } from "@/lib/validations/group.schemas";
 import { applyServerErrors } from "@/lib/utils/form";
 import { Alert } from "@/components/ui/Alert";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 
 export type AnnouncementNotice = {
   type: "success" | "danger";
@@ -173,14 +175,10 @@ export function AnnouncementForm({
                 </div>
               </div>
 
-              <button
-                type="submit"
-                className="btn btn-primary"
-                disabled={isSubmitting}
-              >
+              <Button type="submit" loading={isSubmitting}>
                 <IconSend size={18} stroke={1.75} className="me-1" />
                 {isSubmitting ? "Enviando…" : "Enviar anuncio"}
-              </button>
+              </Button>
             </form>
           </div>
         </div>
@@ -199,7 +197,9 @@ export function AnnouncementForm({
               <div className="card bg-azure-lt">
                 <div className="card-body">
                   <div className="d-flex align-items-center gap-2 mb-2">
-                    <span className="badge bg-azure text-white">Anuncio</span>
+                    <Badge tone="info" dot={false}>
+                      Anuncio
+                    </Badge>
                     <span className="text-secondary small">{senderName}</span>
                   </div>
                   <div className="fw-bold mb-1">{title}</div>

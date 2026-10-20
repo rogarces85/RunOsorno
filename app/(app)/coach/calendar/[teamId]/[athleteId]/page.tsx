@@ -10,6 +10,8 @@ import {
 import { getTeamAthletes } from "@/lib/services/team.service";
 import { getTemplatesByCoach } from "@/lib/services/template.service";
 import { CoachCalendar } from "@/components/coach/CoachCalendar";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { buttonClassName } from "@/components/ui/Button";
 
 export const instant = false;
 
@@ -59,19 +61,19 @@ export default async function CoachAthleteCalendarPage({
 
   return (
     <div className="row">
-      <div className="col-12 mb-3">
-        <div className="d-flex align-items-center gap-2 mb-1">
+      <div className="col-12">
+        <div className="mb-3">
           <Link
             href={`/coach/calendar?team=${teamId}`}
-            className="btn btn-sm btn-ghost-secondary"
+            className={buttonClassName({ variant: "ghost", size: "sm" })}
           >
             ← Atletas
           </Link>
-          <h1 className="page-title mb-0">Calendario — {athlete.name}</h1>
         </div>
-        <div className="text-secondary">
-          Plan de entrenamiento · click en un día para ver detalle o asignar plantilla
-        </div>
+        <PageHeader
+          title={`Calendario — ${athlete.name}`}
+          description="Plan de entrenamiento · click en un día para ver detalle o asignar plantilla"
+        />
       </div>
       <div className="col-12">
         <CoachCalendar

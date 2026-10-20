@@ -14,6 +14,8 @@ import {
 import { formatDistance, formatDuration, formatRpe } from "@/lib/utils/format";
 import { Alert } from "@/components/ui/Alert";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Table } from "@/components/ui/Table";
+import { Button } from "@/components/ui/Button";
 import type {
   AssignableAthlete,
   TeamAthleteItem,
@@ -120,15 +122,14 @@ export function TeamAthletesManager({
                 </select>
               </div>
               <div className="col-auto">
-                <button
-                  type="button"
-                  className="btn btn-primary"
+                <Button
                   disabled={!selected || busy}
+                  loading={busy}
                   onClick={assign}
                 >
                   <IconUserPlus size={16} stroke={1.75} className="me-1" />
                   Asignar
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -149,51 +150,55 @@ export function TeamAthletesManager({
             />
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="table table-vcenter card-table">
-              <thead>
-                <tr>
-                  <th>Atleta</th>
-                  <th>Última sesión</th>
-                  <th>Cumplimiento</th>
-                  <th className="text-end">Acciones</th>
+          <Table label="Atletas del team" stackOnMobile>
+            <thead>
+              <tr>
+                <th>Atleta</th>
+                <th>Última sesión</th>
+                <th className="text-end">Cumplimiento</th>
+                <th className="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {athletes.map((athlete) => (
+                <tr key={athlete.athleteId}>
+                  <td data-label="Atleta">
+                    <div className="fw-medium">{athlete.name}</div>
+                    <div className="text-secondary small">{athlete.email}</div>
+                  </td>
+                  <td
+                    className="text-secondary small"
+                    data-label="Última sesión"
+                  >
+                    {athlete.lastRecord
+                      ? `${formatDistance(athlete.lastRecord.distanceKm)} · ${formatDuration(athlete.lastRecord.durationMinutes)} · RPE ${formatRpe(athlete.lastRecord.rpe)}`
+                      : "Sin registros"}
+                  </td>
+                  <td
+                    className="text-end app-numeric"
+                    data-label="Cumplimiento"
+                  >
+                    {athlete.totalSessions > 0
+                      ? `${Math.round((athlete.completedSessions / athlete.totalSessions) * 100)}% (${athlete.completedSessions}/${athlete.totalSessions})`
+                      : "—"}
+                  </td>
+                  <td className="text-end" data-label="Acciones">
+                    <Button
+                      variant="danger-ghost"
+                      size="sm"
+                      iconOnly
+                      aria-label={`Quitar a ${athlete.name} del team`}
+                      title="Quitar del team"
+                      disabled={busy}
+                      onClick={() => remove(athlete.athleteId)}
+                    >
+                      <IconUserMinus size={16} stroke={1.75} />
+                    </Button>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {athletes.map((athlete) => (
-                  <tr key={athlete.athleteId}>
-                    <td>
-                      <div className="fw-medium">{athlete.name}</div>
-                      <div className="text-secondary small">
-                        {athlete.email}
-                      </div>
-                    </td>
-                    <td className="text-secondary small">
-                      {athlete.lastRecord
-                        ? `${formatDistance(athlete.lastRecord.distanceKm)} · ${formatDuration(athlete.lastRecord.durationMinutes)} · RPE ${formatRpe(athlete.lastRecord.rpe)}`
-                        : "Sin registros"}
-                    </td>
-                    <td>
-                      {athlete.totalSessions > 0
-                        ? `${Math.round((athlete.completedSessions / athlete.totalSessions) * 100)}% (${athlete.completedSessions}/${athlete.totalSessions})`
-                        : "—"}
-                    </td>
-                    <td className="text-end">
-                      <button
-                        type="button"
-                        className="btn btn-sm btn-ghost-danger"
-                        title="Quitar del team"
-                        disabled={busy}
-                        onClick={() => remove(athlete.athleteId)}
-                      >
-                        <IconUserMinus size={16} stroke={1.75} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </Table>
         )}
       </div>
     </>

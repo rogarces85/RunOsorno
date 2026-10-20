@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { IconFilter, IconSearch, IconX } from "@tabler/icons-react";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   actions: string[];
@@ -61,14 +62,15 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
             <IconFilter size={18} stroke={1.75} className="me-1" />
             Filtros
           </h2>
-          <button
-            type="button"
-            className="btn btn-sm ms-auto"
+          <Button
+            variant="secondary"
+            size="sm"
+            className="ms-auto"
             aria-expanded={open}
             onClick={() => setOpen((value) => !value)}
           >
             {open ? "Ocultar" : "Mostrar"}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -173,19 +175,18 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
             </div>
 
             <div className="col-md-4 d-flex align-items-end gap-2">
-              <button type="submit" className="btn btn-primary">
+              <Button type="submit">
                 <IconSearch size={16} stroke={1.75} className="me-1" />
                 Aplicar
-              </button>
+              </Button>
               {hasFilters && (
-                <button
-                  type="button"
-                  className="btn"
+                <Button
+                  variant="ghost"
                   onClick={() => router.push("/admin/logs")}
                 >
                   <IconX size={16} stroke={1.75} className="me-1" />
                   Limpiar
-                </button>
+                </Button>
               )}
             </div>
           </div>

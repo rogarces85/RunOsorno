@@ -2,6 +2,10 @@ import Link from "next/link";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { GroupMetricsPanel } from "@/components/metrics/GroupMetricsPanel";
 import { PeriodSelector } from "@/components/metrics/PeriodSelector";
+import { Alert } from "@/components/ui/Alert";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { buttonClassName } from "@/components/ui/Button";
 import { requireRole } from "@/lib/auth/guards";
 import { isDirector } from "@/lib/permissions";
 import { getMyGroups } from "@/lib/services/group.service";
@@ -28,11 +32,15 @@ export default async function DirectorDashboardPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h1 className="page-title">Dashboard Director Técnico</h1>
+          <PageHeader title="Dashboard Director Técnico" />
           <div className="card">
-            <div className="card-body text-secondary text-center py-4">
-              No perteneces a ningún grupo todavía.{" "}
-              <Link href="/coach/groups">Ver grupos disponibles</Link>
+            <div className="card-body">
+              <EmptyState
+                title="Sin grupos todavía"
+                description="No perteneces a ningún grupo todavía."
+                actionLabel="Ver grupos disponibles"
+                actionHref="/coach/groups"
+              />
             </div>
           </div>
         </div>
@@ -52,17 +60,17 @@ export default async function DirectorDashboardPage({
   return (
     <div className="row">
       <div className="col-12">
-        <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-          <div>
-            <h1 className="page-title mb-1">Dashboard Director Técnico</h1>
-            <div className="text-secondary">Resumen de {selected.name}</div>
-          </div>
-          <PeriodSelector
-            basePath="/director/dashboard"
-            current={period}
-            extra={{ group: groupId }}
-          />
-        </div>
+        <PageHeader
+          title="Dashboard Director Técnico"
+          description={`Resumen de ${selected.name}`}
+          actions={
+            <PeriodSelector
+              basePath="/director/dashboard"
+              current={period}
+              extra={{ group: groupId }}
+            />
+          }
+        />
 
         {groups.length > 1 ? (
           <div className="mb-3">
@@ -72,7 +80,9 @@ export default async function DirectorDashboardPage({
                   key={group.id}
                   href={`/director/dashboard?${periodToQuery(period)}&group=${group.id}`}
                   className={`btn btn-sm ${
-                    group.id === groupId ? "btn-secondary" : "btn-outline-secondary"
+                    group.id === groupId
+                      ? "btn-secondary"
+                      : "btn-outline-secondary"
                   }`}
                 >
                   {group.name}
@@ -83,10 +93,10 @@ export default async function DirectorDashboardPage({
         ) : null}
 
         {!director ? (
-          <div className="alert alert-warning" role="alert">
+          <Alert variant="warning">
             Necesitas ser Director Técnico del grupo para ver el resumen. Pide
             al administrador que te asigne el rol.
-          </div>
+          </Alert>
         ) : (
           <DirectorSummary groupId={groupId} period={period} />
         )}
@@ -104,11 +114,7 @@ async function DirectorSummary({
 }) {
   const result = await getGroupMetrics(groupId, period);
   if (!result.ok) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        {result.error}
-      </div>
-    );
+    return <Alert variant="danger">{result.error}</Alert>;
   }
   const metrics = result.data;
 
@@ -166,7 +172,7 @@ async function DirectorSummary({
       <div className="mt-2">
         <Link
           href={`/director/teams?${periodToQuery(period)}&group=${groupId}`}
-          className="btn btn-outline-secondary btn-sm"
+          className={buttonClassName({ variant: "secondary", size: "sm" })}
         >
           Ver comparativa detallada
         </Link>

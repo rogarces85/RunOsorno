@@ -12,6 +12,8 @@ import {
   formatSessionType,
 } from "@/lib/utils/format";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { Badge, badgeToneFromColor } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { FeedbackForm } from "./FeedbackForm";
 import { FeedbackThread } from "./FeedbackThread";
 import { DAY_STATE_META, resolveDayState } from "./dayState";
@@ -74,11 +76,8 @@ export function SessionDetailPanel({
       </div>
       <div className="modal-body">
         <div className="mb-3 d-flex align-items-center gap-2">
-          <span
-            className={`badge bg-${meta.color}-lt text-${meta.color}-ink`}
-            data-testid="session-detail-state"
-          >
-            {meta.label}
+          <span data-testid="session-detail-state">
+            <Badge tone={badgeToneFromColor(meta.color)}>{meta.label}</Badge>
           </span>
           {item?.template && (
             <span className="text-secondary">
@@ -100,17 +99,16 @@ export function SessionDetailPanel({
                         ({SECTION_TYPE_LABELS[section.type]})
                       </span>
                     </span>
-                    <div className="text-secondary small">{section.content}</div>
+                    <div className="text-secondary small">
+                      {section.content}
+                    </div>
                   </li>
                 ))}
               </ol>
             )}
           </>
         ) : (
-          <p
-            className="mb-0 text-secondary"
-            data-testid="session-detail-rest"
-          >
+          <p className="mb-0 text-secondary" data-testid="session-detail-rest">
             Descanso — sin sesión planificada.
           </p>
         )}
@@ -140,9 +138,7 @@ export function SessionDetailPanel({
                     </span>
                   </div>
                   <div className="col-auto" data-testid="record-duration">
-                    <span className="text-secondary small d-block">
-                      Tiempo
-                    </span>
+                    <span className="text-secondary small d-block">Tiempo</span>
                     <span className="fw-medium">
                       {formatDuration(item.record.durationMinutes)}
                     </span>
@@ -179,9 +175,7 @@ export function SessionDetailPanel({
         )}
       </div>
       <div className="modal-footer">
-        <button type="button" className="btn btn-primary" onClick={onClose}>
-          Cerrar
-        </button>
+        <Button onClick={onClose}>Cerrar</Button>
       </div>
     </ModalShell>
   );

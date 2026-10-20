@@ -1,5 +1,7 @@
-import Link from "next/link";
 import { AnnouncementForm } from "@/components/director/AnnouncementForm";
+import { Alert } from "@/components/ui/Alert";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { isDirector } from "@/lib/permissions";
 import { getDirectorGroups } from "@/lib/services/group.service";
@@ -14,11 +16,15 @@ export default async function DirectorAnnouncementsPage() {
     return (
       <div className="row">
         <div className="col-12">
-          <h1 className="page-title">Anuncios</h1>
+          <PageHeader title="Anuncios" />
           <div className="card">
-            <div className="card-body text-secondary text-center py-4">
-              Necesitas ser Director Técnico de un grupo para enviar anuncios.{" "}
-              <Link href="/coach/groups">Ver grupos disponibles</Link>
+            <div className="card-body">
+              <EmptyState
+                title="Sin grupos asignados"
+                description="Necesitas ser Director Técnico de un grupo para enviar anuncios."
+                actionLabel="Ver grupos disponibles"
+                actionHref="/coach/groups"
+              />
             </div>
           </div>
         </div>
@@ -27,23 +33,25 @@ export default async function DirectorAnnouncementsPage() {
   }
 
   const defaultGroup = directorGroups[0];
-  const director = await isDirector({ id: user.id, role: "coach" }, defaultGroup.id);
+  const director = await isDirector(
+    { id: user.id, role: "coach" },
+    defaultGroup.id,
+  );
 
   return (
     <div className="row">
       <div className="col-12">
-        <h1 className="page-title mb-3">Anuncios</h1>
+        <PageHeader
+          title="Anuncios"
+          description="Envía un anuncio a todos los miembros de tu grupo. Se entrega como notificación in-app y, para los eventos críticos, por email."
+        />
 
         {!director ? (
-          <div className="alert alert-warning" role="alert">
+          <Alert variant="warning">
             Necesitas ser Director Técnico del grupo para enviar anuncios.
-          </div>
+          </Alert>
         ) : (
           <>
-            <p className="text-secondary">
-              Envía un anuncio a todos los miembros de tu grupo. Se entrega como
-              notificación in-app y, para los eventos críticos, por email.
-            </p>
             <AnnouncementForm
               groups={directorGroups.map((group) => ({
                 id: group.id,

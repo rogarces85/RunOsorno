@@ -2,6 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CoachTodaySessions } from "@/components/dashboard/CoachTodaySessions";
 import { StatsCards } from "@/components/dashboard/StatsCards";
+import { Alert } from "@/components/ui/Alert";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { buttonClassName } from "@/components/ui/Button";
 import { requireRole } from "@/lib/auth/guards";
 import { canManageTeam } from "@/lib/permissions";
 import { getTeamTodaySessions } from "@/lib/services/dashboard.service";
@@ -23,11 +28,15 @@ export default async function CoachDashboardPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h1 className="page-title">Dashboard</h1>
+          <PageHeader title="Dashboard" />
           <div className="card">
-            <div className="card-body text-secondary text-center py-4">
-              Primero crea un team para ver tu dashboard.{" "}
-              <Link href="/coach/teams">Ir a mis teams</Link>
+            <div className="card-body">
+              <EmptyState
+                title="Sin teams todavía"
+                description="Primero crea un team para ver tu dashboard."
+                actionLabel="Ir a mis teams"
+                actionHref="/coach/teams"
+              />
             </div>
           </div>
         </div>
@@ -36,7 +45,8 @@ export default async function CoachDashboardPage({
   }
 
   const teamId =
-    typeof params.team === "string" && teams.some((team) => team.id === params.team)
+    typeof params.team === "string" &&
+    teams.some((team) => team.id === params.team)
       ? params.team
       : teams[0].id;
   const selected = teams.find((team) => team.id === teamId) ?? teams[0];
@@ -55,10 +65,8 @@ export default async function CoachDashboardPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h1 className="page-title">Dashboard</h1>
-          <div className="alert alert-danger" role="alert">
-            {metricsResult.error}
-          </div>
+          <PageHeader title="Dashboard" />
+          <Alert variant="danger">{metricsResult.error}</Alert>
         </div>
       </div>
     );
@@ -80,26 +88,29 @@ export default async function CoachDashboardPage({
   return (
     <div className="row">
       <div className="col-12">
-        <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-          <div>
-            <h1 className="page-title mb-1">Dashboard</h1>
-            <div className="text-secondary">Resumen de {selected.name}</div>
-          </div>
-          <div className="d-flex flex-wrap gap-2">
-            <Link
-              href={`/coach/calendar?team=${teamId}`}
-              className="btn btn-primary btn-sm"
-            >
-              Planificar en calendario
-            </Link>
-            <Link
-              href={`/coach/metrics?team=${teamId}`}
-              className="btn btn-outline-secondary btn-sm"
-            >
-              Ver métricas
-            </Link>
-          </div>
-        </div>
+        <PageHeader
+          title="Dashboard"
+          description={`Resumen de ${selected.name}`}
+          actions={
+            <>
+              <Link
+                href={`/coach/calendar?team=${teamId}`}
+                className={buttonClassName({ size: "sm" })}
+              >
+                Planificar en calendario
+              </Link>
+              <Link
+                href={`/coach/metrics?team=${teamId}`}
+                className={buttonClassName({
+                  variant: "secondary",
+                  size: "sm",
+                })}
+              >
+                Ver métricas
+              </Link>
+            </>
+          }
+        />
 
         {teams.length > 1 ? (
           <div className="mb-3">
@@ -109,7 +120,9 @@ export default async function CoachDashboardPage({
                   key={team.id}
                   href={`/coach/dashboard?team=${team.id}`}
                   className={`btn btn-sm ${
-                    team.id === teamId ? "btn-secondary" : "btn-outline-secondary"
+                    team.id === teamId
+                      ? "btn-secondary"
+                      : "btn-outline-secondary"
                   }`}
                 >
                   {team.name}
@@ -150,7 +163,8 @@ export default async function CoachDashboardPage({
               label: "Alertas activas",
               value: metrics.alerts.length,
               tone: metrics.alerts.length > 0 ? "danger" : "default",
-              sub: metrics.alerts.length > 0 ? "Revisa a tus atletas" : undefined,
+              sub:
+                metrics.alerts.length > 0 ? "Revisa a tus atletas" : undefined,
             },
           ]}
         />
@@ -160,38 +174,39 @@ export default async function CoachDashboardPage({
             <CoachTodaySessions sessions={todaySessions} teamId={teamId} />
           </div>
           <div className="col-lg-6 mb-3">
-            <div className="card h-100">
-              <div className="card-header">
-                <h2 className="card-title">Alertas</h2>
-              </div>
-              <div className="card-body">
-                {metrics.alerts.length === 0 ? (
-                  <div className="alert alert-success mb-0" role="alert">
-                    Sin alertas activas en este team.
-                  </div>
-                ) : (
-                  <div className="list-group list-group-flush">
-                    {metrics.alerts.slice(0, 6).map((alert, index) => (
-                      <div
-                        key={`${alert.athleteId}-${alert.kind}-${index}`}
-                        className="list-group-item px-0"
-                      >
-                        <strong>{alert.athleteName}</strong>
-                        <div className="text-secondary small">{alert.message}</div>
+            <Card title="Alertas" className="h-100">
+              {metrics.alerts.length === 0 ? (
+                <Alert variant="success" className="mb-0">
+                  Sin alertas activas en este team.
+                </Alert>
+              ) : (
+                <div className="list-group list-group-flush">
+                  {metrics.alerts.slice(0, 6).map((alert, index) => (
+                    <div
+                      key={`${alert.athleteId}-${alert.kind}-${index}`}
+                      className="list-group-item px-0"
+                    >
+                      <strong>{alert.athleteName}</strong>
+                      <div className="text-secondary small">
+                        {alert.message}
                       </div>
-                    ))}
-                  </div>
-                )}
-                {metrics.alerts.length > 6 ? (
-                  <Link
-                    href={`/coach/metrics?team=${teamId}`}
-                    className="btn btn-outline-secondary btn-sm mt-3"
-                  >
-                    Ver todas en métricas
-                  </Link>
-                ) : null}
-              </div>
-            </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {metrics.alerts.length > 6 ? (
+                <Link
+                  href={`/coach/metrics?team=${teamId}`}
+                  className={buttonClassName({
+                    variant: "secondary",
+                    size: "sm",
+                    className: "mt-3",
+                  })}
+                >
+                  Ver todas en métricas
+                </Link>
+              ) : null}
+            </Card>
           </div>
         </div>
       </div>

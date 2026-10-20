@@ -13,6 +13,8 @@ import {
   recordSessionSchema,
 } from "@/lib/validations/session.schemas";
 import { toISODate } from "@/lib/utils/date";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 
 type Mode = "completed" | "partial" | "not_done";
 
@@ -183,12 +185,13 @@ export function SessionForm({
 
   if (readonlyMessage) {
     return (
-      <div
-        className="alert alert-info py-2 mt-3 pt-3 border-top mb-0"
-        data-testid="session-form-readonly"
+      <Alert
+        variant="info"
+        className="py-2 mt-3 pt-3 border-top mb-0"
+        testId="session-form-readonly"
       >
         <span className="small">{readonlyMessage}</span>
-      </div>
+      </Alert>
     );
   }
 
@@ -425,21 +428,22 @@ export function SessionForm({
         </div>
       )}
       {saved && (
-        <div
-          className="alert alert-success py-2 mb-2"
-          data-testid="session-form-success"
+        <Alert
+          variant="success"
+          className="py-2 mb-2"
+          testId="session-form-success"
         >
           Sesión registrada correctamente
-        </div>
+        </Alert>
       )}
-      <button
+      <Button
         type="submit"
-        className="btn btn-sm btn-primary"
-        disabled={isSubmitting}
-        data-testid="session-form-submit"
+        size="sm"
+        loading={isSubmitting}
+        testId="session-form-submit"
       >
         {isSubmitting ? "Guardando…" : "Guardar"}
-      </button>
+      </Button>
     </form>
   );
 }

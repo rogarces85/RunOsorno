@@ -31,6 +31,7 @@ export function Alert({
 }) {
   const classes = [
     "alert",
+    "app-alert",
     `alert-${variant}`,
     dismissible ? "alert-dismissible" : "",
     className,

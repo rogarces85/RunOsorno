@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { transferAthleteAction } from "@/lib/actions/athlete.actions";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 
 export function TransferDialog({
   open,
@@ -140,22 +141,16 @@ export function TransferDialog({
         </div>
       </div>
       <div className="modal-footer">
-        <button
-          type="button"
-          className="btn btn-link link-secondary"
-          onClick={onClose}
-          disabled={busy}
-        >
+        <Button variant="ghost" onClick={onClose} disabled={busy}>
           Cancelar
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
+        </Button>
+        <Button
           disabled={!fromTeamId || !toTeamId || busy}
+          loading={busy}
           onClick={submit}
         >
           {busy ? "Transfiriendo…" : "Transferir"}
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );

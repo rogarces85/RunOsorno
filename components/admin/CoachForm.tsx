@@ -14,6 +14,8 @@ import {
 } from "@/lib/validations/user.schemas";
 import { applyServerErrors } from "@/lib/utils/form";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 
 export type CoachFormNotice = {
   type: "success" | "danger";
@@ -113,62 +115,38 @@ export function CoachForm({
               {serverError}
             </Alert>
           )}
-          <div className="mb-3">
-            <label className="form-label" htmlFor="coach-name">
-              Nombre
-            </label>
+          <Field
+            id="coach-name"
+            label="Nombre"
+            error={errors.name?.message}
+            className="mb-3"
+          >
             <input
               id="coach-name"
               type="text"
               className={`form-control ${errors.name ? "is-invalid" : ""}`}
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "coach-name-error" : undefined}
               placeholder="Nombre completo"
               {...register("name")}
             />
-            {errors.name && (
-              <div id="coach-name-error" className="invalid-feedback">
-                {errors.name.message}
-              </div>
-            )}
-          </div>
-          <div className="mb-0">
-            <label className="form-label" htmlFor="coach-email">
-              Email
-            </label>
+          </Field>
+          <Field id="coach-email" label="Email" error={errors.email?.message}>
             <input
               id="coach-email"
               type="email"
               className={`form-control ${errors.email ? "is-invalid" : ""}`}
-              aria-invalid={!!errors.email}
-              aria-describedby={errors.email ? "coach-email-error" : undefined}
               placeholder="coach@email.cl"
               autoComplete="off"
               {...register("email")}
             />
-            {errors.email && (
-              <div id="coach-email-error" className="invalid-feedback">
-                {errors.email.message}
-              </div>
-            )}
-          </div>
+          </Field>
         </div>
         <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-link link-secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancelar
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
+          </Button>
+          <Button type="submit" loading={isSubmitting}>
             {isSubmitting ? "Guardando…" : "Guardar"}
-          </button>
+          </Button>
         </div>
       </form>
     </ModalShell>

@@ -1,6 +1,6 @@
 "use client";
 
-import { cloneElement, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { IconCheck, IconDeviceFloppy, IconX } from "@tabler/icons-react";
@@ -16,51 +16,10 @@ import {
 import type { EmailSettings } from "@/lib/services/settings.service";
 import { applyServerErrors } from "@/lib/utils/form";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 
 type Notice = { type: "success" | "danger"; message: string } | null;
-
-/** Lo que `Field` le engancha a su control: solo las partes de accesibilidad. */
-type FieldControl = {
-  id: string;
-  "aria-invalid"?: true;
-  "aria-describedby"?: string;
-};
-
-function Field({
-  id,
-  label,
-  hint,
-  error,
-  children,
-}: {
-  id: string;
-  label: string;
-  hint?: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  const errorId = `${id}-error`;
-  return (
-    <div className="mb-3">
-      <label className="form-label" htmlFor={id}>
-        {label}
-      </label>
-      {/* El control lo escribe el llamador (con su `register`), así que aquí se
-          le engancha el estado y la referencia al mensaje: si no, el error solo
-          se vería en rojo y no se anunciaría. */}
-      {cloneElement(children as React.ReactElement<FieldControl>, {
-        "aria-invalid": error ? true : undefined,
-        "aria-describedby": error ? errorId : undefined,
-      })}
-      {hint && !error && <div className="form-hint">{hint}</div>}
-      {error && (
-        <div id={errorId} className="invalid-feedback d-block">
-          {error}
-        </div>
-      )}
-    </div>
-  );
-}
 
 /** Tab "Límites" (tarea 34.5). */
 export function LimitsForm({ initial }: { initial: LimitsSettings }) {
@@ -182,10 +141,10 @@ export function LimitsForm({ initial }: { initial: LimitsSettings }) {
         </div>
       </div>
 
-      <button type="submit" className="btn btn-primary" disabled={isPending}>
+      <Button type="submit" loading={isPending}>
         <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
         {isPending ? "Guardando…" : "Guardar límites"}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -242,10 +201,12 @@ export function EmailForm({ initial }: { initial: EmailSettings }) {
         </Alert>
       )}
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="emailFrom">
-          Remitente de emails
-        </label>
+      <Field
+        id="emailFrom"
+        label="Remitente de emails"
+        error={errors.emailFrom?.message}
+        hint="Debe incluir el nombre y el correo entre angled brackets: RunOsorno <no-reply@runosorno.cl>"
+      >
         <input
           id="emailFrom"
           type="text"
@@ -253,22 +214,12 @@ export function EmailForm({ initial }: { initial: EmailSettings }) {
           placeholder="RunOsorno <no-reply@runosorno.cl>"
           {...register("emailFrom")}
         />
-        {errors.emailFrom ? (
-          <div className="invalid-feedback d-block">
-            {errors.emailFrom.message}
-          </div>
-        ) : (
-          <div className="form-hint">
-            Debe incluir el nombre y el correo entre angled brackets:
-            <code>RunOsorno &lt;no-reply@runosorno.cl&gt;</code>
-          </div>
-        )}
-      </div>
+      </Field>
 
-      <button type="submit" className="btn btn-primary" disabled={isPending}>
+      <Button type="submit" loading={isPending}>
         <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
         {isPending ? "Guardando…" : "Guardar configuración"}
-      </button>
+      </Button>
     </form>
   );
 }

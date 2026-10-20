@@ -4,6 +4,9 @@ import { IconArrowDown, IconArrowUp, IconTrash } from "@tabler/icons-react";
 import { SECTION_TYPE_LABELS, SECTION_TYPES } from "@/lib/config/constants";
 import type { UseFormRegister } from "react-hook-form";
 import type { TemplateInput } from "@/lib/validations/template.schemas";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Field } from "@/components/ui/Field";
 
 type SectionErrors = {
   title?: { message?: string };
@@ -11,6 +14,14 @@ type SectionErrors = {
   content?: { message?: string };
 };
 
+/**
+ * Editor de una sección de la plantilla.
+ *
+ * Los tres campos pasan por `Field`, de modo que el error visible y el anuncio
+ * al lector de pantalla salen del mismo sitio. Los botones de reordenar y
+ * eliminar son solo icono: su nombre accesible es el `aria-label`, porque no
+ * hay texto visible que pueda quedar desalineado.
+ */
 export function SectionEditor({
   index,
   isLast,
@@ -27,78 +38,72 @@ export function SectionEditor({
   onRemove: (index: number) => void;
 }) {
   return (
-    <div className="card mb-3">
-      <div className="card-header d-flex justify-content-between align-items-center">
-        <h2 className="card-title mb-0">Sección {index + 1}</h2>
-        <div className="btn-list">
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost-secondary"
-            title="Mover arriba"
+    <Card
+      className="mb-3"
+      title={`Sección ${index + 1}`}
+      level={2}
+      actions={
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
             aria-label="Mover sección arriba"
+            title="Mover arriba"
             disabled={index === 0}
             onClick={() => onMove(index, -1)}
           >
             <IconArrowUp size={16} stroke={1.75} />
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost-secondary"
-            title="Mover abajo"
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
             aria-label="Mover sección abajo"
+            title="Mover abajo"
             disabled={isLast}
             onClick={() => onMove(index, 1)}
           >
             <IconArrowDown size={16} stroke={1.75} />
-          </button>
-          <button
-            type="button"
-            className="btn btn-sm btn-ghost-danger"
-            title="Eliminar sección"
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            iconOnly
             aria-label="Eliminar sección"
+            title="Eliminar sección"
             onClick={() => onRemove(index)}
           >
             <IconTrash size={16} stroke={1.75} />
-          </button>
-        </div>
-      </div>
-      <div className="card-body">
-        <div className="row g-3">
-          <div className="col-md-8">
-            <label className="form-label" htmlFor={`section-title-${index}`}>
-              Título
-            </label>
+          </Button>
+        </>
+      }
+    >
+      <div className="row g-3">
+        <div className="col-md-8">
+          <Field
+            id={`section-title-${index}`}
+            label="Título"
+            error={errors?.title?.message}
+          >
             <input
               id={`section-title-${index}`}
               type="text"
               className={`form-control ${errors?.title ? "is-invalid" : ""}`}
-              aria-invalid={!!errors?.title}
-              aria-describedby={
-                errors?.title ? `section-title-${index}-error` : undefined
-              }
               placeholder="Ej: Calentamiento, 6×400m, Enfriamiento…"
               {...register(`structure.${index}.title`)}
             />
-            {errors?.title && (
-              <div
-                id={`section-title-${index}-error`}
-                className="invalid-feedback"
-              >
-                {errors.title.message}
-              </div>
-            )}
-          </div>
-          <div className="col-md-4">
-            <label className="form-label" htmlFor={`section-type-${index}`}>
-              Tipo
-            </label>
+          </Field>
+        </div>
+        <div className="col-md-4">
+          <Field
+            id={`section-type-${index}`}
+            label="Tipo"
+            error={errors?.type?.message}
+          >
             <select
               id={`section-type-${index}`}
               className={`form-select ${errors?.type ? "is-invalid" : ""}`}
-              aria-invalid={!!errors?.type}
-              aria-describedby={
-                errors?.type ? `section-type-${index}-error` : undefined
-              }
               {...register(`structure.${index}.type`)}
             >
               {SECTION_TYPES.map((type) => (
@@ -107,41 +112,24 @@ export function SectionEditor({
                 </option>
               ))}
             </select>
-            {errors?.type && (
-              <div
-                id={`section-type-${index}-error`}
-                className="invalid-feedback"
-              >
-                {errors.type.message}
-              </div>
-            )}
-          </div>
-          <div className="col-12">
-            <label className="form-label" htmlFor={`section-content-${index}`}>
-              Contenido
-            </label>
+          </Field>
+        </div>
+        <div className="col-12">
+          <Field
+            id={`section-content-${index}`}
+            label="Contenido"
+            error={errors?.content?.message}
+          >
             <textarea
               id={`section-content-${index}`}
               rows={3}
               className={`form-control ${errors?.content ? "is-invalid" : ""}`}
-              aria-invalid={!!errors?.content}
-              aria-describedby={
-                errors?.content ? `section-content-${index}-error` : undefined
-              }
               placeholder="Describe la sección: repeticiones, distancias, ritmos, FC, descansos…"
               {...register(`structure.${index}.content`)}
             />
-            {errors?.content && (
-              <div
-                id={`section-content-${index}-error`}
-                className="invalid-feedback"
-              >
-                {errors.content.message}
-              </div>
-            )}
-          </div>
+          </Field>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }

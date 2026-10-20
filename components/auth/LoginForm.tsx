@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { login, type LoginState } from "@/lib/actions/auth.actions";
 import { loginSchema, type LoginInput } from "@/lib/validations/auth.schemas";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 
 const initialState: LoginState = { error: null };
 
@@ -88,13 +89,9 @@ export function LoginForm() {
           </div>
         )}
       </div>
-      <button
-        type="submit"
-        className="btn btn-primary w-100"
-        disabled={isPending}
-      >
+      <Button type="submit" className="w-100" loading={isPending}>
         {isPending ? "Ingresando…" : "Iniciar sesión"}
-      </button>
+      </Button>
     </form>
   );
 }

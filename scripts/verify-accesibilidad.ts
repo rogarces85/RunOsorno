@@ -36,6 +36,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { chromium, type BrowserContext, type Page } from "playwright";
+import mysql, { type RowDataPacket } from "mysql2/promise";
 
 const BASE_URL = process.env.BASE_URL ?? "http://localhost:3000";
 const ROOT = process.cwd();
@@ -52,8 +53,42 @@ const ATLETA = "maria.fernandez@demo.runosorno.cl";
 const COACH = "coach.demo@runosorno.cl";
 const ADMIN = "admin@runosorno.cl";
 
-const TEAM_ELITE = "07fb12fe-8548-47ca-a202-4a9423940687";
-const ATLETA_CALENDARIO = "07464b9a-d97c-4740-9b0b-804dd5708db4";
+const TEAM_ELITE_DEFAULT = "Team Elite";
+const ATLETA_DEFAULT = "maria.fernandez@demo.runosorno.cl";
+
+/**
+ * El seed DEMO crea los registros con `crypto.randomUUID()`, así que los ids
+ * cambian en cada instalación. Se resuelven en la base en vez de clavarlos aquí:
+ * así el verificador funciona en cualquier equipo tras `npm run db:seed:demo`.
+ */
+let TEAM_ELITE = "";
+let ATLETA_CALENDARIO = "";
+
+async function resolverIdsDemo(): Promise<void> {
+  if (!process.env.DATABASE_URL) {
+    process.loadEnvFile(".env.local");
+  }
+  const conn = await mysql.createConnection(process.env.DATABASE_URL!);
+  try {
+    const [teams] = await conn.query<RowDataPacket[]>(
+      "SELECT id FROM teams WHERE name = ? LIMIT 1",
+      [TEAM_ELITE_DEFAULT],
+    );
+    const [athletes] = await conn.query<RowDataPacket[]>(
+      "SELECT id FROM users WHERE email = ? LIMIT 1",
+      [ATLETA_DEFAULT],
+    );
+    TEAM_ELITE = String(teams[0]?.id ?? "");
+    ATLETA_CALENDARIO = String(athletes[0]?.id ?? "");
+  } finally {
+    await conn.end();
+  }
+  if (!TEAM_ELITE || !ATLETA_CALENDARIO) {
+    throw new Error(
+      "No se encontraron Team Elite o María Fernández; ejecuta `npm run db:seed:demo`.",
+    );
+  }
+}
 
 type Check = { ok: boolean; label: string; detail: string };
 const results: Check[] = [];
@@ -635,35 +670,37 @@ type PaginaAxe = {
   publica?: boolean;
 };
 
-const PAGINAS_AXE: PaginaAxe[] = [
-  { email: "", password: "", ruta: "/", publica: true },
-  { email: "", password: "", ruta: "/login", publica: true },
-  { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/dashboard" },
-  { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/calendar" },
-  { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/metrics" },
-  { email: ATLETA, password: DEMO_PASSWORD, ruta: "/profile" },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/dashboard" },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/teams" },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/templates" },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/templates/new" },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/athletes" },
-  {
-    email: COACH,
-    password: DEMO_PASSWORD,
-    ruta: `/coach/calendar/${TEAM_ELITE}/${ATLETA_CALENDARIO}`,
-  },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/metrics" },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/groups" },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/exports" },
-  { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/dashboard" },
-  { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/coaches" },
-  { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/groups" },
-  { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/athletes" },
-  { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/templates" },
-  { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/settings" },
-  { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/logs" },
-  { email: COACH, password: DEMO_PASSWORD, ruta: "/notifications" },
-];
+function paginasAxe(): PaginaAxe[] {
+  return [
+    { email: "", password: "", ruta: "/", publica: true },
+    { email: "", password: "", ruta: "/login", publica: true },
+    { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/dashboard" },
+    { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/calendar" },
+    { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/metrics" },
+    { email: ATLETA, password: DEMO_PASSWORD, ruta: "/profile" },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/dashboard" },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/teams" },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/templates" },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/templates/new" },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/athletes" },
+    {
+      email: COACH,
+      password: DEMO_PASSWORD,
+      ruta: `/coach/calendar/${TEAM_ELITE}/${ATLETA_CALENDARIO}`,
+    },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/metrics" },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/coach/groups" },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/exports" },
+    { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/dashboard" },
+    { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/coaches" },
+    { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/groups" },
+    { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/athletes" },
+    { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/templates" },
+    { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/settings" },
+    { email: ADMIN, password: ADMIN_PASSWORD, ruta: "/admin/logs" },
+    { email: COACH, password: DEMO_PASSWORD, ruta: "/notifications" },
+  ];
+}
 
 async function verificarConAxe(
   ctx: BrowserContext,
@@ -722,7 +759,7 @@ async function verificarConAxe(
   };
 
   // Recorrido completo: portada y login sin sesión, luego una ruta por rol.
-  for (const { email, password, ruta, publica } of PAGINAS_AXE) {
+  for (const { email, password, ruta, publica } of paginasAxe()) {
     if (publica) {
       await ctx.clearCookies();
       await aplicarTema(ctx, tema);
@@ -780,6 +817,7 @@ async function main() {
   });
 
   try {
+    await resolverIdsDemo();
     await verificarTeclado(ctx);
     await verificarEscape(ctx);
     await verificarCampanita(ctx);

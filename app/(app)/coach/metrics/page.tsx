@@ -5,12 +5,19 @@ import { AthleteComplianceChart } from "@/components/metrics/AthleteComplianceCh
 import { ComplianceChart } from "@/components/metrics/ComplianceChart";
 import { PeriodSelector } from "@/components/metrics/PeriodSelector";
 import { TeamMetricsPanel } from "@/components/metrics/TeamMetricsPanel";
+import { Alert } from "@/components/ui/Alert";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { formatDate } from "@/lib/i18n/format";
 import { canManageTeam } from "@/lib/permissions";
 import { getTeamMetrics } from "@/lib/services/metric.service";
 import { getTeamsByCoach } from "@/lib/services/team.service";
-import { periodFromSearchParams, periodToQuery } from "@/lib/validations/metric.schemas";
+import {
+  periodFromSearchParams,
+  periodToQuery,
+} from "@/lib/validations/metric.schemas";
 
 export const instant = false;
 
@@ -28,11 +35,15 @@ export default async function CoachMetricsPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h1 className="page-title">Métricas del team</h1>
+          <PageHeader title="Métricas del team" />
           <div className="card">
-            <div className="card-body text-secondary text-center py-4">
-              Primero crea un team para ver sus métricas.{" "}
-              <Link href="/coach/teams">Ir a mis teams</Link>
+            <div className="card-body">
+              <EmptyState
+                title="Sin teams todavía"
+                description="Primero crea un team para ver sus métricas."
+                actionLabel="Ir a mis teams"
+                actionHref="/coach/teams"
+              />
             </div>
           </div>
         </div>
@@ -41,7 +52,8 @@ export default async function CoachMetricsPage({
   }
 
   const teamId =
-    typeof params.team === "string" && teams.some((team) => team.id === params.team)
+    typeof params.team === "string" &&
+    teams.some((team) => team.id === params.team)
       ? params.team
       : teams[0].id;
   const selected = teams.find((team) => team.id === teamId) ?? teams[0];
@@ -55,9 +67,7 @@ export default async function CoachMetricsPage({
     return (
       <div className="row">
         <div className="col-12">
-          <div className="alert alert-danger" role="alert">
-            {result.error}
-          </div>
+          <Alert variant="danger">{result.error}</Alert>
         </div>
       </div>
     );
@@ -74,27 +84,24 @@ export default async function CoachMetricsPage({
   return (
     <div className="row">
       <div className="col-12">
-        <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-          <div>
-            <h1 className="page-title mb-1">Métricas de {selected.name}</h1>
-            <div className="text-secondary">
-              {formatDate(metrics.period.from)} →{" "}
-              {formatDate(metrics.period.to)}
-            </div>
-          </div>
-          <div className="d-flex flex-wrap align-items-center gap-2">
-            <PeriodSelector
-              basePath="/coach/metrics"
-              current={period}
-              extra={{ team: teamId }}
-            />
-            <ExportButton
-              target={{ kind: "team", teamId }}
-              period={period}
-              size="sm"
-            />
-          </div>
-        </div>
+        <PageHeader
+          title={`Métricas de ${selected.name}`}
+          description={`${formatDate(metrics.period.from)} → ${formatDate(metrics.period.to)}`}
+          actions={
+            <>
+              <PeriodSelector
+                basePath="/coach/metrics"
+                current={period}
+                extra={{ team: teamId }}
+              />
+              <ExportButton
+                target={{ kind: "team", teamId }}
+                period={period}
+                size="sm"
+              />
+            </>
+          }
+        />
 
         {teams.length > 1 ? (
           <div className="mb-3">
@@ -120,32 +127,22 @@ export default async function CoachMetricsPage({
 
         <div className="row">
           <div className="col-lg-6 mb-3">
-            <div className="card h-100">
-              <div className="card-header">
-                <h2 className="card-title">Cumplimiento del team</h2>
-              </div>
-              <div className="card-body">
-                <ComplianceChart
-                  completed={totals.completed}
-                  total={totals.sessions}
-                />
-              </div>
-            </div>
+            <Card title="Cumplimiento del team" className="h-100">
+              <ComplianceChart
+                completed={totals.completed}
+                total={totals.sessions}
+              />
+            </Card>
           </div>
           <div className="col-lg-6 mb-3">
-            <div className="card h-100">
-              <div className="card-header">
-                <h2 className="card-title">Cumplimiento por atleta</h2>
-              </div>
-              <div className="card-body">
-                <AthleteComplianceChart
-                  athletes={metrics.athletes.map((athlete) => ({
-                    name: athlete.name,
-                    compliance: athlete.compliance,
-                  }))}
-                />
-              </div>
-            </div>
+            <Card title="Cumplimiento por atleta" className="h-100">
+              <AthleteComplianceChart
+                athletes={metrics.athletes.map((athlete) => ({
+                  name: athlete.name,
+                  compliance: athlete.compliance,
+                }))}
+              />
+            </Card>
           </div>
         </div>
       </div>

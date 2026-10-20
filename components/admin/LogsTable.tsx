@@ -3,6 +3,10 @@ import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import type { AuditLogRow } from "@/lib/services/audit-query.service";
 import { auditLogsToQuery } from "@/lib/validations/audit.schemas";
 import { formatDateTime } from "@/lib/i18n/format";
+import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { Table } from "@/components/ui/Table";
+import { buttonClassName } from "@/components/ui/Button";
 
 type Props = {
   rows: AuditLogRow[];
@@ -97,125 +101,117 @@ export function LogsTable({ rows, total, page, totalPages, filters }: Props) {
     `/admin/logs?${auditLogsToQuery(filters, target)}`;
 
   return (
-    <div className="card">
-      <div className="card-header">
-        <div className="d-flex align-items-center">
-          <h2 className="card-title">Historial de acciones</h2>
-          <span className="text-secondary ms-auto">
-            {total === 0
-              ? "Sin resultados"
-              : `${from}-${to} de ${total} registro${total === 1 ? "" : "s"}`}
-          </span>
-        </div>
-      </div>
-
-      {/*
-        `tabIndex` + `role` para que la tabla se pueda desplazar con el teclado
-        (Fase 48, tarea 48.1). Es la única tabla de la app sin botones ni
-        enlaces dentro, así que el contenedor no tenía nada enfocable y quien
-        no usa ratón no podía moverla. `role="region"` con nombre es lo que pide
-        la regla `scrollable-region-focusable`.
-      */}
-      <div
-        className="table-responsive"
-        tabIndex={0}
-        role="region"
-        aria-label="Logs de auditoría"
-      >
-        <table className="table table-vcenter card-table">
-          <thead>
-            <tr>
-              <th style={{ width: "9rem" }}>Fecha</th>
-              <th style={{ width: "12rem" }}>Usuario</th>
-              <th style={{ width: "13rem" }}>Acción</th>
-              <th style={{ width: "8rem" }}>Entidad</th>
-              <th>Detalles</th>
-              <th style={{ width: "10rem" }}>IP</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && (
-              <tr>
-                <td colSpan={6} className="text-secondary text-center py-4">
-                  No hay registros que coincidan con los filtros.
-                </td>
-              </tr>
-            )}
-
-            {rows.map((row) => (
-              <tr key={row.id}>
-                <td className="text-secondary">
-                  {formatDateTime(row.createdAt)}
-                </td>
-                <td>
-                  {row.userName ? (
-                    <>
-                      <div>{row.userName}</div>
-                      <div className="text-secondary small">{row.userEmail}</div>
-                    </>
-                  ) : (
-                    <span className="text-secondary">
-                      {row.userId ? "Usuario eliminado" : "Sistema"}
-                    </span>
-                  )}
-                </td>
-                <td>
-                  <span className="badge bg-secondary-lt text-secondary-ink">
-                    {actionLabel(row.action)}
-                  </span>
-                  <div className="text-secondary small">{row.action}</div>
-                </td>
-                <td>
-                  <div>{row.entityType}</div>
-                  {row.entityId && (
-                    <div
-                      className="text-secondary small text-truncate"
-                      style={{ maxWidth: "9rem" }}
-                      title={row.entityId}
-                    >
-                      {row.entityId}
-                    </div>
-                  )}
-                </td>
-                <td className="text-secondary small">
-                  {formatDetails(row.details)}
-                </td>
-                <td className="text-secondary">{row.ipAddress ?? "—"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {totalPages > 1 && (
-        <div className="card-footer d-flex align-items-center">
-          <span className="text-secondary">
-            Página {page} de {totalPages}
-          </span>
-          <div className="btn-group ms-auto">
-            {page > 1 && (
-              <Link
-                href={pageLink(page - 1)}
-                className="btn btn-sm"
-                aria-label="Página anterior"
-              >
-                <IconChevronLeft size={16} stroke={1.75} />
-                Anterior
-              </Link>
-            )}
-            {page < totalPages && (
-              <Link
-                href={pageLink(page + 1)}
-                className="btn btn-sm"
-                aria-label="Página siguiente"
-              >
-                Siguiente
-                <IconChevronRight size={16} stroke={1.75} />
-              </Link>
-            )}
+    <Card
+      title="Historial de acciones"
+      bodyClassName="p-0"
+      actions={
+        <span className="text-secondary">
+          {total === 0
+            ? "Sin resultados"
+            : `${from}-${to} de ${total} registro${total === 1 ? "" : "s"}`}
+        </span>
+      }
+      footer={
+        totalPages > 1 ? (
+          <div className="d-flex align-items-center w-100">
+            <span className="text-secondary">
+              Página {page} de {totalPages}
+            </span>
+            <div className="btn-group ms-auto">
+              {page > 1 && (
+                <Link
+                  href={pageLink(page - 1)}
+                  className={buttonClassName({
+                    variant: "secondary",
+                    size: "sm",
+                  })}
+                  aria-label="Página anterior"
+                >
+                  <IconChevronLeft size={16} stroke={1.75} />
+                  Anterior
+                </Link>
+              )}
+              {page < totalPages && (
+                <Link
+                  href={pageLink(page + 1)}
+                  className={buttonClassName({
+                    variant: "secondary",
+                    size: "sm",
+                  })}
+                  aria-label="Página siguiente"
+                >
+                  Siguiente
+                  <IconChevronRight size={16} stroke={1.75} />
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        ) : undefined
+      }
+    >
+      <Table label="Logs de auditoría" stackOnMobile>
+        <thead>
+          <tr>
+            <th style={{ width: "9rem" }}>Fecha</th>
+            <th style={{ width: "12rem" }}>Usuario</th>
+            <th style={{ width: "13rem" }}>Acción</th>
+            <th style={{ width: "8rem" }}>Entidad</th>
+            <th>Detalles</th>
+            <th style={{ width: "10rem" }}>IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.length === 0 && (
+            <tr>
+              <td colSpan={6} className="text-secondary text-center py-4">
+                No hay registros que coincidan con los filtros.
+              </td>
+            </tr>
+          )}
+
+          {rows.map((row) => (
+            <tr key={row.id}>
+              <td className="text-secondary" data-label="Fecha">
+                {formatDateTime(row.createdAt)}
+              </td>
+              <td data-label="Usuario">
+                {row.userName ? (
+                  <>
+                    <div>{row.userName}</div>
+                    <div className="text-secondary small">{row.userEmail}</div>
+                  </>
+                ) : (
+                  <span className="text-secondary">
+                    {row.userId ? "Usuario eliminado" : "Sistema"}
+                  </span>
+                )}
+              </td>
+              <td data-label="Acción">
+                <Badge tone="neutral">{actionLabel(row.action)}</Badge>
+                <div className="text-secondary small">{row.action}</div>
+              </td>
+              <td data-label="Entidad">
+                <div>{row.entityType}</div>
+                {row.entityId && (
+                  <div
+                    className="text-secondary small text-truncate"
+                    style={{ maxWidth: "9rem" }}
+                    title={row.entityId}
+                  >
+                    {row.entityId}
+                  </div>
+                )}
+              </td>
+              <td className="text-secondary small" data-label="Detalles">
+                {formatDetails(row.details)}
+              </td>
+              <td className="text-secondary" data-label="IP">
+                {row.ipAddress ?? "—"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </Card>
   );
 }

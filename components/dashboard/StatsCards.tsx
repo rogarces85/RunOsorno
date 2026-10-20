@@ -1,10 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Card } from "@/components/ui/Card";
 
 /**
- * Card de estadística reutilizable para dashboards (Fases 30 y 36).
- * Sigue el patrón visual de Tabler usado en TeamMetricsPanel:
- * card con label secundario, número grande y subtítulo opcional.
+ * Fila de tarjetas de estadística para los dashboards (Fases 30, 36 y D8).
+ * Usa la primitiva `Card` y la familia `text-*-ink`; las cifras llevan
+ * `.app-numeric` para que las columnas queden alineadas.
  */
 
 export type StatCardItem = {
@@ -33,7 +34,7 @@ export function StatsCards({ items }: { items: StatCardItem[] }) {
     <div className="row">
       {items.map((item) => {
         const body = (
-          <div className="card-body">
+          <Card className="h-100" interactive={Boolean(item.href)}>
             <div className="text-secondary mb-1">{item.label}</div>
             <div
               className={`h1 mb-0 app-numeric ${TONE_CLASS[item.tone ?? "default"]}`.trim()}
@@ -43,19 +44,19 @@ export function StatsCards({ items }: { items: StatCardItem[] }) {
             {item.sub ? (
               <div className="text-secondary small">{item.sub}</div>
             ) : null}
-          </div>
+          </Card>
         );
         return (
           <div key={item.key} className="col-md-6 col-xl-3 mb-3">
             {item.href ? (
               <Link
                 href={item.href}
-                className="card h-100 text-decoration-none"
+                className="d-block h-100 text-decoration-none"
               >
                 {body}
               </Link>
             ) : (
-              <div className="card h-100">{body}</div>
+              body
             )}
           </div>
         );

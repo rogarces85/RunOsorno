@@ -16,6 +16,8 @@ import {
 } from "@/lib/validations/auth.schemas";
 import { applyServerErrors } from "@/lib/utils/form";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 
 type Notice = { type: "success" | "danger"; message: string } | null;
 
@@ -92,29 +94,20 @@ export function ProfileForm({
     <form onSubmit={onSubmit} noValidate>
       <NoticeBox notice={notice} />
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="profile-name">
-          Nombre
-        </label>
+      <Field id="profile-name" label="Nombre" error={errors.name?.message}>
         <input
           id="profile-name"
           type="text"
           className={`form-control ${errors.name ? "is-invalid" : ""}`}
-          aria-invalid={!!errors.name}
-          aria-describedby={errors.name ? "profile-name-error" : undefined}
           {...register("name")}
         />
-        {errors.name && (
-          <div id="profile-name-error" className="invalid-feedback">
-            {errors.name.message}
-          </div>
-        )}
-      </div>
+      </Field>
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="profile-email">
-          Email
-        </label>
+      <Field
+        id="profile-email"
+        label="Email"
+        hint="El email no se puede modificar desde el perfil."
+      >
         <input
           id="profile-email"
           type="email"
@@ -123,26 +116,23 @@ export function ProfileForm({
           disabled
           readOnly
         />
-        <div className="form-hint">
-          El email no se puede modificar desde el perfil.
-        </div>
-      </div>
+      </Field>
 
       {!isActive && (
-        <div className="alert alert-warning" role="alert">
+        <Alert variant="warning">
           Tu cuenta está inactiva. Contacta con el administrador para
           reactivarla.
-        </div>
+        </Alert>
       )}
 
-      <button
+      <Button
         type="submit"
-        className="btn btn-primary"
+        loading={isPending}
         disabled={isPending || !isDirty}
       >
         <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
         {isPending ? "Guardando…" : "Guardar cambios"}
-      </button>
+      </Button>
     </form>
   );
 }
@@ -204,82 +194,58 @@ export function PasswordChange() {
     <form onSubmit={onSubmit} noValidate>
       <NoticeBox notice={notice} />
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="current-password">
-          Contraseña actual
-        </label>
+      <Field
+        id="current-password"
+        label="Contraseña actual"
+        error={errors.currentPassword?.message}
+      >
         <input
           id="current-password"
           type="password"
           autoComplete="current-password"
           className={`form-control ${errors.currentPassword ? "is-invalid" : ""}`}
-          aria-invalid={!!errors.currentPassword}
-          aria-describedby={
-            errors.currentPassword ? "current-password-error" : undefined
-          }
           {...register("currentPassword")}
         />
-        {errors.currentPassword && (
-          <div id="current-password-error" className="invalid-feedback">
-            {errors.currentPassword.message}
-          </div>
-        )}
-      </div>
+      </Field>
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="new-password">
-          Nueva contraseña
-        </label>
+      <Field
+        id="new-password"
+        label="Nueva contraseña"
+        error={errors.newPassword?.message}
+        hint="Mínimo 8 caracteres."
+      >
         <input
           id="new-password"
           type="password"
           autoComplete="new-password"
           className={`form-control ${errors.newPassword ? "is-invalid" : ""}`}
-          aria-invalid={!!errors.newPassword}
-          aria-describedby={
-            errors.newPassword ? "new-password-error" : undefined
-          }
           {...register("newPassword")}
         />
-        {errors.newPassword && (
-          <div id="new-password-error" className="invalid-feedback">
-            {errors.newPassword.message}
-          </div>
-        )}
-        <div className="form-hint">Mínimo 8 caracteres.</div>
-      </div>
+      </Field>
 
-      <div className="mb-3">
-        <label className="form-label" htmlFor="confirm-password">
-          Confirmar nueva contraseña
-        </label>
+      <Field
+        id="confirm-password"
+        label="Confirmar nueva contraseña"
+        error={errors.confirmPassword?.message}
+      >
         <input
           id="confirm-password"
           type="password"
           autoComplete="new-password"
           className={`form-control ${errors.confirmPassword ? "is-invalid" : ""}`}
-          aria-invalid={!!errors.confirmPassword}
-          aria-describedby={
-            errors.confirmPassword ? "confirm-password-error" : undefined
-          }
           {...register("confirmPassword")}
         />
-        {errors.confirmPassword && (
-          <div id="confirm-password-error" className="invalid-feedback">
-            {errors.confirmPassword.message}
-          </div>
-        )}
-      </div>
+      </Field>
 
-      <div className="alert alert-info" role="note">
+      <Alert variant="info" role="status">
         Al cambiar la contraseña se cerrarán todas las sesiones abiertas en
         otros dispositivos. Solo esta sesión seguirá activa.
-      </div>
+      </Alert>
 
-      <button type="submit" className="btn btn-primary" disabled={isPending}>
+      <Button type="submit" loading={isPending}>
         <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
         {isPending ? "Cambiando…" : "Cambiar contraseña"}
-      </button>
+      </Button>
     </form>
   );
 }

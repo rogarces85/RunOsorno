@@ -1,6 +1,13 @@
 import Link from "next/link";
-import { SESSION_STATUS_META, type SessionStatus } from "@/lib/config/constants";
+import {
+  SESSION_STATUS_META,
+  type SessionStatus,
+} from "@/lib/config/constants";
 import type { TeamTodaySession } from "@/lib/services/dashboard.service";
+import { Badge, badgeToneFromColor } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { buttonClassName } from "@/components/ui/Button";
 
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
@@ -18,57 +25,56 @@ export function CoachTodaySessions({
   teamId: string;
 }) {
   return (
-    <div className="card h-100">
-      <div className="card-header">
-        <h2 className="card-title">Sesiones de hoy</h2>
-        {sessions.length > 0 ? (
-          <span className="badge bg-blue-lt text-blue-ink ms-auto">
-            {sessions.length}
-          </span>
-        ) : null}
-      </div>
-      <div className="card-body">
-        {sessions.length === 0 ? (
-          <div className="text-secondary">
-            No hay sesiones planificadas para hoy en este team.
-          </div>
-        ) : (
-          <div className="list-group list-group-flush">
-            {sessions.map((session) => {
-              const meta = SESSION_STATUS_META[session.status as SessionStatus];
-              return (
-                <div
-                  key={session.assignmentId}
-                  className="list-group-item px-0"
-                >
-                  <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <div>
-                      <strong>{session.athleteName}</strong>
-                      <div className="text-secondary small">
-                        {session.templateName ?? "Sesión"}
-                        {session.sessionType
-                          ? ` · ${capitalize(session.sessionType)}`
-                          : ""}
-                      </div>
+    <Card
+      title="Sesiones de hoy"
+      className="h-100"
+      actions={
+        sessions.length > 0 ? (
+          <Badge tone="primary">{sessions.length}</Badge>
+        ) : null
+      }
+    >
+      {sessions.length === 0 ? (
+        <EmptyState
+          title="Sin sesiones para hoy"
+          description="No hay sesiones planificadas para hoy en este team."
+          compact
+        />
+      ) : (
+        <div className="list-group list-group-flush">
+          {sessions.map((session) => {
+            const meta = SESSION_STATUS_META[session.status as SessionStatus];
+            return (
+              <div key={session.assignmentId} className="list-group-item px-0">
+                <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                  <div>
+                    <strong>{session.athleteName}</strong>
+                    <div className="text-secondary small">
+                      {session.templateName ?? "Sesión"}
+                      {session.sessionType
+                        ? ` · ${capitalize(session.sessionType)}`
+                        : ""}
                     </div>
-                    <span
-                      className={`badge bg-${meta.color}-lt text-${meta.color}-ink`}
-                    >
-                      {meta.label}
-                    </span>
                   </div>
+                  <Badge tone={badgeToneFromColor(meta.color)}>
+                    {meta.label}
+                  </Badge>
                 </div>
-              );
-            })}
-          </div>
-        )}
-        <Link
-          href={`/coach/calendar?team=${teamId}`}
-          className="btn btn-outline-secondary btn-sm mt-3"
-        >
-          Ir al calendario
-        </Link>
-      </div>
-    </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      <Link
+        href={`/coach/calendar?team=${teamId}`}
+        className={buttonClassName({
+          variant: "secondary",
+          size: "sm",
+          className: "mt-3",
+        })}
+      >
+        Ir al calendario
+      </Link>
+    </Card>
   );
 }

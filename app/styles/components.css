@@ -80,7 +80,14 @@
 }
 
 /* ===== Foco visible (todos los interactivos) ===== */
-:where(a, button, summary, [tabindex], .form-control, .form-select):focus-visible {
+:where(
+  a,
+  button,
+  summary,
+  [tabindex],
+  .form-control,
+  .form-select
+):focus-visible {
   outline: 2px solid var(--app-accent);
   outline-offset: 2px;
   border-radius: var(--app-radius-control);
@@ -326,6 +333,16 @@
   background: var(--app-danger);
   color: var(--app-danger-on);
   filter: brightness(0.94);
+}
+
+.app-btn-danger-ghost {
+  background: transparent;
+  color: var(--app-danger);
+}
+
+.app-btn-danger-ghost:hover {
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
 }
 
 .app-btn-icon {
@@ -598,6 +615,24 @@
   border-radius: var(--app-radius-card);
 }
 
+.app-alert {
+  padding: var(--app-space-3) var(--app-space-4);
+}
+
+.app-alert .alert-title {
+  margin-bottom: var(--app-space-1);
+}
+
+.app-empty-state-title {
+  font-weight: 600;
+  color: var(--app-ink);
+}
+
+.app-empty-state-description {
+  max-width: 46ch;
+  margin-inline: auto;
+}
+
 .modal-content {
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-modal);
@@ -611,6 +646,40 @@
 
 .modal-backdrop.show {
   opacity: 0.55;
+}
+
+/* ===== Densidad táctil (tarea 6.6) ===== */
+@media (max-width: 575.98px) {
+  .app-btn,
+  .app-btn-sm,
+  .app-btn-md {
+    min-height: 2.75rem;
+  }
+
+  .app-btn-icon,
+  .app-btn-icon.app-btn-sm {
+    width: 2.75rem;
+  }
+
+  .app-table > :not(caption) > * > * {
+    padding-block: var(--app-space-2);
+  }
+
+  .app-table-stack tbody td {
+    min-height: 2.75rem;
+  }
+}
+
+@media (pointer: coarse) {
+  .app-btn-sm,
+  .app-btn-icon {
+    min-height: 2.75rem;
+  }
+
+  .app-btn-icon,
+  .app-btn-icon.app-btn-sm {
+    width: 2.75rem;
+  }
 }
 
 /* ===== Entrada (login) ===== */

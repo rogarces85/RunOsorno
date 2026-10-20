@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { toggleDirectorAction } from "@/lib/actions/group.actions";
+import { Field } from "@/components/ui/Field";
 
 export function DirectorToggle({
   groupId,
@@ -21,19 +22,24 @@ export function DirectorToggle({
     }
   };
 
+  const id = `director-${userId}`;
+
   return (
-    <label className="form-check form-switch mb-0">
+    <Field
+      id={id}
+      label={isDirector ? "Director Técnico" : "Coach"}
+      layout="choice"
+      toggle
+      className="mb-0"
+    >
       <input
+        id={id}
         className="form-check-input"
         type="checkbox"
         role="switch"
         checked={isDirector}
         onChange={() => onChange()}
-        aria-label="Director Técnico"
       />
-      <span className="form-check-label small text-secondary">
-        {isDirector ? "Director Técnico" : "Coach"}
-      </span>
-    </label>
+    </Field>
   );
 }

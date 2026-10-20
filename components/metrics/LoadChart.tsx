@@ -7,6 +7,7 @@ import {
   PLOT_HEIGHT,
   toAxisTicks,
 } from "./ChartFrame";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type LoadChartProps = {
   points: { week: string; km: number; minutes: number }[];
@@ -20,11 +21,16 @@ type LoadChartProps = {
  * mismo eje. Componente de servidor desde la Fase 47.
  */
 export function LoadChart({ points }: LoadChartProps) {
-  if (points.length === 0) {
+  if (
+    points.length === 0 ||
+    points.every((point) => point.km === 0 && point.minutes === 0)
+  ) {
     return (
-      <div className="text-secondary text-center py-4">
-        Sin carga registrada en el periodo.
-      </div>
+      <EmptyState
+        title="Sin carga registrada"
+        description="No hay kilómetros ni minutos registrados en el periodo seleccionado."
+        compact
+      />
     );
   }
 

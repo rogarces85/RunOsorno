@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LogsFilters } from "@/components/admin/LogsFilters";
 import { LogsTable } from "@/components/admin/LogsTable";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import {
   getAuditActions,
@@ -42,11 +43,10 @@ export default async function AdminLogsPage({
           </Link>
         </div>
 
-        <h1 className="page-title mb-1">Logs de auditoría</h1>
-        <p className="text-secondary">
-          Registro de las acciones críticas de la plataforma: quién hizo qué,
-          cuándo y desde qué dirección IP.
-        </p>
+        <PageHeader
+          title="Logs de auditoría"
+          description="Registro de las acciones críticas de la plataforma: quién hizo qué, cuándo y desde qué dirección IP."
+        />
 
         <LogsFilters
           actions={actions}

@@ -9,6 +9,7 @@ import {
 import type { PendingRequestItem } from "@/lib/services/group.service";
 import { formatDate } from "@/lib/i18n/format";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { IconUserCheck } from "@tabler/icons-react";
 
@@ -68,22 +69,22 @@ export function RequestsPending({
               </div>
             </div>
             <div className="btn-list flex-nowrap">
-              <button
-                type="button"
-                className="btn btn-sm btn-primary"
+              <Button
+                size="sm"
                 disabled={busyId !== null}
+                loading={busyId === request.id}
                 onClick={() => resolve(request.id, "approve")}
               >
                 {busyId === request.id ? "Procesando…" : "Aprobar"}
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-danger"
+              </Button>
+              <Button
+                variant="danger-ghost"
+                size="sm"
                 disabled={busyId !== null}
                 onClick={() => resolve(request.id, "reject")}
               >
                 Rechazar
-              </button>
+              </Button>
             </div>
           </div>
         ))}

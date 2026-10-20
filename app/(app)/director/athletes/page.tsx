@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AthletesList } from "@/components/coach/AthletesList";
+import { Alert } from "@/components/ui/Alert";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { buttonClassName } from "@/components/ui/Button";
 import { requireRole } from "@/lib/auth/guards";
 import { isDirector } from "@/lib/permissions";
 import { getAllAthletes } from "@/lib/services/athlete.service";
@@ -21,11 +25,15 @@ export default async function DirectorAthletesPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h1 className="page-title">Atletas del grupo</h1>
+          <PageHeader title="Atletas del grupo" />
           <div className="card">
-            <div className="card-body text-secondary text-center py-4">
-              Necesitas ser Director Técnico de un grupo para ver sus atletas.{" "}
-              <Link href="/coach/groups">Ver grupos disponibles</Link>
+            <div className="card-body">
+              <EmptyState
+                title="Sin grupos asignados"
+                description="Necesitas ser Director Técnico de un grupo para ver sus atletas."
+                actionLabel="Ver grupos disponibles"
+                actionHref="/coach/groups"
+              />
             </div>
           </div>
         </div>
@@ -50,10 +58,10 @@ export default async function DirectorAthletesPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h1 className="page-title">Atletas del grupo</h1>
-          <div className="alert alert-warning" role="alert">
+          <PageHeader title="Atletas del grupo" />
+          <Alert variant="warning">
             Necesitas ser Director Técnico del grupo para ver sus atletas.
-          </div>
+          </Alert>
         </div>
       </div>
     );
@@ -64,21 +72,18 @@ export default async function DirectorAthletesPage({
   return (
     <div className="row">
       <div className="col-12">
-        <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-          <div>
-            <h1 className="page-title mb-1">Atletas de {selected.name}</h1>
-            <div className="text-secondary">
-              Vista de solo lectura · {athletes.length} atleta
-              {athletes.length === 1 ? "" : "s"} en el grupo
-            </div>
-          </div>
-          <Link
-            href={`/director/dashboard?group=${groupId}`}
-            className="btn btn-outline-secondary btn-sm"
-          >
-            Ver resumen del grupo
-          </Link>
-        </div>
+        <PageHeader
+          title={`Atletas de ${selected.name}`}
+          description={`Vista de solo lectura · ${athletes.length} atleta${athletes.length === 1 ? "" : "s"} en el grupo`}
+          actions={
+            <Link
+              href={`/director/dashboard?group=${groupId}`}
+              className={buttonClassName({ variant: "secondary", size: "sm" })}
+            >
+              Ver resumen del grupo
+            </Link>
+          }
+        />
 
         {directorGroups.length > 1 ? (
           <div className="mb-3">
@@ -88,7 +93,9 @@ export default async function DirectorAthletesPage({
                   key={group.id}
                   href={`/director/athletes?group=${group.id}`}
                   className={`btn btn-sm ${
-                    group.id === groupId ? "btn-secondary" : "btn-outline-secondary"
+                    group.id === groupId
+                      ? "btn-secondary"
+                      : "btn-outline-secondary"
                   }`}
                 >
                   {group.name}

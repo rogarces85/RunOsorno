@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
 import { IconInbox } from "@tabler/icons-react";
+import { Button, buttonClassName } from "@/components/ui/Button";
 
 /**
  * Estado vacío de Tabler (tarea 38.1).
@@ -40,26 +41,28 @@ export function EmptyState({
     actionHref ? (
       <Link
         href={actionHref}
-        className={`btn btn-${actionVariant}`}
+        className={buttonClassName({
+          variant:
+            actionVariant === "outline-primary" ? "secondary" : "primary",
+        })}
         data-testid="empty-state-action"
       >
         {actionLabel}
       </Link>
     ) : onAction ? (
-      <button
-        type="button"
-        className={`btn btn-${actionVariant}`}
-        data-testid="empty-state-action"
+      <Button
+        variant={actionVariant === "outline-primary" ? "secondary" : "primary"}
+        testId="empty-state-action"
         onClick={onAction}
       >
         {actionLabel}
-      </button>
+      </Button>
     ) : null
   ) : null;
 
   return (
     <div
-      className={`text-center ${compact ? "py-2" : "py-4"}`}
+      className={`app-empty-state text-center ${compact ? "py-2" : "py-4"}`}
       data-testid="empty-state"
     >
       <div className="mb-3">
@@ -67,11 +70,14 @@ export function EmptyState({
           <Icon size={24} stroke={1.5} />
         </span>
       </div>
-      <p className="empty-state-title mb-1" data-testid="empty-state-title">
+      <p
+        className="empty-state-title app-empty-state-title mb-1"
+        data-testid="empty-state-title"
+      >
         {title}
       </p>
       {description && (
-        <p className="empty-state-description text-secondary mb-0">
+        <p className="empty-state-description app-empty-state-description text-secondary mb-0">
           {description}
         </p>
       )}

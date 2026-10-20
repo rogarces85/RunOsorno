@@ -4,6 +4,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { requestJoinAction } from "@/lib/actions/group.actions";
 import type { GroupBasic } from "@/lib/services/group.service";
+import { Alert } from "@/components/ui/Alert";
+import { Badge } from "@/components/ui/Badge";
+import { Card } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 
 export function GroupRequestCard({ group }: { group: GroupBasic }) {
   const router = useRouter();
@@ -24,26 +28,22 @@ export function GroupRequestCard({ group }: { group: GroupBasic }) {
   };
 
   return (
-    <div className="card">
-      <div className="card-body">
-        <h2 className="card-title">{group.name}</h2>
-        {group.description && (
-          <p className="text-secondary mb-3">{group.description}</p>
-        )}
-        {error && <div className="alert alert-danger py-2">{error}</div>}
-        {state === "sent" ? (
-          <span className="badge bg-green-lt text-green-ink">Solicitud enviada</span>
-        ) : (
-          <button
-            type="button"
-            className="btn btn-primary"
-            disabled={state === "sending"}
-            onClick={request}
-          >
-            {state === "sending" ? "Enviando…" : "Solicitar unirse"}
-          </button>
-        )}
-      </div>
-    </div>
+    <Card title={group.name} className="h-100">
+      {group.description && (
+        <p className="text-secondary mb-3">{group.description}</p>
+      )}
+      {error && (
+        <Alert variant="danger" className="py-2">
+          {error}
+        </Alert>
+      )}
+      {state === "sent" ? (
+        <Badge tone="success">Solicitud enviada</Badge>
+      ) : (
+        <Button loading={state === "sending"} onClick={request}>
+          {state === "sending" ? "Enviando…" : "Solicitar unirse"}
+        </Button>
+      )}
+    </Card>
   );
 }

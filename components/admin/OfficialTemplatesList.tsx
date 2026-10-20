@@ -14,7 +14,10 @@ import type { OfficialTemplateListItem } from "@/lib/services/template.service";
 import { formatDateChile } from "@/lib/utils/date";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Alert } from "@/components/ui/Alert";
+import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Table } from "@/components/ui/Table";
+import { Button } from "@/components/ui/Button";
 import {
   OfficialTemplateForm,
   type OfficialFormNotice,
@@ -63,10 +66,10 @@ export function OfficialTemplatesList({
             ? "Listado de plantillas oficiales"
             : `${templates.length} plantilla${templates.length === 1 ? "" : "s"} oficial${templates.length === 1 ? "" : "es"}`}
         </p>
-        <button type="button" className="btn btn-primary" onClick={openCreate}>
+        <Button onClick={openCreate}>
           <IconPlus size={18} stroke={1.75} className="me-1" />
           Nueva oficial
-        </button>
+        </Button>
       </div>
 
       {notice && (
@@ -91,60 +94,66 @@ export function OfficialTemplatesList({
             />
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="table table-vcenter card-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Tipo</th>
-                  <th>Secciones</th>
-                  <th>Actualizada</th>
-                  <th className="text-end">Acciones</th>
+          <Table label="Listado de plantillas oficiales" stackOnMobile>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th className="text-end">Secciones</th>
+                <th>Actualizada</th>
+                <th className="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {templates.map((template) => (
+                <tr key={template.id}>
+                  <td className="fw-medium" data-label="Nombre">
+                    {template.name}
+                  </td>
+                  <td data-label="Tipo">
+                    <Badge tone="primary">
+                      {SESSION_TYPE_LABELS[
+                        template.sessionType as keyof typeof SESSION_TYPE_LABELS
+                      ] ?? template.sessionType}
+                    </Badge>
+                  </td>
+                  <td className="text-end app-numeric" data-label="Secciones">
+                    {template.sectionCount}
+                  </td>
+                  <td className="text-secondary" data-label="Actualizada">
+                    {formatDateChile(template.updatedAt)}
+                  </td>
+                  <td className="text-end" data-label="Acciones">
+                    <div className="btn-list flex-nowrap justify-content-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
+                        aria-label={`Editar ${template.name}`}
+                        title="Editar"
+                        onClick={() => {
+                          setEditing(template);
+                          setFormOpen(true);
+                        }}
+                      >
+                        <IconEdit size={16} stroke={1.75} />
+                      </Button>
+                      <Button
+                        variant="danger-ghost"
+                        size="sm"
+                        iconOnly
+                        aria-label={`Eliminar ${template.name}`}
+                        title="Eliminar"
+                        onClick={() => setDeleting(template)}
+                      >
+                        <IconTrash size={16} stroke={1.75} />
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {templates.map((template) => (
-                  <tr key={template.id}>
-                    <td className="fw-medium">{template.name}</td>
-                    <td>
-                      <span className="badge bg-blue-lt text-blue-ink">
-                        {SESSION_TYPE_LABELS[
-                          template.sessionType as keyof typeof SESSION_TYPE_LABELS
-                        ] ?? template.sessionType}
-                      </span>
-                    </td>
-                    <td>{template.sectionCount}</td>
-                    <td className="text-secondary">
-                      {formatDateChile(template.updatedAt)}
-                    </td>
-                    <td className="text-end">
-                      <div className="btn-list flex-nowrap justify-content-end">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Editar"
-                          onClick={() => {
-                            setEditing(template);
-                            setFormOpen(true);
-                          }}
-                        >
-                          <IconEdit size={16} stroke={1.75} />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-danger"
-                          title="Eliminar"
-                          onClick={() => setDeleting(template)}
-                        >
-                          <IconTrash size={16} stroke={1.75} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </Table>
         )}
       </div>
 

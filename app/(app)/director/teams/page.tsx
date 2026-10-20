@@ -2,11 +2,17 @@ import Link from "next/link";
 import { ExportButton } from "@/components/export/ExportButton";
 import { GroupMetricsPanel } from "@/components/metrics/GroupMetricsPanel";
 import { PeriodSelector } from "@/components/metrics/PeriodSelector";
+import { Alert } from "@/components/ui/Alert";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { isDirector } from "@/lib/permissions";
 import { getMyGroups } from "@/lib/services/group.service";
 import { getGroupMetrics } from "@/lib/services/metric.service";
-import { periodFromSearchParams, periodToQuery } from "@/lib/validations/metric.schemas";
+import {
+  periodFromSearchParams,
+  periodToQuery,
+} from "@/lib/validations/metric.schemas";
 
 export const instant = false;
 
@@ -24,11 +30,15 @@ export default async function DirectorTeamsPage({
     return (
       <div className="row">
         <div className="col-12">
-          <h1 className="page-title">Comparativa del grupo</h1>
+          <PageHeader title="Comparativa del grupo" />
           <div className="card">
-            <div className="card-body text-secondary text-center py-4">
-              No perteneces a ningún grupo todavía.{" "}
-              <Link href="/coach/groups">Ver grupos disponibles</Link>
+            <div className="card-body">
+              <EmptyState
+                title="Sin grupos todavía"
+                description="No perteneces a ningún grupo todavía."
+                actionLabel="Ver grupos disponibles"
+                actionHref="/coach/groups"
+              />
             </div>
           </div>
         </div>
@@ -48,24 +58,24 @@ export default async function DirectorTeamsPage({
   return (
     <div className="row">
       <div className="col-12">
-        <div className="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
-          <div>
-            <h1 className="page-title mb-1">Comparativa de {selected.name}</h1>
-            <div className="text-secondary">Equipos y coaches del grupo</div>
-          </div>
-          <div className="d-flex flex-wrap align-items-center gap-2">
-            <PeriodSelector
-              basePath="/director/teams"
-              current={period}
-              extra={{ group: groupId }}
-            />
-            <ExportButton
-              target={{ kind: "group", groupId }}
-              period={period}
-              size="sm"
-            />
-          </div>
-        </div>
+        <PageHeader
+          title={`Comparativa de ${selected.name}`}
+          description="Equipos y coaches del grupo"
+          actions={
+            <>
+              <PeriodSelector
+                basePath="/director/teams"
+                current={period}
+                extra={{ group: groupId }}
+              />
+              <ExportButton
+                target={{ kind: "group", groupId }}
+                period={period}
+                size="sm"
+              />
+            </>
+          }
+        />
 
         {groups.length > 1 ? (
           <div className="mb-3">
@@ -88,10 +98,10 @@ export default async function DirectorTeamsPage({
         ) : null}
 
         {!director ? (
-          <div className="alert alert-warning" role="alert">
+          <Alert variant="warning">
             Necesitas ser Director Técnico del grupo para ver la comparativa de
             teams. Pide al administrador que te asigne el rol.
-          </div>
+          </Alert>
         ) : (
           <DirectorContent groupId={groupId} period={period} />
         )}
@@ -109,11 +119,7 @@ async function DirectorContent({
 }) {
   const result = await getGroupMetrics(groupId, period);
   if (!result.ok) {
-    return (
-      <div className="alert alert-danger" role="alert">
-        {result.error}
-      </div>
-    );
+    return <Alert variant="danger">{result.error}</Alert>;
   }
   return <GroupMetricsPanel metrics={result.data} />;
 }

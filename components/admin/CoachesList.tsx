@@ -22,7 +22,10 @@ import type { CoachListItem } from "@/lib/services/user.service";
 import { CoachForm, type CoachFormNotice } from "./CoachForm";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Alert } from "@/components/ui/Alert";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Table } from "@/components/ui/Table";
 
 type Notice = CoachFormNotice | null;
 
@@ -148,10 +151,10 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
             ? "Listado de coaches"
             : `${coaches.length} coach${coaches.length === 1 ? "" : "es"} en el sistema`}
         </p>
-        <button type="button" className="btn btn-primary" onClick={openCreate}>
+        <Button onClick={openCreate}>
           <IconPlus size={18} stroke={1.75} className="me-1" />
           Nuevo coach
-        </button>
+        </Button>
       </div>
 
       {notice && (
@@ -185,100 +188,112 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
             />
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="table table-vcenter card-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Email</th>
-                  <th>Estado</th>
-                  <th>Grupos</th>
-                  <th className="text-end">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {coaches.map((coach) => (
-                  <tr key={coach.id}>
-                    <td>
-                      <span className="fw-medium">{coach.name}</span>
-                    </td>
-                    <td className="text-secondary">{coach.email}</td>
-                    <td>
+          <Table label="Listado de coaches" stackOnMobile>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Estado</th>
+                <th>Grupos</th>
+                <th className="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {coaches.map((coach) => (
+                <tr key={coach.id}>
+                  <td data-label="Nombre">
+                    <span className="fw-medium">{coach.name}</span>
+                  </td>
+                  <td className="text-secondary" data-label="Email">
+                    {coach.email}
+                  </td>
+                  <td data-label="Estado">
+                    {coach.isActive ? (
+                      <Badge tone="success">Activo</Badge>
+                    ) : (
+                      <Badge tone="danger">Inactivo</Badge>
+                    )}
+                  </td>
+                  <td className="text-secondary" data-label="Grupos">
+                    {coach.groups.length > 0
+                      ? coach.groups.join(", ")
+                      : "Sin grupo"}
+                  </td>
+                  <td className="text-end" data-label="Acciones">
+                    <div className="btn-list flex-nowrap justify-content-end">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
+                        aria-label={`Editar ${coach.name}`}
+                        title="Editar"
+                        onClick={() => openEdit(coach)}
+                      >
+                        <IconEdit size={16} stroke={1.75} />
+                      </Button>
                       {coach.isActive ? (
-                        <span className="badge bg-green-lt text-green-ink">Activo</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconOnly
+                          aria-label={`Desactivar ${coach.name}`}
+                          title="Desactivar"
+                          onClick={() =>
+                            setConfirm({ kind: "deactivate", coach })
+                          }
+                        >
+                          <IconPower size={16} stroke={1.75} />
+                        </Button>
                       ) : (
-                        <span className="badge bg-red-lt text-red-ink">Inactivo</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconOnly
+                          aria-label={`Activar ${coach.name}`}
+                          title="Activar"
+                          onClick={() =>
+                            setConfirm({ kind: "activate", coach })
+                          }
+                        >
+                          <IconPower size={16} stroke={1.75} />
+                        </Button>
                       )}
-                    </td>
-                    <td className="text-secondary">
-                      {coach.groups.length > 0
-                        ? coach.groups.join(", ")
-                        : "Sin grupo"}
-                    </td>
-                    <td className="text-end">
-                      <div className="btn-list flex-nowrap justify-content-end">
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Editar"
-                          onClick={() => openEdit(coach)}
-                        >
-                          <IconEdit size={16} stroke={1.75} />
-                        </button>
-                        {coach.isActive ? (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-ghost-secondary"
-                            title="Desactivar"
-                            onClick={() =>
-                              setConfirm({ kind: "deactivate", coach })
-                            }
-                          >
-                            <IconPower size={16} stroke={1.75} />
-                          </button>
-                        ) : (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-ghost-secondary"
-                            title="Activar"
-                            onClick={() =>
-                              setConfirm({ kind: "activate", coach })
-                            }
-                          >
-                            <IconPower size={16} stroke={1.75} />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Restablecer contraseña"
-                          onClick={() => setConfirm({ kind: "reset", coach })}
-                        >
-                          <IconKey size={16} stroke={1.75} />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Reenviar invitación"
-                          onClick={() => setConfirm({ kind: "resend", coach })}
-                        >
-                          <IconRefresh size={16} stroke={1.75} />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-danger"
-                          title="Eliminar"
-                          onClick={() => setConfirm({ kind: "delete", coach })}
-                        >
-                          <IconTrash size={16} stroke={1.75} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
+                        aria-label={`Restablecer contraseña de ${coach.name}`}
+                        title="Restablecer contraseña"
+                        onClick={() => setConfirm({ kind: "reset", coach })}
+                      >
+                        <IconKey size={16} stroke={1.75} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
+                        aria-label={`Reenviar invitación a ${coach.name}`}
+                        title="Reenviar invitación"
+                        onClick={() => setConfirm({ kind: "resend", coach })}
+                      >
+                        <IconRefresh size={16} stroke={1.75} />
+                      </Button>
+                      <Button
+                        variant="danger-ghost"
+                        size="sm"
+                        iconOnly
+                        aria-label={`Eliminar ${coach.name}`}
+                        title="Eliminar"
+                        onClick={() => setConfirm({ kind: "delete", coach })}
+                      >
+                        <IconTrash size={16} stroke={1.75} />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         )}
       </div>
 

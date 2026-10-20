@@ -1,4 +1,5 @@
 import { GroupRequestCard } from "@/components/coach/GroupRequestCard";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { getAvailableGroups } from "@/lib/services/group.service";
 
@@ -11,11 +12,10 @@ export default async function CoachGroupsPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h1 className="page-title">Unirse a un grupo</h1>
-        <p className="text-secondary">
-          Estos son los grupos a los que aún no perteneces. Solicita unirse y el
-          administrador la revisará.
-        </p>
+        <PageHeader
+          title="Unirse a un grupo"
+          description="Estos son los grupos a los que aún no perteneces. Solicita unirse y el administrador la revisará."
+        />
         {available.length === 0 ? (
           <div className="card">
             <div className="card-body text-secondary text-center py-4">

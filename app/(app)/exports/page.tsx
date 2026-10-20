@@ -1,5 +1,7 @@
-import Link from "next/link";
 import { ExportButton } from "@/components/export/ExportButton";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireAuth } from "@/lib/auth/guards";
 import { getMyGroups } from "@/lib/services/group.service";
 import { getTeamsByCoach } from "@/lib/services/team.service";
@@ -36,120 +38,95 @@ export default async function ExportsPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h1 className="page-title mb-1">Exportes</h1>
-        <p className="text-secondary">
-          Descarga los datos de entrenamiento en PDF, Excel o CSV.
-        </p>
+        <PageHeader
+          title="Exportes"
+          description="Descarga los datos de entrenamiento en PDF, Excel o CSV."
+        />
 
         {isAdmin && (
-          <div className="card mb-3">
-            <div className="card-header">
-              <h2 className="card-title">Listados globales (CSV)</h2>
+          <Card title="Listados globales (CSV)" className="mb-3">
+            <div className="row g-3">
+              {[
+                { entity: "coaches" as const, label: "Coaches" },
+                { entity: "athletes" as const, label: "Atletas" },
+                { entity: "groups" as const, label: "Grupos" },
+              ].map((item) => (
+                <div key={item.entity} className="col-md-4">
+                  <Card title={item.label} level={3}>
+                    <ExportButton
+                      target={{
+                        kind: "global",
+                        entity: item.entity,
+                        formats: ["csv"],
+                      }}
+                      label="Exportar CSV"
+                      size="sm"
+                    />
+                  </Card>
+                </div>
+              ))}
             </div>
-            <div className="card-body">
-              <div className="row g-3">
-                {(
-                  [
-                    { entity: "coaches" as const, label: "Coaches" },
-                    { entity: "athletes" as const, label: "Atletas" },
-                    { entity: "groups" as const, label: "Grupos" },
-                  ]
-                ).map((item) => (
-                  <div key={item.entity} className="col-md-4">
-                    <div className="card">
-                      <div className="card-body">
-                        <h3 className="card-title">{item.label}</h3>
-                        <ExportButton
-                          target={{
-                            kind: "global",
-                            entity: item.entity,
-                            formats: ["csv"],
-                          }}
-                          label="Exportar CSV"
-                          size="sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          </Card>
         )}
 
         {isCoach && (
           <>
             {teams.length > 0 && (
-              <div className="card mb-3">
-                <div className="card-header">
-                  <h2 className="card-title">Resumen de teams (Excel)</h2>
+              <Card title="Resumen de teams (Excel)" className="mb-3">
+                <div className="row g-3">
+                  {teams.map((team) => (
+                    <div key={team.id} className="col-md-4">
+                      <Card title={team.name} level={3}>
+                        <ExportButton
+                          target={{ kind: "team", teamId: team.id }}
+                          label="Exportar Excel"
+                          size="sm"
+                        />
+                      </Card>
+                    </div>
+                  ))}
                 </div>
-                <div className="card-body">
-                  <div className="row g-3">
-                    {teams.map((team) => (
-                      <div key={team.id} className="col-md-4">
-                        <div className="card">
-                          <div className="card-body">
-                            <h3 className="card-title">{team.name}</h3>
-                            <ExportButton
-                              target={{ kind: "team", teamId: team.id }}
-                              label="Exportar Excel"
-                              size="sm"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              </Card>
             )}
 
             {directorGroups.length > 0 && (
-              <div className="card mb-3">
-                <div className="card-header">
-                  <h2 className="card-title">
-                    Métricas de grupo (Excel)
-                  </h2>
+              <Card title="Métricas de grupo (Excel)" className="mb-3">
+                <div className="row g-3">
+                  {directorGroups.map((group) => (
+                    <div key={group.id} className="col-md-4">
+                      <Card title={group.name} level={3}>
+                        <ExportButton
+                          target={{ kind: "group", groupId: group.id }}
+                          label="Exportar Excel"
+                          size="sm"
+                        />
+                      </Card>
+                    </div>
+                  ))}
                 </div>
-                <div className="card-body">
-                  <div className="row g-3">
-                    {directorGroups.map((group) => (
-                      <div key={group.id} className="col-md-4">
-                        <div className="card">
-                          <div className="card-body">
-                            <h3 className="card-title">{group.name}</h3>
-                            <ExportButton
-                              target={{ kind: "group", groupId: group.id }}
-                              label="Exportar Excel"
-                              size="sm"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              </Card>
             )}
 
             {teams.length === 0 && directorGroups.length === 0 && (
-              <div className="card">
-                <div className="card-body text-secondary text-center py-4">
-                  Todavía no tienes equipos para exportar.{" "}
-                  <Link href="/coach/teams">Ir a mis teams</Link>
-                </div>
-              </div>
+              <Card>
+                <EmptyState
+                  title="Sin equipos para exportar"
+                  description="Todavía no tienes equipos para exportar."
+                  actionLabel="Ir a mis teams"
+                  actionHref="/coach/teams"
+                />
+              </Card>
             )}
           </>
         )}
 
         {!isAdmin && !isCoach && (
-          <div className="card">
-            <div className="card-body text-secondary text-center py-4">
-              Los exportes están disponibles para coaches y administradores.
-            </div>
-          </div>
+          <Card>
+            <EmptyState
+              title="Exportes no disponibles"
+              description="Los exportes están disponibles para coaches y administradores."
+            />
+          </Card>
         )}
       </div>
     </div>

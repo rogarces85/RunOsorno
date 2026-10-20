@@ -11,6 +11,8 @@ import {
 } from "@/lib/validations/team.schemas";
 import { applyServerErrors } from "@/lib/utils/form";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 
 export type TeamFormNotice = {
   type: "success" | "danger";
@@ -103,50 +105,34 @@ export function TeamForm({
               {serverError}
             </Alert>
           )}
-          <div className="mb-0">
-            <label className="form-label" htmlFor="team-name">
-              Nombre
-            </label>
+          <Field
+            id="team-name"
+            label="Nombre"
+            error={errors.name?.message}
+            hint={
+              !team
+                ? `Si lo dejas vacío, el nombre será tu apellido (${defaultNameHint}).`
+                : undefined
+            }
+          >
             <input
               id="team-name"
               type="text"
               className={`form-control ${errors.name ? "is-invalid" : ""}`}
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "team-name-error" : undefined}
               placeholder={
                 team ? team.name : `Dejar vacío para usar “${defaultNameHint}”`
               }
               {...register("name")}
             />
-            {errors.name && (
-              <div id="team-name-error" className="invalid-feedback">
-                {errors.name.message}
-              </div>
-            )}
-            {!team && (
-              <div className="form-hint">
-                Si lo dejas vacío, el nombre será tu apellido ({defaultNameHint}
-                ).
-              </div>
-            )}
-          </div>
+          </Field>
         </div>
         <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-link link-secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancelar
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
+          </Button>
+          <Button type="submit" loading={isSubmitting}>
             {isSubmitting ? "Guardando…" : "Guardar"}
-          </button>
+          </Button>
         </div>
       </form>
     </ModalShell>

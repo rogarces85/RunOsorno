@@ -9,6 +9,7 @@ import type { TeamListItem } from "@/lib/services/team.service";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Alert } from "@/components/ui/Alert";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Button, buttonClassName } from "@/components/ui/Button";
 import { TeamForm, type TeamFormNotice } from "./TeamForm";
 
 export function TeamsList({
@@ -54,10 +55,10 @@ export function TeamsList({
             ? "Listado de teams"
             : `${teams.length} team${teams.length === 1 ? "" : "s"}`}
         </p>
-        <button type="button" className="btn btn-primary" onClick={openCreate}>
+        <Button onClick={openCreate}>
           <IconPlus size={18} stroke={1.75} className="me-1" />
           Nuevo team
-        </button>
+        </Button>
       </div>
 
       {notice && (
@@ -103,13 +104,18 @@ export function TeamsList({
                   <div className="btn-list">
                     <Link
                       href={`/coach/teams/${team.id}`}
-                      className="btn btn-sm btn-ghost-secondary"
+                      className={buttonClassName({
+                        variant: "secondary",
+                        size: "sm",
+                      })}
                     >
                       Ver
                     </Link>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-ghost-secondary"
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      iconOnly
+                      aria-label={`Renombrar ${team.name}`}
                       title="Renombrar"
                       onClick={() => {
                         setEditing(team);
@@ -117,15 +123,17 @@ export function TeamsList({
                       }}
                     >
                       <IconEdit size={16} stroke={1.75} />
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-ghost-danger"
+                    </Button>
+                    <Button
+                      variant="danger-ghost"
+                      size="sm"
+                      iconOnly
+                      aria-label={`Eliminar ${team.name}`}
                       title="Eliminar"
                       onClick={() => setDeleting(team)}
                     >
                       <IconTrash size={16} stroke={1.75} />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>

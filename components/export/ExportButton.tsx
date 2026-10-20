@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconAlertCircle, IconDownload, IconLoader2 } from "@tabler/icons-react";
+import { IconAlertCircle, IconDownload } from "@tabler/icons-react";
 import { exportDataAction } from "@/lib/actions/export.actions";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 import type {
   ExportEntity,
   ExportFormat,
@@ -169,29 +171,23 @@ export function ExportButton({
     }
   }
 
-  const sizeClass = size === "sm" ? "btn-sm" : "";
-
   // Exportación global: un solo formato, sin selector de periodo.
   if (target.kind === "global") {
     return (
       <div className="d-flex flex-column">
-        <button
-          type="button"
-          className={`btn btn-outline-primary ${sizeClass}`}
-          disabled={busy}
+        <Button
+          variant="secondary"
+          size={size}
+          loading={busy}
           onClick={() => runExport("csv")}
         >
-          {busy ? (
-            <IconLoader2 size={16} className="me-1 spinner" />
-          ) : (
-            <IconDownload size={16} stroke={1.75} className="me-1" />
-          )}
+          <IconDownload size={16} stroke={1.75} className="me-1" />
           {busy ? "Generando…" : `${label} CSV`}
-        </button>
+        </Button>
         {error && (
-          <div className="alert alert-danger mt-2 py-1 px-2 small mb-0">
+          <Alert variant="danger" className="mt-2 py-1 px-2 small mb-0">
             {error}
-          </div>
+          </Alert>
         )}
       </div>
     );
@@ -199,23 +195,19 @@ export function ExportButton({
 
   return (
     <div className="position-relative">
-      <button
-        type="button"
-        className={`btn btn-outline-primary ${sizeClass}`}
-        disabled={busy}
+      <Button
+        variant="secondary"
+        size={size}
+        loading={busy}
         onClick={() => {
           setError(null);
           setOpen((value) => !value);
         }}
         aria-expanded={open}
       >
-        {busy ? (
-          <IconLoader2 size={16} className="me-1 spinner" />
-        ) : (
-          <IconDownload size={16} stroke={1.75} className="me-1" />
-        )}
+        <IconDownload size={16} stroke={1.75} className="me-1" />
         {busy ? "Generando…" : label}
-      </button>
+      </Button>
 
       {open && (
         <div
@@ -286,24 +278,24 @@ export function ExportButton({
 
             <div className="d-flex gap-2">
               {availableFormats.map((format) => (
-                <button
+                <Button
                   key={format}
-                  type="button"
-                  className="btn btn-primary btn-sm flex-fill"
-                  disabled={busy}
+                  size="sm"
+                  className="flex-fill"
+                  loading={busy}
                   onClick={() => runExport(format)}
                 >
                   <IconDownload size={14} stroke={1.75} className="me-1" />
                   {FORMAT_LABEL[format]}
-                </button>
+                </Button>
               ))}
             </div>
 
             {error && (
-              <div className="alert alert-danger mt-2 mb-0 py-1 px-2 small">
+              <Alert variant="danger" className="mt-2 mb-0 py-1 px-2 small">
                 <IconAlertCircle size={14} className="me-1" />
                 {error}
-              </div>
+              </Alert>
             )}
           </div>
         </div>

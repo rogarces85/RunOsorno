@@ -1,8 +1,12 @@
 import { AthleteCalendar } from "@/components/athlete/AthleteCalendar";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { getMonthFeedback } from "@/lib/services/feedback.service";
 import { getMonthPlan } from "@/lib/services/plan.service";
-import { getNotDoneReasons, getEditWindowHours } from "@/lib/services/settings.service";
+import {
+  getNotDoneReasons,
+  getEditWindowHours,
+} from "@/lib/services/settings.service";
 
 export const instant = false;
 
@@ -33,12 +37,10 @@ export default async function AthleteCalendarPage({
   return (
     <div className="row">
       <div className="col-12">
-        <div className="mb-3">
-          <h1 className="page-title mb-0">Calendario</h1>
-          <div className="text-secondary">
-            {user.name} — tu plan de entrenamiento
-          </div>
-        </div>
+        <PageHeader
+          title="Calendario"
+          description={`${user.name} — tu plan de entrenamiento`}
+        />
         <AthleteCalendar
           items={items}
           month={month}

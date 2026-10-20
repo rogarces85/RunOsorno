@@ -1,4 +1,5 @@
 import { GroupsList } from "@/components/admin/GroupsList";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { ExportButton } from "@/components/export/ExportButton";
 import { requireRole } from "@/lib/auth/guards";
 import { getGroups } from "@/lib/services/group.service";
@@ -12,14 +13,17 @@ export default async function AdminGroupsPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h1 className="page-title mb-0">Grupos</h1>
-          <ExportButton
-            target={{ kind: "global", entity: "groups", formats: ["csv"] }}
-            label="Exportar CSV"
-            size="sm"
-          />
-        </div>
+        <PageHeader
+          title="Grupos"
+          description="Grupos o escuelas de la plataforma y las solicitudes de coaches."
+          actions={
+            <ExportButton
+              target={{ kind: "global", entity: "groups", formats: ["csv"] }}
+              label="Exportar CSV"
+              size="sm"
+            />
+          }
+        />
         <GroupsList groups={groups} />
       </div>
     </div>

@@ -1,5 +1,8 @@
 import { AthletesList } from "@/components/coach/AthletesList";
 import { ExportButton } from "@/components/export/ExportButton";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { Button, buttonClassName } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 import { requireRole } from "@/lib/auth/guards";
 import {
   getAllAthletes,
@@ -45,92 +48,94 @@ export default async function AdminAthletesPage({
   return (
     <div className="row">
       <div className="col-12">
-        <div className="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-          <h1 className="page-title mb-0">Atletas</h1>
-          <ExportButton
-            target={{ kind: "global", entity: "athletes", formats: ["csv"] }}
-            label="Exportar CSV"
-            size="sm"
-          />
-        </div>
+        <PageHeader
+          title="Atletas"
+          description="Listado global con filtros por coach, team, grupo y estado."
+          actions={
+            <ExportButton
+              target={{ kind: "global", entity: "athletes", formats: ["csv"] }}
+              label="Exportar CSV"
+              size="sm"
+            />
+          }
+        />
 
         <form method="get" action="/admin/athletes" className="card mb-3">
           <div className="card-body">
             <div className="row g-3 align-items-end">
               <div className="col-md-3">
-                <label className="form-label" htmlFor="filter-coach">
-                  Coach
-                </label>
-                <select
-                  id="filter-coach"
-                  name="coachId"
-                  className="form-select"
-                  defaultValue={filters.coachId ?? ""}
-                >
-                  <option value="">Todos</option>
-                  {coaches.map((coach) => (
-                    <option key={coach.id} value={coach.id}>
-                      {coach.name}
-                    </option>
-                  ))}
-                </select>
+                <Field id="filter-coach" label="Coach">
+                  <select
+                    id="filter-coach"
+                    name="coachId"
+                    className="form-select"
+                    defaultValue={filters.coachId ?? ""}
+                  >
+                    <option value="">Todos</option>
+                    {coaches.map((coach) => (
+                      <option key={coach.id} value={coach.id}>
+                        {coach.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
               </div>
               <div className="col-md-3">
-                <label className="form-label" htmlFor="filter-team">
-                  Team
-                </label>
-                <select
-                  id="filter-team"
-                  name="teamId"
-                  className="form-select"
-                  defaultValue={filters.teamId ?? ""}
-                >
-                  <option value="">Todos</option>
-                  {teamOptions.map((team) => (
-                    <option key={team.id} value={team.id}>
-                      {team.name} — {team.coachName}
-                    </option>
-                  ))}
-                </select>
+                <Field id="filter-team" label="Team">
+                  <select
+                    id="filter-team"
+                    name="teamId"
+                    className="form-select"
+                    defaultValue={filters.teamId ?? ""}
+                  >
+                    <option value="">Todos</option>
+                    {teamOptions.map((team) => (
+                      <option key={team.id} value={team.id}>
+                        {team.name} — {team.coachName}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
               </div>
               <div className="col-md-2">
-                <label className="form-label" htmlFor="filter-group">
-                  Grupo
-                </label>
-                <select
-                  id="filter-group"
-                  name="groupId"
-                  className="form-select"
-                  defaultValue={filters.groupId ?? ""}
-                >
-                  <option value="">Todos</option>
-                  {groups.map((group) => (
-                    <option key={group.id} value={group.id}>
-                      {group.name}
-                    </option>
-                  ))}
-                </select>
+                <Field id="filter-group" label="Grupo">
+                  <select
+                    id="filter-group"
+                    name="groupId"
+                    className="form-select"
+                    defaultValue={filters.groupId ?? ""}
+                  >
+                    <option value="">Todos</option>
+                    {groups.map((group) => (
+                      <option key={group.id} value={group.id}>
+                        {group.name}
+                      </option>
+                    ))}
+                  </select>
+                </Field>
               </div>
               <div className="col-md-2">
-                <label className="form-label" htmlFor="filter-status">
-                  Estado
-                </label>
-                <select
-                  id="filter-status"
-                  name="status"
-                  className="form-select"
-                  defaultValue={filters.status ?? "all"}
-                >
-                  <option value="all">Todos</option>
-                  <option value="active">Activos</option>
-                  <option value="inactive">Inactivos</option>
-                </select>
+                <Field id="filter-status" label="Estado">
+                  <select
+                    id="filter-status"
+                    name="status"
+                    className="form-select"
+                    defaultValue={filters.status ?? "all"}
+                  >
+                    <option value="all">Todos</option>
+                    <option value="active">Activos</option>
+                    <option value="inactive">Inactivos</option>
+                  </select>
+                </Field>
               </div>
               <div className="col-md-2 d-flex gap-2">
-                <button type="submit" className="btn btn-primary flex-fill">
+                <Button type="submit" className="flex-fill">
                   Filtrar
-                </button>
-                <a href="/admin/athletes" className="btn btn-ghost-secondary">
+                </Button>
+                <a
+                  href="/admin/athletes"
+                  className={buttonClassName({ variant: "ghost" })}
+                >
                   Limpiar
                 </a>
               </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { generateWeekAction } from "@/lib/actions/plan.actions";
 import type { TemplateOption } from "./AssignTemplateForm";
@@ -187,23 +188,17 @@ export function WeekGenerator({
         )}
       </div>
       <div className="modal-footer">
-        <button
-          type="button"
-          className="btn btn-link link-secondary"
-          onClick={onClose}
-          disabled={busy}
-        >
+        <Button variant="ghost" onClick={onClose} disabled={busy}>
           Cancelar
-        </button>
-        <button
-          type="button"
-          className="btn btn-primary"
+        </Button>
+        <Button
           onClick={submit}
           disabled={busy}
-          data-testid="wg-submit"
+          loading={busy}
+          testId="wg-submit"
         >
           {busy ? "Generando…" : "Generar semana"}
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );

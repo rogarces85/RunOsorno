@@ -14,6 +14,8 @@ import type { GroupListItem } from "@/lib/services/group.service";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Alert } from "@/components/ui/Alert";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Table } from "@/components/ui/Table";
+import { Button, buttonClassName } from "@/components/ui/Button";
 import { GroupForm, type GroupFormNotice } from "./GroupForm";
 
 export function GroupsList({ groups }: { groups: GroupListItem[] }) {
@@ -48,9 +50,7 @@ export function GroupsList({ groups }: { groups: GroupListItem[] }) {
             ? "Listado de grupos"
             : `${groups.length} grupo${groups.length === 1 ? "" : "s"}`}
         </p>
-        <button
-          type="button"
-          className="btn btn-primary"
+        <Button
           onClick={() => {
             setEditing(null);
             setFormOpen(true);
@@ -58,7 +58,7 @@ export function GroupsList({ groups }: { groups: GroupListItem[] }) {
         >
           <IconPlus size={18} stroke={1.75} className="me-1" />
           Nuevo grupo
-        </button>
+        </Button>
       </div>
 
       {notice && (
@@ -86,71 +86,82 @@ export function GroupsList({ groups }: { groups: GroupListItem[] }) {
             />
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="table table-vcenter card-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Coaches</th>
-                  <th>Teams</th>
-                  <th>Atletas</th>
-                  <th className="text-end">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {groups.map((group) => (
-                  <tr key={group.id}>
-                    <td>
+          <Table label="Listado de grupos" stackOnMobile>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th className="text-end">Coaches</th>
+                <th className="text-end">Teams</th>
+                <th className="text-end">Atletas</th>
+                <th className="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {groups.map((group) => (
+                <tr key={group.id}>
+                  <td data-label="Nombre">
+                    <Link
+                      href={`/admin/groups/${group.id}`}
+                      className="fw-medium text-reset"
+                    >
+                      {group.name}
+                    </Link>
+                    {group.description && (
+                      <div className="text-secondary small">
+                        {group.description}
+                      </div>
+                    )}
+                  </td>
+                  <td className="text-end app-numeric" data-label="Coaches">
+                    {group.coachesCount}
+                  </td>
+                  <td className="text-end app-numeric" data-label="Teams">
+                    {group.teamsCount}
+                  </td>
+                  <td className="text-end app-numeric" data-label="Atletas">
+                    {group.athletesCount}
+                  </td>
+                  <td className="text-end" data-label="Acciones">
+                    <div className="btn-list flex-nowrap justify-content-end">
                       <Link
                         href={`/admin/groups/${group.id}`}
-                        className="fw-medium text-reset"
+                        className={buttonClassName({
+                          variant: "secondary",
+                          size: "sm",
+                        })}
+                        title="Ver detalle"
                       >
-                        {group.name}
+                        Ver
                       </Link>
-                      {group.description && (
-                        <div className="text-secondary small">
-                          {group.description}
-                        </div>
-                      )}
-                    </td>
-                    <td>{group.coachesCount}</td>
-                    <td>{group.teamsCount}</td>
-                    <td>{group.athletesCount}</td>
-                    <td className="text-end">
-                      <div className="btn-list flex-nowrap justify-content-end">
-                        <Link
-                          href={`/admin/groups/${group.id}`}
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Ver detalle"
-                        >
-                          Ver
-                        </Link>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-secondary"
-                          title="Editar"
-                          onClick={() => {
-                            setEditing(group);
-                            setFormOpen(true);
-                          }}
-                        >
-                          <IconEdit size={16} stroke={1.75} />
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-ghost-danger"
-                          title="Eliminar"
-                          onClick={() => setDeleting(group)}
-                        >
-                          <IconTrash size={16} stroke={1.75} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        iconOnly
+                        aria-label={`Editar ${group.name}`}
+                        title="Editar"
+                        onClick={() => {
+                          setEditing(group);
+                          setFormOpen(true);
+                        }}
+                      >
+                        <IconEdit size={16} stroke={1.75} />
+                      </Button>
+                      <Button
+                        variant="danger-ghost"
+                        size="sm"
+                        iconOnly
+                        aria-label={`Eliminar ${group.name}`}
+                        title="Eliminar"
+                        onClick={() => setDeleting(group)}
+                      >
+                        <IconTrash size={16} stroke={1.75} />
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         )}
       </div>
 

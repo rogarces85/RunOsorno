@@ -2,6 +2,7 @@ import { requireAuth } from "@/lib/auth/guards";
 import { getNotifications } from "@/lib/services/notification.service";
 import { notificationHref } from "@/lib/utils/notification";
 import { NotificationCenter } from "@/components/ui/NotificationCenter";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export const instant = false;
 
@@ -26,10 +27,7 @@ export default async function NotificationsPage({
   return (
     <div className="row">
       <div className="col-12 col-lg-8 col-xl-6">
-        <div className="mb-3">
-          <h1 className="page-title mb-0">Notificaciones</h1>
-          <div className="text-secondary">Tus avisos recientes</div>
-        </div>
+        <PageHeader title="Notificaciones" description="Tus avisos recientes" />
         <NotificationCenter rows={rows} filter={filter} />
       </div>
     </div>

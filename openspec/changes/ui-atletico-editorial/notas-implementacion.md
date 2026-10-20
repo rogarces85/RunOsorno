@@ -189,3 +189,92 @@ come el detalle del corredor y las líneas de velocidad.
 
 La marca pasa a **RunOsorno Training** en `metadata`, login y shell. El claim del logo
 («Planifica · Entrena · Evoluciona») se usa literal en la landing y en el pie.
+
+## Cierre de la adopción (2026-10-20, segunda sesión)
+
+Se completaron las 15 tareas que quedaban abiertas salvo la 9.5, que depende del
+despliegue por CI. El estado final es **48/49**.
+
+### Qué se adoptó
+
+- **`PageHeader` en todas las pantallas de la app.** Se retiraron los `<h1
+  class="page-title">` sueltos y los bloques `d-flex` que los acompañaban. Cada
+  pantalla conserva un único `h1`; la landing y el login mantienen su portada
+  propia, que ya era un `h1`.
+- **`Table` en los diez listados que eran tablas** (coaches, grupos, atletas,
+  teams, plantillas oficiales, logs, zonas de FC, carga por atleta, comparativa
+  de grupo y coaches del grupo). Todos llevan `stackOnMobile` y `data-label` en
+  cada celda, así que a 375 px se leen como tarjetas de pares etiqueta-valor y
+  dejan de necesitar scroll horizontal. Teams, plantillas y notificaciones no
+  eran tablas: siguen siendo tarjetas o listas.
+- **`Card` en dashboards, paneles y métricas.** `StatsCards`, `CoachTodaySessions`,
+  `AthleteWeekSummary`, las tarjetas de `/athlete/metrics`, `/coach/metrics`,
+  `/coach/athletes/[id]` y los paneles de team y grupo. Las cifras llevan
+  `.app-numeric`.
+- **`Field` en los formularios de alta y edición**: coach, grupo, team, atleta,
+  plantilla, plantilla oficial, configuración y perfil. `Field` ahora clona solo
+  el primer hijo, de modo que un `<input>` puede convivir con su `<datalist>`
+  sin romper el render, y tiene `layout="choice"` (+ `toggle`) para checkbox,
+  radio e interruptores; `DirectorToggle` ya lo usa.
+- **`Button` en las pantallas migradas**: altas de listados, acciones de fila,
+  pies de diálogo, filtros, paginación y exportaciones. Los `btn-group` de
+  pestañas y los modos del formulario de sesión se dejan como estaban porque su
+  semántica es de grupo, no de botón suelto. `Button` acepta `testId` para no
+  perder los `data-testid` que usan los verificadores y tiene una variante
+  `danger-ghost` para las acciones destructivas de fila, que antes llenaban la
+  tabla de rojo.
+- **`Badge` con la familia `text-*-ink`** en los cinco estados de sesión, los
+  avisos de team, los roles del perfil, las plantillas y el listado de coaches.
+  Se agregó `badgeToneFromColor()` para traducir el color heredado de
+  `SESSION_STATUS_META` y `complianceTone()` para no repetir los umbrales.
+- **`Alert` en los avisos sueltos** de dashboards, modales, perfil, avatar,
+  mantenimiento y registro de sesión. `ConfirmDialog` usa `Button`.
+- **Densidad táctil.** A 375 px y en punteros gruesos los botones suben a
+  2,75 rem (44 px) y las tablas apiladas reducen el relleno vertical.
+
+### Hallazgos y ajustes
+
+- **Los verificadores dependían de ids fijos del seed DEMO.** `verify-accesibilidad`
+  llevaba clavados los UUID de `Team Elite` y de María Fernández, que cambian en
+  cada `db:seed:demo` porque el seed usa `crypto.randomUUID()`. Ahora los resuelve
+  en la base al arrancar; sin eso, en un equipo nuevo el verificador falla aunque
+  la app funcione.
+- **`verify-responsive` 39.4 exigía scroll horizontal en la tabla de coaches.**
+  Con `stackOnMobile` la tabla ya no desborda, que es el objetivo de la tarea 5.4.
+  La comprobación ahora acepta las dos soluciones válidas: scroll propio o patrón
+  tarjeta, sin perder la comprobación de que la página no desborda.
+- **El primer `verify-responsive` falló por la carrera de hidratación del login**
+  (el formulario hizo un GET nativo y puso la contraseña en la URL). Reejecutado
+  con el servidor ya compilado, pasó; es el mismo comportamiento conocido de
+  `networkidle` documentado en `verify-validaciones.ts`.
+
+### Verificadores (estado final)
+
+| Comprobación | Resultado |
+|---|---|
+| `npm run lint` | 0 errores, 1 aviso (`<img>` en `Avatar.tsx`) |
+| `npm run build` | OK |
+| `npm run test` | 196/196 |
+| `npx playwright test` | 23/23 |
+| `npx tsx scripts/verify-accesibilidad.ts` | 22/22; axe 23 páginas en claro y 23 en oscuro |
+| `npx tsx scripts/verify-tokens.ts` | 63/63 |
+| `npx tsx scripts/verify-responsive.ts` | 34/34 |
+| `npx tsx scripts/verify-roles.ts` | 62/62 |
+| `npx tsx scripts/verify-i18n.ts` | 12/12 |
+| `npx tsx scripts/verify-empty-states.ts` | 11/11 |
+| `npx tsx scripts/verify-rendimiento.ts` | 25/25 |
+
+### 9.4 — Comparación visual
+
+Capturas finales en `%TEMP%\ui-final\` (seis pantallas × dos temas × 1400/375),
+tomadas con `networkidle` y sin errores de consola. Se revisaron login, dashboard
+de admin, dashboard de coach, dashboard de atleta, calendario de atleta y
+`/admin/coaches`. Conclusión: el ritmo vertical, la cabecera con separador y la
+densidad móvil son coherentes con las capturas de referencia; no quedan
+desbordes ni controles menores de 44 px en las pantallas revisadas.
+
+### 9.5 — Pendiente
+
+Requiere un `push` a `main` para que GitHub Actions despliegue y después medir el
+`cpuTime` del login con `wrangler tail`. No se ejecutó porque esta sesión no
+publica cambios sin confirmación.

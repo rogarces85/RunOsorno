@@ -21,6 +21,9 @@ import {
 import { SectionEditor } from "./SectionEditor";
 import { applyServerErrors } from "@/lib/utils/form";
 import { Alert } from "@/components/ui/Alert";
+import { Button, buttonClassName } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Field } from "@/components/ui/Field";
 
 export const FREE_SESSION_TYPES = [
   "Test/Control",
@@ -131,43 +134,35 @@ export function TemplateEditor({
         </Alert>
       )}
 
-      <div className="card mb-3">
-        <div className="card-body">
-          <div className="row g-3">
-            <div className="col-md-7">
-              <label className="form-label" htmlFor="template-name">
-                Nombre de la plantilla
-              </label>
+      <Card className="mb-3">
+        <div className="row g-3">
+          <div className="col-md-7">
+            <Field
+              id="template-name"
+              label="Nombre de la plantilla"
+              error={errors.name?.message}
+            >
               <input
                 id="template-name"
                 type="text"
                 className={`form-control ${errors.name ? "is-invalid" : ""}`}
-                aria-invalid={!!errors.name}
-                aria-describedby={
-                  errors.name ? "template-name-error" : undefined
-                }
                 placeholder="Ej: Series 6×400m con recuperación"
                 {...register("name")}
               />
-              {errors.name && (
-                <div id="template-name-error" className="invalid-feedback">
-                  {errors.name.message}
-                </div>
-              )}
-            </div>
-            <div className="col-md-5">
-              <label className="form-label" htmlFor="template-session-type">
-                Tipo de sesión
-              </label>
+            </Field>
+          </div>
+          <div className="col-md-5">
+            <Field
+              id="template-session-type"
+              label="Tipo de sesión"
+              error={errors.sessionType?.message}
+              hint="Elige un tipo base o escribe uno libre (Test/Control, Fuerza, Cross-training…)."
+            >
               <input
                 id="template-session-type"
                 type="text"
                 list="session-type-options"
                 className={`form-control ${errors.sessionType ? "is-invalid" : ""}`}
-                aria-invalid={!!errors.sessionType}
-                aria-describedby={
-                  errors.sessionType ? "session-type-options-error" : undefined
-                }
                 placeholder="Ej: Series, Tempo, Test/Control…"
                 {...register("sessionType")}
               />
@@ -179,23 +174,10 @@ export function TemplateEditor({
                   <option key={label} value={label} />
                 ))}
               </datalist>
-              {errors.sessionType ? (
-                <div
-                  id="session-type-options-error"
-                  className="invalid-feedback d-block"
-                >
-                  {errors.sessionType.message}
-                </div>
-              ) : (
-                <div className="form-hint">
-                  Elige un tipo base o escribe uno libre (Test/Control, Fuerza,
-                  Cross-training…).
-                </div>
-              )}
-            </div>
+            </Field>
           </div>
         </div>
-      </div>
+      </Card>
 
       <div className="d-flex justify-content-between align-items-center mb-2">
         {/* `<h2>` y no `<h3>` (Fase 48): dentro de la página, que ya tiene su
@@ -206,9 +188,9 @@ export function TemplateEditor({
             ({fields.length} seccione{fields.length === 1 ? "" : "s"})
           </span>
         </h2>
-        <button
-          type="button"
-          className="btn btn-outline-primary btn-sm"
+        <Button
+          variant="secondary"
+          size="sm"
           onClick={() =>
             append({
               title: "",
@@ -219,14 +201,10 @@ export function TemplateEditor({
         >
           <IconPlus size={16} stroke={1.75} className="me-1" />
           Añadir sección
-        </button>
+        </Button>
       </div>
 
-      {structureMessage && (
-        <div className="alert alert-danger" role="alert">
-          {structureMessage}
-        </div>
-      )}
+      {structureMessage && <Alert variant="danger">{structureMessage}</Alert>}
 
       {fields.map((field, index) => (
         <SectionEditor
@@ -251,20 +229,19 @@ export function TemplateEditor({
       </p>
 
       <div className="d-flex justify-content-end gap-2">
-        <Link href="/coach/templates" className="btn btn-link link-secondary">
+        <Link
+          href="/coach/templates"
+          className={buttonClassName({ variant: "ghost" })}
+        >
           Cancelar
         </Link>
-        <button
-          type="submit"
-          className="btn btn-primary"
-          disabled={isSubmitting}
-        >
+        <Button type="submit" loading={isSubmitting}>
           {isSubmitting
             ? "Guardando…"
             : isEdit
               ? "Guardar cambios"
               : "Crear plantilla"}
-        </button>
+        </Button>
       </div>
     </form>
   );

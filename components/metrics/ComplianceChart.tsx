@@ -1,5 +1,6 @@
 import { DonutChart } from "./DonutChart";
 import { formatPercent } from "@/lib/i18n/format";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 const COMPLETED_COLOR = "var(--app-chart-3)";
 const PENDING_COLOR = "var(--app-surface-3)";
@@ -12,9 +13,11 @@ type ComplianceChartProps = {
 export function ComplianceChart({ completed, total }: ComplianceChartProps) {
   if (total === 0) {
     return (
-      <div className="text-secondary text-center py-4">
-        Sin sesiones planificadas en el periodo.
-      </div>
+      <EmptyState
+        title="Sin sesiones planificadas"
+        description="No hay sesiones planificadas en el periodo seleccionado."
+        compact
+      />
     );
   }
   const percent = Math.round((completed / total) * 100);

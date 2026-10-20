@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { TeamAthletesManager } from "@/components/coach/TeamAthletesManager";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import {
   getAssignableAthletes,
@@ -38,7 +39,10 @@ export default async function CoachTeamDetailPage({
             ← Volver a teams
           </Link>
         </div>
-        <h1 className="page-title">{team.name}</h1>
+        <PageHeader
+          title={team.name}
+          description="Atletas del team y quienes puedes asignar."
+        />
         <TeamAthletesManager
           teamId={id}
           athletes={athletesResult.data}

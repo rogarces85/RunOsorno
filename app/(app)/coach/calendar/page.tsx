@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Alert } from "@/components/ui/Alert";
+import { Card } from "@/components/ui/Card";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { buttonClassName } from "@/components/ui/Button";
 import { requireRole } from "@/lib/auth/guards";
 import { getTeamAthletes, getTeamsByCoach } from "@/lib/services/team.service";
 
@@ -19,32 +23,27 @@ export default async function CoachCalendarPage({
     return (
       <div className="row">
         <div className="col-12 mb-3">
-          <h1 className="page-title mb-0">Calendario</h1>
-          <div className="text-secondary">Selecciona un team</div>
+          <PageHeader title="Calendario" description="Selecciona un team" />
         </div>
         {teams.length === 0 ? (
           <div className="col-12">
-            <div className="alert alert-secondary">
-              Aún no tienes teams creados.
-            </div>
+            <Alert variant="secondary">Aún no tienes teams creados.</Alert>
           </div>
         ) : (
           teams.map((team) => (
             <div className="col-12 col-md-6 col-lg-4 mb-3" key={team.id}>
-              <div className="card">
-                <div className="card-body">
-                  <h2 className="card-title">{team.name}</h2>
-                  <div className="text-secondary mb-3">
-                    {team.athletesCount} atleta{team.athletesCount === 1 ? "" : "s"}
-                  </div>
-                  <Link
-                    className="btn btn-primary"
-                    href={`/coach/calendar?team=${team.id}`}
-                  >
-                    Seleccionar
-                  </Link>
+              <Card title={team.name} className="h-100">
+                <div className="text-secondary mb-3">
+                  {team.athletesCount} atleta
+                  {team.athletesCount === 1 ? "" : "s"}
                 </div>
-              </div>
+                <Link
+                  className={buttonClassName()}
+                  href={`/coach/calendar?team=${team.id}`}
+                >
+                  Seleccionar
+                </Link>
+              </Card>
             </div>
           ))
         )}
@@ -62,38 +61,42 @@ export default async function CoachCalendarPage({
   return (
     <div className="row">
       <div className="col-12 mb-3">
-        <div className="d-flex align-items-center gap-2 mb-1">
-          <Link href="/coach/calendar" className="btn btn-sm btn-ghost-secondary">
+        <div className="mb-3">
+          <Link
+            href="/coach/calendar"
+            className={buttonClassName({ variant: "ghost", size: "sm" })}
+          >
             ← Teams
           </Link>
-          <h1 className="page-title mb-0">Calendario — {team.name}</h1>
         </div>
-        <div className="text-secondary">Selecciona un atleta</div>
+        <PageHeader
+          title={`Calendario — ${team.name}`}
+          description="Selecciona un atleta"
+        />
       </div>
       {athletes.length === 0 ? (
         <div className="col-12">
-          <div className="alert alert-secondary">
-            Este team aún no tiene atletas.
-          </div>
+          <Alert variant="secondary">Este team aún no tiene atletas.</Alert>
         </div>
       ) : (
         athletes.map((athlete) => (
-          <div className="col-12 col-md-6 col-lg-4 mb-3" key={athlete.athleteId}>
-            <div className="card">
-              <div className="card-body">
-                <h2 className="card-title">{athlete.name}</h2>
-                <div className="text-secondary mb-1">{athlete.email}</div>
-                <div className="text-secondary small mb-3">
-                  {athlete.completedSessions}/{athlete.totalSessions} sesiones completadas
-                </div>
-                <Link
-                  className="btn btn-primary"
-                  href={`/coach/calendar/${team.id}/${athlete.athleteId}`}
-                >
-                  Ver calendario
-                </Link>
+          <div
+            className="col-12 col-md-6 col-lg-4 mb-3"
+            key={athlete.athleteId}
+          >
+            <Card title={athlete.name} className="h-100">
+              <div className="text-secondary mb-1">{athlete.email}</div>
+              <div className="text-secondary small mb-3">
+                {athlete.completedSessions}/{athlete.totalSessions} sesiones
+                completadas
               </div>
-            </div>
+              <Link
+                className={buttonClassName()}
+                href={`/coach/calendar/${team.id}/${athlete.athleteId}`}
+              >
+                Ver calendario
+              </Link>
+            </Card>
           </div>
         ))
       )}

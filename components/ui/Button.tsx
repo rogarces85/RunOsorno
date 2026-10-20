@@ -1,6 +1,7 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonVariant =
+  "primary" | "secondary" | "ghost" | "danger" | "danger-ghost";
 export type ButtonSize = "sm" | "md" | "lg";
 
 /**
@@ -49,6 +50,7 @@ export function Button({
   iconOnly = false,
   loading = false,
   className = "",
+  testId,
   children,
   disabled,
   type = "button",
@@ -58,6 +60,8 @@ export function Button({
   size?: ButtonSize;
   iconOnly?: boolean;
   loading?: boolean;
+  /** Atributo `data-testid`, para no escribirlo en el llamador. */
+  testId?: string;
   children: ReactNode;
 }) {
   return (
@@ -66,10 +70,14 @@ export function Button({
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
+      data-testid={testId}
       className={buttonClassName({ variant, size, iconOnly, className })}
     >
       {loading ? (
-        <span className="spinner-border spinner-border-sm app-btn-spinner" aria-hidden="true" />
+        <span
+          className="spinner-border spinner-border-sm app-btn-spinner"
+          aria-hidden="true"
+        />
       ) : null}
       {children}
     </button>

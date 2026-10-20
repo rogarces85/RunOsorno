@@ -1,4 +1,5 @@
 import { AthletesList } from "@/components/coach/AthletesList";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { requireRole } from "@/lib/auth/guards";
 import { getAthletesByCoach } from "@/lib/services/athlete.service";
 import { getTeamsByCoach } from "@/lib/services/team.service";
@@ -15,7 +16,10 @@ export default async function CoachAthletesPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h1 className="page-title">Mis atletas</h1>
+        <PageHeader
+          title="Mis atletas"
+          description="Atletas de todos tus teams, con su cumplimiento y estado."
+        />
         <AthletesList
           athletes={athletes}
           teams={teams.map((team) => ({ id: team.id, name: team.name }))}

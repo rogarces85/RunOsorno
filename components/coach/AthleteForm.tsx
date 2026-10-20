@@ -16,6 +16,8 @@ import type { AthleteListItem } from "@/lib/services/athlete.service";
 import { applyServerErrors } from "@/lib/utils/form";
 import type { ActionError } from "@/lib/actions/base";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 
 export type AthleteFormNotice = {
   type: "success" | "danger";
@@ -159,57 +161,43 @@ export function AthleteForm({
               {serverError}
             </Alert>
           )}
-          <div className="mb-3">
-            <label className="form-label" htmlFor="athlete-name">
-              Nombre
-            </label>
+          <Field
+            id="athlete-name"
+            label="Nombre"
+            error={errors.name?.message}
+            className="mb-3"
+          >
             <input
               id="athlete-name"
               type="text"
               className={`form-control ${errors.name ? "is-invalid" : ""}`}
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "athlete-name-error" : undefined}
               {...register("name")}
             />
-            {errors.name && (
-              <div id="athlete-name-error" className="invalid-feedback">
-                {errors.name.message}
-              </div>
-            )}
-          </div>
+          </Field>
           {!athlete && (
             <>
-              <div className="mb-3">
-                <label className="form-label" htmlFor="athlete-email">
-                  Email
-                </label>
+              <Field
+                id="athlete-email"
+                label="Email"
+                error={errors.email?.message}
+                className="mb-3"
+              >
                 <input
                   id="athlete-email"
                   type="email"
                   className={`form-control ${errors.email ? "is-invalid" : ""}`}
-                  aria-invalid={!!errors.email}
-                  aria-describedby={
-                    errors.email ? "athlete-email-error" : undefined
-                  }
                   {...register("email")}
                 />
-                {errors.email && (
-                  <div id="athlete-email-error" className="invalid-feedback">
-                    {errors.email.message}
-                  </div>
-                )}
-              </div>
-              <div className="mb-3">
-                <label className="form-label" htmlFor="athlete-team">
-                  Team
-                </label>
+              </Field>
+              <Field
+                id="athlete-team"
+                label="Team"
+                error={errors.teamId?.message}
+                className="mb-3"
+              >
                 <select
                   id="athlete-team"
                   className={`form-select ${errors.teamId ? "is-invalid" : ""}`}
-                  aria-invalid={!!errors.teamId}
-                  aria-describedby={
-                    errors.teamId ? "athlete-team-error" : undefined
-                  }
                   {...register("teamId")}
                 >
                   {teams.map((team) => (
@@ -218,126 +206,95 @@ export function AthleteForm({
                     </option>
                   ))}
                 </select>
-                {errors.teamId && (
-                  <div id="athlete-team-error" className="invalid-feedback">
-                    {errors.teamId.message}
-                  </div>
-                )}
-              </div>
+              </Field>
             </>
           )}
           <div className="row g-3">
             <div className="col-sm-6">
-              <label className="form-label" htmlFor="athlete-birthdate">
-                Fecha de nacimiento
-              </label>
-              <input
+              <Field
                 id="athlete-birthdate"
-                type="date"
-                className="form-control"
-                {...register("birthDate")}
-              />
+                label="Fecha de nacimiento"
+                error={errors.birthDate?.message}
+              >
+                <input
+                  id="athlete-birthdate"
+                  type="date"
+                  className="form-control"
+                  {...register("birthDate")}
+                />
+              </Field>
             </div>
             <div className="col-sm-6">
-              <label className="form-label" htmlFor="athlete-weight">
-                Peso (kg)
-              </label>
-              <input
+              <Field
                 id="athlete-weight"
-                type="number"
-                step="0.1"
-                className={`form-control ${errors.weightKg ? "is-invalid" : ""}`}
-                aria-invalid={!!errors.weightKg}
-                aria-describedby={
-                  errors.weightKg ? "athlete-weight-error" : undefined
-                }
-                {...register("weightKg")}
-              />
-              {errors.weightKg && (
-                <div id="athlete-weight-error" className="invalid-feedback">
-                  {errors.weightKg.message}
-                </div>
-              )}
+                label="Peso (kg)"
+                error={errors.weightKg?.message}
+              >
+                <input
+                  id="athlete-weight"
+                  type="number"
+                  step="0.1"
+                  className={`form-control ${errors.weightKg ? "is-invalid" : ""}`}
+                  {...register("weightKg")}
+                />
+              </Field>
             </div>
             <div className="col-sm-6">
-              <label className="form-label" htmlFor="athlete-height">
-                Altura (cm)
-              </label>
-              <input
+              <Field
                 id="athlete-height"
-                type="number"
-                step="0.1"
-                className={`form-control ${errors.heightCm ? "is-invalid" : ""}`}
-                aria-invalid={!!errors.heightCm}
-                aria-describedby={
-                  errors.heightCm ? "athlete-height-error" : undefined
-                }
-                {...register("heightCm")}
-              />
-              {errors.heightCm && (
-                <div id="athlete-height-error" className="invalid-feedback">
-                  {errors.heightCm.message}
-                </div>
-              )}
+                label="Altura (cm)"
+                error={errors.heightCm?.message}
+              >
+                <input
+                  id="athlete-height"
+                  type="number"
+                  step="0.1"
+                  className={`form-control ${errors.heightCm ? "is-invalid" : ""}`}
+                  {...register("heightCm")}
+                />
+              </Field>
             </div>
             <div className="col-sm-6">
-              <label className="form-label" htmlFor="athlete-maxhr">
-                FC máxima
-              </label>
-              <input
+              <Field
                 id="athlete-maxhr"
-                type="number"
-                className={`form-control ${errors.maxHr ? "is-invalid" : ""}`}
-                aria-invalid={!!errors.maxHr}
-                aria-describedby={
-                  errors.maxHr ? "athlete-maxhr-error" : undefined
-                }
-                {...register("maxHr")}
-              />
-              {errors.maxHr && (
-                <div id="athlete-maxhr-error" className="invalid-feedback">
-                  {errors.maxHr.message}
-                </div>
-              )}
+                label="FC máxima"
+                error={errors.maxHr?.message}
+              >
+                <input
+                  id="athlete-maxhr"
+                  type="number"
+                  className={`form-control ${errors.maxHr ? "is-invalid" : ""}`}
+                  {...register("maxHr")}
+                />
+              </Field>
             </div>
             <div className="col-sm-6">
-              <label className="form-label" htmlFor="athlete-restinghr">
-                FC reposo
-              </label>
-              <input
+              <Field
                 id="athlete-restinghr"
-                type="number"
-                className={`form-control ${errors.restingHr ? "is-invalid" : ""}`}
-                aria-invalid={!!errors.restingHr}
-                aria-describedby={
-                  errors.restingHr ? "athlete-restinghr-error" : undefined
-                }
-                {...register("restingHr")}
-              />
-              {errors.restingHr && (
-                <div id="athlete-restinghr-error" className="invalid-feedback">
-                  {errors.restingHr.message}
-                </div>
-              )}
+                label="FC reposo"
+                error={errors.restingHr?.message}
+              >
+                <input
+                  id="athlete-restinghr"
+                  type="number"
+                  className={`form-control ${errors.restingHr ? "is-invalid" : ""}`}
+                  {...register("restingHr")}
+                />
+              </Field>
             </div>
           </div>
         </div>
         <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-link link-secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancelar
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
-            className="btn btn-primary"
+            loading={isSubmitting}
             disabled={isSubmitting || (!athlete && teams.length === 0)}
           >
             {isSubmitting ? "Guardando…" : "Guardar"}
-          </button>
+          </Button>
         </div>
       </form>
     </ModalShell>

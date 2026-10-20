@@ -10,6 +10,8 @@ import {
 } from "@/lib/actions/template.actions";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Alert } from "@/components/ui/Alert";
+import { Badge } from "@/components/ui/Badge";
+import { buttonClassName } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { GroupBasic } from "@/lib/services/group.service";
 import type { TemplateListItem } from "@/lib/services/template.service";
@@ -124,7 +126,10 @@ export function TemplateList({
             ? "Tu biblioteca de plantillas"
             : `${templates.length} plantilla${templates.length === 1 ? "" : "s"} en total`}
         </p>
-        <Link href="/coach/templates/new" className="btn btn-primary">
+        <Link
+          href="/coach/templates/new"
+          className={buttonClassName({ variant: "primary" })}
+        >
           <IconPlus size={18} stroke={1.75} className="me-1" />
           Nueva plantilla
         </Link>
@@ -162,9 +167,9 @@ export function TemplateList({
               onClick={() => setTab(item.key)}
             >
               {item.label}
-              <span className="badge bg-secondary-lt text-secondary-ink ms-1">
+              <Badge tone="neutral" dot={false} className="ms-1">
                 {counts[item.key]}
-              </span>
+              </Badge>
             </button>
           </li>
         ))}

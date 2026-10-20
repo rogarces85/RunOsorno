@@ -14,6 +14,8 @@ import {
 } from "@/lib/validations/group.schemas";
 import { applyServerErrors } from "@/lib/utils/form";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 
 export type GroupFormNotice = {
   type: "success" | "danger";
@@ -100,66 +102,45 @@ export function GroupForm({
               {serverError}
             </Alert>
           )}
-          <div className="mb-3">
-            <label className="form-label" htmlFor="group-name">
-              Nombre
-            </label>
+          <Field
+            id="group-name"
+            label="Nombre"
+            error={errors.name?.message}
+            className="mb-3"
+          >
             <input
               id="group-name"
               type="text"
               className={`form-control ${errors.name ? "is-invalid" : ""}`}
-              aria-invalid={!!errors.name}
-              aria-describedby={errors.name ? "group-name-error" : undefined}
               placeholder="Ej: Escuela de Running Osorno"
               {...register("name")}
             />
-            {errors.name && (
-              <div id="group-name-error" className="invalid-feedback">
-                {errors.name.message}
-              </div>
-            )}
-          </div>
-          <div className="mb-3">
-            <label className="form-label" htmlFor="group-description">
-              Descripción
-            </label>
+          </Field>
+          <Field
+            id="group-description"
+            label="Descripción"
+            error={errors.description?.message}
+            className="mb-3"
+          >
             <textarea
               id="group-description"
               className={`form-control ${errors.description ? "is-invalid" : ""}`}
-              aria-invalid={!!errors.description}
-              aria-describedby={
-                errors.description ? "group-description-error" : undefined
-              }
               rows={3}
               placeholder="Opcional"
               {...register("description")}
             />
-            {errors.description && (
-              <div id="group-description-error" className="invalid-feedback">
-                {errors.description.message}
-              </div>
-            )}
-          </div>
+          </Field>
           <div className="mb-0 text-secondary small">
             El logo del grupo se podrá subir en una fase posterior.
           </div>
         </div>
         <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-link link-secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancelar
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
+          </Button>
+          <Button type="submit" loading={isSubmitting}>
             {isSubmitting ? "Guardando…" : "Guardar"}
-          </button>
+          </Button>
         </div>
       </form>
     </ModalShell>

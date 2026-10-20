@@ -8,6 +8,7 @@ import {
   markAsReadAction,
 } from "@/lib/actions/notification.actions";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Button } from "@/components/ui/Button";
 import { formatDateTime } from "@/lib/i18n/format";
 import { IconBellOff, IconChecks } from "@tabler/icons-react";
 
@@ -87,15 +88,15 @@ export function NotificationCenter({
           </li>
         </ul>
         {rows.some((row) => !row.isRead) && (
-          <button
-            type="button"
-            className="btn btn-sm btn-outline-primary"
-            data-testid="mark-all-read"
-            disabled={busy}
+          <Button
+            variant="secondary"
+            size="sm"
+            testId="mark-all-read"
+            loading={busy}
             onClick={markAll}
           >
             Marcar todas como leídas
-          </button>
+          </Button>
         )}
       </div>
 

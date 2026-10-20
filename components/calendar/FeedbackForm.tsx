@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { addFeedbackAction } from "@/lib/actions/feedback.actions";
+import { Button } from "@/components/ui/Button";
 
 export function FeedbackForm({ assignmentId }: { assignmentId: string }) {
   const router = useRouter();
@@ -51,14 +52,9 @@ export function FeedbackForm({ assignmentId }: { assignmentId: string }) {
           {error}
         </div>
       )}
-      <button
-        type="button"
-        className="btn btn-sm btn-primary mt-2"
-        disabled={pending}
-        onClick={send}
-      >
+      <Button size="sm" className="mt-2" loading={pending} onClick={send}>
         {pending ? "Enviando…" : "Enviar"}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -12,6 +12,8 @@ import {
 import { applyServerErrors } from "@/lib/utils/form";
 import type { ActionError } from "@/lib/actions/base";
 import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
+import { Field } from "@/components/ui/Field";
 import {
   SESSION_TYPE_LABELS,
   SECTION_TYPE_LABELS,
@@ -157,60 +159,44 @@ export function OfficialTemplateForm({
           )}
           <div className="row g-3 mb-3">
             <div className="col-md-7">
-              <label className="form-label" htmlFor="official-name">
-                Nombre de la plantilla
-              </label>
-              <input
+              <Field
                 id="official-name"
-                type="text"
-                className={`form-control ${errors.name ? "is-invalid" : ""}`}
-                aria-invalid={!!errors.name}
-                aria-describedby={
-                  errors.name ? "official-name-error" : undefined
-                }
-                placeholder="Ej: Series 8×200m"
-                {...register("name")}
-              />
-              {errors.name && (
-                <div id="official-name-error" className="invalid-feedback">
-                  {errors.name.message}
-                </div>
-              )}
+                label="Nombre de la plantilla"
+                error={errors.name?.message}
+              >
+                <input
+                  id="official-name"
+                  type="text"
+                  className={`form-control ${errors.name ? "is-invalid" : ""}`}
+                  placeholder="Ej: Series 8×200m"
+                  {...register("name")}
+                />
+              </Field>
             </div>
             <div className="col-md-5">
-              <label className="form-label" htmlFor="official-session-type">
-                Tipo de sesión
-              </label>
-              <input
+              <Field
                 id="official-session-type"
-                type="text"
-                list="official-session-type-options"
-                className={`form-control ${errors.sessionType ? "is-invalid" : ""}`}
-                aria-invalid={!!errors.sessionType}
-                aria-describedby={
-                  errors.sessionType
-                    ? "official-session-type-options-error"
-                    : undefined
-                }
-                placeholder="Ej: Series, Tempo, Test/Control…"
-                {...register("sessionType")}
-              />
-              <datalist id="official-session-type-options">
-                {Object.values(SESSION_TYPE_LABELS).map((label) => (
-                  <option key={label} value={label} />
-                ))}
-                {FREE_SESSION_TYPES.map((label) => (
-                  <option key={label} value={label} />
-                ))}
-              </datalist>
-              {errors.sessionType && (
-                <div
-                  id="official-session-type-options-error"
-                  className="invalid-feedback d-block"
-                >
-                  {errors.sessionType.message}
-                </div>
-              )}
+                label="Tipo de sesión"
+                error={errors.sessionType?.message}
+                hint="Puedes elegir uno de la lista o escribir el tuyo."
+              >
+                <input
+                  id="official-session-type"
+                  type="text"
+                  list="official-session-type-options"
+                  className={`form-control ${errors.sessionType ? "is-invalid" : ""}`}
+                  placeholder="Ej: Series, Tempo, Test/Control…"
+                  {...register("sessionType")}
+                />
+                <datalist id="official-session-type-options">
+                  {Object.values(SESSION_TYPE_LABELS).map((label) => (
+                    <option key={label} value={label} />
+                  ))}
+                  {FREE_SESSION_TYPES.map((label) => (
+                    <option key={label} value={label} />
+                  ))}
+                </datalist>
+              </Field>
             </div>
           </div>
 
@@ -222,20 +208,18 @@ export function OfficialTemplateForm({
                 {fields.length === 1 ? "" : "s"})
               </span>
             </h5>
-            <button
-              type="button"
-              className="btn btn-outline-primary btn-sm"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => append({ title: "", type: "custom", content: "" })}
             >
               <IconPlus size={16} stroke={1.75} className="me-1" />
               Añadir sección
-            </button>
+            </Button>
           </div>
 
           {structureMessage && (
-            <div className="alert alert-danger" role="alert">
-              {structureMessage}
-            </div>
+            <Alert variant="danger">{structureMessage}</Alert>
           )}
 
           {fields.map((field, index) => (
@@ -261,25 +245,16 @@ export function OfficialTemplateForm({
           </p>
         </div>
         <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-link link-secondary"
-            onClick={onClose}
-            disabled={isSubmitting}
-          >
+          <Button variant="ghost" onClick={onClose} disabled={isSubmitting}>
             Cancelar
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={isSubmitting}
-          >
+          </Button>
+          <Button type="submit" loading={isSubmitting}>
             {isSubmitting
               ? "Guardando…"
               : template
                 ? "Guardar cambios"
                 : "Crear plantilla"}
-          </button>
+          </Button>
         </div>
       </form>
     </ModalShell>

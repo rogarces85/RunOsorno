@@ -2,6 +2,7 @@ import { formatSessionType } from "@/lib/utils/format";
 import { colorForIndex } from "./chartColors";
 import { DonutChart } from "./DonutChart";
 import { formatPercent } from "@/lib/i18n/format";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type TypeDistributionChartProps = {
   distribution: Record<string, number>;
@@ -16,9 +17,11 @@ export function TypeDistributionChart({
 
   if (entries.length === 0) {
     return (
-      <div className="text-secondary text-center py-4">
-        Sin sesiones con tipo en el periodo.
-      </div>
+      <EmptyState
+        title="Sin sesiones con tipo"
+        description="No hay sesiones con tipo en el periodo seleccionado."
+        compact
+      />
     );
   }
 

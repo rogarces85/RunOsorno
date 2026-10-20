@@ -7,6 +7,7 @@ import {
   PLOT_HEIGHT,
   toAxisTicks,
 } from "./ChartFrame";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 type ProgressChartProps = {
   points: { week: string; km: number }[];
@@ -19,16 +20,19 @@ type ProgressChartProps = {
  * esperar a que JavaScript se descargue y ejecute.
  */
 export function ProgressChart({ points }: ProgressChartProps) {
-  if (points.length === 0) {
+  if (points.length === 0 || points.every((point) => point.km === 0)) {
     return (
-      <div className="text-secondary text-center py-4">
-        Sin datos de progresión en el periodo.
-      </div>
+      <EmptyState
+        title="Sin datos de progresión"
+        description="No hay kilómetros registrados en el periodo seleccionado."
+        compact
+      />
     );
   }
 
   const scale = niceScale(Math.max(...points.map((point) => point.km)));
-  const toY = (value: number) => PLOT_HEIGHT - (value / scale.max) * PLOT_HEIGHT;
+  const toY = (value: number) =>
+    PLOT_HEIGHT - (value / scale.max) * PLOT_HEIGHT;
   const traza = linePath(
     points.map((point, index) => ({
       x: index * BAND_WIDTH + BAND_WIDTH / 2,

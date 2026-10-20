@@ -1,5 +1,9 @@
 import Link from "next/link";
 import { StatsCards } from "@/components/dashboard/StatsCards";
+import { Card } from "@/components/ui/Card";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { buttonClassName } from "@/components/ui/Button";
 import { requireRole } from "@/lib/auth/guards";
 import { getAdminStats } from "@/lib/services/dashboard.service";
 
@@ -12,7 +16,10 @@ export default async function AdminDashboardPage() {
   return (
     <div className="row">
       <div className="col-12">
-        <h1 className="page-title mb-3">Dashboard</h1>
+        <PageHeader
+          title="Dashboard"
+          description="Estado general de la plataforma y accesos directos."
+        />
 
         <StatsCards
           items={[
@@ -46,55 +53,62 @@ export default async function AdminDashboardPage() {
 
         <div className="row">
           <div className="col-lg-6 mb-3">
-            <div className="card h-100">
-              <div className="card-header">
-                <h2 className="card-title">Solicitudes pendientes</h2>
-              </div>
-              <div className="card-body">
-                {stats.pendingRequests === 0 ? (
-                  <div className="text-secondary">
-                    No hay solicitudes de coaches pendientes de revisión.
+            <Card title="Solicitudes pendientes" className="h-100">
+              {stats.pendingRequests === 0 ? (
+                <EmptyState
+                  title="Sin solicitudes pendientes"
+                  description="No hay solicitudes de coaches pendientes de revisión."
+                  compact
+                />
+              ) : (
+                <>
+                  <div className="h1 mb-2 app-numeric text-warning-ink">
+                    {stats.pendingRequests}
                   </div>
-                ) : (
-                  <>
-                    <div className="h1 mb-2 text-yellow">
-                      {stats.pendingRequests}
-                    </div>
-                    <p className="text-secondary mb-2">
-                      {stats.pendingRequests === 1
-                        ? "Coach esperando aprobación para unirse a un grupo."
-                        : "Coaches esperando aprobación para unirse a un grupo."}
-                    </p>
-                    <Link href="/admin/groups" className="btn btn-primary btn-sm">
-                      Revisar solicitudes
-                    </Link>
-                  </>
-                )}
-              </div>
-            </div>
+                  <p className="text-secondary mb-2">
+                    {stats.pendingRequests === 1
+                      ? "Coach esperando aprobación para unirse a un grupo."
+                      : "Coaches esperando aprobación para unirse a un grupo."}
+                  </p>
+                  <Link
+                    href="/admin/groups"
+                    className={buttonClassName({ size: "sm" })}
+                  >
+                    Revisar solicitudes
+                  </Link>
+                </>
+              )}
+            </Card>
           </div>
           <div className="col-lg-6 mb-3">
-            <div className="card h-100">
-              <div className="card-header">
-                <h2 className="card-title">Accesos rápidos</h2>
+            <Card title="Accesos rápidos" className="h-100">
+              <div className="d-flex flex-wrap gap-2">
+                <Link
+                  href="/admin/coaches"
+                  className={buttonClassName({ variant: "secondary" })}
+                >
+                  Gestionar coaches
+                </Link>
+                <Link
+                  href="/admin/groups"
+                  className={buttonClassName({ variant: "secondary" })}
+                >
+                  Gestionar grupos
+                </Link>
+                <Link
+                  href="/admin/athletes"
+                  className={buttonClassName({ variant: "secondary" })}
+                >
+                  Listado de atletas
+                </Link>
+                <Link
+                  href="/admin/templates"
+                  className={buttonClassName({ variant: "secondary" })}
+                >
+                  Plantillas oficiales
+                </Link>
               </div>
-              <div className="card-body">
-                <div className="d-flex flex-wrap gap-2">
-                  <Link href="/admin/coaches" className="btn btn-outline-secondary">
-                    Gestionar coaches
-                  </Link>
-                  <Link href="/admin/groups" className="btn btn-outline-secondary">
-                    Gestionar grupos
-                  </Link>
-                  <Link href="/admin/athletes" className="btn btn-outline-secondary">
-                    Listado de atletas
-                  </Link>
-                  <Link href="/admin/templates" className="btn btn-outline-secondary">
-                    Plantillas oficiales
-                  </Link>
-                </div>
-              </div>
-            </div>
+            </Card>
           </div>
         </div>
       </div>

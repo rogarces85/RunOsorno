@@ -1,6 +1,7 @@
 "use client";
 
 import { ModalShell } from "@/components/ui/ModalShell";
+import { Button } from "@/components/ui/Button";
 
 /**
  * Diálogo de confirmación para acciones destructivas (Fase 38).
@@ -54,22 +55,16 @@ export function ConfirmDialog({
         <p className="mb-0">{message}</p>
       </div>
       <div className="modal-footer">
-        <button
-          type="button"
-          className="btn btn-link link-secondary"
-          onClick={onCancel}
-          disabled={busy}
-        >
+        <Button variant="ghost" onClick={onCancel} disabled={busy}>
           Cancelar
-        </button>
-        <button
-          type="button"
-          className={`btn ${danger ? "btn-danger" : "btn-primary"}`}
+        </Button>
+        <Button
+          variant={danger ? "danger" : "primary"}
           onClick={onConfirm}
-          disabled={busy}
+          loading={busy}
         >
           {busy ? "Procesando…" : confirmLabel}
-        </button>
+        </Button>
       </div>
     </ModalShell>
   );

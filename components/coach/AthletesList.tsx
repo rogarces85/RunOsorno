@@ -14,6 +14,8 @@ import type { AthleteListItem } from "@/lib/services/athlete.service";
 import { Avatar } from "@/components/ui/Avatar";
 import { Alert } from "@/components/ui/Alert";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Table } from "@/components/ui/Table";
+import { Button, buttonClassName } from "@/components/ui/Button";
 import {
   AthleteForm,
   type AthleteFormNotice,
@@ -56,9 +58,7 @@ export function AthletesList({
             : `${athletes.length} atleta${athletes.length === 1 ? "" : "s"}`}
         </p>
         {editable && (
-          <button
-            type="button"
-            className="btn btn-primary"
+          <Button
             disabled={teams.length === 0}
             title={
               teams.length === 0 ? "Crea un team antes de agregar atletas" : ""
@@ -67,7 +67,7 @@ export function AthletesList({
           >
             <IconPlus size={18} stroke={1.75} className="me-1" />
             Nuevo atleta
-          </button>
+          </Button>
         )}
       </div>
 
@@ -107,99 +107,110 @@ export function AthletesList({
             />
           </div>
         ) : (
-          <div className="table-responsive">
-            <table className="table table-vcenter card-table">
-              <thead>
-                <tr>
-                  <th>Atleta</th>
-                  <th>Teams</th>
-                  <th>Cumplimiento</th>
-                  <th>Última actividad</th>
-                  <th className="text-end">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {athletes.map((athlete) => (
-                  <tr key={athlete.id}>
-                    <td>
-                      <div className="d-flex align-items-center gap-2">
-                        <Avatar
-                          userId={athlete.id}
-                          name={athlete.name}
-                          avatarKey={athlete.avatarKey}
-                          size="sm"
-                          // Es una tabla de decenas de filas: difiere la carga
-                          // para no competir con el resto del listado (47.7).
-                          loading="lazy"
-                        />
-                        <div>
-                          <div className="fw-medium">{athlete.name}</div>
-                          <div className="text-secondary small">
-                            {athlete.email}
-                          </div>
+          <Table label="Listado de atletas" stackOnMobile>
+            <thead>
+              <tr>
+                <th>Atleta</th>
+                <th>Teams</th>
+                <th className="text-end">Cumplimiento</th>
+                <th>Última actividad</th>
+                <th className="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {athletes.map((athlete) => (
+                <tr key={athlete.id}>
+                  <td data-label="Atleta">
+                    <div className="d-flex align-items-center gap-2">
+                      <Avatar
+                        userId={athlete.id}
+                        name={athlete.name}
+                        avatarKey={athlete.avatarKey}
+                        size="sm"
+                        // Es una tabla de decenas de filas: difiere la carga
+                        // para no competir con el resto del listado (47.7).
+                        loading="lazy"
+                      />
+                      <div>
+                        <div className="fw-medium">{athlete.name}</div>
+                        <div className="text-secondary small">
+                          {athlete.email}
                         </div>
                       </div>
-                    </td>
-                    <td className="text-secondary">
-                      {athlete.teamNames.length > 0
-                        ? athlete.teamNames.join(", ")
-                        : "Sin team"}
-                    </td>
-                    <td>
-                      {athlete.totalSessions > 0
-                        ? `${Math.round((athlete.completedSessions / athlete.totalSessions) * 100)}% (${athlete.completedSessions}/${athlete.totalSessions})`
-                        : "—"}
-                    </td>
-                    <td className="text-secondary small">
-                      {athlete.lastActivity
-                        ? formatDateChile(athlete.lastActivity)
-                        : "Sin registros"}
-                    </td>
-                    <td className="text-end">
-                      <div className="btn-list flex-nowrap justify-content-end">
-                        {editable && (
-                          <Link
-                            href={`/coach/athletes/${athlete.id}`}
-                            className="btn btn-sm btn-ghost-secondary"
-                          >
-                            Ver
-                          </Link>
-                        )}
-                        {editable && (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-ghost-secondary"
-                            title="Editar"
-                            onClick={() => {
-                              setEditing({
-                                id: athlete.id,
-                                name: athlete.name,
-                                email: athlete.email,
-                                profile: athlete.profile,
-                              });
-                              setFormOpen(true);
-                            }}
-                          >
-                            <IconEdit size={16} stroke={1.75} />
-                          </button>
-                        )}
-                        {canTransfer && athlete.teamNames.length > 0 && (
-                          <button
-                            type="button"
-                            className="btn btn-sm btn-ghost-secondary"
-                            title="Transferir a otro team"
-                            onClick={() => setTransferring(athlete)}
-                          >
-                            <IconTransfer size={16} stroke={1.75} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                    </div>
+                  </td>
+                  <td className="text-secondary" data-label="Teams">
+                    {athlete.teamNames.length > 0
+                      ? athlete.teamNames.join(", ")
+                      : "Sin team"}
+                  </td>
+                  <td
+                    className="text-end app-numeric"
+                    data-label="Cumplimiento"
+                  >
+                    {athlete.totalSessions > 0
+                      ? `${Math.round((athlete.completedSessions / athlete.totalSessions) * 100)}% (${athlete.completedSessions}/${athlete.totalSessions})`
+                      : "—"}
+                  </td>
+                  <td
+                    className="text-secondary small"
+                    data-label="Última actividad"
+                  >
+                    {athlete.lastActivity
+                      ? formatDateChile(athlete.lastActivity)
+                      : "Sin registros"}
+                  </td>
+                  <td className="text-end" data-label="Acciones">
+                    <div className="btn-list flex-nowrap justify-content-end">
+                      {editable && (
+                        <Link
+                          href={`/coach/athletes/${athlete.id}`}
+                          className={buttonClassName({
+                            variant: "secondary",
+                            size: "sm",
+                          })}
+                        >
+                          Ver
+                        </Link>
+                      )}
+                      {editable && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconOnly
+                          aria-label={`Editar ${athlete.name}`}
+                          title="Editar"
+                          onClick={() => {
+                            setEditing({
+                              id: athlete.id,
+                              name: athlete.name,
+                              email: athlete.email,
+                              profile: athlete.profile,
+                            });
+                            setFormOpen(true);
+                          }}
+                        >
+                          <IconEdit size={16} stroke={1.75} />
+                        </Button>
+                      )}
+                      {canTransfer && athlete.teamNames.length > 0 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          iconOnly
+                          aria-label={`Transferir a ${athlete.name}`}
+                          title="Transferir a otro team"
+                          onClick={() => setTransferring(athlete)}
+                        >
+                          <IconTransfer size={16} stroke={1.75} />
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         )}
       </div>
 

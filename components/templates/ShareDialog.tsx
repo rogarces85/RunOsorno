@@ -2,6 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
+import { Alert } from "@/components/ui/Alert";
+import { Button } from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import { shareTemplateAction } from "@/lib/actions/template.actions";
 import type { GroupBasic } from "@/lib/services/group.service";
@@ -65,11 +67,7 @@ export function ShareDialog({
           />
         </div>
         <div className="modal-body">
-          {error && (
-            <div className="alert alert-danger" role="alert">
-              {error}
-            </div>
-          )}
+          {error && <Alert variant="danger">{error}</Alert>}
           {groups.length === 0 ? (
             <p className="text-secondary mb-0">
               No perteneces a ningún grupo todavía. Únete a un grupo para poder
@@ -101,18 +99,13 @@ export function ShareDialog({
           )}
         </div>
         <div className="modal-footer">
-          <button
-            type="button"
-            className="btn btn-link link-secondary"
-            onClick={onClose}
-            disabled={busy}
-          >
+          <Button variant="ghost" onClick={onClose} disabled={busy}>
             Cancelar
-          </button>
+          </Button>
           {groups.length > 0 && (
-            <button type="submit" className="btn btn-primary" disabled={busy}>
+            <Button type="submit" loading={busy}>
               {busy ? "Compartiendo…" : "Compartir"}
-            </button>
+            </Button>
           )}
         </div>
       </form>
