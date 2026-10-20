@@ -5,8 +5,11 @@
  * CPU pura, y bcryptjs es Blowfish interpretado en JavaScript (~450-770 ms con
  * 12 rondas). PBKDF2 corre en la implementación nativa de WebCrypto (disponible
  * tanto en `workerd` como en Node >= 15), que es ~50-100x más rápida para la
- * misma seguridad. Eso reduce el consumo de CPU por login y evita los cortes
- * `exceededCpu` del plan Free (10 ms por invocación).
+ * misma seguridad.
+ *
+ * Las iteraciones van en **100.000**, no en las 210.000 que recomienda OWASP para
+ * SHA-512: `workerd` rechaza por encima de 100.000 con `NotSupportedError` y ese
+ * error rompía el login en producción. Ver `PBKDF2_ITERATIONS`.
  *
  * Los hashes se guardan con un prefijo versionado para poder migrar sin
  * romper cuentas existentes:
@@ -23,11 +26,29 @@ const ALGORITHM = "pbkdf2-sha512";
 /**
  * Iteraciones de PBKDF2-HMAC-SHA512.
  *
- * 210.000 es el valor que recomienda OWASP para PBKDF2-HMAC-SHA512 (que en
- * CPUs de 64 bits es más rápido que SHA-256 a igualdad de seguridad). Como el
- * derivado corre nativo, este coste entra con holgura en el presupuesto de CPU.
+ * 100.000 es el techo que impone el runtime de Cloudflare Workers: `workerd`
+ * rechaza con `NotSupportedError: Pbkdf2 failed: iteration counts above 100000
+ * are not supported` cualquier valor mayor, y ese error tumbaba el login en
+ * producción (500 en la página de error) aunque el código y la base estuvieran
+ * bien. Además encaja con el límite de 10 ms de CPU del plan Free: 100.000
+ * iteraciones nativas de SHA-512 entran en el presupuesto, 210.000 no.
+ *
+ * OWASP recomienda 210.000 para SHA-512, pero ese valor no es derivable en el
+ * runtime donde vive la app. Si en el futuro la app se mueve a un runtime con más
+ * CPU (una VM), el valor puede subir de nuevo: el número va dentro del hash, así
+ * que las cuentas existentes se reescriben solas al hacer login (ver `needsRehash`).
  */
-export const PBKDF2_ITERATIONS = 210_000;
+export const PBKDF2_ITERATIONS = 100_000;
+
+/**
+ * Máximo de iteraciones que acepta `crypto.subtle` en Workers.
+ *
+ * Un hash guardado con más iteraciones (los 210.000 de la versión anterior) no se
+ * puede derivar con WebCrypto aquí: la verificación cae al camino de compatibilidad
+ * con `node:crypto`, y si tampoco está disponible devuelve `false` en vez de romper
+ * el login.
+ */
+export const PBKDF2_MAX_ITERATIONS = 100_000;
 
 const KEY_BYTES = 64; // 512 bits de salida
 const SALT_BYTES = 16; // 128 bits de sal aleatoria
@@ -91,6 +112,33 @@ export async function hashPassword(password: string): Promise<string> {
 }
 
 /**
+ * Deriva con `node:crypto` cuando WebCrypto no puede (iteraciones por encima del
+ * máximo del runtime). Es el camino de compatibilidad para los hashes de la
+ * versión anterior (210.000 iteraciones). Si `node:crypto` no está disponible,
+ * devuelve `null` y la verificación falla de forma controlada.
+ */
+async function deriveCompat(
+  password: string,
+  salt: Uint8Array<ArrayBuffer>,
+  iterations: number,
+): Promise<Uint8Array<ArrayBuffer> | null> {
+  try {
+    const { pbkdf2Sync } = await import("node:crypto");
+    const buffer = Buffer.from(salt);
+    const derivado = pbkdf2Sync(
+      password,
+      buffer,
+      iterations,
+      KEY_BYTES,
+      "sha512",
+    );
+    return new Uint8Array(derivado);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Verifica una contraseña contra un hash almacenado.
  *
  * Acepta los dos formatos: PBKDF2 (nativo) y bcrypt heredado (que se resuelve
@@ -121,7 +169,14 @@ export async function verifyPassword(
     return false;
   }
 
-  const derived = new Uint8Array(await derive(password, salt, iterations));
+  let derived: Uint8Array<ArrayBuffer> | null;
+  if (iterations > PBKDF2_MAX_ITERATIONS) {
+    // WebCrypto no lo permite en Workers: se intenta el camino de compatibilidad.
+    derived = await deriveCompat(password, salt, iterations);
+  } else {
+    derived = new Uint8Array(await derive(password, salt, iterations));
+  }
+  if (!derived) return false;
   return constantTimeEqual(derived, expected);
 }
 
@@ -151,4 +206,4 @@ export function needsRehash(stored: string): boolean {
  * usuarios midiendo tiempos. Usa las mismas iteraciones que un hash real.
  */
 export const DUMMY_PASSWORD_HASH =
-  "pbkdf2-sha512$210000$bam1Y8nZ4FwcvV5+NxG3HQ==$7n2uvBjuGqxlfvuYTaJXn3zvBpnkGEUhJ+A609iw0GuahQlg8HhsOsU5OCT3dINH1r/FbfUbJCgl06HF0tcHGQ==";
+  "pbkdf2-sha512$100000$bYms9Vv32wNoZ+zHnarwoQ==$56M6Hpxj0aduqFvN4g1K/LIsI1nhsmQ7xHlX+Jh1iu27GAqHMHxW1c1ATf3IOdZswiVvJeBCMF9gxrcbXT4Nbw==";

@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "runosorno-migrar-hashes",
+  "main": "workers/migrar-hashes.mjs",
+  "compatibility_date": "2026-01-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "1bffd76cc20d423690c4079891d596eb",
+      "localConnectionString": "mysql://root:@localhost:3306/runosorno"
+    }
+  ]
+}
