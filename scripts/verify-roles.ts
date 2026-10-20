@@ -137,6 +137,31 @@ async function main() {
   const browser: Browser = await chromium.launch();
   const errorsByPage: string[] = [];
 
+  // Portada pública (cambio `landing-publica`): sin sesión debe verse, y el resto
+  // del sistema tiene que seguir cerrado. Es la prueba que protege la lista blanca
+  // del proxy.
+  {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
+    try {
+      const res = await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
+      const texto = (await page.locator("body").innerText()).toLowerCase();
+      const ok = (res?.status() ?? 0) === 200 && texto.includes("planifica");
+      record(
+        ok,
+        "portada pública sin sesión",
+        ok ? `HTTP ${res?.status()} con la propuesta a la vista` : `HTTP ${res?.status()}`,
+      );
+      await page.goto(`${BASE_URL}/admin/dashboard`, { waitUntil: "networkidle" });
+      const final = new URL(page.url()).pathname;
+      record(final === "/login", "el sistema sigue cerrado sin sesión", `terminó en ${final}`);
+    } catch (error) {
+      record(false, "portada pública sin sesión", String(error).slice(0, 120));
+    } finally {
+      await ctx.close();
+    }
+  }
+
   try {
     for (const account of ACCOUNTS) {
       console.log(`--- ${account.label} (${account.email}) ---`);

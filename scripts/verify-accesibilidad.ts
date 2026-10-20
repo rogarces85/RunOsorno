@@ -627,7 +627,17 @@ async function verificarCalendario(ctx: BrowserContext) {
 // ===========================================================================
 // axe sobre todas las páginas
 // ===========================================================================
-const PAGINAS_AXE: { email: string; password: string; ruta: string }[] = [
+type PaginaAxe = {
+  email: string;
+  password: string;
+  ruta: string;
+  /** Ruta alcanzable sin sesión: se limpian las cookies antes de abrirla. */
+  publica?: boolean;
+};
+
+const PAGINAS_AXE: PaginaAxe[] = [
+  { email: "", password: "", ruta: "/", publica: true },
+  { email: "", password: "", ruta: "/login", publica: true },
   { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/dashboard" },
   { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/calendar" },
   { email: ATLETA, password: DEMO_PASSWORD, ruta: "/athlete/metrics" },
@@ -655,8 +665,12 @@ const PAGINAS_AXE: { email: string; password: string; ruta: string }[] = [
   { email: COACH, password: DEMO_PASSWORD, ruta: "/notifications" },
 ];
 
-async function verificarConAxe(ctx: BrowserContext) {
-  console.log("\n--- axe-core sobre todas las páginas ---");
+async function verificarConAxe(
+  ctx: BrowserContext,
+  tema: "claro" | "oscuro" = "claro",
+) {
+  const sufijo = ` — tema ${tema}`;
+  console.log(`\n--- axe-core sobre todas las páginas — tema ${tema} ---`);
   const page = await ctx.newPage();
   let actual = "";
   const violaciones = new Map<
@@ -665,17 +679,9 @@ async function verificarConAxe(ctx: BrowserContext) {
   >();
   let paginasRevisadas = 0;
 
-  for (const { email, password, ruta } of PAGINAS_AXE) {
-    if (email !== actual) {
-      await login(ctx, page, email, password);
-      actual = email;
-    }
-    await goto(page, ruta);
-    await page.waitForTimeout(700);
-    paginasRevisadas += 1;
-
+  const auditar = async () => {
     await page.addScriptTag({ content: AXE });
-    const res = (await page.evaluate(`(async () => {
+    return (await page.evaluate(`(async () => {
       const r = await window.axe.run(document, {
         runOnly: {
           type: "tag",
@@ -696,9 +702,11 @@ async function verificarConAxe(ctx: BrowserContext) {
       nodos: number;
       ejemplo: string;
     }[];
+  };
 
+  const acumular = (res: Awaited<ReturnType<typeof auditar>>, ruta: string) => {
     for (const v of res) {
-      const clave = `${v.id} (${v.impact})`;
+      const clave = `${v.id} (${v.impact})${sufijo}`;
       const previo = violaciones.get(clave);
       if (previo) {
         previo.rutas.push(ruta);
@@ -711,12 +719,28 @@ async function verificarConAxe(ctx: BrowserContext) {
         });
       }
     }
+  };
+
+  // Recorrido completo: portada y login sin sesión, luego una ruta por rol.
+  for (const { email, password, ruta, publica } of PAGINAS_AXE) {
+    if (publica) {
+      await ctx.clearCookies();
+      await aplicarTema(ctx, tema);
+      actual = "";
+    } else if (email !== actual) {
+      await login(ctx, page, email, password);
+      actual = email;
+    }
+    await goto(page, ruta);
+    await page.waitForTimeout(700);
+    paginasRevisadas += 1;
+    acumular(await auditar(), ruta);
   }
 
   const total = [...violaciones.values()].reduce((s, v) => s + v.nodos, 0);
   record(
     violaciones.size === 0,
-    "axe-core no encuentra ninguna violación en las páginas de la app",
+    `axe-core no encuentra ninguna violación en las páginas de la app${sufijo}`,
     violaciones.size === 0
       ? `${paginasRevisadas} páginas revisadas (WCAG 2.0/2.1 A y AA, y best-practice)`
       : [...violaciones.entries()]
@@ -728,6 +752,22 @@ async function verificarConAxe(ctx: BrowserContext) {
   );
 
   await page.close();
+}
+
+/** Deja la cookie de tema como la escribiría el control de la app. */
+async function aplicarTema(
+  ctx: BrowserContext,
+  tema: "claro" | "oscuro",
+): Promise<void> {
+  const host = new URL(BASE_URL).hostname;
+  await ctx.addCookies([
+    {
+      name: "runosorno_tema",
+      value: tema === "oscuro" ? "oscuro" : "claro",
+      domain: host,
+      path: "/",
+    },
+  ]);
 }
 
 // ===========================================================================
@@ -745,7 +785,10 @@ async function main() {
     await verificarCampanita(ctx);
     await verificarLabels(ctx);
     await verificarCalendario(ctx);
-    await verificarConAxe(ctx);
+    // Los dos temas: axe mide contraste real, así que el tema oscuro necesita su
+    // propia pasada. Las comprobaciones de teclado y foco corren una sola vez.
+    await verificarConAxe(ctx, "claro");
+    await verificarConAxe(ctx, "oscuro");
   } catch (error) {
     record(false, "el script terminó sin errores", String(error));
   } finally {

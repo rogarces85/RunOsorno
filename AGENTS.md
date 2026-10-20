@@ -304,6 +304,53 @@ Procedimiento para activarlo de verdad (cuenta, secretos, alertas):
 
 ---
 
+## Reglas del sistema visual (D8)
+
+- **Los colores, radios, sombras, espaciados y el movimiento viven en
+  `app/styles/tokens.css`.** Ningún componente escribe un hex suelto ni un
+  `border-radius` a mano: si falta un valor, se agrega allí. Los componentes se
+  pintan con `app/styles/components.css`.
+- **Las primitivas están en `components/ui/`**: `Button` (más `buttonClassName` para
+  enlaces), `Field`, `Card`, `Table`, `PageHeader` y `Badge`. Un formulario, una tabla
+  o una tarjeta nuevos usan esas piezas; no se escribe el marcado de Tabler a mano.
+- **El tema lo decide `data-bs-theme`, no el sistema operativo.** Se lee de la cookie
+  `runosorno_tema` en `app/layout.tsx` (por eso el árbol declara
+  `export const instant = false`) y el control es `ThemeToggle`. No reintroducir
+  `light-dark()` para superficies: Tabler lo usa internamente y sigue el `color-scheme`
+  que fija el tema.
+- **La tipografía es Archivo variable, self-hosted** desde `app/fonts/` con
+  `next/font/local`. Nada de CDNs de fuentes: la app no hace peticiones externas en
+  runtime. Las cifras usan `.app-numeric` (números tabulares).
+- **El contraste de los estados sale de la familia `text-*-ink`**, que tiene variante
+  clara para tema oscuro. Cualquier `bg-*-lt` + `text-*` heredado se corrige por CSS en
+  `components.css`; el marcado nuevo usa `Badge`.
+- **Las gráficas toman el color de `--app-chart-1…5`** (`components/metrics/chartColors.ts`),
+  nunca de hex: `tests/unit/chart-colors.test.ts` falla si una serie no se distingue del
+  fondo. La leyenda o la etiqueta es la señal principal, no el color.
+- **`npx tsx scripts/verify-tokens.ts` y `verify-accesibilidad.ts` son obligatorios**
+  antes de cerrar cualquier cambio visual: el primero mide contraste de tokens en ambos
+  temas, el segundo corre axe sobre 22 rutas en claro y oscuro.
+
+---
+
+## Rutas públicas (D9)
+
+- **La única superficie pública es `/` (landing) y `/login`.** La lista vive en
+  `const RUTAS_PUBLICAS` de `proxy.ts` y es explícita: nunca se cambia por un prefijo
+  ni por una comprobación de «empieza con». Todo lo demás exige sesión.
+- **Con sesión, `/` y `/login` redirigen al tablero del rol.** La landing solo se ve
+  sin sesión.
+- **El contenido de la landing vive en `components/marketing/contenido.ts`** y los
+  datos de marca y contacto en `lib/site.ts`. No hay CMS: se edita en el código, se
+  revisa en un diff y se despliega con el resto.
+- **No hay precios ni formulario de leads.** El canal es `mailto:` con asunto por
+  sección; cuando exista dominio propio y Resend verificado se evalúa un formulario con
+  rate limiting.
+- **Cualquier ruta nueva que deba ser pública se agrega a esa lista y a
+  `e2e/landing.spec.ts`**, que verifica que el resto del sistema sigue cerrado.
+
+---
+
 ## Consideraciones Clave
 - Sistema cerrado de tres roles + Director Técnico con permisos diferenciados por jerarquía (Grupo → Team → Atleta)
 - Flujo asíncrono: coach planifica → atleta ejecuta → coach revisa → feedback bidireccional

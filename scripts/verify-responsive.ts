@@ -247,6 +247,32 @@ async function main() {
 
   const browser: Browser = await chromium.launch();
 
+  // ------------------------------------------------------------- landing ----
+  // Portada pública: sin desborde horizontal, con su encabezado a la vista y sin
+  // errores de consola en los tres anchos.
+  console.log("--- Landing pública en mobile, tablet y desktop ---");
+  for (const vp of VIEWPORTS) {
+    const ctx = await browser.newContext({
+      viewport: { width: vp.width, height: vp.height },
+      hasTouch: vp.name !== "desktop",
+    });
+    const page = await ctx.newPage();
+    const errores: string[] = [];
+    page.on("console", (msg) => {
+      if (msg.type() === "error") errores.push(msg.text().slice(0, 120));
+    });
+    await page.goto(`${BASE_URL}/`, { waitUntil: "networkidle" });
+    const overflow = await horizontalOverflow(page);
+    const h1 = await page.locator("h1").first().isVisible();
+    const productos = await page.locator(".app-product").count();
+    record(
+      overflow <= 0 && h1 && productos === 3 && errores.length === 0,
+      `landing usable en ${vp.name} (${vp.width}px)`,
+      `overflow=${overflow}px, h1=${h1}, productos=${productos}, errores=${errores.length}`,
+    );
+    await ctx.close();
+  }
+
   // ------------------------------------------------------------- 39.1 ----
   console.log("--- 39.1 Login en mobile, tablet y desktop ---");
   for (const vp of VIEWPORTS) {

@@ -59,7 +59,7 @@ npm run db:seed:demo
 npm run dev
 ```
 
-Abre http://localhost:3000.
+Abre http://localhost:3000: la portada pública explica el producto y desde ahí se entra al sistema (`/login`).
 
 Credenciales de desarrollo:
 
@@ -102,7 +102,8 @@ indican:
 ```bash
 npx tsx scripts/verify-roles.ts            # rutas y menú por rol
 npx tsx scripts/verify-validations.ts      # 54 Server Actions y límites reales
-npx tsx scripts/verify-accesibilidad.ts    # axe sobre 21 páginas (WCAG AA)
+npx tsx scripts/verify-accesibilidad.ts    # axe sobre 22 rutas en tema claro y oscuro (WCAG AA)
+npx tsx scripts/verify-tokens.ts           # contraste de los tokens del sistema visual (ambos temas)
 npx tsx scripts/verify-rendimiento.ts      # bundles, RSC, EXPLAIN, consola
 npx tsx scripts/verify-seguridad.ts        # cookies, hashing, rate limit, R2
 npx tsx scripts/verify-i18n.ts             # formato es-CL y fechas
