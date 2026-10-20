@@ -273,8 +273,15 @@ de admin, dashboard de coach, dashboard de atleta, calendario de atleta y
 densidad móvil son coherentes con las capturas de referencia; no quedan
 desbordes ni controles menores de 44 px en las pantallas revisadas.
 
-### 9.5 — Pendiente
+### 9.5 — Pendiente de credenciales de producción
 
-Requiere un `push` a `main` para que GitHub Actions despliegue y después medir el
-`cpuTime` del login con `wrangler tail`. No se ejecutó porque esta sesión no
-publica cambios sin confirmación.
+El commit `61eea11` se publicó en `main` y el workflow *Desplegar a Cloudflare
+Workers* terminó en **success** (run `39505080937`). Al ejecutar
+`npx tsx scripts/verify-produccion.ts` contra el Worker desplegado, el login con
+las credenciales por defecto (`admin@runosorno.cl` / `Admin1234!`) devuelve el
+error genérico de credenciales. Puede ser que la contraseña de producción se
+haya cambiado tras el seed, o el corte intermitente de CPU documentado en
+`docs/pendientes.md` §P1.5. Falta repetir el verificador con
+`ADMIN_EMAIL`/`ADMIN_PASSWORD` reales y medir el `cpuTime` del POST con
+`npx wrangler tail runosorno --format json` (el entorno local de esta sesión no
+está autenticado en Wrangler).
