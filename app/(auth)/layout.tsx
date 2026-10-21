@@ -1,5 +1,8 @@
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/layout/Logo";
+import { dashboardPath } from "@/lib/auth/role";
+import { usuarioSiHaySesion } from "@/lib/auth/session";
 
 /**
  * Layout de entrada (Fase B, tarea 4.5).
@@ -7,8 +10,17 @@ import { Logo } from "@/components/layout/Logo";
  * La identidad se resuelve con tipografía y aire, sin fotografía ni ilustración:
  * marca, una frase que explica el producto y la tarjeta del formulario. Se conserva
  * `<main id="contenido">` con el enlace de salto, que es la primera parada de teclado.
+ *
+ * Con sesión abierta, el login lleva al tablero del rol. La comprobación está
+ * aquí y no en el middleware porque el middleware ya no toca la base de datos:
+ * así el sistema abre una sola conexión MySQL por petición en vez de dos.
  */
-export default function AuthLayout({ children }: { children: ReactNode }) {
+export default async function AuthLayout({ children }: { children: ReactNode }) {
+  const user = await usuarioSiHaySesion();
+  if (user) {
+    redirect(dashboardPath(user.role));
+  }
+
   return (
     <div className="page page-center">
       {/* `<main>` también aquí (Fase 48): el login es una página como otra. */}

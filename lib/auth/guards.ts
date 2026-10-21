@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { lucia } from "./index";
 import { dashboardPath, type Role } from "./role";
-import { getSessionId } from "./session";
+import { getSessionId, refrescarCookieDeSesion } from "./session";
 
 export async function requireAuth() {
   const sessionId = await getSessionId();
@@ -11,6 +11,11 @@ export async function requireAuth() {
   const { session, user } = await lucia.validateSession(sessionId);
   if (!session || !user) {
     redirect("/login?expired=1");
+  }
+  // Lucia renueva la sesion y marca `fresh`: la cookie se reemite con la nueva
+  // expiracion. Lo hacia el middleware; ahora lo hace quien valida.
+  if (session.fresh) {
+    await refrescarCookieDeSesion(session.id);
   }
   return { session, user };
 }

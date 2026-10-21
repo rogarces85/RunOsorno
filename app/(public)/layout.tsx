@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { Logo } from "@/components/layout/Logo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { dashboardPath } from "@/lib/auth/role";
+import { usuarioSiHaySesion } from "@/lib/auth/session";
 import { SITE, mailtoContacto } from "@/lib/site";
 import { THEME_COOKIE, themeFromCookie } from "@/lib/ui/theme";
 import "../styles/marketing.css";
@@ -13,6 +16,10 @@ import "../styles/marketing.css";
  * No lleva sidebar ni campanita: solo marca, control de tema y entrada al sistema.
  * El tema sale de la cookie en el servidor, igual que en la app, así que la landing
  * tampoco destella al cargar.
+ *
+ * Con sesión abierta, la portada y el login llevan al tablero del rol. Esa
+ * comprobación vive aquí (y no en el middleware) porque el middleware ya no
+ * toca la base de datos: ahorra una conexión MySQL por petición.
  */
 export default async function PublicLayout({
   children,
@@ -21,6 +28,11 @@ export default async function PublicLayout({
 }) {
   const cookieStore = await cookies();
   const theme = themeFromCookie(cookieStore.get(THEME_COOKIE)?.value);
+
+  const user = await usuarioSiHaySesion();
+  if (user) {
+    redirect(dashboardPath(user.role));
+  }
 
   return (
     <>
