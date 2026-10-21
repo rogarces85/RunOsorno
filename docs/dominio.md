@@ -48,7 +48,7 @@ Dos cosas, y ninguna bloquea a la otra:
 | Dominio verificado en Resend | **Hecho** — `status: verified`, región `sa-east-1`, id `1bdc39f8-b51b-4425-897f-d69628e393e1` |
 | `runosorno.online` como dominio del Worker | **Hecho** — certificado Let's Encrypt `CN=runosorno.online` (vence 2027-01-19). `/`, `/login`, `/api/health`, `/robots.txt` y `/sitemap.xml` devuelven **200** |
 | `www.runosorno.online` | **404** — el CNAME `www` → apex lo deja apuntando al Worker, pero el Worker solo tiene registrado el hostname exacto. Se resuelve con un segundo dominio personalizado o con una regla de redirección |
-| `RESEND_FROM` y `APP_URL` en el Worker | **Cambiados** a `RunOsorno <no-reply@runosorno.online>` y `https://runosorno.online` (pendiente el despliegue) |
+| `RESEND_FROM` y `APP_URL` en el Worker | **Hecho** (desplegado por CI el 2026-10-21): `RunOsorno <no-reply@runosorno.online>` y `https://runosorno.online`. El `sitemap.xml` y los enlaces de los correos ya usan el dominio |
 
 ### El 503 del dominio propio
 
