@@ -43,12 +43,12 @@ Dos cosas, y ninguna bloquea a la otra:
 | Registros heredados de Nominalia | **Intactos**: MX `mail.nominalia.com`, SPF `v=spf1 include:spf.webapps.net ~all` |
 | DKIM de Resend | **Publicada**: TXT `resend._domainkey` → clave RSA-1024 de 218 caracteres (DER de 162 bytes, íntegra) |
 | Sending de Resend | **Publicado**: CNAME `send` → `send.forge.rmta.net` (MX `feedback.forge.rmta.net`, SPF `ip4:52.3.252.119 ip4:44.222.39.36 ip4:199.249.231.0/24`) y CNAME `rsend` → `rsend-sae1.forge.rmta.net` (MX `feedback-smtp.sa-east-1.amazonses.com`) |
-| CNAME de tracking | **Falta** (`links` → `links1.resend-dns.com`), solo si Resend lo pide y se quiere tracking |
-| SPF del raíz | **Falta** incluir a Resend (recomendado, no bloqueante: ver abajo) |
-| Dominio verificado en Resend | **Sin confirmar** (hace falta la API key o mirar el panel) |
+| CNAME de tracking | **No hace falta**: el dominio tiene `open_tracking` y `click_tracking` apagados |
+| SPF del raíz | **Pendiente de editar** (recomendado, no bloqueante: ver abajo) |
+| Dominio verificado en Resend | **Hecho** — `status: verified`, región `sa-east-1`, id `1bdc39f8-b51b-4425-897f-d69628e393e1` |
 | `runosorno.online` como dominio del Worker | **Hecho** — certificado Let's Encrypt `CN=runosorno.online` (vence 2027-01-19). `/`, `/login`, `/api/health`, `/robots.txt` y `/sitemap.xml` devuelven **200** |
 | `www.runosorno.online` | **404** — el CNAME `www` → apex lo deja apuntando al Worker, pero el Worker solo tiene registrado el hostname exacto. Se resuelve con un segundo dominio personalizado o con una regla de redirección |
-| `RESEND_FROM` y `APP_URL` en el Worker | **Pendiente** (siguen los de prueba) |
+| `RESEND_FROM` y `APP_URL` en el Worker | **Cambiados** a `RunOsorno <no-reply@runosorno.online>` y `https://runosorno.online` (pendiente el despliegue) |
 
 ### El 503 del dominio propio
 

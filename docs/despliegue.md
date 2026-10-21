@@ -4,10 +4,7 @@ Producción corre en **Cloudflare Workers** con OpenNext. La base es MySQL en
 Aiven a través de **Hyperdrive** y los archivos viven en **R2**.
 
 - Worker: `runosorno`
-- URL: https://runosorno.rodrigo-garces-guerrero.workers.dev
-- URL propia (en curso): https://runosorno.online — el dominio `runosorno.online`
-  está registrado y el plan para tomarlo como dominio del Worker está en
-  `docs/dominio.md`
+- URL: https://runosorno.online (dominio propio; `workers.dev` sigue como respaldo)
 - Workflow: `.github/workflows/deploy.yml`
 
 ## Pipeline automático

@@ -15,7 +15,7 @@ para el login").
 ## Blanco del ping
 
 ```
-GET https://runosorno.rodrigo-garces-guerrero.workers.dev/api/health
+GET https://runosorno.online/api/health
 ```
 
 Debe responder `200` con `{"ok":true}`. La ruta:
@@ -38,7 +38,7 @@ BASE_URL=http://localhost:3000 npx tsx scripts/verify-health.ts
 1. Crear una cuenta gratuita en <https://cron-job.org>.
 2. **Create cronjob** con estos valores:
    - **Title**: `RunOsorno warm-up`
-   - **URL**: `https://runosorno.rodrigo-garces-guerrero.workers.dev/api/health`
+   - **URL**: `https://runosorno.online/api/health`
    - **Schedule**: cada **1 minuto** (o 2-5 minutos si el plan lo limita).
    - **Request method**: `GET`
    - **Timeout**: 10 s
@@ -57,7 +57,7 @@ BASE_URL=http://localhost:3000 npx tsx scripts/verify-health.ts
 2. **Add New Monitor**:
    - **Monitor Type**: `HTTP(s)`
    - **Friendly Name**: `RunOsorno`
-   - **URL**: `https://runosorno.rodrigo-garces-guerrero.workers.dev/api/health`
+   - **URL**: `https://runosorno.online/api/health`
    - **Monitoring Interval**: 5 minutos (plan gratuito).
 3. Guardar. El panel muestra el historial y envía alertas por correo si falla.
 

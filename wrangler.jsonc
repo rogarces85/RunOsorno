@@ -37,14 +37,12 @@
     // como secreto) porque no es informacion sensible, pero tampoco lleva el
     // prefijo NEXT_PUBLIC_: esas se incrustan en el bundle al compilar y
     // quedaria clavada al valor que tuviera en ese momento.
-    "APP_URL": "https://runosorno.rodrigo-garces-guerrero.workers.dev",
-    // TEMPORAL: el dominio propio `runosorno.online` ya esta registrado, pero su
-    // DNS sigue en Nominalia y aun no esta en Cloudflare, asi que Resend no lo
-    // puede verificar y rechaza `no-reply@runosorno.online`. Mientras no haya
-    // un dominio verificado se usa el remitente de pruebas de Resend, que solo
-    // entrega al correo dueno de la cuenta. El paso a paso (verificar el
-    // dominio y cambiar estas dos variables) esta en `docs/dominio.md`.
-    "RESEND_FROM": "RunOsorno <onboarding@resend.dev>",
+    "APP_URL": "https://runosorno.online",
+    // Dominio propio verificado en Resend (2026-10-21, region sa-east-1): los
+    // correos salen de `no-reply@runosorno.online` y llegan a cualquier
+    // destinatario. Antes se usaba `onboarding@resend.dev`, que solo entrega
+    // al correo dueno de la cuenta. Ver `docs/dominio.md`.
+    "RESEND_FROM": "RunOsorno <no-reply@runosorno.online>",
     // Las respuestas a los correos van al buzón del administrador (un Gmail no
     // puede ser `from` en Resend porque el dominio no es verificable).
     "RESEND_REPLY_TO": "RunOsorno <rodrigo.garces.guerrero@gmail.com>"

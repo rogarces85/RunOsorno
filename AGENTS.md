@@ -115,7 +115,7 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 | **Validación** | **Zod** + **React Hook Form** | Esquemas compartidos server/client, type inference, integra con Drizzle |
 | **Email Transaccional** | **Resend** (SDK edge-compatible) | DX excelente, React Email templates, 3k emails/mes gratis |
 | **Almacenamiento Avatares** | **Cloudflare R2** (bucket privado + signed URLs) | S3-compatible, gratis hasta 10GB, edge caching, sin egress fees. Mejor que filesystem local en Cloudflare (ephemeral). |
-| **Despliegue** | **Cloudflare Workers** (Next.js vía `@opennextjs/cloudflare`) | `@cloudflare/next-on-pages` está deprecado y no soporta Next 16; OpenNext despliega a Workers, no a Pages. Build automático, edge global, gratis generoso. En producción: `https://runosorno.rodrigo-garces-guerrero.workers.dev` |
+| **Despliegue** | **Cloudflare Workers** (Next.js vía `@opennextjs/cloudflare`) | `@cloudflare/next-on-pages` está deprecado y no soporta Next 16; OpenNext despliega a Workers, no a Pages. Build automático, edge global, gratis generoso. En producción: `https://runosorno.online` (dominio propio, registrado en Nominalia; el DNS está en Cloudflare) |
 | **CI/CD** | **GitHub Actions** → Cloudflare Workers (`opennextjs-cloudflare deploy`) | Estándar, gratis para repos privados. |
 | **Testing** | **Vitest** (unit/integration) + **Playwright** (e2e) | Vitest: rápido, compatible edge. Playwright: corre contra preview URLs. |
 | **Observabilidad** | **Sentry** (errores) + **Cloudflare Web Analytics / Logpush** | Sentry: DSN gratis generoso. Logpush → R2/BigQuery para queries SQL. |
@@ -185,13 +185,15 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
 
 ## Notas de la infraestructura de producción (Fase 43)
 
-- **Worker:** `runosorno` → `https://runosorno.rodrigo-garces-guerrero.workers.dev`.
+- **Worker:** `runosorno` → `https://runosorno.online` (dominio propio; `workers.dev` sigue como respaldo).
 - **Dominio:** `runosorno.online`, registrado en Nominalia el 2026-10-21 y con
-  expiración el 2027-10-21. La zona DNS todavía no está en Cloudflare: el plan
-  para el correo propio y para tomar el dominio en el Worker está en
-  `docs/dominio.md`, con los avisos de renovación en `docs/renovacion-dominio.ics`.
-  **Regla:** ninguna fecha de este dominio se inventa en el código; la fuente
-  única es `docs/dominio.md`.
+  expiración el 2027-10-21. La zona DNS está en **Cloudflare** (nameservers
+  `clint`/`meadow.ns.cloudflare.com`) y el dominio ya es dominio propio del
+  Worker, con certificado de Let's Encrypt. En Resend está **verified** (región
+  `sa-east-1`): los correos salen de `no-reply@runosorno.online`. Todo el
+  detalle y el plan de renovación están en `docs/dominio.md`, con los avisos
+  en `docs/renovacion-dominio.ics`. **Regla:** ninguna fecha de este dominio se
+  inventa en el código; la fuente única es `docs/dominio.md`.
 - **Base:** Aiven MySQL 8.4.11, base `defaultdb`. Esquema creado con
   `npm run db:migrate` y datos base con `npm run db:seed` (admin, 5 ajustes,
   5 plantillas oficiales). **No** se importó el volcado de MariaDB: son motores

@@ -8,7 +8,7 @@ import { defineConfig, devices } from "@playwright/test";
  * apuntar a otro entorno (preview, staging) se define `BASE_URL` y entonces no
  * se arranca ningún servidor:
  *
- *   BASE_URL=https://runosorno.pages.dev npx playwright test
+ *   BASE_URL=https://runosorno.online npx playwright test
  *
  * `workers: 1` y `fullyParallel: false` son deliberados: los flujos crean datos
  * reales (coaches, grupos, equipos, sesiones) sobre la base de desarrollo, y en

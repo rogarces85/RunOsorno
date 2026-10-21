@@ -25,5 +25,5 @@ export const DEFAULT_SETTINGS = {
   editWindowHours: 48,
   notDoneReasons: [...DEFAULT_NOT_DONE_REASONS],
   baseSessionTypes: [...BASE_SESSION_TYPES],
-  emailFrom: "RunOsorno <no-reply@runosorno.pages.dev>",
+  emailFrom: "RunOsorno <no-reply@runosorno.online>",
 } as const;

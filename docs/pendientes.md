@@ -160,7 +160,7 @@ subir de plan.
 | **43.12** | **Hecho** | Secretos de R2 en el Worker, CORS del bucket para el origen del sitio y URL prefirmada corregida. Verificado: subir, servir por URL firmada (200 `image/webp`) y borrar. |
 | **45.6** | **Hecho** | `GET` del objeto sin firma → **400 `InvalidArgument`**; el bucket no es público. |
 | **43.13** | **Hecho** | Key cargada; envío directo y correo de bienvenida de la app **recibidos** en la cuenta de pruebas, sin `email_failed`. El remitente es `onboarding@resend.dev`. |
-| **Dominio de correo** | **En curso** | `runosorno.online` registrado el 2026-10-21 en Nominalia (expira 2027-10-21). El DNS sigue en Nominalia, así que Resend aún no lo puede verificar y el remitente sigue siendo `onboarding@resend.dev`. Plan paso a paso (zona en Cloudflare, cambio de NS, registros SPF/DKIM, dominio del Worker) en `docs/dominio.md`. |
+| **Dominio de correo** | **Hecho** | `runosorno.online` registrado el 2026-10-21 en Nominalia (expira 2027-10-21), zona DNS migrada a Cloudflare y dominio propio del Worker. En Resend está **verified** (región `sa-east-1`): los correos salen de `no-reply@runosorno.online` y llegan a cualquier destinatario. Plan y renovación en `docs/dominio.md`. Pendiente: `www` (404) y editar el SPF raíz para incluir a Resend. |
 | **44.6** | Pendiente | Cuenta de Sentry y alertas (procedimiento en `docs/configurar-sentry.md`). El SDK ya no se carga si no hay DSN. |
 
 ## P3 — Documentación (fase 49) — completada
