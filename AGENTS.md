@@ -194,6 +194,21 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
   detalle y el plan de renovación están en `docs/dominio.md`, con los avisos
   en `docs/renovacion-dominio.ics`. **Regla:** ninguna fecha de este dominio se
   inventa en el código; la fuente única es `docs/dominio.md`.
+- **La caché incremental de R2 se purga ANTES de desplegar, nunca después.**
+  El deploy sube el prerender de la build nueva a esa misma caché ("Populating
+  remote R2 incremental cache"); purgarla al final deja el bucket vacío y las
+  páginas públicas se quedan colgadas esperando un render en runtime que en
+  workerd no termina (el render se cuelga con `cacheComponents: true`, porque
+  Next usa `setTimeout` y workerd no lo implementa como espera). Además, sin
+  purga se acumulaban 1199 objetos de builds viejas y provocarían 500
+  ("components.ComponentMod.handler is not a function"). Ver el paso
+  "Purgar la caché incremental de R2" en `.github/workflows/deploy.yml`.
+- **El middleware (`proxy.ts`) no toca la base de datos.** Solo mira si existe
+  la cookie de sesión. Validarla ahí costaba una conexión MySQL **adicional**
+  por petición (la del render) y arrastraba `drizzle-orm` + `mysql2` al bundle
+  del middleware, que se parsea entero en cada arranque en frío. La validación
+  real está en `requireAuth()` (layout de la app) y en `usuarioSiHaySesion()`
+  (layouts público y de entrada), que además reemiten la cookie renovada.
 - **Base:** Aiven MySQL 8.4.11, base `defaultdb`. Esquema creado con
   `npm run db:migrate` y datos base con `npm run db:seed` (admin, 5 ajustes,
   5 plantillas oficiales). **No** se importó el volcado de MariaDB: son motores

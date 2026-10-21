@@ -31,8 +31,25 @@ El token necesita **Workers Scripts: Edit**, **Workers R2 Storage: Edit**,
 > El workflow conserva un paso que reintenta el deploy si R2 tarda. Ya no es
 > necesario, pero no estorba.
 
-## Antes de desplegar: migraciones
+## La caché incremental de R2
 
+El bucket `runosorno-cache` guarda el prerender de cada build (HTML/RSC). El
+deploy la puebla ("Populating remote R2 incremental cache") y **nunca la
+limpia**, así que se acumulan objetos de builds anteriores: 1199 tras dos
+semanas de trabajo.
+
+El pipeline la purga con un paso propio, y **el orden importa**: la purga va
+**antes** del despliegue. Purgarla después deja el bucket sin prerender y las
+páginas públicas se quedan colgadas (el render en runtime no termina en
+workerd con `cacheComponents: true`, porque Next usa `setTimeout`).
+
+```bash
+# a mano, si hace falta (necesita un token con Workers R2 Storage: Edit)
+npx tsx scripts/purgar-cache.ts   # con R2_ACCOUNT_ID, R2_ACCESS_KEY_ID y
+                                  # R2_SECRET_ACCESS_KEY en el entorno
+```
+
+## Antes de desplegar: migraciones
 El código nuevo puede necesitar tablas o columnas nuevas. **Aplica las
 migraciones primero**, o el login y otras rutas devolverán 500 (pasó con
 `login_attempts`):

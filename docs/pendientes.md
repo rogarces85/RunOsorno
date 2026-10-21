@@ -143,6 +143,61 @@ en el primer login. También se simplificó el rate-limit (lectura por
 sistema **gratis o de costo mínimo**. El corte de CPU hay que resolverlo sin
 subir de plan.
 
+### Medición del 2026-10-21 (M1, datos reales)
+
+Se midió en producción con `npx wrangler tail runosorno --format json` y
+`scripts/medir-login-cpu.ts`. **El límite de Workers Free es 10 ms de CPU por
+petición** (documentación de Cloudflare) y esto es lo que consume la app:
+
+| Petición | CPU en caliente | CPU en arranque en frío |
+|---|---|---|
+| `GET /api/health` (endpoint trivial, sin BD) | 5-6 ms | 120-290 ms |
+| `GET /login` (render SSR) | 21-34 ms | 680 ms |
+| `GET /` (landing) | 30-98 ms | 372 ms |
+| `POST /login` (7 consultas + PBKDF2) | 9-15 ms | 244 ms |
+
+Fallos medidos: **~25-30 % de las peticiones morían con 503 `exceededCpu`**, y
+otro ~12-30 % con **500** (ver más abajo). Hoy, tras las correcciones de esta
+sección, `/api/health` y `/login` responden **30/30**.
+
+**Por qué no es un problema de afinación:**
+
+1. **El piso es 5-6 ms.** Una ruta que solo devuelve `NextResponse.json({ok:true})`
+   ya usa más de la mitad del presupuesto: ese costo es el arranque de OpenNext
+   y Next, no el código de la app.
+2. **El arranque en frío cuesta 120-680 ms.** Los bundles son de **17,6 MB** (la
+   función de servidor) y **6,9 MB** (el middleware, que OpenNext compila
+   siempre para el runtime de Node). workerd parsea el bundle entero en cada
+   isolate nuevo: 12-68× el presupuesto. Da igual cuántas consultas se quiten,
+   una petición que caiga en un isolate frío se cuelga.
+3. **El KDF se come el presupuesto entero.** PBKDF2-HMAC-SHA512 con 100 000
+   iteraciones son **64 ms de CPU** medidos en un portátil (en el edge, con
+   SHA-NI, entre 6 y 10 ms). Bajar las iteraciones está descartado: OWASP pide
+   210 000 y `workerd` además rechaza más de 100 000.
+4. **Las páginas con sesión son dinámicas por naturaleza** (tableros, calendario,
+   métricas): 20-90 ms cada una, y nunca están en la caché.
+
+**Bugs encontrados y corregidos en la misma medición (valen en cualquier
+plataforma):**
+
+- **500 `components.ComponentMod.handler is not a function`:** la caché
+  incremental de R2 acumulaba **1199 objetos** de builds anteriores y OpenNext
+  nunca la limpia. Ahora el pipeline **purga la caché ANTES de desplegar**
+  (después del deploy, el bucket quedaba vacío y las páginas públicas se
+  colgaban: sin prerender en caché, el render en runtime no termina en
+  workerd). Ver `.github/workflows/deploy.yml`.
+- **Doble conexión MySQL por petición:** el middleware validaba la sesión
+  contra la base, y el render abría otra. El proxy ya no toca la base: solo
+  mira si la cookie existe. La validación real quedó en `requireAuth()` (layout
+  de la app) y en `usuarioSiHaySesion()` (layouts público y de entrada), que
+  además reemiten la cookie renovada.
+
+**Qué queda para cerrar M1:** la decisión de plataforma. Con estos números, la
+optimización puede reducir el porcentaje de fallos, pero **no puede hacer que
+este stack quepa en 10 ms**: el suelo de 5-6 ms y el arranque en frío de
+120-680 ms son del framework, no de la app. Las opciones, con su coste real,
+están en `docs/roadmap.md` (M1).
+
 **Pendiente (estrategia de costo cero):**
 
 1. Desplegar la migración a PBKDF2 y **re-medir** el login en frío
