@@ -84,14 +84,26 @@ curl -s -o /dev/null -w "%{http_code}\n" --resolve runosorno.online:443:104.21.4
 > El Worker no se rompió: `workers.dev/login` y `workers.dev/api/health` devuelven
 > 200 en todo momento.
 
-> **El router de casa bloquea el dominio (en algunos momentos).** El DNS local
-> (FortiGuard SDNS) llega a responder con la página "Fortiguard SDNS Blocked
-> Page" y un certificado inválido. Desde la red del dueño, `runosorno.online`
-> puede no abrir aunque esté todo bien en producción. Solución: poner
-> 1.1.1.1 / 8.8.8.8 como DNS del router o del dispositivo, o excluir el
-> dominio del filtro. Al re Revisar el 2026-10-21 el DNS local ya devolvía las
-> IP correctas de Cloudflare, así que el bloqueo era transitorio (Cloudflare
-> bloquea dominios recién registrados unos días).
+> **El router de la oficina bloquea el dominio (FortiGuard DNS filter).**
+> Verificado el 2026-10-21: desde la red de la oficina, el DNS responde
+> `208.91.112.55` / `2620:101:9000:53::55` —la página de bloqueo de
+> Fortinet— en lugar de las IP de Cloudflare. El bloqueo es **de este dominio
+> concreto**: `example.com` y `cloudflare.com` resuelven bien. La web está
+> perfecta en producción: con la IP real y el SNI correcto responde **200**.
+>
+> Tres salidas, de menos a más permanente:
+>
+> 1. **Archivo hosts** (aplicado): una entrada con las IP reales resuelve el
+>    problema en el equipo sin tocar nada más.
+> 2. **DNS sobre HTTPS (DoH)**: 1.1.1.1:443 sí sale de la red de la oficina y
+>    `https://cloudflare-dns.com/dns-query` responde con las IP correctas, así
+>    que DoH lo esquiva. Windows 11 lo activa en *Configuración → Red e
+>    Internet → Ethernet → Propiedades del hardware → Asignación de servidor
+>    DNS → Editar → DNS sobre HTTPS → Activado (plantilla manual) → Cloudflare*.
+> 3. **La solución de fondo**: que IT excluya `runosorno.online` del filtro de
+>    FortiGuard (*Security → DNS Security → Filtering*), o desactive la
+>    categoría de dominios recién registrados. Es lo único que arregla el
+>    teléfono y el portátil de todos los que usan esa red.
 
 ### SPF del raíz: recomendado, no obligatorio
 
