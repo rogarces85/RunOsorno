@@ -51,20 +51,46 @@ Dos cosas, y ninguna bloquea a la otra:
 
 ### El 503 del dominio propio
 
-El apex y `www` resuelven a las IP de Cloudflare (104.21.40.14 / 172.67.174.43),
-que son los **registros de parking que Cloudflare crea solo al añadir la zona**.
-No hay certificado para el dominio porque **el dominio todavía no se ha
-registrado como dominio del Worker**: sin eso, Cloudflare no emite el
-certificado y contesta 503 con la página "SSL Error".
+**Causa:** al añadir la zona, Cloudflare crea automáticamente un par de
+registros **A/AAAA** para el apex y para `www` apuntando a sus IP de parking
+(104.21.40.14 / 172.67.174.43 / 2606:4700:…). Esos registros **chocan con el
+dominio personalizado del Worker**: Cloudflare no puede crear el CNAME
+`runosorno.online → runosorno.rodrigo-garces-guerrero.workers.dev` porque ya
+existe un registro con ese nombre, así que el alta del dominio personalizado
+falla (o queda sin efecto) y el apex sigue yendo al parking.
 
-El Worker no se rompió: `workers.dev/login` y `workers.dev/api/health` devuelven
-200. Se arregla con el paso 7 (agregar el dominio en *Domains & Routes*).
+Resultado: Cloudflare responde **503 "There is no SSL certificate configured for
+this domain"**. El certificado no es el problema —el Universal SSL de la zona
+ya se emitió (Let's Encrypt, `CN=runosorno.online`, válido hasta el
+2027-01-19)—: lo que falta es el registro que manda al Worker.
 
-> **El router de casa bloquea el dominio.** El DNS local (FortiGuard SDNS)
-> responde con la página "Fortiguard SDNS Blocked Page" y un certificado
-> inválido. Desde la red del dueño, `runosorno.online` no abre aunque esté
-> todo bien en producción. Solución: poner 1.1.1.1 / 8.8.8.8 como DNS del
-> router o del dispositivo, o excluir el dominio del filtro.
+**Arreglo (en este orden):**
+
+1. Cloudflare → **DNS → Records**: borrar los registros **A** y **AAAA** de
+   `runosorno.online` y de `www.runosorno.online` (los que apuntan a
+   104.21.40.14 / 172.67.174.43 / 2606:4700:…). **No tocar** el MX, los TXT
+   (SPF, DKIM) ni los CNAME de Resend.
+2. Workers & Pages → `runosorno` → Settings → Domains & Routes → Add → Custom
+   domain → `runosorno.online` (y `www.runosorno.online`). Ahora sí puede crear
+   el registro y Cloudflare enruta el hostname al Worker.
+
+Comprobación (debe dar 200 y el `<title>` de la app):
+
+```bash
+curl -s -o /dev/null -w "%{http_code}\n" --resolve runosorno.online:443:104.21.40.14 https://runosorno.online/
+```
+
+> El Worker no se rompió: `workers.dev/login` y `workers.dev/api/health` devuelven
+> 200 en todo momento.
+
+> **El router de casa bloquea el dominio (en algunos momentos).** El DNS local
+> (FortiGuard SDNS) llega a responder con la página "Fortiguard SDNS Blocked
+> Page" y un certificado inválido. Desde la red del dueño, `runosorno.online`
+> puede no abrir aunque esté todo bien en producción. Solución: poner
+> 1.1.1.1 / 8.8.8.8 como DNS del router o del dispositivo, o excluir el
+> dominio del filtro. Al re Revisar el 2026-10-21 el DNS local ya devolvía las
+> IP correctas de Cloudflare, así que el bloqueo era transitorio (Cloudflare
+> bloquea dominios recién registrados unos días).
 
 ### SPF del raíz: recomendado, no obligatorio
 
