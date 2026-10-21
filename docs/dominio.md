@@ -32,31 +32,32 @@ Dos cosas, y ninguna bloquea a la otra:
    `https://runosorno.rodrigo-garces-guerrero.workers.dev`. Con el dominio como
    *custom domain* del Worker, la app queda en `https://runosorno.online`.
 
-## Estado (2026-10-21)
+## Estado (verificado el 2026-10-21)
 
 | Paso | Estado |
 |---|---|
 | Dominio registrado | **Hecho** |
-| Webmail de Nominalia con buzones `@runosorno.online` | Activo (falta crear `contacto@`) |
-| Zona en Cloudflare | **Pendiente** (el token de Wrangler no puede crearla: `zone.create` → 403) |
-| Nameservers cambiados a Cloudflare | **Pendiente** |
+| Webmail de Nominalia con buzones `@runosorno.online` | Activo (MX `mail.nominalia.com`) |
+| Zona creada en Cloudflare | **Hecho** — id `13f2630f1bd320d360f8d65c03c67a7c`, plan Free, en `pending` → `active` |
+| Nameservers cambiados a Cloudflare | **Hecho y propagado**: `clint.ns.cloudflare.com` / `meadow.ns.cloudflare.com` ya responden en 1.1.1.1 y 8.8.8.8 |
+| Registros heredados de Nominalia en la zona | **Intactos**: A `81.88.48.71` (parking), MX `mail.nominalia.com`, TXT `v=spf1 include:spf.webapps.net ~all` |
 | Dominio creado en Resend | **Pendiente** (falta `RESEND_API_KEY` en local) |
-| Registros SPF/DKIM/DMARC publicados | **Pendiente** |
-| Dominio verificado en Resend | **Pendiente** |
+| Registros DKIM / `send` de Resend publicados | **Pendiente** — hoy no existe `resend._domainkey` ni `send` |
 | `RESEND_FROM` y `APP_URL` en el Worker | **Pendiente** (siguen los de prueba) |
 | `runosorno.online` como dominio del Worker | **Pendiente** |
 
 ## Puesta en marcha
 
-### 1. Crear la zona en Cloudflare (lo hace el dueño)
+### 1. Crear la zona en Cloudflare — **hecho (a mano por el dueño)**
 
 Panel de Cloudflare → **Add a site** → `runosorno.online` → plan **Free**.
-Cloudflare asigna dos nameservers del tipo `ana.ns.cloudflare.com`.
+Cloudflare asignó `clint.ns.cloudflare.com` y `meadow.ns.cloudflare.com`.
 
-Alternativa: un *API Token* de Cloudflare con **Zone:Edit** y **DNS:Edit**
-sobre `runosorno.online` permite que lo haga todo por API (crear la zona,
-escribir los registros y registrar el dominio del Worker). El token OAuth de
-Wrangler local **no** alcanza: solo tiene lectura de zonas.
+> El token OAuth de Wrangler local **no** puede crearla (`zone.create` → 403)
+> ni leer los registros (`dns_records` → 403): sirve para leer la zona, no para
+> escribirla. Un *API Token* con **Zone:Edit** + **DNS:Edit** +
+> **Workers:Edit** sí permitiría escribir los registros y registrar el dominio
+> del Worker por API.
 
 ### 2. Cambiar los nameservers en Nominalia (lo hace el dueño)
 
@@ -88,17 +89,53 @@ Resend devuelve los registros que hay que publicar (DKIM y SPF).
 
 ### 5. Publicar los registros DNS (lo hace la IA o el dueño)
 
-En el DNS de Cloudflare:
+**La fuente de verdad es la pestaña *Records* del dominio en Resend**: se copian
+los registros tal cual. Para un dominio creado en 2026 Resend puede pedir la
+pareja `MX`+`TXT` o dos `CNAME`; por eso el paso es copiar, no inventar.
+
+Lo que Resend pide para **enviar** (los subdominios son de Resend, no del
+webmail, así que no chocan con el MX raíz de Nominalia):
+
+| Tipo | Nombre | Valor |
+|---|---|---|
+| TXT | `resend._domainkey` | clave DKIM `p=…` que genera Resend (copiar entera, sin comillas ni espacios) |
+| MX | `send` | `feedback-smtp.<region>.amazonses.com` (prioridad 10) — o CNAME si Resend lo pide así |
+| TXT | `send` | `v=spf1 include:amazonses.com ~all` — o CNAME si Resend lo pide así |
+| CNAME | `links` | `links1.resend-dns.com` (tracking, opcional) |
+
+Además, **en el raíz**:
 
 | Tipo | Nombre | Valor | Nota |
 |---|---|---|---|
-| TXT | `@` | `v=spf1 include:spf.webapps.net include:amazonses.com ~all` | **Un solo registro SPF**: los dos `include` en la misma línea. Dos registros SPF invalidan el correo (permerror) |
-| TXT/CNAME | el que indique Resend (p. ej. `resend._domainkey`) | clave DKIM de Resend | Firma de los correos |
-| MX | `@` | `mail.nominalia.com` (pref. 10) | Webmail de Nominalia |
-| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:contacto@runosorno.online` | Opcional, pero recomendado |
+| TXT | `@` | `v=spf1 include:spf.webapps.net include:amazonses.com ~all` | **Un solo registro SPF**: los dos `include` en la misma línea. Dos registros SPF invalidan el correo (permerror). Se **edita** el existente, no se agrega otro |
+| MX | `@` | `mail.nominalia.com` (pref. 10) | **No se toca**: es el webmail, y `contacto@` sigue recibiendo |
+| TXT | `_dmarc` | `v=DMARC1; p=none; rua=mailto:contacto@runosorno.online` | Opcional, recomendado |
 
-> Con el MX de Nominalia se conserva el buzón `contacto@`. Los correos salientes
-> los firma DKIM de Resend, así que **no hace falta** cambiar el MX para enviar.
+> El `include:amazonses.com` en el SPF raíz es lo que autoriza a SES a enviar
+> en nombre de `runosorno.online` (el `From` visible). El SPF del subdominio
+> `send` es el *return-path* (rebotes). Con DKIM firmado en
+> `resend._domainkey`, el correo queda firmado y verificado.
+
+Trampas conocidas al publicar en Cloudflare:
+
+- Los **CNAME deben quedar en «DNS only»** (nube gris, no naranja). Un registro
+  proxied no resuelve como CNAME y la verificación de Resend nunca termina.
+- Si el panel de Cloudflare **añade el dominio al valor** de un MX o CNAME
+  (`…amazonses.com.runosorno.online`), hay que terminar el valor con un
+  **punto**: `feedback-smtp.us-east-1.amazonses.com.`
+- Un CNAME no puede convivir con otro registro del mismo subdominio.
+
+### 5-bis. Comprobar los registros
+
+```bash
+nslookup -type=TXT resend._domainkey.runosorno.online
+nslookup -type=MX  send.runosorno.online
+nslookup -type=TXT send.runosorno.online
+nslookup -type=TXT runosorno.online      # SPF: una sola línea con los dos include
+```
+
+Cada valor tiene que coincidir **exactamente** con el de la pestaña *Records*
+de Resend.
 
 ### 6. Verificar en Resend y cambiar el remitente
 
@@ -117,15 +154,20 @@ cualquier destinatario.
 ### 7. Registrar el dominio en el Worker
 
 Con la zona activa en Cloudflare, el Worker `runosorno` puede tomar
-`runosorno.online` como dominio propio:
+`runosorno.online` como dominio propio. **Dos caminos:**
 
-```
-POST https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/workers/domains
-{"hostname": "runosorno.online", "service": "runosorno", "zone_name": "runosorno.online"}
-```
+- **Panel (lo hace el dueño):** Cloudflare → *Workers & Pages* → `runosorno` →
+  *Settings* → *Domains & Routes* → *Add* → *Custom domain* → `runosorno.online`.
+  Repetir con `www.runosorno.online`. Cloudflare crea el certificado, pone el
+  CNAME del Worker y **reemplaza el A del parking de Nominalia** (`81.88.48.71`)
+  por la ruta del Worker.
+- **API:** `POST https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/workers/domains`
+  con `{"hostname": "runosorno.online", "service": "runosorno", "zone_name": "runosorno.online"}`.
+  El token OAuth de Wrangler local **no** puede: devuelve `10405 Method not
+  allowed for this authentication scheme`. Necesita un *API Token* con
+  **Workers:Edit**.
 
-(lo mismo con `www.runosorno.online`). Cloudflare crea el certificado y
-redirige. `workers.dev` sigue funcionando como respaldo.
+`workers.dev` sigue funcionando como respaldo mientras tanto.
 
 ## Renovación
 
