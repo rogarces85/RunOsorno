@@ -112,6 +112,21 @@ v=spf1 include:spf.webapps.net include:send.runosorno.online ~all
 Se mantiene `spf.webapps.net` para que el webmail de Nominalia siga
 autorizado.
 
+> **Ojo con el punto final.** El valor del TXT **no** puede terminar en `.`:
+> `~all.` es sintaxis inválida y hace que los evaluadores de SPF devuelvan
+> *permerror* en vez de *pass*/*softfail*. Se escribe sin punto: el terminador
+> FQDN lo pone el propio DNS. Verificado el 2026-10-21: el registro publicado
+> terminaba en `.` y hubo que corregirlo.
+
+### Envío real verificado (2026-10-21)
+
+| Prueba | Resultado |
+|---|---|
+| Dominio en Resend | `verified`, región `sa-east-1` |
+| Correo desde `no-reply@runosorno.online` | entregado (`last_event=delivered`) |
+| Entrega al buzón `contacto@runosorno.online` (webmail de Nominalia) | **entregado** — confirma que el MX raíz sigue siendo el de Nominalia y que el buzón existe |
+| `sitemap.xml` y enlaces de los correos | usan `https://runosorno.online` |
+
 ## Puesta en marcha
 
 ### 1. Crear la zona en Cloudflare — **hecho (a mano por el dueño)**
