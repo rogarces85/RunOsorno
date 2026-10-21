@@ -66,6 +66,40 @@ jobs:
         env:
           NODE_ENV: production
 
+      # La caché incremental de R2 guarda el HTML/RSC de despliegues anteriores.
+      # OpenNext la puebla al desplegar pero nunca la limpia, así que se acumulan
+      # artefactos de builds viejas. Purgarla tras cada despliegue es seguro: es
+      # regenerable y se vuelve a llenar sola. Evita que queden referencias a
+      # chunks que ya no existen (el error "components.ComponentMod.handler is
+      # not a function", que devolvía 500 en peticiones nuevas).
+      - name: Purgar la caché incremental de R2
+        run: |
+          set -euo pipefail
+          BASE="https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/r2/buckets/runosorno-cache/objects"
+          AUTH="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
+          cursor=""
+          borrados=0
+          while : ; do
+            url="${BASE}?per_page=1000"
+            [ -n "${cursor}" ] && url="${url}&cursor=${cursor}"
+            resp=$(curl -sS -H "${AUTH}" "${url}")
+            if ! echo "${resp}" | jq -e '.success == true' > /dev/null; then
+              echo "::warning::No se pudo listar la caché: $(echo "${resp}" | jq -c '.errors')"
+              exit 0
+            fi
+            keys=$(echo "${resp}" | jq -r '.result.objects[]?.key')
+            [ -z "${keys}" ] && break
+            echo "${resp}" | jq -r '.result.objects[]?.key' | while read -r key; do
+              encoded=$(printf '%s' "${key}" | jq -sRr @uri)
+              curl -sS -X DELETE -H "${AUTH}" "${BASE}/${encoded}" > /dev/null
+              echo "borrado ${key}"
+            done
+            borrados=$((borrados + $(echo "${keys}" | wc -l)))
+            cursor=$(echo "${resp}" | jq -r '.result.cursor // empty')
+            [ -z "${cursor}" ] && break
+          done
+          echo "Caché purgada: ${borrados} objetos"
+
       # Worker aparte, solo con un Cron Trigger, que mantiene caliente el
       # isolate del Worker principal (P1.5). No recibe tráfico de usuarios.
       - name: Desplegar el Worker de calentamiento
