@@ -38,13 +38,52 @@ Dos cosas, y ninguna bloquea a la otra:
 |---|---|
 | Dominio registrado | **Hecho** |
 | Webmail de Nominalia con buzones `@runosorno.online` | Activo (MX `mail.nominalia.com`) |
-| Zona creada en Cloudflare | **Hecho** — id `13f2630f1bd320d360f8d65c03c67a7c`, plan Free, en `pending` → `active` |
-| Nameservers cambiados a Cloudflare | **Hecho y propagado**: `clint.ns.cloudflare.com` / `meadow.ns.cloudflare.com` ya responden en 1.1.1.1 y 8.8.8.8 |
-| Registros heredados de Nominalia en la zona | **Intactos**: A `81.88.48.71` (parking), MX `mail.nominalia.com`, TXT `v=spf1 include:spf.webapps.net ~all` |
-| Dominio creado en Resend | **Pendiente** (falta `RESEND_API_KEY` en local) |
-| Registros DKIM / `send` de Resend publicados | **Pendiente** — hoy no existe `resend._domainkey` ni `send` |
+| Zona en Cloudflare | **Hecho y `active`** — id `13f2630f1bd320d360f8d65c03c67a7c`, plan Free |
+| Nameservers cambiados a Cloudflare | **Hecho y propagado**: `clint.ns.cloudflare.com` / `meadow.ns.cloudflare.com` responden en 1.1.1.1 y 8.8.8.8 |
+| Registros heredados de Nominalia | **Intactos**: MX `mail.nominalia.com`, SPF `v=spf1 include:spf.webapps.net ~all` |
+| DKIM de Resend | **Publicada**: TXT `resend._domainkey` → clave RSA-1024 de 218 caracteres (DER de 162 bytes, íntegra) |
+| Sending de Resend | **Publicado**: CNAME `send` → `send.forge.rmta.net` (MX `feedback.forge.rmta.net`, SPF `ip4:52.3.252.119 ip4:44.222.39.36 ip4:199.249.231.0/24`) y CNAME `rsend` → `rsend-sae1.forge.rmta.net` (MX `feedback-smtp.sa-east-1.amazonses.com`) |
+| CNAME de tracking | **Falta** (`links` → `links1.resend-dns.com`), solo si Resend lo pide y se quiere tracking |
+| SPF del raíz | **Falta** incluir a Resend (recomendado, no bloqueante: ver abajo) |
+| Dominio verificado en Resend | **Sin confirmar** (hace falta la API key o mirar el panel) |
+| `runosorno.online` como dominio del Worker | **Pendiente** → hoy el apex y `www` devuelven **503 "no SSL certificate configured for this domain"** |
 | `RESEND_FROM` y `APP_URL` en el Worker | **Pendiente** (siguen los de prueba) |
-| `runosorno.online` como dominio del Worker | **Pendiente** |
+
+### El 503 del dominio propio
+
+El apex y `www` resuelven a las IP de Cloudflare (104.21.40.14 / 172.67.174.43),
+que son los **registros de parking que Cloudflare crea solo al añadir la zona**.
+No hay certificado para el dominio porque **el dominio todavía no se ha
+registrado como dominio del Worker**: sin eso, Cloudflare no emite el
+certificado y contesta 503 con la página "SSL Error".
+
+El Worker no se rompió: `workers.dev/login` y `workers.dev/api/health` devuelven
+200. Se arregla con el paso 7 (agregar el dominio en *Domains & Routes*).
+
+> **El router de casa bloquea el dominio.** El DNS local (FortiGuard SDNS)
+> responde con la página "Fortiguard SDNS Blocked Page" y un certificado
+> inválido. Desde la red del dueño, `runosorno.online` no abre aunque esté
+> todo bien en producción. Solución: poner 1.1.1.1 / 8.8.8.8 como DNS del
+> router o del dispositivo, o excluir el dominio del filtro.
+
+### SPF del raíz: recomendado, no obligatorio
+
+Resend lleva su SPF en el subdominio `send` (con el CNAME, la resolución sigue
+la cadena y encuentra `v=spf1 ip4:52.3.252.119 ip4:44.222.39.36
+ip4:199.249.231.0/24 ~all`), así que el *return-path* pasa el SPF. El dominio
+**visible** (`runosorno.online`) tiene `include:spf.webapps.net ~all`, que no
+autoriza esas IP: da *softfail*. Como la DKIM está firmada y alineada, **el
+correo se entrega igual**.
+
+Para dejar el SPF limpio, se **edita** el registro existente (nunca se agrega
+otro) y se le añade el include de Resend:
+
+```
+v=spf1 include:spf.webapps.net include:send.runosorno.online ~all
+```
+
+Se mantiene `spf.webapps.net` para que el webmail de Nominalia siga
+autorizado.
 
 ## Puesta en marcha
 
@@ -139,7 +178,10 @@ de Resend.
 
 ### 6. Verificar en Resend y cambiar el remitente
 
-Resend marca el dominio como `verified` cuando los registros ya resuelven.
+Resend marca el dominio como `verified` cuando los registros ya resuelven
+(la DKIM y los dos CNAME están publicados; en ~15 minutos debería bastar). Se
+puede forzar con `POST https://api.resend.com/domains/<id>/verify`.
+
 Después, en `wrangler.jsonc`:
 
 ```jsonc
@@ -150,6 +192,16 @@ Después, en `wrangler.jsonc`:
 y se redespliega (`npm run deploy` o push a `main`). Los correos que hasta
 ahora salían con `onboarding@resend.dev` pasan a salir del dominio y llegan a
 cualquier destinatario.
+
+> **El ajuste del panel no cambia el remitente.** `lib/services/email.service.ts`
+> resuelve el `from` con `env.resendFrom` primero y solo cae al valor por
+> defecto si la variable está vacía; el ajuste "Remitente de emails" de
+> `/admin/settings` se guarda en la base pero no manda sobre el envío. Para
+> cambiar de remitente hay que tocar `wrangler.jsonc` y redesplegar.
+
+> **`APP_URL` espera al dominio propio.** Cambiarlo antes de que
+> `runosorno.online` sirva la app pone enlaces rotos en los correos. Los dos
+> valores se cambian en el mismo despliegue, después del paso 7.
 
 ### 7. Registrar el dominio en el Worker
 
