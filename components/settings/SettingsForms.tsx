@@ -205,13 +205,13 @@ export function EmailForm({ initial }: { initial: EmailSettings }) {
         id="emailFrom"
         label="Remitente de emails"
         error={errors.emailFrom?.message}
-        hint="Debe incluir el nombre y el correo entre angled brackets: RunOsorno <no-reply@runosorno.cl>"
+        hint="Debe incluir el nombre y el correo entre angled brackets: RunOsorno <no-reply@runosorno.online>"
       >
         <input
           id="emailFrom"
           type="text"
           className={`form-control ${errors.emailFrom ? "is-invalid" : ""}`}
-          placeholder="RunOsorno <no-reply@runosorno.cl>"
+          placeholder="RunOsorno <no-reply@runosorno.online>"
           {...register("emailFrom")}
         />
       </Field>

@@ -186,6 +186,12 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
 ## Notas de la infraestructura de producción (Fase 43)
 
 - **Worker:** `runosorno` → `https://runosorno.rodrigo-garces-guerrero.workers.dev`.
+- **Dominio:** `runosorno.online`, registrado en Nominalia el 2026-10-21 y con
+  expiración el 2027-10-21. La zona DNS todavía no está en Cloudflare: el plan
+  para el correo propio y para tomar el dominio en el Worker está en
+  `docs/dominio.md`, con los avisos de renovación en `docs/renovacion-dominio.ics`.
+  **Regla:** ninguna fecha de este dominio se inventa en el código; la fuente
+  única es `docs/dominio.md`.
 - **Base:** Aiven MySQL 8.4.11, base `defaultdb`. Esquema creado con
   `npm run db:migrate` y datos base con `npm run db:seed` (admin, 5 ajustes,
   5 plantillas oficiales). **No** se importó el volcado de MariaDB: son motores

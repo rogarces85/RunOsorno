@@ -1,0 +1,51 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//RunOsorno//Renovacion dominio//ES
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:RunOsorno - dominio
+BEGIN:VEVENT
+UID:renovar-runosorno-online-30d@runosorno.online
+DTSTAMP:20261021T120000Z
+DTSTART;VALUE=DATE:20270921
+DTEND;VALUE=DATE:20270922
+SUMMARY:Renovar dominio runosorno.online (30 días antes)
+DESCRIPTION:Primer aviso de renovación del dominio runosorno.online (registrador Nominalia).\n\nRenovar por al menos 1 año más. La renovación no afecta al DNS ni a Cloudflare: los nameservers y los registros de correo siguen siendo válidos.\n\nDespués de renovar, actualizar la fecha de expiración en docs/dominio.md y reprogramar los avisos de este calendario.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Renovar runosorno.online (30 días antes)
+TRIGGER:-P7D
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:renovar-runosorno-online-7d@runosorno.online
+DTSTAMP:20261021T120000Z
+DTSTART;VALUE=DATE:20271014
+DTEND;VALUE=DATE:20271015
+SUMMARY:Renovar dominio runosorno.online (7 días antes)
+DESCRIPTION:Segundo aviso de renovación del dominio runosorno.online (registrador Nominalia).\n\nConfirmar que la renovación del 21/09 quedó aplicada y que la nueva fecha de expiración es correcta.
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Renovar runosorno.online (7 días antes)
+TRIGGER:-P2D
+END:VALARM
+END:VEVENT
+BEGIN:VEVENT
+UID:expira-runosorno-online@runosorno.online
+DTSTAMP:20261021T120000Z
+DTSTART;VALUE=DATE:20271021
+DTEND;VALUE=DATE:20271022
+SUMMARY:Expira el dominio runosorno.online
+DESCRIPTION:Fecha de expiración de runosorno.online.\n\nSi no se renueva: la app en runosorno.online cae, los buzones @runosorno.online dejan de recibir y Resend deja de entregar con ese remitente (habría que volver a onboarding@resend.dev).
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Expira runosorno.online hoy
+TRIGGER:-P30D
+END:VALARM
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Expira runosorno.online en 7 días
+TRIGGER:-P7D
+END:VALARM
+END:VEVENT
+END:VCALENDAR
