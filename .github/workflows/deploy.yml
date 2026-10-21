@@ -79,23 +79,31 @@ jobs:
           AUTH="Authorization: Bearer ${CLOUDFLARE_API_TOKEN}"
           cursor=""
           borrados=0
+          primero=1
           while : ; do
             url="${BASE}?per_page=1000"
             [ -n "${cursor}" ] && url="${url}&cursor=${cursor}"
             resp=$(curl -sS -H "${AUTH}" "${url}")
+            if [ "${primero}" = "1" ]; then
+              primero=0
+              echo "Respuesta de la API: $(echo "${resp}" | head -c 300)"
+            fi
             if ! echo "${resp}" | jq -e '.success == true' > /dev/null; then
               echo "::warning::No se pudo listar la caché: $(echo "${resp}" | jq -c '.errors')"
               exit 0
             fi
-            keys=$(echo "${resp}" | jq -r '.result.objects[]?.key')
-            [ -z "${keys}" ] && break
-            echo "${resp}" | jq -r '.result.objects[]?.key' | while read -r key; do
+            # La API devuelve `result` como array plano de objetos.
+            keys=$(echo "${resp}" | jq -r 'if (.result|type)=="array" then .result[]?.key else .result.objects[]?.key end')
+            if [ -z "${keys}" ]; then
+              echo "No quedan objetos en la caché"
+              break
+            fi
+            echo "${keys}" | while read -r key; do
               encoded=$(printf '%s' "${key}" | jq -sRr @uri)
               curl -sS -X DELETE -H "${AUTH}" "${BASE}/${encoded}" > /dev/null
-              echo "borrado ${key}"
             done
             borrados=$((borrados + $(echo "${keys}" | wc -l)))
-            cursor=$(echo "${resp}" | jq -r '.result.cursor // empty')
+            cursor=$(echo "${resp}" | jq -r '.result_info.cursor // (if (.result|type)=="array" then empty else .result.cursor end) // empty')
             [ -z "${cursor}" ] && break
           done
           echo "Caché purgada: ${borrados} objetos"
