@@ -49,29 +49,17 @@ jobs:
       - name: Build para Cloudflare Workers
         run: npx opennextjs-cloudflare build
 
-      # OpenNext sube la caché incremental a R2 antes de publicar el Worker, y
-      # desde los runners de GitHub esa subida falla por tiempo de espera de
-      # forma intermitente ("Failed to send request to R2 worker: ... aborted due
-      # to timeout"), lo que tumba el deploy entero. La caché es regenerable: si
-      # falla, se reintenta el deploy y ya sale. Los reintentos cubren el fallo
-      # sin dejar el sitio sin publicar.
-      - name: Desplegar
-        run: npx opennextjs-cloudflare deploy
-        env:
-          NODE_ENV: production
-
-      - name: Reintentar el deploy si la subida de R2 dio tiempo de espera
-        if: failure()
-        run: npx opennextjs-cloudflare deploy
-        env:
-          NODE_ENV: production
-
       # La caché incremental de R2 guarda el HTML/RSC de despliegues anteriores.
       # OpenNext la puebla al desplegar pero nunca la limpia, así que se acumulan
-      # artefactos de builds viejas. Purgarla tras cada despliegue es seguro: es
-      # regenerable y se vuelve a llenar sola. Evita que queden referencias a
-      # chunks que ya no existen (el error "components.ComponentMod.handler is
-      # not a function", que devolvía 500 en peticiones nuevas).
+      # artefactos de builds viejas (1199 objetos tras dos semanas), y alguno
+      # de ellos provoca 500 en peticiones nuevas ("components.ComponentMod.handler
+      # is not a function").
+      #
+      # Se purga ANTES del despliegue, nunca después: el deploy sube el
+      # prerender de la build nueva a esa misma caché ("Populating remote R2
+      # incremental cache..."), y purgarla al final dejaba el bucket vacío, sin
+      # prerender, y las páginas públicas se quedaban colgadas esperando un
+      # render en runtime que en workerd no termina.
       - name: Purgar la caché incremental de R2
         run: |
           set -euo pipefail
@@ -107,6 +95,23 @@ jobs:
             [ -z "${cursor}" ] && break
           done
           echo "Caché purgada: ${borrados} objetos"
+
+      # OpenNext sube la caché incremental a R2 antes de publicar el Worker, y
+      # desde los runners de GitHub esa subida falla por tiempo de espera de
+      # forma intermitente ("Failed to send request to R2 worker: ... aborted due
+      # to timeout"), lo que tumba el deploy entero. La caché es regenerable: si
+      # falla, se reintenta el deploy y ya sale. Los reintentos cubren el fallo
+      # sin dejar el sitio sin publicar.
+      - name: Desplegar
+        run: npx opennextjs-cloudflare deploy
+        env:
+          NODE_ENV: production
+
+      - name: Reintentar el deploy si la subida de R2 dio tiempo de espera
+        if: failure()
+        run: npx opennextjs-cloudflare deploy
+        env:
+          NODE_ENV: production
 
       # Worker aparte, solo con un Cron Trigger, que mantiene caliente el
       # isolate del Worker principal (P1.5). No recibe tráfico de usuarios.
