@@ -46,7 +46,8 @@ Dos cosas, y ninguna bloquea a la otra:
 | CNAME de tracking | **Falta** (`links` → `links1.resend-dns.com`), solo si Resend lo pide y se quiere tracking |
 | SPF del raíz | **Falta** incluir a Resend (recomendado, no bloqueante: ver abajo) |
 | Dominio verificado en Resend | **Sin confirmar** (hace falta la API key o mirar el panel) |
-| `runosorno.online` como dominio del Worker | **Pendiente** → hoy el apex y `www` devuelven **503 "no SSL certificate configured for this domain"** |
+| `runosorno.online` como dominio del Worker | **Hecho** — certificado Let's Encrypt `CN=runosorno.online` (vence 2027-01-19). `/`, `/login`, `/api/health`, `/robots.txt` y `/sitemap.xml` devuelven **200** |
+| `www.runosorno.online` | **404** — el CNAME `www` → apex lo deja apuntando al Worker, pero el Worker solo tiene registrado el hostname exacto. Se resuelve con un segundo dominio personalizado o con una regla de redirección |
 | `RESEND_FROM` y `APP_URL` en el Worker | **Pendiente** (siguen los de prueba) |
 
 ### El 503 del dominio propio
