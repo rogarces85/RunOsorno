@@ -204,6 +204,36 @@ este stack quepa en 10 ms**: el suelo de 5-6 ms y el arranque en frío de
 120-680 ms son del framework, no de la app. Las opciones, con su coste real,
 están en `docs/roadmap.md` (M1).
 
+### Cierre de M1 sin subir de plan (2026-10-22)
+
+Con las tres correcciones de arriba, el plan **Free** aguanta:
+
+| Medición | Resultado |
+|---|---|
+| 30 logins seguidos | **30/30** sin 5xx (mediana 667 ms) |
+| 30 peticiones en paralelo (3 rutas × 10) | **30/30** con 200 |
+| 20 peticiones secuenciales por ruta (`/api/health`, `/login`, `/`) | **60/60** con 200 |
+| Arranque en frío tras un despliegue | 202 ms → **98 ms** |
+| Petición caliente | 3-8 ms (`/api/health`), mediana 11 ms en el conjunto |
+
+Las tres correcciones:
+
+1. **Caché de R2 purgada antes del deploy** (los 500 por objetos viejos y los
+   colgues por render en runtime).
+2. **Middleware eliminado**: la protección vive en los layouts. Su bundle bajó
+   de 5,46 MB a 0,22 MB y el camino de la petición es uno solo (antes eran dos
+   funciones y un salto por service binding).
+3. **El calentador pings cada minuto** (antes cada 2): medido que con el ping
+   cada 2 minutos el isolate seguía caliente tras 3 minutos de inactividad
+   (8-14 ms), pero tras cada despliegue había una ventana con la primera
+   petición en frío.
+
+**Lo que queda ouvert:** la primera petición después de cada despliegue puede
+caer en un isolate frío y tardar 98 ms (por encima de los 10 ms). Con el
+calentador al minuto, esa ventana es de ~1 minuto. Si/molesta, la salida es
+ Workers Paid ($5/mes) o una VM; ya no es el login fallando una de cada dos
+veces, que era el síntoma original.
+
 **Pendiente (estrategia de costo cero):**
 
 1. Desplegar la migración a PBKDF2 y **re-medir** el login en frío
