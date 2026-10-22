@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { Card } from "@/components/ui/Card";
 
@@ -15,6 +14,8 @@ export type StatCardItem = {
   sub?: string;
   href?: string;
   tone?: "default" | "success" | "warning" | "danger" | "primary";
+  /** Marca de agua deportiva (`card-stamp`) opcional, recibida ya montada. */
+  stamp?: { icon: ReactNode; variant?: "primary" | "success" | "info" | "warning" | "danger" };
 };
 
 const TONE_CLASS: Record<NonNullable<StatCardItem["tone"]>, string> = {
@@ -32,9 +33,16 @@ const TONE_CLASS: Record<NonNullable<StatCardItem["tone"]>, string> = {
 export function StatsCards({ items }: { items: StatCardItem[] }) {
   return (
     <div className="row">
-      {items.map((item) => {
-        const body = (
-          <Card className="h-100" interactive={Boolean(item.href)}>
+      {items.map((item) => (
+        <div key={item.key} className="col-md-6 col-xl-3 mb-3">
+          {/* Con `href`, la tarjeta completa es el enlace (`card-link
+              card-link-pop`), no un `<a>` envolviendo la tarjeta: la
+              elevación del hover cae sobre la tarjeta misma. */}
+          <Card
+            className="h-100 text-decoration-none"
+            href={item.href}
+            stamp={item.stamp}
+          >
             <div className="text-secondary mb-1">{item.label}</div>
             <div
               className={`h1 mb-0 app-numeric ${TONE_CLASS[item.tone ?? "default"]}`.trim()}
@@ -45,22 +53,8 @@ export function StatsCards({ items }: { items: StatCardItem[] }) {
               <div className="text-secondary small">{item.sub}</div>
             ) : null}
           </Card>
-        );
-        return (
-          <div key={item.key} className="col-md-6 col-xl-3 mb-3">
-            {item.href ? (
-              <Link
-                href={item.href}
-                className="d-block h-100 text-decoration-none"
-              >
-                {body}
-              </Link>
-            ) : (
-              body
-            )}
-          </div>
-        );
-      })}
+        </div>
+      ))}
     </div>
   );
 }

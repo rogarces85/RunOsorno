@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
-import { IconLogout } from "@tabler/icons-react";
-import { logout } from "@/lib/actions/auth.actions";
 import { requireAuth } from "@/lib/auth/guards";
 import {
   getNotifications,
@@ -9,11 +7,11 @@ import {
 } from "@/lib/services/notification.service";
 import { notificationHref } from "@/lib/utils/notification";
 import { THEME_COOKIE, themeFromCookie } from "@/lib/ui/theme";
-import { Avatar } from "@/components/ui/Avatar";
 import { NotificationBell } from "@/components/ui/NotificationBell";
 import { Logo } from "./Logo";
 import { NavToggle } from "./NavToggle";
 import { ThemeToggle } from "./ThemeToggle";
+import { UserMenu } from "./UserMenu";
 
 export async function AppHeader() {
   const { user } = await requireAuth();
@@ -38,40 +36,12 @@ export async function AppHeader() {
         <div className="navbar-nav flex-row ms-auto align-items-center">
           <ThemeToggle initialTheme={theme} />
           <NotificationBell unreadCount={unreadCount} items={items} />
-          <div className="nav-item ms-2">
-            <Link
-              href="/profile"
-              title="Mi perfil"
-              className="d-flex align-items-center"
-            >
-              <Avatar
-                userId={user.id}
-                name={user.name}
-                avatarKey={user.avatarKey}
-                size="sm"
-              />
-            </Link>
-          </div>
-          <div className="nav-item ms-2">
-            <form action={logout}>
-              <button
-                type="submit"
-                className="btn btn-sm btn-ghost-secondary app-logout"
-                title="Cerrar sesión"
-                aria-label="Cerrar sesión"
-              >
-                <IconLogout
-                  size={18}
-                  stroke={1.75}
-                  className="app-logout-icon d-sm-none me-0"
-                  aria-hidden
-                />
-                <span className="app-logout-label d-none d-sm-inline">
-                  Cerrar sesión
-                </span>
-              </button>
-            </form>
-          </div>
+          <UserMenu
+            userId={user.id}
+            name={user.name}
+            role={user.role}
+            avatarKey={user.avatarKey}
+          />
         </div>
       </div>
     </header>

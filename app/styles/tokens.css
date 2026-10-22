@@ -52,6 +52,14 @@
   --app-danger-soft: #fbebeb;
   --app-info-soft: #ecf5fc;
 
+  /* ---- Acento por rol ----
+   * Tinta y tinte de fondo del shell según `data-user-role` (atleta = azul de
+   * marca, entrenador = índigo, admin = rojo). Viven aquí porque son color:
+   * los apartados del D8 prohíben un hex en cualquier otro archivo.
+   */
+  --app-role-accent: var(--app-accent);
+  --app-role-soft: var(--app-accent-soft);
+
   /* ---- Tipografía ---- */
   --app-font-sans:
     var(--font-archivo), system-ui, -apple-system, "Segoe UI", Roboto,
@@ -181,4 +189,30 @@
   --app-chart-3: #a8bf6f;
   --app-chart-4: #c9a6f0;
   --app-chart-5: #e0c06b;
+}
+
+/* ---- Diferenciación por rol ----
+ * El atributo `data-user-role` vive en el wrapper `.page` del layout
+ * autenticado (`app/(app)/layout.tsx`), que ya resuelve el rol de la sesión.
+ * El atleta toma el acento de marca del sistema (los valores por defecto del
+ * `:root`, no hace falta un bloque); entrenador y admin pisan el token en su
+ * subárbol. El bloque oscuro del entrenador se declara aparte: el índigo claro
+ * (#5B3FB5) no llega a 4,5:1 sobre el lienzo oscuro, el lavanda #B39BF0 llega
+ * a ~6,7:1. Ambos pares se midieron con la misma fórmula de
+ * `scripts/verify-tokens.ts`: entrenador claro 6,4:1, rojo admin 5,4:1.
+ */
+[data-user-role="coach"] {
+  --app-role-accent: #5b3fb5;
+  --app-role-soft: #efecfa;
+}
+
+[data-bs-theme="dark"] [data-user-role="coach"] {
+  --app-role-accent: #b39bf0;
+  --app-role-soft: #231d3f;
+}
+
+/* Admin reutiliza los semánticos de peligro: contrastan en ambos temas. */
+[data-user-role="admin"] {
+  --app-role-accent: var(--app-danger);
+  --app-role-soft: var(--app-danger-soft);
 }

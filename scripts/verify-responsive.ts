@@ -113,8 +113,7 @@ const PROBE = `(() => {
     backdrop: !!document.querySelector('[data-testid="app-sidebar-backdrop"]'),
     bodyLocked: getComputedStyle(document.body).overflow,
     header: box(document.querySelector("header.navbar")),
-    logout: box(document.querySelector(".app-logout")),
-    logoutLabelVisible: isVisible(document.querySelector(".app-logout-label")),
+    userMenu: box(document.querySelector(".app-user-menu-button")),
   };
 })()`;
 
@@ -128,8 +127,7 @@ type ShellState = {
   backdrop: boolean;
   bodyLocked: string;
   header: { x: number; y: number; w: number; h: number } | null;
-  logout: { x: number; y: number; w: number; h: number } | null;
-  logoutLabelVisible: boolean;
+  userMenu: { x: number; y: number; w: number; h: number } | null;
 };
 
 async function probe(page: Page): Promise<ShellState> {

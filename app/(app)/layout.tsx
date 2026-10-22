@@ -32,7 +32,10 @@ export default async function AppLayout({
 
   return (
     <NavProvider>
-      <div className="page">
+      {/* El rol viaja como atributo del shell: `tokens.css` pisa los tokens
+          `--app-role-*` según su valor (atleta/entrenador/admin) para teñir
+          sidebar y navbar sin tocar clases ni JavaScript. */}
+      <div className="page" data-user-role={user.role}>
         <AppSidebar role={user.role} isDirector={isDirector} />
         <div className="page-wrapper">
           <AppHeader />

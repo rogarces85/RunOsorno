@@ -57,7 +57,8 @@ test.describe("Autenticación", () => {
   }) => {
     await login(page, ATHLETE_DEMO, "/athlete/dashboard");
 
-    await page.click('button[aria-label="Cerrar sesión"]');
+    await page.getByTestId("user-menu-button").click();
+    await page.getByTestId("user-menu-logout").click();
     await page.waitForURL(/\/login/);
     await expect(page.getByTestId("login-error")).toHaveCount(0);
 

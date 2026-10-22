@@ -238,14 +238,6 @@ body.app-nav-open {
   }
 }
 
-@media (max-width: 575.98px) {
-  .app-logout {
-    width: 2.75rem;
-    height: 2.75rem;
-    padding: 0;
-  }
-}
-
 /* ===== Gráficas de anillo (Fase 39) ===== */
 .donut-chart {
   display: flex;

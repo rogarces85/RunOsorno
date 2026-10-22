@@ -13,6 +13,7 @@ import {
   recordSessionSchema,
 } from "@/lib/validations/session.schemas";
 import { toISODate } from "@/lib/utils/date";
+import { celebrate } from "@/components/ui/celebrate";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 
@@ -179,6 +180,10 @@ export function SessionForm({
       setError("root", { message: result.error });
       return;
     }
+    // Celebración al guardar: pleno → ráfaga completa; parcial → una ráfaga
+    // corta. El confeti vive fuera del árbol de React, así que no se corta
+    // con el `router.refresh()` inmediato.
+    celebrate(mode === "completed" ? "full" : "soft");
     setSaved(true);
     router.refresh();
   });

@@ -97,7 +97,10 @@
 .app-header {
   min-height: var(--app-header-height);
   background: var(--app-surface);
-  border-bottom: 1px solid var(--app-border);
+  /* Acento del rol filtrado en la línea inferior: un matiz del acento por rol
+     como toque sutil, no un bloque de color completo. */
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--app-role-accent) 25%, var(--app-border));
 }
 
 .app-header .container-fluid {
@@ -109,6 +112,66 @@
   display: inline-flex;
   align-items: center;
   padding-block: 0;
+}
+
+/* ===== Menú de usuario =====
+   Botón del header: avatar con punto de presencia + nombre y rol. El
+   desplegable usa el patrón de `NotificationBell` (estado React, foco y
+   Escape), no el dropdown de Bootstrap JS que este proyecto no carga. */
+.app-user-menu-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--app-radius-control);
+  transition: background-color var(--app-dur-fast) var(--app-ease);
+}
+
+.app-user-menu-button:hover {
+  background: var(--app-surface-2);
+  color: var(--app-ink);
+}
+
+.app-user-avatar {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+/* Indicador de presencia: forma (círculo con anillo de superficie) + un texto
+   `visually-hidden` "En línea" — el estado no se comunica solo con color. */
+.app-presence-dot {
+  position: absolute;
+  inset-block-end: -2px;
+  inset-inline-end: -2px;
+  width: 9px;
+  height: 9px;
+  border-radius: var(--app-radius-full);
+  background: var(--app-success);
+  box-shadow: 0 0 0 2px var(--app-surface);
+}
+
+.app-user-menu-id {
+  min-width: 0;
+  text-align: start;
+}
+
+.app-user-menu-name {
+  max-width: 11rem;
+  overflow: hidden;
+  color: var(--app-ink);
+  font-size: var(--app-text-sm);
+  font-weight: 600;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-user-menu-role {
+  color: var(--app-ink-3);
+  font-size: var(--app-text-caption);
+  line-height: 1.25;
 }
 
 .app-theme-toggle {
@@ -140,10 +203,16 @@
   border-bottom: 1px solid var(--app-border);
 }
 
+/* Superficie propia del sidebar (un paso por encima del lienzo): distinta al
+   `page-body` pero de la misma familia fría. En mobile actúa como fondo del
+   panel off-canvas; en desktop el `@media` solo fija el ancho y el borde. */
+.app-sidebar {
+  background: var(--app-surface-3);
+}
+
 @media (min-width: 992px) {
   .app-sidebar {
     width: var(--app-sidebar-width);
-    background: var(--app-surface);
     border-inline-end: 1px solid var(--app-border);
   }
 }
@@ -169,8 +238,8 @@
 }
 
 .app-sidebar .nav-link.active {
-  background: var(--app-accent-soft);
-  color: var(--app-accent);
+  background: var(--app-role-soft);
+  color: var(--app-role-accent);
 }
 
 .app-sidebar .nav-link.active::before {
@@ -180,7 +249,7 @@
   inset-inline-start: 0;
   width: 2px;
   border-radius: var(--app-radius-full);
-  background: var(--app-accent);
+  background: var(--app-role-accent);
 }
 
 .app-sidebar .nav-link-icon {
@@ -429,6 +498,46 @@
 .app-card-interactive:hover {
   border-color: var(--app-border-strong);
   box-shadow: var(--app-shadow-2);
+}
+
+/* La tarjeta que es un enlace esquiva el margen que la utilidad `card-link`
+   de Tabler le suma a un ancla (pensado para enlaces internos) y agarra la
+   elevación con la transición de `app-card-interactive`. */
+a.card.card-link {
+  margin-inline-start: 0;
+}
+
+/* ===== Sello de tarjeta (card-stamp) =====
+   Tabler trae `.card-stamp` (marca de agua circular arriba a la derecha,
+   al 20 % de opacidad) pero sus variantes de color no existen en 1.6: se
+   declaran aquí con los semánticos del sistema. El ícono lleva el mismo
+   color de superficie que la tarjeta, como el patrón oficial. */
+.card-stamp-success .card-stamp-icon {
+  background: var(--app-success);
+}
+
+.card-stamp-info .card-stamp-icon {
+  background: var(--app-info);
+}
+
+.card-stamp-warning .card-stamp-icon {
+  background: var(--app-warning);
+}
+
+.card-stamp-danger .card-stamp-icon {
+  background: var(--app-danger);
+}
+
+.card-stamp-primary .card-stamp-icon {
+  background: var(--app-role-accent);
+}
+
+.card-stamp-primary .card-stamp-icon,
+.card-stamp-success .card-stamp-icon,
+.card-stamp-info .card-stamp-icon,
+.card-stamp-warning .card-stamp-icon,
+.card-stamp-danger .card-stamp-icon {
+  color: var(--app-surface);
 }
 
 .card-header {
