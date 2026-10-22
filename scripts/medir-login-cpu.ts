@@ -37,9 +37,13 @@ async function main() {
     let estado: number | null = null;
     let error: string | null = null;
     try {
+      // `networkidle` es obligatorio: si se hace clic antes de que hidrate el
+      // formulario, el navegador manda un GET nativo (la contraseña acaba en
+      // la URL) y la acción de servidor —la que hace el KDF— no se ejecuta.
+      // Medir con `domcontentloaded` mide otra cosa: el GET.
       const respuesta = await pagina.goto(`${BASE}/login`, {
-        waitUntil: "domcontentloaded",
-        timeout: 45000,
+        waitUntil: "networkidle",
+        timeout: 60000,
       });
       void respuesta;
       await pagina.fill('input[name="email"]', EMAIL);
@@ -47,7 +51,7 @@ async function main() {
       const [navegacion] = await Promise.all([
         pagina.waitForResponse(
           (r) => r.request().method() === "POST",
-          { timeout: 45000 },
+          { timeout: 60000 },
         ),
         pagina.click('button[type="submit"]'),
       ]);
