@@ -16,9 +16,12 @@ import { DUMMY_PASSWORD_HASH, verifyPassword } from "@/lib/security/hashing";
  *   ?modo=siete   siete consultas, como hace el login
  *
  * Se borra cuando el diagnóstico esté cerrado.
+ *
+ * Sin `export const dynamic`: con `cacheComponents` activado, Next 16 rechaza
+ * ese config de segmento ("Route segment config 'dynamic' is not compatible
+ * with nextConfig.cacheComponents"). La ruta lee la query, así que es
+ * dinámica de todas formas.
  */
-export const dynamic = "force-dynamic";
-
 export async function GET(request: Request) {
   const modo = new URL(request.url).searchParams.get("modo") ?? "vacio";
   const t0 = Date.now();
