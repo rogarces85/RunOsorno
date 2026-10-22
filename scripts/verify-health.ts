@@ -10,6 +10,11 @@
  *   BASE_URL=http://localhost:3000 npx tsx scripts/verify-health.ts
  */
 
+// Sin imports, este archivo sería un script global y sus `BASE` y `main`
+// chocarían con los de cualquier otro script sin imports del directorio.
+// Con `export {}` pasa a ser un módulo y sus nombres quedan(scope) propio.
+export {};
+
 const BASE =
   process.env.BASE_URL ?? "https://runosorno.rodrigo-garces-guerrero.workers.dev";
 

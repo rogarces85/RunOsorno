@@ -68,3 +68,9 @@ async function main() {
 }
 
 main();
+
+// Al final para que este archivo sea un módulo y sus variables no choquen
+// con las de otros scripts del directorio (sin esto, TypeScript las trata
+// como globales y el build falla con "Cannot redeclare block-scoped
+// variable 'BASE'").
+export {};
