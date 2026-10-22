@@ -10,7 +10,7 @@ Worker desplegado. Cada fila indica cómo está comprobado: **E2E**
 
 | # | Funcionalidad | Dónde | Cómo está comprobado |
 |---|---|---|---|
-| 1 | Autenticación por sesión | `lib/auth`, `proxy.ts` | E2E `auth.spec.ts`, `verify-roles`, `verify-produccion` |
+| 1 | Autenticación por sesión | `lib/auth` (la protección vive en los layouts) | E2E `auth.spec.ts`, `verify-roles`, `verify-produccion` |
 | 2 | Admin gestiona coaches | `lib/services/user.service.ts`, `/admin/coaches` | E2E `admin-flow`, `verify-validations` 40.5, manual (alta real) |
 | 3 | Admin gestiona grupos y solicitudes | `group.service.ts`, `/admin/groups/[id]` | E2E `admin-flow`, `verify-audit-logs` |
 | 4 | Coach solicita unirse; admin aprueba/rechaza | `group.service.ts` | E2E `admin-flow` (aprobar), verificación de rechazo con notificación |

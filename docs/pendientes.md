@@ -191,6 +191,12 @@ plataforma):**
   mira si la cookie existe. La validación real quedó en `requireAuth()` (layout
   de la app) y en `usuarioSiHaySesion()` (layouts público y de entrada), que
   además reemiten la cookie renovada.
+- **El middleware se eliminó por completo.** Con la validación ya en los
+  layouts, `proxy.ts` era redundante, y era caro: OpenNext lo compila aparte
+  (5,5 MB), lo ejecuta en el runtime de Node y salta al Worker principal por un
+  service binding. Cada petición pagaba un bundle entero y un salto extra (y
+  sus arranques en frío). Con el middleware fuera, el camino de la petición es
+  uno solo.
 
 **Qué queda para cerrar M1:** la decisión de plataforma. Con estos números, la
 optimización puede reducir el porcentaje de fallos, pero **no puede hacer que

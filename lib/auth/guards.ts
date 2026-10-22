@@ -19,7 +19,6 @@ export async function requireAuth() {
   }
   return { session, user };
 }
-
 export async function requireRole(role: Role) {
   const { session, user } = await requireAuth();
   if (user.role !== role) {

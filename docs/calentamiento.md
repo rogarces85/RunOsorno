@@ -21,8 +21,8 @@ GET https://runosorno.online/api/health
 Debe responder `200` con `{"ok":true}`. La ruta:
 
 - **No toca la base de datos** (a propósito: responde aunque Aiven esté caído).
-- **No pasa por el middleware** (`proxy.ts` excluye `/api`), así que es pública y
-  barata.
+- **No pasa por el middleware** (el proyecto no tiene middleware), así que es
+  pública y barata.
 - Está pensada para health checks y para este calentamiento.
 
 Verificación puntual:

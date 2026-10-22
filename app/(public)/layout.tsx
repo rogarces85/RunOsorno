@@ -17,9 +17,9 @@ import "../styles/marketing.css";
  * El tema sale de la cookie en el servidor, igual que en la app, así que la landing
  * tampoco destella al cargar.
  *
- * Con sesión abierta, la portada y el login llevan al tablero del rol. Esa
- * comprobación vive aquí (y no en el middleware) porque el middleware ya no
- * toca la base de datos: ahorra una conexión MySQL por petición.
+ * Con sesión abierta, la portada y el login llevan al tablero del rol. La
+ * comprobación vive aquí porque no hay middleware: el layout de la app se
+ * encarga del resto.
  */
 export default async function PublicLayout({
   children,

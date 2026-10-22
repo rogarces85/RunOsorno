@@ -27,9 +27,9 @@ import { join } from "node:path";
  * `_`: Next trata esas carpetas como privadas y nunca las compila, así que la
  * ruta no existiría y la comprobación pasaría sin comprobar nada.
  *
- * Las comprobaciones se hacen con sesión iniciada porque `proxy.ts` manda a
- * `/login` cualquier ruta sin cookie: sin iniciar sesión, la sonda devolvería
- * la portada de login en lugar de fallar.
+ * Las comprobaciones se hacen con sesión iniciada porque el layout de la app
+ * manda a `/login` cualquier ruta sin cookie: sin iniciar sesión, la sonda
+ * devolvería la portada de login en lugar de fallar.
  */
 
 const PUERTO_COLECTOR = 8789;

@@ -14,12 +14,16 @@ const config = defineCloudflareConfig({
 /**
  * `next build` y después el arreglo del trace del middleware.
  *
- * OpenNext empaqueta el middleware de Node con `mainFields: ["module", "main"]`,
- * así que esbuild resuelve `@opentelemetry/api` por su campo `module`
- * (`build/esm`), pero el trace que escribe Next solo trae la versión CommonJS
- * que alcanza el `require`. Como el copiador es fiel al trace, el archivo no
- * está y el build muere con `Could not resolve "@opentelemetry/api"` — tanto en
- * Windows como en el runner de GitHub Actions.
+ * **Hoy el proyecto no tiene middleware** (la protección vive en los layouts),
+ * así que este script no hace nada: sale con 0 al no encontrar el trace. Se
+ * deja enganchado porque es la red de seguridad del día que haya que añadir un
+ * middleware otra vez: OpenNext empaqueta el middleware de Node con
+ * `mainFields: ["module", "main"]`, así que esbuild resuelve
+ * `@opentelemetry/api` por su campo `module` (`build/esm`), pero el trace que
+ * escribe Next solo trae la versión CommonJS que alcanza el `require`. Como el
+ * copiador es fiel al trace, el archivo no está y el build muere con
+ * `Could not resolve "@opentelemetry/api"` — tanto en Windows como en el runner
+ * de GitHub Actions.
  *
  * Se escribe así, y no como una propiedad de `defineCloudflareConfig`, porque
  * el tipo `CloudflareOverrides` no declara `buildCommand` (sí está en

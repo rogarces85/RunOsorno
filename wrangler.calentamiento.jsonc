@@ -6,8 +6,13 @@
   // Worker aparte del principal: solo corre por cron y no recibe tráfico.
   // Se despliega desde `.github/workflows/deploy.yml` tras el Worker principal.
   "triggers": {
-    // Formato cron de Cloudflare: cada 2 minutos.
-    "crons": ["*/2 * * * *"]
+    // Formato cron de Cloudflare: cada minuto. Medido el 2026-10-22: con el
+    // ping cada 2 minutos el isolate seguía caliente tras 3 minutos de
+    // inactividad (8-14 ms de CPU por petición), pero tras cada despliegue
+    // hay una ventana en la que la primera petición cae en un isolate frío
+    // (120-680 ms, muy por encima de los 10 ms del plan Free). Pesar cada
+    // minuto reduce esa ventana a la mitad.
+    "crons": ["* * * * *"]
   },
   "services": [
     {

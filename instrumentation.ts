@@ -15,7 +15,7 @@
  *
  * Por qué basta una sola rama y no una para `edge`: el proyecto despliega con
  * OpenNext sobre Cloudflare Workers con `nodejs_compat`, así que el runtime de
- * todo el servidor es `nodejs`, incluido el middleware (`proxy.ts`). Añadir la
+ * todo el servidor es `nodejs` (el proyecto no tiene middleware). Añadir la
  * rama `edge` solo traería un bundle que nunca se ejecuta.
  */
 export async function register() {

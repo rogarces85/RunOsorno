@@ -129,7 +129,13 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 - **Sin API pública** / Sin WebSockets / Sin tiempo real (excepto actualización métricas al guardar)
 - Uso directo vía navegador (responsive)
 - **Runtime Cloudflare Workers** con `nodejs_compat`. Ojo: `node:fs` existe pero **es efímero y no sirve para guardar nada** — los avatares van a R2 sí o sí.
-- **Next.js en Cloudflare** vía `@opennextjs/cloudflare`. `proxy.ts` (el middleware) corre por el camino *experimental* de Node middleware: funciona, pero conviene revisar el log de OpenNext al compilar.
+- **Next.js en Cloudflare** vía `@opennextjs/cloudflare`. **No hay middleware
+  (`proxy.ts`)**: la protección la hacen los layouts (`requireAuth()` en
+  `app/(app)/layout.tsx`, `usuarioSiHaySesion()` en los layouts público y de
+  entrada). El motivo es el coste: el middleware se compila aparte (5,5 MB),
+  corre en el runtime de Node y salta al Worker principal por un service
+  binding, así que cada petición pagaba un bundle entero y un salto extra. En
+  el plan Free (10 ms de CPU) eso era la diferencia entre servir y cortar.
 - **Base de datos** via Hyperdrive (connection pooler global + query cache, latencia ~1-5ms desde edge).
 - **Archivos** en R2 (no filesystem local — efímero en Cloudflare).
 
@@ -203,12 +209,17 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
   purga se acumulaban 1199 objetos de builds viejas y provocarían 500
   ("components.ComponentMod.handler is not a function"). Ver el paso
   "Purgar la caché incremental de R2" en `.github/workflows/deploy.yml`.
-- **El middleware (`proxy.ts`) no toca la base de datos.** Solo mira si existe
-  la cookie de sesión. Validarla ahí costaba una conexión MySQL **adicional**
-  por petición (la del render) y arrastraba `drizzle-orm` + `mysql2` al bundle
-  del middleware, que se parsea entero en cada arranque en frío. La validación
-  real está en `requireAuth()` (layout de la app) y en `usuarioSiHaySesion()`
-  (layouts público y de entrada), que además reemiten la cookie renovada.
+- **No hay middleware (`proxy.ts`): el acceso se cierra en los layouts.**
+  `requireAuth()` en `app/(app)/layout.tsx` valida la sesión y redirige a
+  `/login` (o a `/login?expired=1` si la sesión caducó); `usuarioSiHaySesion()`
+  en los layouts público y de entrada manda al tablero del rol cuando hay
+  sesión. Motivo: el middleware se compilaba aparte (5,5 MB), corría en el
+  runtime de Node y saltaba al Worker principal por un service binding — cada
+  petición pagaba un bundle entero y un salto extra. Las rutas de `app/api/`
+  validan la sesión por su cuenta (el matcher del middleware las excluía igual).
+- **El nombre de la cookie de sesión vive en `lib/auth/cookie.ts`**, un módulo
+  sin imports. El motivo es que cualquier módulo que lo importara arrastraba
+  la base de datos (`drizzle-orm` + `mysql2`) al bundle donde se usara.
 - **Base:** Aiven MySQL 8.4.11, base `defaultdb`. Esquema creado con
   `npm run db:migrate` y datos base con `npm run db:seed` (admin, 5 ajustes,
   5 plantillas oficiales). **No** se importó el volcado de MariaDB: son motores
@@ -358,19 +369,22 @@ Procedimiento para activarlo de verdad (cuenta, secretos, alertas):
 
 ## Rutas públicas (D9)
 
-- **La única superficie pública es `/` (landing) y `/login`.** La lista vive en
-  `const RUTAS_PUBLICAS` de `proxy.ts` y es explícita: nunca se cambia por un prefijo
-  ni por una comprobación de «empieza con». Todo lo demás exige sesión.
-- **Con sesión, `/` y `/login` redirigen al tablero del rol.** La landing solo se ve
-  sin sesión.
+- **La única superficie pública es `/` (landing) y `/login`.** La lista es la
+  estructura de carpetas: `app/(public)/` y `app/(auth)/login/` son las únicas
+  rutas fuera de `app/(app)/`, y `app/(app)/layout.tsx` exige sesión con
+  `requireAuth()`. No hay lista blanca ni comprobación de «empieza con»: una
+  ruta nueva nace protegida por estar dentro de `app/(app)/`.
+- **Con sesión, `/` y `/login` redirigen al tablero del rol** (lo hace
+  `usuarioSiHaySesion()` en sus layouts). La landing solo se ve sin sesión.
 - **El contenido de la landing vive en `components/marketing/contenido.ts`** y los
   datos de marca y contacto en `lib/site.ts`. No hay CMS: se edita en el código, se
   revisa en un diff y se despliega con el resto.
 - **No hay precios ni formulario de leads.** El canal es `mailto:` con asunto por
   sección; cuando exista dominio propio y Resend verificado se evalúa un formulario con
   rate limiting.
-- **Cualquier ruta nueva que deba ser pública se agrega a esa lista y a
-  `e2e/landing.spec.ts`**, que verifica que el resto del sistema sigue cerrado.
+- **Cualquier ruta nueva que deba ser pública se crea fuera de `app/(app)/` y se
+  agrega a `e2e/landing.spec.ts`**, que verifica que el resto del sistema sigue
+  cerrado.
 
 ---
 

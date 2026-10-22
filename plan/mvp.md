@@ -63,7 +63,7 @@ Resend API ←── Email saliente
 |-----------|-----------|
 | **SSR primero** | Todas las páginas se renderizan en servidor (RSC). El JavaScript cliente se usa solo donde hay interactividad (formularios, drag & drop, calendario). |
 | **Server Actions para mutaciones** | No hay API REST pública. Las mutaciones se hacen vía Server Actions de Next.js (endpoints internos protegidos por sesión). |
-| **Proxy de auth** | `proxy.ts` verifica la cookie de sesión en cada request y redirige al login si no existe o expiró. Next.js 16 renombró la convención `middleware` a `proxy` (runtime Node.js por defecto, compatible con mysql2/Drizzle). |
+| **Cierre de sesión** | ~~`proxy.ts` verifica la cookie de sesión en cada request y redirige al login si no existe o expiró.~~ **Actualizado (2026-10-22):** el middleware se eliminó; la protección vive en los layouts (`requireAuth()` en `app/(app)/layout.tsx`, `usuarioSiHaySesion()` en los layouts público y de entrada). En Cloudflare Workers el middleware se compila aparte (5,5 MB), corre en el runtime de Node y salta al Worker principal por un service binding: cada petición pagaba un bundle entero y un salto extra. |
 | **Lógica de negocio en servicios** | Server Actions orquestan; la lógica de negocio (cálculos, validaciones, reglas) vive en módulos de servicio independientes, testeables con Vitest. |
 | **Sin estado global de cliente** | El estado vive en el servidor (base de datos). El cliente solo maneja estado local de UI (modal abierto, mes seleccionado, etc.). No se usa Redux/Zustand. |
 | **Edge-compatible** | Todas las dependencias críticas (Drizzle, Lucia, Resend SDK) funcionan en Cloudflare Workers (Edge Runtime). |
@@ -309,7 +309,7 @@ runosorno/
 │       ├── coach-flow.spec.ts
 │       └── athlete-flow.spec.ts
 │
-├── proxy.ts                          # Next.js proxy (auth guard)
+├── (sin proxy.ts)                    # el cierre de sesion lo hacen los layouts (ver M1)
 ├── next.config.mjs
 ├── drizzle.config.ts
 ├── vitest.config.ts

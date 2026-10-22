@@ -12,8 +12,7 @@ import { usuarioSiHaySesion } from "@/lib/auth/session";
  * `<main id="contenido">` con el enlace de salto, que es la primera parada de teclado.
  *
  * Con sesión abierta, el login lleva al tablero del rol. La comprobación está
- * aquí y no en el middleware porque el middleware ya no toca la base de datos:
- * así el sistema abre una sola conexión MySQL por petición en vez de dos.
+ * aquí porque no hay middleware: el layout de la app se encarga del resto.
  */
 export default async function AuthLayout({ children }: { children: ReactNode }) {
   const user = await usuarioSiHaySesion();

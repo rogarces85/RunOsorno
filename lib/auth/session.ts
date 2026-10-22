@@ -16,9 +16,9 @@ export async function validateSession(sessionId: string) {
 /**
  * Reemite la cookie de sesión cuando Lucia la renovó.
  *
- * Antes lo hacía el middleware (que corría en el runtime de Node) y por eso
- * arrastraba el cliente MySQL al bundle del middleware. Ahora lo hace quien
- * valida la sesión: el layout de la app o el layout público.
+ * Antes lo hacía el middleware, que corría en el runtime de Node y arrastraba
+ * el cliente MySQL a su bundle. Ahora lo hace quien valida la sesión: el layout
+ * de la app o los layouts público y de entrada.
  */
 export async function refrescarCookieDeSesion(sessionId: string) {
   const cookie = lucia.createSessionCookie(sessionId);

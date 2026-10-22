@@ -15,8 +15,8 @@
  * Sobre `next-intl`: se usa su API de bajo nivel (`createFormatter`), que recibe
  * la configuración explícita y no necesita el enrutado por locale ni un
  * `middleware`. La app no enruta por idioma (no tiene sentido con uno solo), y
- * meter `next-intl` en `proxy.ts` —que ya verifica la sesión de cada petición—
- * sería añadir un middleware encima de otro sin ganar nada. Cuando haya un
+ * montar `next-intl` en un middleware sería añadir una capa entera sin ganar
+ * nada. Cuando haya un
  * segundo idioma, aquí se cambia `LOCALE`, se añaden los mensajes y se conecta
  * el enrutado; el resto de la app ya formatea a través de este módulo.
  */

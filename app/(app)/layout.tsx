@@ -5,6 +5,19 @@ import { NavProvider } from "@/components/layout/NavProvider";
 import { requireAuth } from "@/lib/auth/guards";
 import { getDirectorGroups } from "@/lib/services/group.service";
 
+/**
+ * Layout de la app (todo lo que hay detrás de la sesión).
+ *
+ * **Aquí se cierra el acceso.** Antes lo cerraba el middleware (`proxy.ts`),
+ * pero ese camino costaba caro en Cloudflare Workers: el middleware se
+ * compila aparte (5,5 MB), se ejecuta en el runtime de Node y salta al Worker
+ * principal por un service binding, así que cada petición pagaba un bundle
+ * entero y un salto extra. Con `requireAuth()` en este layout, la protección
+ * sigue igual y el camino de la petición es uno solo.
+ *
+ * Sin sesión, `requireAuth()` redirige a `/login`; con una sesión caducada, a
+ * `/login?expired=1`.
+ */
 export const instant = false;
 
 export default async function AppLayout({

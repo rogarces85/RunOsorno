@@ -41,6 +41,7 @@ async function main() {
         waitUntil: "domcontentloaded",
         timeout: 45000,
       });
+      void respuesta;
       await pagina.fill('input[name="email"]', EMAIL);
       await pagina.fill('input[name="password"]', PASSWORD);
       const [navegacion] = await Promise.all([
