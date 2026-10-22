@@ -9,6 +9,15 @@
     "nodejs_compat",
     "global_fetch_strictly_public"
   ],
+  // Pide más CPU por petición. La documentación de Cloudflare fija 10 ms en el
+  // plan Free (y 30 s en el de pago, configurable hasta 5 min), así que en
+  // Workers Free esto puede ser ignorado: se deja puesto porque no cuesta
+  // nada y, si el runtime lo acepta, el arranque en frío (120-680 ms medidos)
+  // deja de tumbar las peticiones. Medir tras el despliegue: si los 503
+  // `exceededCpu` siguen igual, el plan Free lo está ignorando.
+  "limits": {
+    "cpu_ms": 30000
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"

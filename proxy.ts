@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { lucia } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/auth/cookie";
 
 /**
  * Rutas alcanzables sin sesión.
@@ -32,7 +32,7 @@ const RUTAS_PUBLICAS = new Set(["/", "/login"]);
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const sessionId = request.cookies.get(lucia.sessionCookieName)?.value;
+  const sessionId = request.cookies.get(SESSION_COOKIE_NAME)?.value;
   const publica = RUTAS_PUBLICAS.has(pathname);
 
   if (!sessionId) {
