@@ -307,7 +307,7 @@ function buildSections(
   ];
 }
 
-async function main() {
+export async function main() {
   const already = await db
     .select({ id: groups.id })
     .from(groups)
@@ -315,7 +315,7 @@ async function main() {
     .limit(1);
   if (already.length > 0) {
     console.log("El seed DEMO ya existe, se omite.");
-    process.exit(0);
+    return;
   }
 
   console.log("Generando datos de demostracion...");
@@ -650,10 +650,22 @@ async function main() {
   console.log("  Coach principal   coach.demo@runosorno.cl");
   console.log("  Director Tecnico  director.demo@runosorno.cl");
   console.log("  Atleta            maria.fernandez@demo.runosorno.cl");
-  process.exit(0);
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+/**
+ * Solo arranca si este archivo es el punto de entrada (`npm run db:seed:demo`).
+ *
+ * Importado desde un Worker —para sembrar la base de producción a través del
+ * binding de Hyperdrive— no debe ejecutarse solo.
+ */
+const esEjecucionDirecta =
+  typeof process !== "undefined" &&
+  Array.isArray(process.argv) &&
+  (process.argv[1] ?? "").replace(/\\/g, "/").endsWith("db/seed-demo.ts");
+
+if (esEjecucionDirecta) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
