@@ -45,6 +45,13 @@ async function main() {
   ]);
   await pagina.waitForLoadState("domcontentloaded").catch(() => undefined);
   console.log(`  POST /login -> ${respuesta.status()}  (${Date.now() - inicio} ms)`);
+
+  // El cliente navega al tablero con `window.location.assign` después del
+  // 303: hay que esperar a esa navegación antes de probar las páginas, o el
+  // `goto` siguiente se aborta al competir con ella.
+  await pagina
+    .waitForURL(/\/(admin|coach|athlete|director)\/dashboard/, { timeout: 45000 })
+    .catch(() => undefined);
   console.log(`  URL tras login: ${pagina.url()}`);
 
   const cuerpo = await pagina.textContent("body").catch(() => "");
