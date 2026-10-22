@@ -228,11 +228,42 @@ Las tres correcciones:
    (8-14 ms), pero tras cada despliegue había una ventana con la primera
    petición en frío.
 
-**Lo que queda ouvert:** la primera petición después de cada despliegue puede
+**Lo que queda abierto:** la primera petición después de cada despliegue puede
 caer en un isolate frío y tardar 98 ms (por encima de los 10 ms). Con el
-calentador al minuto, esa ventana es de ~1 minuto. Si/molesta, la salida es
- Workers Paid ($5/mes) o una VM; ya no es el login fallando una de cada dos
+calentador al minuto, esa ventana es de ~1 minuto. Si molesta, la salida es
+Workers Paid ($5/mes) o una VM; ya no es el login fallando una de cada dos
 veces, que era el síntoma original.
+
+### Dónde se va el CPU del login (medido el 2026-10-22)
+
+Con un banco de pruebas temporal (`app/api/bench`, ya eliminado) y el
+`cpuTime` del tail:
+
+| Pieza | CPU |
+|---|---|
+| Ruta trivial (`/api/health`) | 3-8 ms |
+| Una consulta a MySQL por Hyperdrive | 7-43 ms (mediana 16) |
+| **Siete consultas** (las que hace el login) | 12-63 ms (mediana 16) |
+| **PBKDF2 de 100 000 iteraciones** | **70-364 ms (mediana 94)** |
+| `GET /login` (render de la página) | 12-58 ms (mediana 17) |
+| `POST /login` (el login completo) | 41-128 ms (mediana 75) |
+
+**El KDF es el 70-90 % del coste del login** y no cabe en 10 ms ni de cerca:
+100 000 iteraciones de PBKDF2-HMAC-SHA512 son 64 ms en un portátil, y
+`workerd` no admite más de 100 000 (ni la mitad de lo que pide OWASP). La
+base de datos no es el problema: siete consultas cuestan lo mismo que una (la
+conexión se abre una vez y el resto son esperas, que no cuentan como CPU).
+
+Por eso el **login pasó a ser una ruta** (`POST /api/login`) con reintento en
+el cliente: el corte por `exceededCpu` es transitorio, así que un reintento lo
+resuelve. De paso se arregló que la contraseña viajara en la URL cuando el
+formulario se enviaba antes de hidratar (ahora es un POST nativo de verdad, y
+el login funciona incluso sin JavaScript).
+
+**La palanca que queda para el KDF** (ninguna es gratis en esfuerzo): moverlo
+a un Durable Object (tiene 30 s de CPU por petición, pero OpenNext no deja
+añadir clases propias al worker), hacerlo en el navegador (el servidor
+guardaría un HMAC con pepper en vez del hash) o aceptar el 1-5 % de cortes.
 
 **Pendiente (estrategia de costo cero):**
 

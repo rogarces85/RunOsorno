@@ -79,4 +79,28 @@ test.describe("Autenticación", () => {
     await page.goto("/admin/dashboard");
     await page.waitForURL(/\/athlete\/dashboard/);
   });
+
+  test("el login funciona sin JavaScript y sin mandar la contraseña en la URL", async ({
+    browser,
+  }) => {
+    // Con JavaScript desactivado, el formulario se envía como un POST nativo.
+    // Antes esto era un GET: la contraseña acababa en la URL, en el historial y
+    // en los registros del servidor.
+    const contexto = await browser.newContext({ javaScriptEnabled: false });
+    const pagina = await contexto.newPage();
+
+    await pagina.goto("/login");
+    await pagina.fill('input[name="email"]', ATHLETE_DEMO.email);
+    await pagina.fill('input[name="password"]', ATHLETE_DEMO.password);
+    await pagina.click('button[type="submit"]');
+
+    await pagina.waitForURL(/\/athlete\/dashboard/);
+    await expect(pagina.getByTestId("app-sidebar")).toBeAttached();
+
+    // La URL nunca debe llevar la contraseña.
+    expect(pagina.url()).not.toContain("password");
+    expect(pagina.url()).not.toContain(ATHLETE_DEMO.password);
+
+    await contexto.close();
+  });
 });

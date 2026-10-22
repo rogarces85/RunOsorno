@@ -217,6 +217,14 @@ Estas tres solo se ven ejecutando la app dentro de `workerd`. `next dev` y
   runtime de Node y saltaba al Worker principal por un service binding — cada
   petición pagaba un bundle entero y un salto extra. Las rutas de `app/api/`
   validan la sesión por su cuenta (el matcher del middleware las excluía igual).
+- **El login es una ruta, no una acción de servidor:** `POST /api/login`
+  (`app/api/login/route.ts`), con la lógica compartida en
+  `lib/services/login.service.ts`. Así el formulario funciona **sin
+  JavaScript**, la contraseña **nunca viaja en la URL** (antes, sin `action` ni
+  `method`, el envío pre-hidratado era un GET nativo y la contraseña acababa en
+  la URL y en los registros) y el cliente puede **reintentar** cuando
+  Cloudflare corta la petición por límite de CPU (el corte es transitorio).
+  El logout sigue siendo una acción de servidor.
 - **El nombre de la cookie de sesión vive en `lib/auth/cookie.ts`**, un módulo
   sin imports. El motivo es que cualquier módulo que lo importara arrastraba
   la base de datos (`drizzle-orm` + `mysql2`) al bundle donde se usara.
