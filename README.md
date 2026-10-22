@@ -8,15 +8,21 @@ por grupo/escuela.
 SSR con Next.js (App Router, React Server Components), autenticación por sesión
 con cookies y despliegue en Cloudflare Workers con MySQL en Aiven vía Hyperdrive.
 
+- **Producción:** <https://runosorno.online> (dominio propio con certificado de
+  Let's Encrypt; `workers.dev` queda como respaldo).
+- **Correo:** `no-reply@runosorno.online`, remitente propio con el dominio
+  verificado en Resend. Los buzones `@runosorno.online` viven en el webmail de
+  Nominalia.
+
 ## Stack
 
 | Capa | Tecnología |
 |---|---|
 | Framework | Next.js 16.3.x (App Router, RSC, Turbopack) |
-| UI | Tabler (`@tabler/core` + `@tabler/icons-react`) |
+| UI | Tabler (`@tabler/core` + `@tabler/icons-react`) + sistema visual propio (`app/styles/tokens.css`) |
 | Base de datos | MySQL 8.4 (producción, Aiven) / MariaDB 10.4 (desarrollo, XAMPP) |
 | ORM | Drizzle ORM + `drizzle-kit` |
-| Auth | Lucia (sesiones en base de datos, cookie `HttpOnly`/`Secure`) |
+| Auth | Lucia (sesiones en base de datos, cookie `HttpOnly`/`Secure`) + PBKDF2-HMAC-SHA512 |
 | Validación | Zod + React Hook Form |
 | Correo | Resend + React Email |
 | Avatares | Cloudflare R2 (bucket privado, URLs firmadas) |
@@ -52,14 +58,15 @@ cp .env.example .env.local
 npm run db:migrate
 npm run db:seed
 
-# 5. Opcional: escenario de demostración (3 coaches, 5 atletas, 8 semanas)
+# 5. Opcional: escenario de demostración (2 coaches, 5 atletas, 8 semanas)
 npm run db:seed:demo
 
 # 6. Servidor
 npm run dev
 ```
 
-Abre http://localhost:3000: la portada pública explica el producto y desde ahí se entra al sistema (`/login`).
+Abre http://localhost:3000: la portada pública explica el producto y desde ahí
+se entra al sistema (`/login`).
 
 Credenciales de desarrollo:
 
@@ -71,7 +78,22 @@ Credenciales de desarrollo:
 | Atleta (demo) | `maria.fernandez@demo.runosorno.cl` | `Demo1234!` |
 
 `npm run db:seed:demo:clean` borra el escenario de demostración y deja la base
-como estaba. **Nunca ejecutes el seed de demo contra producción.**
+como estaba.
+
+## Producción
+
+| Rol | Email | Contraseña |
+|---|---|---|
+| Admin | `rodrigo.garces.guerrero@gmail.com` | `Admin1234!` (cámbiala al entrar) |
+| Coach (demo) | `coach.demo@runosorno.cl` | `Demo1234!` |
+| Director técnico (demo) | `director.demo@runosorno.cl` | `Demo1234!` |
+| Coach con solicitud pendiente | `coach.pendiente@runosorno.cl` | `Demo1234!` |
+| Atleta (demo) | `maria.fernandez@demo.runosorno.cl` | `Demo1234!` |
+| Contacto (buzón del dominio) | `contacto@runosorno.online` | — |
+
+> Las contraseñas de demo son públicas: sirven para revisar el producto, **no
+> para datos de atletas reales**. Cuando entren usuarios de verdad, crea sus
+> cuentas desde `/admin/coaches` y borra el escenario de demostración.
 
 ## Scripts
 
@@ -81,7 +103,7 @@ como estaba. **Nunca ejecutes el seed de demo contra producción.**
 | `npm run build` / `npm start` | Build y servidor de producción (Node) |
 | `npm run preview` | Build de OpenNext y vista previa en `workerd` (puerto 8787) |
 | `npm run deploy` | Build y despliegue manual a Cloudflare Workers |
-| `npm run deploy:calentamiento` | Despliega el Worker de calentamiento (cron cada 2 min) |
+| `npm run deploy:calentamiento` | Despliega el Worker de calentamiento (cron **cada minuto**) |
 | `npm run lint` | ESLint |
 | `npm test` | Vitest |
 | `npm run test:coverage` | Vitest con umbrales de cobertura |
@@ -119,6 +141,15 @@ npx tsx scripts/verify-health.ts           # /api/health en producción (sin dev
 BASE_URL=http://127.0.0.1:8787 npx playwright test  # E2E dentro de workerd
 ```
 
+Y los de **operación y diagnóstico** (no necesitan el dev server):
+
+```bash
+npx tsx scripts/verificar-render-autenticado.ts <email> <clave>  # login real y páginas con sesión
+npx tsx scripts/medir-login-cpu.ts 20 https://runosorno.online    # coste y fallos del login
+npx tsx scripts/medir-rafaga.ts 30 10                              # ráfaga con concurrencia real
+npx tsx scripts/purgar-cache.ts                                    # vacía la caché incremental de R2
+```
+
 `verify-sentry.ts` compila la app y levanta su propio servidor. `verify-health.ts`
 apunta a producción por defecto y sirve de blanco del ping de calentamiento
 ([`docs/calentamiento.md`](./docs/calentamiento.md)).
@@ -126,19 +157,44 @@ apunta a producción por defecto y sirve de blanco del ping de calentamiento
 ## Despliegue
 
 El pipeline (`.github/workflows/deploy.yml`) corre en cada push a `main`:
-instala, lint, pruebas unitarias, build de OpenNext y despliegue a Cloudflare
-Workers. Necesita los secretos `CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID`
-en GitHub.
+instala, lint, pruebas unitarias, **purga la caché incremental de R2**, build de
+OpenNext y despliegue a Cloudflare Workers. Necesita los secretos
+`CLOUDFLARE_API_TOKEN` y `CLOUDFLARE_ACCOUNT_ID` en GitHub.
+
+> **El orden de la purga importa.** El deploy sube el prerender de la build
+> nueva a esa misma caché; purgarla *después* la deja vacía y las páginas
+> públicas se quedan colgadas (el render en runtime no termina en `workerd`).
+> Por eso la purga va **antes** del despliegue.
 
 Detalle de servicios, dominios, R2 y correo: [`docs/setup-servicios.md`](./docs/setup-servicios.md).
 Flujo de despliegue, verificación y vuelta atrás: [`docs/despliegue.md`](./docs/despliegue.md).
 Modelo de datos: [`docs/base-de-datos.md`](./docs/base-de-datos.md).
 
+## Cómo está montado (decisiones que no se ven en el código)
+
+- **La superficie pública es `/` (landing) y `/login`.** No hay lista blanca:
+  todo lo que vive bajo `app/(app)/` exige sesión y lo valida
+  `requireAuth()` en su layout; `/` y `/login` la validan con
+  `usuarioSiHaySesion()` y, con sesión abierta, mandan al tablero del rol.
+- **No hay middleware.** Un `proxy.ts` se compila aparte (5,5 MB), corre en el
+  runtime de Node y salta al Worker principal por un service binding: cada
+  petición pagaba un bundle entero y un salto extra. Con la validación en los
+  layouts, el camino de la petición es uno solo.
+- **El login es una ruta (`POST /api/login`), no una acción de servidor.** Así
+  el formulario funciona **sin JavaScript**, la contraseña **nunca viaja en la
+  URL** y el cliente puede **reintentar** cuando Cloudflare corta la petición.
+- **El plan gratuito de Cloudflare da 10 ms de CPU por petición.** Está medido:
+  una ruta trivial usa 3-8 ms, un render de página 12-58 ms y el KDF de
+  contraseña 70-364 ms. Por eso el Worker de calentamiento (un cron que pinga
+  `/api/health` **cada minuto**) mantiene vivo el isolate: sin él, la primera
+  petición tras un rato de inactividad cae en un isolate frío y se corta con
+  503. El detalle está en [`docs/pendientes.md`](./docs/pendientes.md).
+
 ## Estructura
 
 ```
-app/            rutas (grupos (app) y (auth)), API de avatar y exportaciones
-components/     UI por dominio (admin, coach, atleta, director, calendar, metrics)
+app/            rutas: (app) con sesión, (auth) login, (public) landing, api/ (avatar, exports, health, login)
+components/     UI por dominio (admin, coach, atleta, director, calendar, metrics) + primitivas en ui/
 lib/            db, auth, permissions, services, metrics, actions, validations, i18n
 db/             schema Drizzle, migraciones y seeds
 emails/         plantillas React Email
@@ -153,9 +209,11 @@ docs/           guías de operación e informe de pendientes
 - [`AGENTS.md`](./AGENTS.md) — reglas del proyecto y decisiones de arquitectura.
 - [`docs/pendientes.md`](./docs/pendientes.md) — estado del sistema y tareas que quedan.
 - [`docs/revision-mvp.md`](./docs/revision-mvp.md) — revisión de las 20 funcionalidades, criterios y flujos.
+- [`docs/dominio.md`](./docs/dominio.md) — dominio propio, DNS, correo y renovación.
 - [`docs/setup-servicios.md`](./docs/setup-servicios.md) — Aiven, Hyperdrive, R2, Resend, Sentry.
 - [`docs/despliegue.md`](./docs/despliegue.md) — pipeline, secretos y verificación.
 - [`docs/base-de-datos.md`](./docs/base-de-datos.md) — tablas, relaciones e índices.
+- [`docs/calentamiento.md`](./docs/calentamiento.md) — el Worker que mantiene caliente el isolate.
 - [`docs/configurar-sentry.md`](./docs/configurar-sentry.md) — observabilidad.
 - [`docs/recuperar-acceso-aiven.md`](./docs/recuperar-acceso-aiven.md) — incidentes de base de datos.
 - [`specs/mvp.md`](./specs/mvp.md), [`plan/mvp.md`](./plan/mvp.md) y [`tasks/mvp.md`](./tasks/mvp.md) — alcance y seguimiento.
