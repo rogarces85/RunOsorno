@@ -265,15 +265,20 @@ a un Durable Object (tiene 30 s de CPU por petición, pero OpenNext no deja
 añadir clases propias al worker), hacerlo en el navegador (el servidor
 guardaría un HMAC con pepper en vez del hash) o aceptar el 1-5 % de cortes.
 
-**Pendiente (estrategia de costo cero):**
+**Estrategia de costo cero — cerrada (2026-10-22).** Lo que aquí estaba
+pendiente, con su resultado:
 
-1. Desplegar la migración a PBKDF2 y **re-medir** el login en frío
-   (`npx wrangler tail runosorno --format json`). Puede que ya no corte tanto,
-   pero 10 ms sigue siendo un techo muy bajo para un login con base de datos.
-2. Si sigue cortando, evaluar las opciones de "Estrategia de costo cero" al
-   final de este documento: cron de calentamiento y/o reubicar la autenticación
-   en un runtime con más CPU (sin coste).
-
+1. ~~Desplegar la migración a PBKDF2 y re-medir el login en frío~~ →
+   **Hecho**: PBKDF2-HMAC-SHA512 nativo con 100 000 iteraciones (el tope de
+   `workerd`; 210 000 no caben en los 10 ms del plan Free y `workerd` las
+   rechaza). Re-medido: el KDF sigue siendo el 70-90 % del coste del login
+   (70-364 ms), pero el login ya no se corta.
+2. ~~Si sigue cortando, evaluar las opciones de costo cero~~ → **Hecho**:
+   se aplicaron las tres que no cuestan nada (purga de la caché de R2 antes del
+   deploy, eliminación del middleware y calentador cada minuto) y el login
+   quedó en **20/20 sin cortes**. Lo que queda, si alguna vez vuelve a molestar,
+   está en la "palanca que queda para el KDF" de la sección de cierre de M1:
+   moverlo a un Durable Object o hacerlo en el navegador.
 
 ## P2 — Servicios externos sin configurar
 
