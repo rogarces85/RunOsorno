@@ -6,7 +6,9 @@ transferir a mano.
 
 ## Requisitos
 
-- **Node.js 20 o superior** y npm.
+- **Node.js 24** y npm 11 (el `package-lock.json` lo genera npm 11, el mismo de
+  CI y del despliegue; con Node 22 / npm 10, `npm ci` reconstruye el árbol de
+  otra forma y falla).
 - **MySQL/MariaDB local**: en Windows, XAMPP con MariaDB 10.4 (el motor de desarrollo
   es MariaDB; producción es MySQL 8.4 — el esquema se genera siempre con las
   migraciones de Drizzle, nunca importando un volcado entre motores).
@@ -68,22 +70,33 @@ npx tsx scripts/verify-empty-states.ts
 El estado vive en el repositorio, en `openspec/changes/`:
 
 ```bash
-npx openspec list                        # cambios en vuelo y su progreso
-npx openspec status --change "ui-atletico-editorial"
+npx openspec list
 ```
 
-- **`ui-atletico-editorial`** — **48/49**. La adopción de `PageHeader`, `Button`,
-  `Field`, `Card`, `Table` y `Badge` está cerrada; queda solo la **9.5**, que
-  necesita el despliegue por CI y la medición de `cpuTime` con `wrangler tail`.
-- **`landing-publica`** — **completo** (25/25). Se puede archivar con `/opsx-archive`
-  cuando se revise.
-
-Para continuar, en el editor se usa el comando `/opsx-apply ui-atletico-editorial`.
-La única tarea abierta es la 9.5 (verificación en producción tras el despliegue).
+Los cambios en vuelo se consultan con `npx openspec list`. Los cerrados están
+en `openspec/changes/archive/` — a la fecha: `landing-publica` y
+`ui-atletico-editorial` (completos, 2026-10-22) y `shell-atletico-interactivo`
+(completo, con el acento por rol, el menú de usuario, el confeti y las tarjetas
+stamp). Para abrir uno nuevo: `/opsx new`.
 
 Los verificadores que abren páginas resuelven los ids del escenario DEMO en la
 base de datos: los UUID cambian en cada `db:seed:demo`, así que no están
 clavados en los scripts.
+
+## Trabajar desde otro equipo
+
+Lo que viaja con el repositorio cubre el desarrollo completo. Lo que **no**
+viaja por git y conviene revisar al sentarse en casa:
+
+| Qué | Cómo se resuelve en el equipo nuevo |
+|---|---|
+| `.env.local` (gitignored) | Se recrea con `cp .env.example .env.local`; solo `DATABASE_URL` y `APP_URL` son indispensables en desarrollo. |
+| `LUCIA_SECRET` en `.env.local` | Vestigio: Lucia 3 ya no la usa (ver `docs/pendientes.md` 49.2). Si está no hace daño; no hace falta recrearla. |
+| `RESEND_API_KEY` | Opcional en desarrollo (los correos se registran en consola). Si se quiere enviar de verdad, copiarla del equipo original a mano — nunca al repositorio. |
+| Permisos de Cloudflare / deploy | El despliegue de producción es el push a `main` con GitHub Actions: no hace falta `wrangler login` en el equipo nuevo para publicar. Solo si se piensa correr `npm run preview` o debuggear bindings hace falta iniciar sesión (`npx wrangler login`). |
+
+Con eso, `npm run dev` en casa replica el entorno de este equipo; las mismas
+cuentas de prueba y el mismo escenario DEMO se regeneran con los seeds.
 
 ## Marca
 
