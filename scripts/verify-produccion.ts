@@ -57,10 +57,25 @@ async function main() {
   console.log(`tras recargar: ${trasRecarga.includes("admin/dashboard") ? "sigue dentro (DB real)" : "expulsado: " + trasRecarga}`);
 
   // 3. Ruta protegida sin sesion debe redirigir
+  //
+  // La redireccion se resuelve en el render (el layout pide la sesion), asi que
+  // la respuesta inicial es 200 con el shell de error de Next y el cliente
+  // navega a /login. Por eso hay que esperar a `networkidle` y mirar la URL
+  // final: mirar la URL inmediata daria la ruta protegida y parece una fuga.
   const anonimo = await browser.newContext({ locale: "es-CL" });
   const p2 = await anonimo.newPage();
-  await p2.goto(`${BASE}/admin/dashboard`, { waitUntil: "domcontentloaded" });
-  console.log(`sin sesion, /admin/dashboard -> ${p2.url()}`);
+  await p2.goto(`${BASE}/admin/dashboard`, {
+    waitUntil: "networkidle",
+    timeout: 45000,
+  });
+  const urlFinal = p2.url();
+  const dentro = (await p2.getByTestId("app-sidebar").count()) > 0;
+  console.log(
+    `sin sesion, /admin/dashboard -> ${urlFinal}` +
+      (urlFinal.includes("/login") && !dentro
+        ? "  (redirigido, sin datos)"
+        : "  !! NO redirigió o dejó datos visibles"),
+  );
 
   console.log(errores.length ? `ERRORES 5xx: ${errores.join(", ")}` : "sin errores 5xx");
 

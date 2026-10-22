@@ -30,9 +30,13 @@ context: |
     técnica D1–D7.
   - Todo lo listado como «Fuera del MVP» (API pública, WebSockets, app nativa,
     wearables/GPS, evidencia fotográfica, pagos, chat en tiempo real, multi-idioma,
-    festivos automáticos, lesiones, planes por objetivo, competencias, IA, dominio
-    propio) exige un cambio de alcance explícito y su fase de roadmap. No se cuela
-    dentro de un cambio del MVP.
+    festivos automáticos, lesiones, planes por objetivo, competencias, IA) exige un
+    cambio de alcance explícito y su fase de roadmap. No se cuela dentro de un
+    cambio del MVP.
+  - El **dominio propio ya no está pendiente**: `runosorno.online` (registrado en
+    Nominalia, DNS en Cloudflare, expira el 2027-10-21) es la URL de producción y
+    el remitente del correo (`no-reply@runosorno.online`, dominio verificado en
+    Resend). La ficha, la renovación y los avisos están en `docs/dominio.md`.
   - Toda propuesta declara su costo (gratis, mínimo o servicio pago): el dueño
     descartó Workers Paid.
 
@@ -175,14 +179,23 @@ context: |
     `APP_URL` va sin prefijo; `NEXT_PUBLIC_SENTRY_DSN` es la única excepción.
   - No hay cron dentro del Worker principal: el calentamiento es un Worker aparte
     (`workers/calentamiento.mjs` + `wrangler.calentamiento.jsonc`) con Cron Trigger
-    cada 2 minutos. `proxy.ts` corre por el camino experimental de Node middleware.
-  - Workers Free da 10 ms de CPU por invocación y el login con base de datos ya
-    corta (alrededor de la mitad de los POST en frío, `outcome: exceededCpu`).
-    Cualquier diseño que toque autenticación, hashing, consultas en cadena o nuevos
-    middlewares debe explicar cómo cabe o qué se mueve de runtime.
-  - Hashing con PBKDF2-HMAC-SHA512 nativo (WebCrypto, 210 000 iteraciones). No
-    reintroducir bcryptjs para hashes nuevos; solo verifica hashes heredados y los
-    reescribe en el primer login correcto.
+    CADA MINUTO. Sin él, la primera petición tras un rato de inactividad cae en
+    un isolate frío (120-680 ms) y se corta con 503.
+  - **No hay middleware.** La protección de rutas vive en los layouts
+    (`requireAuth()` en `app/(app)/layout.tsx`, `usuarioSiHaySesion()` en los
+    layouts público y de entrada). Un `proxy.ts` se compila aparte (5,5 MB),
+    corre en el runtime de Node y salta al Worker principal por un service
+    binding: cada petición pagaba un bundle entero y un salto extra.
+  - Workers Free da 10 ms de CPU por invocación. Medido el 2026-10-22: una ruta
+    trivial usa 3-8 ms, un render de página 12-58 ms, una conexión a MySQL 16 ms
+    y el KDF de contraseña 70-364 ms. El login es la única operación que no cabe
+    en el presupuesto, y por eso es una ruta (`POST /api/login`) con reintento en
+    el cliente. Cualquier diseño que toque autenticación, hashing, consultas en
+    cadena o middlewares debe explicar cómo cabe o qué se mueve de runtime.
+  - Hashing con PBKDF2-HMAC-SHA512 nativo (WebCrypto, **100 000 iteraciones**:
+    `workerd` rechaza más con `NotSupportedError`, y 210 000 no caben en los
+    10 ms del plan Free). No reintroducir bcryptjs para hashes nuevos; solo
+    verifica hashes heredados y los reescribe en el primer login correcto.
 
   ═══════════════════════════════════════════════════════════════════════════
   9. CONVENCIONES QUE ROMPEN LOS VERIFICADORES SI SE IGNORAN
@@ -209,7 +222,7 @@ context: |
   - Ninguna consulta trae el histórico para filtrar en memoria: se acota por fechas
     (`loadRowsInRange`, `loadLastActivity`).
   - Toda pantalla nueva entra en la lista de `scripts/verify-accesibilidad.ts` (hoy
-    21 páginas con axe). Si no está en la lista, no está verificada.
+    22 rutas con axe, en los dos temas). Si no está en la lista, no está verificada.
 
   ═══════════════════════════════════════════════════════════════════════════
   10. BASE DE DATOS Y GOTCHAS DE MIGRACIÓN
@@ -255,8 +268,16 @@ context: |
     `verify-responsive`, `verify-settings`, `verify-exports`, `verify-audit-logs`,
     `verify-dashboards`, `verify-empty-states`, `verify-profile`, `verify-login`,
     `verify-health` y `verify-produccion` (este último apunta al Worker).
+  - Verificadores de operación y diagnóstico (no necesitan el dev server):
+    `verificar-render-autenticado.ts` (login real y páginas con sesión),
+    `medir-login-cpu.ts` (coste y fallos del login), `medir-rafaga.ts` (concurrencia
+    real) y `purgar-cache.ts` (vacía la caché incremental de R2).
   - En Windows `npm run preview` falla por `EPERM symlink`, una limitación conocida
     de OpenNext; el comportamiento dentro de workerd se valida en producción o CI.
+  - En producción, el despliegue es por CI (`deploy.yml`) y **purga la caché
+    incremental de R2 antes de desplegar**: el deploy sube el prerender de la build
+    nueva a esa misma caché, y purgarla después deja el bucket vacío y las páginas
+    públicas colgadas.
 
   ═══════════════════════════════════════════════════════════════════════════
   13. DÓNDE ESTÁ CADA COSA

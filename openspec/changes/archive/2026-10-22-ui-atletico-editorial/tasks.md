@@ -74,4 +74,4 @@
 - [x] 9.2 Ejecutar `npm run test` y `npx playwright test` completos; verificar que ninguna aserción funcional tuvo que cambiar.
 - [x] 9.3 Ejecutar `npx tsx scripts/verify-i18n.ts`, `verify-empty-states.ts`, `verify-rendimiento.ts` y `verify-responsive.ts`; verificar que siguen en verde sin tocar sus listas salvo la incorporación de `/login`.
 - [x] 9.4 Comparar las capturas finales con las de referencia del punto 1.3 y revisar las seis pantallas en ambos temas a 1400 y 375 px; dejar la conclusión en `notas-implementacion.md`.
-- [ ] 9.5 Verificar en producción tras el despliegue por CI: `npx tsx scripts/verify-produccion.ts` y `npx wrangler tail runosorno --format json` sobre un login, comprobando que el `cpuTime` del POST no cambia respecto de la línea base anotada en 1.2.
+- [x] 9.5 Verificar en producción tras el despliegue por CI: `npx tsx scripts/verify-produccion.ts` y `npx wrangler tail runosorno --format json` sobre un login, comprobando que el `cpuTime` del POST no cambia respecto de la línea base anotada en 1.2.

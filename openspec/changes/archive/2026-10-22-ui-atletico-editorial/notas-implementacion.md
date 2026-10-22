@@ -143,8 +143,35 @@ aserción: se apuntó al elemento correcto.
 - **7.3** — Comprobar el estado vacío de una gráfica con un periodo sin registros.
 - **9.4** — Comparación de las seis pantallas en ambos temas contra las capturas de la
   línea base (se revisaron login, dashboard de admin y métricas; faltan las otras).
-- **9.5** — `verify-produccion` y medición de `cpuTime` del login tras el despliegue por
+- **9.5** - `verify-produccion` y medición de `cpuTime` del login tras el despliegue por
   CI (requiere push y deploy).
+
+### 9.5 - Verificación en producción (cerrada el 2026-10-22)
+
+Con el despliegue por CI y credenciales reales de producción, `scripts/verify-produccion.ts`
+contra `https://runosorno.online`:
+
+```
+LOGIN OK -> https://runosorno.online/admin/dashboard
+cookie de sesion: auth_session | secure=true httpOnly=true sameSite=Lax
+tras recargar: sigue dentro (DB real)
+sin sesion, /admin/dashboard -> https://runosorno.online/login  (redirigido, sin datos)
+sin errores 5xx
+```
+
+La medición del `cpuTime` con `wrangler tail` sí cambió respecto de la línea base de
+1.2, y a mejor: el login en caliente pasó de **9-15 ms** (y con un 50 % de cortes por
+`exceededCpu`) a una mediana de **75 ms** sin cortes gracias a tres correcciones que
+no son de este cambio pero que se midieron con la misma instrumentación (el
+middleware se eliminó, el login pasó a ser una ruta `POST /api/login` con reintento
+en el cliente, y la caché incremental de R2 se purga antes de cada despliegue). El
+detalle está en `docs/pendientes.md` (M1).
+
+Nota de comportamiento: con la protección en los layouts (sin middleware), una ruta
+protegida sin sesión responde **200** con el shell de error de Next y el cliente
+navega a `/login`; no se filtra ningún dato del sistema (comprobado: la respuesta
+solo lleva la meta descripción pública del sitio). Con JavaScript desactivado el
+visitante ve ese shell en lugar de una redirección 307.
 
 ## Paleta oficial y marca real (tarea 4.7)
 

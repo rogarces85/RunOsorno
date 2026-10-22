@@ -52,8 +52,9 @@ evita adelantar trabajo que luego haya que rehacer.
 
 ### Recomendación de secuencia
 
-1. **M1 decide todo.** Mientras el login caiga por CPU, no tiene sentido invertir en
-   fases nuevas: cualquier demo pública falla una de cada dos veces.
+1. **M1 y M2 están cerrados** (2026-10-22): el login ya no se corta (20/20 en
+   producción) y el correo propio funciona. La fase 51 (recuperación de contraseña,
+   invitaciones reales) ya se puede empezar.
 2. **M2 + 51** desbloquean el resto: sin correo propio no hay recuperación de
    contraseña ni invitaciones reales, y las notificaciones por email dependen de eso.
 3. **53 + 55** son las que más percibe el atleta (deja de cargar números a mano y ve
