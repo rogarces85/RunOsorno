@@ -74,6 +74,8 @@ export function ProgressChart({ points }: ProgressChartProps) {
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
+        className="chart-line"
+        pathLength={1}
         data-testid="progress-line"
       />
       {/*

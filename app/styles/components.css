@@ -200,20 +200,27 @@
   align-items: center;
   min-height: var(--app-header-height);
   padding-inline: var(--app-space-4);
-  border-bottom: 1px solid var(--app-border);
+  border-bottom: 1px solid var(--app-nav-border);
 }
 
-/* Superficie propia del sidebar (un paso por encima del lienzo): distinta al
-   `page-body` pero de la misma familia fría. En mobile actúa como fondo del
-   panel off-canvas; en desktop el `@media` solo fija el ancho y el borde. */
+/* Columna de navegación oscura en ambos temas (tokens --app-nav-*): sobre el
+   azul profundo de la paleta en claro; un paso por encima del lienzo en oscuro.
+   En mobile es el fondo del panel off-canvas, que hereda el mismo look. */
 .app-sidebar {
-  background: var(--app-surface-3);
+  background: var(--app-nav-bg);
+}
+
+/* El logo necesita pastilla clara sobre el fondo oscuro (mismo motivo del
+   tema oscuro: el lettering azul profundo desaparecería). */
+.app-sidebar .app-logo-plate {
+  padding: 6px 8px;
+  background: var(--app-nav-plate);
 }
 
 @media (min-width: 992px) {
   .app-sidebar {
     width: var(--app-sidebar-width);
-    border-inline-end: 1px solid var(--app-border);
+    border-inline-end: 1px solid var(--app-nav-border);
   }
 }
 
@@ -225,7 +232,7 @@
   min-height: 2.5rem;
   padding: 0.375rem 0.75rem;
   border-radius: var(--app-radius-control);
-  color: var(--app-ink-2);
+  color: var(--app-nav-ink-2);
   font-weight: 500;
   transition:
     background-color var(--app-dur-fast) var(--app-ease),
@@ -233,13 +240,16 @@
 }
 
 .app-sidebar .nav-link:hover {
-  background: var(--app-surface-2);
-  color: var(--app-ink);
+  background: var(--app-nav-hover);
+  color: var(--app-nav-ink);
 }
 
+/* Ítem activo: el acento del rol vive en la barra lateral izquierda; el fondo
+   es un matiz del rol sobre la columna oscura y el texto queda en la tinta
+   clara de la navegación (legible sea cual sea el rol). */
 .app-sidebar .nav-link.active {
-  background: var(--app-role-soft);
-  color: var(--app-role-accent);
+  background: color-mix(in srgb, var(--app-role-accent) 26%, var(--app-nav-bg));
+  color: var(--app-nav-ink);
 }
 
 .app-sidebar .nav-link.active::before {
@@ -262,7 +272,7 @@
 .app-sidebar .nav-item > span.nav-link {
   min-height: auto;
   padding: 0.75rem 0.75rem 0.25rem;
-  color: var(--app-ink-3);
+  color: var(--app-nav-ink-3);
   font-size: 0.6875rem;
   font-weight: 600;
   letter-spacing: var(--app-tracking-label);
@@ -272,7 +282,7 @@
 
 .app-sidebar .nav-item > span.nav-link:hover {
   background: transparent;
-  color: var(--app-ink-3);
+  color: var(--app-nav-ink-3);
 }
 
 /* ===== Cabecera de página ===== */
@@ -482,11 +492,14 @@
 }
 
 /* ===== Tarjetas ===== */
+/* Sombra base sutil: junto con el lienzo tintado, permite que la tarjeta se
+   lea como una pieza flotando sobre la página (referente dashboard). La
+   elevación fuerte sigue reservada a las interactivas. */
 .card {
   background: var(--app-surface);
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-card);
-  box-shadow: none;
+  box-shadow: var(--app-shadow-1);
 }
 
 .app-card-interactive {
@@ -505,6 +518,102 @@
    elevación con la transición de `app-card-interactive`. */
 a.card.card-link {
   margin-inline-start: 0;
+}
+
+/* ===== Ficha de estadística (StatsCards) =====
+ * Layout tipo panel de deporte: medalla circular de color con el ícono, la
+ * etiqueta al lado y el valor grande debajo con cifras tabulares. La medalla
+ * es decorativa (el nombre del dato está impreso al lado), por eso el color
+ * pleno no necesita 3:1 y el ícono viaja con `aria-hidden`.
+ */
+.app-stat-top {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-3);
+  margin-bottom: var(--app-space-2);
+}
+
+.app-stat-label {
+  color: var(--app-ink-2);
+  font-size: var(--app-text-sm);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.app-stat-medal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--app-radius-full);
+}
+
+.app-stat-medal svg {
+  color: #ffffff;
+}
+
+.app-stat-medal-primary {
+  background: var(--app-role-accent);
+}
+
+.app-stat-medal-success {
+  background: var(--app-success);
+}
+
+.app-stat-medal-info {
+  background: var(--app-info);
+}
+
+.app-stat-medal-warning {
+  background: var(--app-warning);
+}
+
+.app-stat-medal-danger {
+  background: var(--app-danger);
+}
+
+/* ===== Selector de periodo (control segmentado) =====
+ * Píldoras agrupadas en un carril: la pestaña activa toma el color de marca
+ * con su texto contrastado, las inactivas quedan calmas sobre el carril.
+ */
+.app-segments {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  background: var(--app-surface-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-control);
+}
+
+.app-seg {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--app-radius-chip);
+  color: var(--app-ink-2);
+  font-size: var(--app-text-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--app-dur-fast) var(--app-ease),
+    color var(--app-dur-fast) var(--app-ease);
+}
+
+.app-seg:hover {
+  color: var(--app-ink);
+  background: var(--app-surface-3);
+}
+
+.app-seg-active,
+.app-seg-active:hover {
+  background: var(--app-accent);
+  color: var(--app-accent-on);
 }
 
 /* ===== Sello de tarjeta (card-stamp) =====

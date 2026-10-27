@@ -12,6 +12,7 @@ import { Badge, badgeToneFromColor } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { buttonClassName } from "@/components/ui/Button";
+import { formatNumber, formatPercent } from "@/lib/i18n/format";
 import {
   SESSION_STATUS_META,
   type SessionStatus,
@@ -146,7 +147,7 @@ export default async function AthleteDashboardPage() {
             {
               key: "compliance",
               label: "Cumplimiento del mes",
-              value: metrics ? `${metrics.compliance.percent}%` : "—",
+              value: metrics ? formatPercent(metrics.compliance.percent) : "—",
               sub: metrics
                 ? `${metrics.compliance.completed} de ${metrics.compliance.total} sesiones`
                 : "Sin datos",
@@ -163,13 +164,15 @@ export default async function AthleteDashboardPage() {
             {
               key: "km",
               label: "Distancia del mes",
-              value: metrics ? `${metrics.totals.km} km` : "—",
+              value: metrics ? `${formatNumber(metrics.totals.km)} km` : "—",
               stamp: { icon: <IconRoute />, variant: "info" },
             },
             {
               key: "minutes",
               label: "Tiempo del mes",
-              value: metrics ? `${metrics.totals.minutes} min` : "—",
+              value: metrics
+                ? `${formatNumber(metrics.totals.minutes, { maximumFractionDigits: 0 })} min`
+                : "—",
               stamp: { icon: <IconStopwatch />, variant: "warning" },
             },
           ]}

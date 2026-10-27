@@ -21,8 +21,12 @@
 :root {
   color-scheme: light;
 
-  /* ---- Superficies y texto ---- */
-  --app-canvas: #ffffff;
+  /* ---- Superficies y texto ----
+   * El lienzo ya no es blanco: un gris azulado de la propia familia tinta el
+   * fondo y las tarjetas (blancas, con borde y sombra) destacan sobre él, como
+   * en el referente de dashboard oscuro lateral. En oscuro el lienzo sigue
+   * siendo el azul profundo y las superficies suben un paso. */
+  --app-canvas: #f3f6fb;
   --app-surface: #ffffff;
   --app-surface-2: #f3f6fb;
   --app-surface-3: #e8eef7;
@@ -59,6 +63,20 @@
    */
   --app-role-accent: var(--app-accent);
   --app-role-soft: var(--app-accent-soft);
+
+  /* ---- Navegación (sidebar) ----
+   * El menú es una columna oscura en los DOS temas, sobre el azul profundo de
+   * la paleta. En tema oscuro el lienzo usa ese mismo azul, así que la
+   * columna sube un paso (#151f33, la superficie) para no fundirse con él.
+   * La tinta es la familia del tema oscuro del sistema: #edf2f9 y sus matices.
+   */
+  --app-nav-bg: #101827;
+  --app-nav-ink: #edf2f9;
+  --app-nav-ink-2: #afbbd0;
+  --app-nav-ink-3: #8695b0;
+  --app-nav-hover: #1b2740;
+  --app-nav-border: #283554;
+  --app-nav-plate: #ffffff;
 
   /* ---- Tipografía ---- */
   --app-font-sans:
@@ -179,6 +197,16 @@
   --app-warning-soft: #2a2113;
   --app-danger-soft: #2a1717;
   --app-info-soft: #16232c;
+
+  /* Navegación: mismo lenguaje que en claro, con la columna un paso más
+     clara que el lienzo (que aquí comparte el azul profundo). */
+  --app-nav-bg: #151f33;
+  --app-nav-ink: #edf2f9;
+  --app-nav-ink-2: #afbbd0;
+  --app-nav-ink-3: #8695b0;
+  --app-nav-hover: #1b2740;
+  --app-nav-border: #283554;
+  --app-nav-plate: #ffffff;
 
   --app-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --app-shadow-2: 0 2px 8px rgba(0, 0, 0, 0.45);

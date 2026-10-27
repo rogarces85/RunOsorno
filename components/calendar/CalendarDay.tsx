@@ -4,6 +4,21 @@ import { memo } from "react";
 import { DAY_STATE_META, type CalendarDayState } from "./dayState";
 import { formatPercent } from "@/lib/i18n/format";
 
+/**
+ * Clases de la píldora de sesión según la familia del estado. Es el mismo
+ * patrón verificado de badges (`bg-<color>-lt` + `text-<color>-ink`): sobre el
+ * propio tinte ningún color puro llega a 4,5:1 y los `-ink` son los hex
+ * medidos de la Fase 48. Las píldoras funcionan igual en tema claro y oscuro.
+ */
+const PILL_CLASSES: Record<string, string> = {
+  success: "bg-success-lt text-success-ink",
+  warning: "bg-warning-lt text-warning-ink",
+  danger: "bg-danger-lt text-danger-ink",
+  primary: "bg-primary-lt text-primary-ink",
+  info: "bg-info-lt text-info-ink",
+  secondary: "bg-secondary-lt text-secondary-ink",
+};
+
 function complianceClass(done: number, total: number): string {
   const pct = Math.round((done / total) * 100);
   // Fondo `-lt` con texto `-ink`, no color sólido (Fase 48, tarea 48.2). Un
@@ -104,7 +119,9 @@ export const CalendarDay = memo(function CalendarDay({
         </span>
       )}
       {sessionLabel && (
-        <span className="calendar-day-session">{sessionLabel}</span>
+        <span className={`calendar-day-session badge ${PILL_CLASSES[meta.color]}`}>
+          {sessionLabel}
+        </span>
       )}
     </button>
   );

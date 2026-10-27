@@ -1,19 +1,28 @@
 import Link from "next/link";
 import {
-  SESSION_STATUS_META,
-  type SessionStatus,
-} from "@/lib/config/constants";
-import { formatDayShort } from "@/lib/i18n/format";
-import { parseISO } from "@/lib/metrics/utils";
+  DAY_STATE_META,
+  resolveDayState,
+  type CalendarDayState,
+} from "@/components/calendar/dayState";
+import { type SessionStatus } from "@/lib/config/constants";
+import { formatWeekdayShort, formatDayOfMonth } from "@/lib/i18n/format";
+import { parseISO, shiftDaysISO, weekStartOfISO } from "@/lib/metrics/utils";
 import type { PlanItem } from "@/lib/services/plan.service";
-import { Badge, badgeToneFromColor } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { buttonClassName } from "@/components/ui/Button";
 
 /**
- * Resumen semanal del atleta en su dashboard (Fase 30).
- * Lista las sesiones de la semana con su estado y conteo por estado.
+ * Resumen semanal del atleta en su dashboard (Fase 30; tira de la Fase 49).
+ *
+ * Una tira de 7 bloques, como la vista mensual pero apretada: cada bloque
+ * lleva el día, el número y el estado de la sesión con el mismo lenguaje del
+ * calendario —`resolveDayState` y las formas por `[data-state]`— para que
+ * aprender uno sea aprender el otro. El color nunca es el único indicio: el
+ * nombre de la sesión (o el rótulo del estado) va impreso debajo.
+ *
+ * La tira entera es un enlace al calendario, que es donde se registra la
+ * sesión y se abre el detalle del día.
  */
 export function AthleteWeekSummary({
   items,
@@ -33,6 +42,21 @@ export function AthleteWeekSummary({
     counts[item.status] += 1;
   }
 
+  const weekStart = weekStartOfISO(today);
+  const porFecha = new Map(items.map((item) => [item.sessionDate, item]));
+  const dias = Array.from({ length: 7 }, (_, index) => {
+    const iso = shiftDaysISO(weekStart, index);
+    const item = porFecha.get(iso) ?? null;
+    const state: CalendarDayState = resolveDayState(item, iso, today);
+    return {
+      iso,
+      fecha: parseISO(iso),
+      item,
+      state,
+      meta: DAY_STATE_META[state],
+    };
+  });
+
   return (
     <Card title="Resumen de la semana" className="h-100">
       <div className="mb-3 d-flex flex-wrap gap-2">
@@ -51,50 +75,68 @@ export function AthleteWeekSummary({
       </div>
 
       {items.length === 0 ? (
-        <EmptyState
-          title="Semana sin planificar"
-          description="Tu coach aún no planificó sesiones para esta semana."
-          compact
-        />
+        <>
+          <div className="weekstrip" aria-hidden>
+            {dias.map((dia) => (
+              <span
+                key={dia.iso}
+                className={`weekstrip-day weekstrip-day--muted${
+                  dia.iso === today ? " is-today" : ""
+                }`}
+                data-state={dia.state}
+              >
+                <span className="weekstrip-weekday">
+                  {formatWeekdayShort(dia.fecha)}
+                </span>
+                <span className="weekstrip-number app-numeric">
+                  {formatDayOfMonth(dia.fecha)}
+                </span>
+              </span>
+            ))}
+          </div>
+          <EmptyState
+            title="Semana sin planificar"
+            description="Tu coach aún no planificó sesiones para esta semana."
+            compact
+          />
+        </>
       ) : (
-        <div className="list-group list-group-flush">
-          {items.map((item) => {
-            const meta = SESSION_STATUS_META[item.status as SessionStatus];
-            return (
-              <div key={item.id} className="list-group-item px-0">
-                <div className="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                  <div>
-                    <strong className="text-capitalize">
-                      {formatDayShort(parseISO(item.sessionDate))}
-                      {item.sessionDate === today ? " (hoy)" : ""}
-                    </strong>
-                    <div className="text-secondary small">
-                      {item.template?.name ?? "Sesión"}
-                      {item.template?.sessionType
-                        ? ` · ${item.template.sessionType}`
-                        : ""}
-                    </div>
-                  </div>
-                  <Badge tone={badgeToneFromColor(meta.color)}>
-                    {meta.label}
-                  </Badge>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <Link
+          href="/athlete/calendar"
+          className="weekstrip text-decoration-none"
+          aria-label="Ver la semana completa en el calendario"
+        >
+          {dias.map((dia) => (
+            <span
+              key={dia.iso}
+              className={`weekstrip-day${dia.iso === today ? " is-today" : ""}`}
+              data-state={dia.state}
+            >
+              <span className="weekstrip-weekday">
+                {formatWeekdayShort(dia.fecha)}
+              </span>
+              <span className="weekstrip-number app-numeric">
+                {formatDayOfMonth(dia.fecha)}
+              </span>
+              {/*
+                La forma del punto la pone el CSS según `data-state` (Fase 48,
+                48.2): el color no puede ser el único indicio. El nombre de la
+                sesión —o el rótulo del estado cuando está vacía— es lo que se
+                lee.
+              */}
+              <span
+                className="weekstrip-badge calendar-day-badge"
+                style={{ color: `var(--tblr-${dia.meta.color})` }}
+                title={dia.meta.label}
+                aria-hidden
+              />
+              <span className="weekstrip-label">
+                {dia.item?.template?.name ?? dia.meta.label}
+              </span>
+            </span>
+          ))}
+        </Link>
       )}
-
-      <Link
-        href="/athlete/calendar"
-        className={buttonClassName({
-          variant: "secondary",
-          size: "sm",
-          className: "mt-3",
-        })}
-      >
-        Ver calendario completo
-      </Link>
     </Card>
   );
 }

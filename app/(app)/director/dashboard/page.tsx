@@ -1,4 +1,10 @@
 import Link from "next/link";
+import {
+  IconAlertTriangle,
+  IconGauge,
+  IconUsers,
+  IconUsersGroup,
+} from "@tabler/icons-react";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { GroupMetricsPanel } from "@/components/metrics/GroupMetricsPanel";
 import { PeriodSelector } from "@/components/metrics/PeriodSelector";
@@ -140,11 +146,13 @@ async function DirectorSummary({
             label: "Teams del grupo",
             value: metrics.teams.length,
             href: `/director/teams?group=${groupId}`,
+            stamp: { icon: <IconUsersGroup />, variant: "primary" },
           },
           {
             key: "coaches",
             label: "Coaches",
             value: metrics.coaches.length,
+            stamp: { icon: <IconUsers />, variant: "info" },
           },
           {
             key: "compliance",
@@ -157,12 +165,14 @@ async function DirectorSummary({
                 : compliancePercent >= 50
                   ? "warning"
                   : "danger",
+            stamp: { icon: <IconGauge />, variant: "success" },
           },
           {
             key: "alerts",
             label: "Alertas activas",
             value: totals.alerts,
             tone: totals.alerts > 0 ? "danger" : "default",
+            stamp: { icon: <IconAlertTriangle />, variant: "danger" },
           },
         ]}
       />

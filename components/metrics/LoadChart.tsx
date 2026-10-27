@@ -89,6 +89,7 @@ export function LoadChart({ points }: LoadChartProps) {
           height={PLOT_HEIGHT - toKmY(point.km)}
           rx={4}
           fill={CHART_COLORS[0]}
+          className="chart-bar"
           data-testid="load-bar"
         >
           <title>{`${point.week}: ${point.km} km`}</title>
@@ -102,6 +103,8 @@ export function LoadChart({ points }: LoadChartProps) {
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
+        className="chart-line"
+        pathLength={1}
         data-testid="load-line"
       />
       {/*

@@ -167,6 +167,16 @@ export function formatDayShort(value: Date | string): string {
   });
 }
 
+/** `lun` — solo el día de la semana (tira semanal del dashboard). */
+export function formatWeekdayShort(value: Date | string): string {
+  return fecha(value, { weekday: "short" });
+}
+
+/** `15` — solo el número del día del mes (tira semanal del dashboard). */
+export function formatDayOfMonth(value: Date | string): string {
+  return fecha(value, { day: "numeric" });
+}
+
 /**
  * Formatea un número en formato chileno: punto de miles y coma decimal
  * (`1.234,5`). `maximumFractionDigits` se fija en el llamador porque cada dato

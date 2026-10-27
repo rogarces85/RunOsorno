@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import {
+  IconAlertTriangle,
+  IconCalendarEvent,
+  IconGauge,
+  IconUsers,
+} from "@tabler/icons-react";
 import { CoachTodaySessions } from "@/components/dashboard/CoachTodaySessions";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { Alert } from "@/components/ui/Alert";
@@ -145,18 +151,21 @@ export default async function CoachDashboardPage({
                   : compliancePercent >= 50
                     ? "warning"
                     : "danger",
+              stamp: { icon: <IconGauge />, variant: "primary" },
             },
             {
               key: "athletes",
               label: "Atletas",
               value: metrics.athletes.length,
               href: "/coach/athletes",
+              stamp: { icon: <IconUsers />, variant: "info" },
             },
             {
               key: "today",
               label: "Sesiones de hoy",
               value: todaySessions.length,
               tone: todaySessions.length > 0 ? "primary" : "default",
+              stamp: { icon: <IconCalendarEvent />, variant: "success" },
             },
             {
               key: "alerts",
@@ -165,6 +174,7 @@ export default async function CoachDashboardPage({
               tone: metrics.alerts.length > 0 ? "danger" : "default",
               sub:
                 metrics.alerts.length > 0 ? "Revisa a tus atletas" : undefined,
+              stamp: { icon: <IconAlertTriangle />, variant: "danger" },
             },
           ]}
         />

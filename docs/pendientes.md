@@ -417,3 +417,29 @@ hace falta el KDF en el cliente o mover la autenticación. Esto no bloquea el
 resto del MVP: el corte afecta solo al POST de login en frío.
 
 
+
+## Ruido conocido de desarrollo: avisos de prerender (2026-10-27)
+
+En `next dev` con `cacheComponents` aparecen dos avisos **que no afectan a
+producción** y que se decide no corregir (documentado el 2026-10-27 tras una
+prueba A/B con `git stash`, que confirmó que son preexistentes):
+
+1. `Route "/login": Next.js encountered uncached data during prerendering` en
+   `RootLayout` (`app/layout.tsx`, la lectura de la cookie del tema con
+   `await cookies()`). El layout es dinámico por diseño (`instant = false`) y
+   el aviso sale cuando Next intenta prerenderizar la ruta igualmente.
+2. `Route "/coach/dashboard": Next.js encountered the unstable value
+   Date.now()` en `requireAuth` (`lib/auth/guards.ts`, la validación de
+   expiración de sesión de Lucia). Solo aparece una vez, en el primer
+   compilado del layout autenticado; es de arranque en frío y no es
+   determinista.
+
+En ambos casos la petición resuelve `200/303/307` y el render sigue siendo por
+solicitud, como corresponde a las rutas autenticadas. En producción no hay
+prerender de estas rutas, así que el ruido solo existe en `next dev`.
+
+**Si algún día hay que eliminarlos**, la vía oficial que sugiere el propio
+aviso es marcar el routeo como dinámico con `await connection()` al inicio del
+layout (o envolver el acceso a la cookie en `<Suspense>`); tocaría
+`app/layout.tsx` y `lib/auth/guards.ts` — archivos de autenticación que en
+fase 49 (mejora visual) se decidió no tocar.

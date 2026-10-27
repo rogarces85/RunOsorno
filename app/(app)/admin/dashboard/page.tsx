@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IconSchool, IconRun, IconUserX, IconUsers } from "@tabler/icons-react";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -28,6 +29,7 @@ export default async function AdminDashboardPage() {
               label: "Coaches activos",
               value: stats.coachesActive,
               href: "/admin/coaches",
+              stamp: { icon: <IconUsers />, variant: "primary" },
             },
             {
               key: "coaches-inactive",
@@ -35,18 +37,21 @@ export default async function AdminDashboardPage() {
               value: stats.coachesInactive,
               tone: stats.coachesInactive > 0 ? "warning" : "default",
               href: "/admin/coaches",
+              stamp: { icon: <IconUserX />, variant: "warning" },
             },
             {
               key: "groups",
               label: "Grupos",
               value: stats.groupsCount,
               href: "/admin/groups",
+              stamp: { icon: <IconSchool />, variant: "info" },
             },
             {
               key: "athletes",
               label: "Atletas",
               value: stats.athletesCount,
               href: "/admin/athletes",
+              stamp: { icon: <IconRun />, variant: "success" },
             },
           ]}
         />

@@ -27,9 +27,6 @@ export function PeriodSelector({
     return `${basePath}?${params.toString()}`;
   };
 
-  const activeClass = (kind: "season" | "year" | "custom"): string =>
-    current.kind === kind ? "btn-secondary" : "btn-outline-secondary";
-
   const year =
     current.kind === "year" && current.year !== undefined
       ? current.year
@@ -39,16 +36,20 @@ export function PeriodSelector({
 
   return (
     <div className="d-flex flex-wrap align-items-center gap-2">
-      <div className="btn-group" role="group" aria-label="Periodo">
+      {/* Control segmentado (.app-segments): la pestaña activa toma el color
+          de marca. `aria-current` marca el estado para lectores de pantalla. */}
+      <div className="app-segments" role="group" aria-label="Periodo">
         <Link
           href={linkFor("season", year)}
-          className={`btn btn-sm ${activeClass("season")}`}
+          className={`app-seg${current.kind === "season" ? " app-seg-active" : ""}`}
+          aria-current={current.kind === "season" ? "true" : undefined}
         >
           Temporada
         </Link>
         <Link
           href={linkFor("year", year)}
-          className={`btn btn-sm ${activeClass("year")}`}
+          className={`app-seg${current.kind === "year" ? " app-seg-active" : ""}`}
+          aria-current={current.kind === "year" ? "true" : undefined}
         >
           Año {year}
         </Link>
