@@ -1,0 +1,16 @@
+{
+  "_meta": {
+    "interactions_since_improve": 0,
+    "rewrite_threshold": 2.0,
+    "regenerated": "2026-10-27"
+  },
+  "arquitectura/Sistema general.md": 11.0,
+  "arquitectura/Mapa de código.md": 7.0,
+  "operaciones/Despliegue y dominio.md": 9.0,
+  "operaciones/Verificadores del sistema.md": 9.0,
+  "meta/Reglas del proyecto.md": 10.0,
+  "harness/user-profile.md": 1.5,
+  "harness/decisions.md": 1.5,
+  "harness/installation-plan.md": 1.0,
+  "sdd/constitution.md": 1.5
+}
