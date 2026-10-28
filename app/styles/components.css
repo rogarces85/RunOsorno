@@ -61,9 +61,22 @@
   height: auto;
 }
 
+/* El sidebar es azul marino en los dos temas, así que el símbolo —que es azul
+   profundo— necesita su pastilla clara siempre, no solo en oscuro. La pastilla
+   del tema oscuro se mantiene para el header y el login, donde el fondo sí
+   cambia. `--app-nav-plate` existe justo para esto. */
+.app-sidebar .app-logo-plate {
+  padding: 5px 7px;
+  background: var(--app-nav-plate);
+}
+
+.app-sidebar .app-logo-mark {
+  height: 22px;
+}
+
 [data-bs-theme="dark"] .app-logo-plate {
   padding: 6px 8px;
-  background: #ffffff;
+  background: var(--app-nav-plate);
 }
 
 [data-bs-theme="dark"] .app-logo-mark {
@@ -88,7 +101,7 @@
   .form-control,
   .form-select
 ):focus-visible {
-  outline: 2px solid var(--app-accent);
+  outline: 2px solid var(--app-accent-ink);
   outline-offset: 2px;
   border-radius: var(--app-radius-control);
 }
@@ -300,13 +313,13 @@
   inset-inline-start: 0;
   width: 3px;
   border-radius: var(--app-radius-full);
-  background: var(--app-role-accent);
+  background: var(--app-role-nav-accent);
 }
 
 /* El icono del ítem activo toma el acento del rol. El color no es la única
    señal: también están el velo de fondo y `aria-current="page"` en el enlace. */
 .app-sidebar .nav-link.active .nav-icon {
-  color: var(--app-role-accent);
+  color: var(--app-role-nav-accent);
 }
 
 .app-sidebar .nav-icon {
@@ -429,7 +442,7 @@
 }
 
 .app-btn-primary {
-  background: var(--app-accent);
+  background: var(--app-accent-ink);
   color: var(--app-accent-on);
 }
 
@@ -494,6 +507,56 @@
   height: 0.875rem;
 }
 
+/* ===== Botones de Bootstrap atados a los tokens =====
+ * AdminLTE compila `.btn-primary`, `.btn-outline-primary` y
+ * `.btn-outline-secondary` con hex fijos de su SCSS: `--bs-primary` no los
+ * alcanza. Sin este bloque, un `<button class="btn btn-primary">` seguiría
+ * saliendo azul y un `btn-outline-secondary` con el gris #6c757d, que sobre el
+ * lienzo da 4,26:1 y axe lo reporta. Se reapuntan a los tokens, así que la
+ * misma regla vale en ambos temas.
+ */
+.btn-primary {
+  --bs-btn-color: var(--app-accent-on);
+  --bs-btn-bg: var(--app-accent-ink);
+  --bs-btn-border-color: var(--app-accent-ink);
+  --bs-btn-hover-color: var(--app-accent-on);
+  --bs-btn-hover-bg: var(--app-accent-hover);
+  --bs-btn-hover-border-color: var(--app-accent-hover);
+  --bs-btn-active-color: var(--app-accent-on);
+  --bs-btn-active-bg: var(--app-accent-hover);
+  --bs-btn-active-border-color: var(--app-accent-hover);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--app-accent-ink);
+  --bs-btn-border-color: var(--app-accent-ink);
+  --bs-btn-hover-color: var(--app-accent-on);
+  --bs-btn-hover-bg: var(--app-accent-ink);
+  --bs-btn-hover-border-color: var(--app-accent-ink);
+  --bs-btn-active-color: var(--app-accent-on);
+  --bs-btn-active-bg: var(--app-accent-hover);
+  --bs-btn-active-border-color: var(--app-accent-hover);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--app-ink-2);
+  --bs-btn-border-color: var(--app-border-strong);
+  --bs-btn-hover-color: var(--app-surface);
+  --bs-btn-hover-bg: var(--app-ink-2);
+  --bs-btn-hover-border-color: var(--app-ink-2);
+  --bs-btn-active-color: var(--app-surface);
+  --bs-btn-active-bg: var(--app-ink-2);
+  --bs-btn-active-border-color: var(--app-ink-2);
+}
+
+/* En oscuro los rellenos de Bootstrap (`text-bg-*`) llevan tinta clara, y el
+   naranja de tinta y el gris terciario son claros: el texto tiene que ser el
+   del lienzo, no blanco. */
+[data-bs-theme="dark"] .text-bg-primary,
+[data-bs-theme="dark"] .text-bg-secondary {
+  color: var(--app-canvas) !important;
+}
+
 /* ===== Campos ===== */
 .form-label {
   font-size: var(--app-text-sm);
@@ -517,7 +580,7 @@
 
 .form-control:focus,
 .form-select:focus {
-  border-color: var(--app-accent);
+  border-color: var(--app-accent-ink);
   box-shadow: 0 0 0 3px var(--app-accent-soft);
   background-color: var(--app-surface);
   color: var(--app-ink);
@@ -668,7 +731,7 @@ a.card.card-link {
 
 .app-seg-active,
 .app-seg-active:hover {
-  background: var(--app-accent);
+  background: var(--app-accent-ink);
   color: var(--app-accent-on);
 }
 

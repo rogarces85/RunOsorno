@@ -122,7 +122,7 @@ export default async function CoachDashboardPage({
                   href={`/coach/dashboard?team=${team.id}`}
                   className={`btn btn-sm ${
                     team.id === teamId
-                      ? "btn-secondary"
+                      ? "btn-primary"
                       : "btn-outline-secondary"
                   }`}
                 >

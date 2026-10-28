@@ -35,7 +35,7 @@ main:focus {
 }
 
 main:focus-visible {
-  outline: 2px solid var(--bs-primary, var(--app-accent));
+  outline: 2px solid var(--bs-primary, var(--app-accent-ink));
   outline-offset: -2px;
 }
 
@@ -47,7 +47,7 @@ main:focus-visible {
   top: 0;
   z-index: 1080;
   padding: 0.5rem 1rem;
-  background-color: var(--bs-primary, var(--app-accent));
+  background-color: var(--bs-primary, var(--app-accent-ink));
   color: #fff;
   border-radius: 0 0 0.25rem 0;
   font-weight: 600;
@@ -62,7 +62,7 @@ main:focus-visible {
    contenedor lleva `tabindex="0"` para poder recorrerlo con teclado, hay que
    mostrar dónde está el foco: sin esto se desplazaría a ciegas. */
 .table-responsive:focus-visible {
-  outline: 2px solid var(--bs-primary, var(--app-accent));
+  outline: 2px solid var(--bs-primary, var(--app-accent-ink));
   outline-offset: -2px;
 }
 
@@ -361,7 +361,7 @@ body.app-nav-open {
   display: block;
   height: 100%;
   border-radius: var(--app-radius-full);
-  background: var(--bs-primary, var(--app-accent));
+  background: var(--bs-primary, var(--app-accent-ink));
 }
 
 @media (max-width: 575.98px) {
@@ -573,7 +573,7 @@ body.app-nav-open {
 }
 
 a.weekstrip:hover .weekstrip-day {
-  border-color: var(--app-accent);
+  border-color: var(--app-accent-ink);
 }
 
 /* El hoy no se comunica solo con el anillo: además queda con el número en el

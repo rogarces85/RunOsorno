@@ -86,7 +86,7 @@ export default async function DirectorTeamsPage({
                   href={`/director/teams?${periodToQuery(period)}&group=${group.id}`}
                   className={`btn btn-sm ${
                     group.id === groupId
-                      ? "btn-secondary"
+                      ? "btn-primary"
                       : "btn-outline-secondary"
                   }`}
                 >

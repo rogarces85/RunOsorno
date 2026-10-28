@@ -1,15 +1,16 @@
 /*
  * Tokens del sistema visual RunOsorno Training.
  *
- * Paleta oficial:
- *   - Azul profundo  #101827 (confianza)  → texto en claro y lienzo en oscuro.
- *   - Azul tecnológico #1675DF (energía)  → color de marca.
- *   - Blanco         #FFFFFF (claridad)   → lienzo del modo claro.
+ * Paleta "Atlético":
+ *   - Azul marino  #0F2B46 (confianza)  → marca, sidebar, tinta del shell.
+ *   - Naranja      #FF6B35 (energía)    → decoración: barras, puntos, series.
+ *   - Verde cancha #15803D (cumplimiento) → estados correctos.
  *
- * El azul de marca no se usa como texto ni como fondo de botón: sobre blanco da
- * 4,21:1 y no llega al mínimo de 4,5:1. Para acciones hay una variante de la misma
- * familia, `--app-accent` (#0F63C4 en claro, #4E9BF0 en oscuro), que sí cumple.
- * `verify-tokens.ts` comprueba ambos usos.
+ * El naranja de marca es decorativo: sobre blanco da 2,84:1 y no sirve ni como
+ * texto ni como fondo con texto blanco. Para todo lo que se lee o se pulsa está
+ * `--app-accent-ink` (#B93C0A en claro, #FF8A65 en oscuro). La regla es simple:
+ * `--app-accent` pinta formas, `--app-accent-ink` pinta texto, bordes de control,
+ * foco y fondos de botón. `verify-tokens.ts` mide la variante de tinta.
  *
  * Este archivo es la única fuente de verdad del color, la tipografía, el espaciado,
  * los radios, las sombras y el movimiento. Ningún componente escribe un hex suelto.
@@ -31,21 +32,24 @@
   --app-surface-2: #f3f4f6;
   --app-surface-3: #e5e7eb;
   --app-border: #e5e7eb;
-  /* Borde de controles: 3:1 sobre blanco (WCAG 1.4.11). */
-  --app-border-strong: #9ca3af;
+  /* Borde de controles: 3:1 sobre lienzo (WCAG 1.4.11). #7F8896 da 3,25:1
+     sobre el lienzo y 3,58:1 sobre la superficie. */
+  --app-border-strong: #7f8896;
   --app-ink: #111827;
   --app-ink-2: #374151;
-  --app-ink-3: #6b7280;
+  /* Rótulos y ayudas: 4,93:1 sobre lienzo y 5,43:1 sobre superficie. */
+  --app-ink-3: #5f6b7a;
 
   /* ---- Marca y acciones ----
-   * Paleta "Atlético": azul marino atlético como marca, naranja energía para
-   * acciones, verde cancha para cumplimiento. El naranja de marca no se usa
-   * como texto sobre blanco (4,21:1, no llega a 4,5:1); para botones hay
-   * `--app-accent` (#FF6B35 en claro, #FF8A65 en oscuro) que sí cumple.
+   * Dos naranjas con trabajos distintos, no dos tonos del mismo:
+   * `--app-accent` es decorativo (formas, series, barras) y nunca lleva texto;
+   * `--app-accent-ink` es la versión legible para enlaces, botones, foco y
+   * bordes de control (5,65:1 con blanco, 5,14:1 sobre lienzo).
    */
   --app-brand: #0f2b46;
   --app-accent: #ff6b35;
-  --app-accent-hover: #e85a2c;
+  --app-accent-ink: #b93c0a;
+  --app-accent-hover: #a3350a;
   --app-accent-soft: #ffe8dc;
   --app-accent-on: #ffffff;
 
@@ -62,11 +66,15 @@
   --app-info-soft: #eff6ff;
 
   /* ---- Acento por rol ----
-   * Tinta y tinte de fondo del shell según `data-user-role` (atleta = azul de
-   * marca, entrenador = índigo, admin = rojo). Viven aquí porque son color:
-   * los apartados del D8 prohíben un hex en cualquier otro archivo.
+   * Dos tokens, porque el rol se pinta sobre dos fondos opuestos:
+   * `--app-role-accent` es el relleno (medalla, sello) y lleva encima el color
+   * de la superficie, así que tiene que ser oscuro en tema claro.
+   * `--app-role-nav-accent` es el que se ve sobre el azul marino del sidebar
+   * (barra del ítem activo e icono), así que tiene que ser claro. El atleta
+   * usa el naranja decorativo ahí: sobre el marino da 5,09:1.
    */
-  --app-role-accent: var(--app-accent);
+  --app-role-accent: var(--app-accent-ink);
+  --app-role-nav-accent: var(--app-accent);
   --app-role-soft: var(--app-accent-soft);
 
   /* ---- Navegación (sidebar) ----
@@ -151,7 +159,7 @@
    * de las variables `--bs-*`. Al sobreescribirlas aquí, cambian botones,
    * alertas, badges, enlaces y formularios sin tocar una sola clase.
    */
-  --bs-primary: var(--app-accent);
+  --bs-primary: var(--app-accent-ink);
   --bs-secondary: var(--app-ink-2);
   --bs-success: var(--app-success);
   --bs-warning: var(--app-warning);
@@ -162,8 +170,16 @@
   --bs-border-color: var(--app-border);
   --bs-border-radius: var(--app-radius-control);
   --bs-font-sans: var(--app-font-sans);
-  --bs-link-color: var(--app-accent);
+  --bs-link-color: var(--app-accent-ink);
   --bs-link-hover-color: var(--app-accent-hover);
+
+  /* Bootstrap no acepta un hex dentro de `RGBA(var(--x), 1)`: necesita los
+     canales en crudo. Por eso el naranja de tinta y la tinta terciaria se
+     repiten aquí como triplete; si cambia `--app-accent-ink` o `--app-ink-3`,
+     cambian también estas dos líneas. `verify-tokens.ts` mide las clases que
+     los consumen (`text-bg-*`), así que un desajuste no pasa inadvertido. */
+  --bs-primary-rgb: 185, 60, 10;
+  --bs-secondary-rgb: 95, 107, 122;
 }
 
 [data-bs-theme="dark"] {
@@ -179,10 +195,11 @@
   --app-ink-2: #cbd5e1;
   --app-ink-3: #94a3b8;
 
-  /* En oscuro el acento se aclara: #FF6B35 sobre #0F172A da ~4,6:1 y cumple;
-     #FF8A65 da ~6,2:1 y mantiene la misma familia. */
-  --app-brand: #0f2b46;
+  /* En oscuro el naranja decorativo ya es legible, así que la tinta coincide
+     con él: #FF8A65 sobre #0F172A da 7,72:1. */
+  --app-brand: #60a5fa;
   --app-accent: #ff8a65;
+  --app-accent-ink: #ff8a65;
   --app-accent-hover: #ffa07a;
   --app-accent-soft: #2a1a14;
   --app-accent-on: #0f172a;
@@ -219,30 +236,40 @@
   --app-chart-3: #4ade80;
   --app-chart-4: #c9a6f0;
   --app-chart-5: #fbbf24;
+
+  /* Mismos canales que `--app-accent-ink` (#FF8A65) y `--app-ink-3` (#94A3B8).
+     Ver la nota del bloque claro: Bootstrap exige el triplete en crudo. */
+  --bs-primary-rgb: 255, 138, 101;
+  --bs-secondary-rgb: 148, 163, 184;
 }
 
 /* ---- Diferenciación por rol ----
- * El atributo `data-user-role` vive en el wrapper `.page` del layout
- * autenticado (`app/(app)/layout.tsx`), que ya resuelve el rol de la sesión.
- * El atleta toma el acento de marca del sistema (los valores por defecto del
- * `:root`, no hace falta un bloque); entrenador y admin pisan el token en su
- * subárbol. El bloque oscuro del entrenador se declara aparte: el índigo claro
- * (#5B3FB5) no llega a 4,5:1 sobre el lienzo oscuro, el lavanda #B39BF0 llega
- * a ~6,7:1. Ambos pares se midieron con la misma fórmula de
- * `scripts/verify-tokens.ts`: entrenador claro 6,4:1, rojo admin 5,4:1.
+ * El atributo `data-user-role` vive en el wrapper del layout autenticado
+ * (`app/(app)/layout.tsx`), que ya resuelve el rol de la sesión. El atleta usa
+ * los valores por defecto del `:root`; entrenador y admin pisan el token en su
+ * subárbol.
+ *
+ * El relleno (`--app-role-accent`) lleva encima la superficie, así que en claro
+ * es oscuro: índigo #5B3FB5 (7,44:1 con blanco) y rojo #DC2626 (4,83:1). La
+ * versión del sidebar (`--app-role-nav-accent`) va sobre azul marino y por eso
+ * es clara: lavanda #B39BF0 (6,09:1) y rojo claro #F87171 (5,22:1). El atleta
+ * comparte el naranja de tinta en el relleno y el decorativo en el sidebar.
  */
 [data-user-role="coach"] {
   --app-role-accent: #5b3fb5;
+  --app-role-nav-accent: #b39bf0;
   --app-role-soft: #efecfa;
 }
 
 [data-bs-theme="dark"] [data-user-role="coach"] {
   --app-role-accent: #b39bf0;
+  --app-role-nav-accent: #b39bf0;
   --app-role-soft: #231d3f;
 }
 
 /* Admin reutiliza los semánticos de peligro: contrastan en ambos temas. */
 [data-user-role="admin"] {
   --app-role-accent: var(--app-danger);
+  --app-role-nav-accent: #f87171;
   --app-role-soft: var(--app-danger-soft);
 }

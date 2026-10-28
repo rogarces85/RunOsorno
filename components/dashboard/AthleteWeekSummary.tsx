@@ -101,11 +101,10 @@ export function AthleteWeekSummary({
           />
         </>
       ) : (
-        <Link
-          href="/athlete/calendar"
-          className="weekstrip text-decoration-none"
-          aria-label="Ver la semana completa en el calendario"
-        >
+        <Link href="/athlete/calendar" className="weekstrip text-decoration-none">
+          <span className="visually-hidden">
+            Ver la semana completa en el calendario
+          </span>
           {dias.map((dia) => (
             <span
               key={dia.iso}
