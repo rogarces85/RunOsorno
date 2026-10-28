@@ -198,30 +198,34 @@
 .app-sidebar-brand {
   display: flex;
   align-items: center;
-  min-height: var(--app-header-height);
-  padding-inline: var(--app-space-4);
-  border-bottom: 1px solid var(--app-nav-border);
+  padding: 1rem 1.5rem;
 }
 
-/* Columna de navegación oscura en ambos temas (tokens --app-nav-*): sobre el
-   azul profundo de la paleta en claro; un paso por encima del lienzo en oscuro.
-   En mobile es el fondo del panel off-canvas, que hereda el mismo look. */
+.app-sidebar-brand .brand-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--app-nav-ink);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.app-sidebar-brand .brand-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--app-nav-ink);
+}
+
 .app-sidebar {
   background: var(--app-nav-bg);
+  width: var(--app-sidebar-width);
+  border-inline-end: 1px solid var(--app-nav-border);
 }
 
-/* El logo necesita pastilla clara sobre el fondo oscuro (mismo motivo del
-   tema oscuro: el lettering azul profundo desaparecería). */
-.app-sidebar .app-logo-plate {
-  padding: 6px 8px;
-  background: var(--app-nav-plate);
-}
-
-@media (min-width: 992px) {
-  .app-sidebar {
-    width: var(--app-sidebar-width);
-    border-inline-end: 1px solid var(--app-nav-border);
-  }
+.app-sidebar .nav.sidebar-menu {
+  padding-top: 1rem;
 }
 
 .app-sidebar .nav-link {
@@ -262,14 +266,20 @@
   background: var(--app-role-accent);
 }
 
-.app-sidebar .nav-link-icon {
+.app-sidebar .nav-icon {
   display: inline-flex;
   flex: none;
+  min-width: 1.75rem;
+  text-align: center;
+  color: var(--app-nav-ink-3);
 }
 
-/* Rótulo de sección del menú: hereda el `.nav-link` del `<span>`, así que se
-   neutraliza el padding para que no parezca un ítem pulsable. */
-.app-sidebar .nav-item > span.nav-link {
+.app-sidebar .nav-text {
+  flex: 1;
+  font-weight: 500;
+}
+
+.app-sidebar .nav-header {
   min-height: auto;
   padding: 0.75rem 0.75rem 0.25rem;
   color: var(--app-nav-ink-3);
@@ -280,7 +290,7 @@
   cursor: default;
 }
 
-.app-sidebar .nav-item > span.nav-link:hover {
+.app-sidebar .nav-header:hover {
   background: transparent;
   color: var(--app-nav-ink-3);
 }

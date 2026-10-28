@@ -19,13 +19,21 @@ function isActive(pathname: string, href: string): boolean {
 /**
  * Sidebar de la aplicación, con menú según rol (Fases 31 y 39).
  *
+ * Estructura de AdminLTE:
+ * - .app-sidebar : contenedor principal del sidebar
+ * - .sidebar-brand : marca del sidebar (logo + nombre)
+ * - .sidebar-wrapper : contenedor del menú
+ * - .nav.sidebar-menu : menú de navegación vertical
+ * - .nav-link : cada ítem del menú
+ * - .nav-link-icon : contenedor del ícono
+ *
  * El rol y la condición de Director Técnico se resuelven en el layout (RSC)
  * y se pasan como props serializables. El estado de apertura vive en
- * `NavProvider`, compartido con el botón hamburguesa del header.
+ * NavProvider, compartido con el botón hamburguesa del header.
  *
- * Por debajo de `lg` se comporta como off-canvas (desliza desde la izquierda
- * sobre un fondo oscurecido, con `Escape` para cerrar); desde `lg` es la
- * columna fija de siempre. Ese comportamiento está en `globals.css`.
+ * Por debajo de lg se comporta como off-canvas (desliza desde la izquierda
+ * sobre un fondo oscurecido, con Escape para cerrar); desde lg es la
+ * columna fija de siempre. Ese comportamiento está en globals.css.
  */
 export function AppSidebar({
   role,
@@ -47,68 +55,70 @@ export function AppSidebar({
   return (
     <>
       <aside
-        className={`navbar navbar-vertical navbar-expand-lg app-sidebar${open ? " is-open" : ""}`}
+        className={`app-sidebar${open ? " is-open" : ""}`}
         data-testid="app-sidebar"
         data-open={open ? "true" : "false"}
         id="app-sidebar"
         aria-label="Menú de navegación"
       >
-        <div className="container-fluid">
-          {/* Marca en el sidebar solo desde `lg`: en móvil ya está en el header y
-              repetirla dentro del panel off-canvas consume el alto útil del menú. */}
-          <div className="app-sidebar-brand d-none d-lg-flex">
-            <Link href="/" className="app-brand" prefetch={false} onClick={close}>
-              <Logo />
-            </Link>
-          </div>
-          <div className={`collapse navbar-collapse${open ? " show" : ""}`}>
-            {sections.map((section) => (
-              <ul key={section.key} className="navbar-nav pt-lg-3">
-                {section.header ? (
-                  <li className="nav-item">
-                    <span className="nav-link text-secondary small text-uppercase fw-bold">
-                      {section.header}
-                    </span>
-                  </li>
-                ) : null}
-                {section.items.map((item: NavItem) => {
-                  const active = isActive(pathname, item.href);
-                  return (
-                    <li key={item.href} className="nav-item">
-                      <Link
-                        className={`nav-link${active ? " active" : ""}`}
-                        href={item.href}
-                        // Sin prefetch: al abrir una página, Next pedía de golpe
-                        // todas las rutas del menú (10 renders SSR en paralelo).
-                        // El Worker no sostiene esa ráfaga y Cloudflare cortaba
-                        // algunas con 503 "exceeded CPU". La navegación sigue
-                        // siendo RSC, solo deja de calentar rutas por adelantado.
-                        prefetch={false}
-                        aria-current={active ? "page" : undefined}
-                        onClick={close}
-                      >
-                        <span className="nav-link-icon">
-                          <BIcon name={item.icon} size={20} />
-                        </span>
-                        <span>{item.label}</span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            ))}
-          </div>
+        {/*begin::Sidebar Brand-->
+        <div className="sidebar-brand">
+          <a href="/" className="brand-link" prefetch={false} onClick={close}>
+            <span className="brand-text fw-light">RunOsorno Training</span>
+          </a>
         </div>
-      </aside>
-      {/* Solo se monta en mobile; el CSS lo oculta desde `lg`. */}
-      {open ? (
-        <div
-          className="app-sidebar-backdrop d-lg-none"
-          data-testid="app-sidebar-backdrop"
-          aria-hidden
-          onClick={close}
-        />
-      ) : null}
-    </>
+        {/*end::Sidebar Brand-->
+        {/*begin::Sidebar Wrapper-->
+        <div className="sidebar-wrapper">
+          <nav class="mt-2">
+            {/*begin::Sidebar Menu-->
+            <ul className="nav sidebar-menu flex-column">
+              {sections.map((section) => (
+                <ul key={section.key} className="nav sidebar-menu flex-column">
+                  {section.header ? (
+                    <li className="nav-item">
+                      <span className="nav-header">
+                        {section.header}
+                      </span>
+                    </li>
+                  ) : null}
+                  {section.items.map((item: NavItem) => {
+                    const active = isActive(pathname, item.href);
+                    return (
+                      <li key={item.href} className="nav-item">
+                        <Link
+                          className={`nav-link${active ? " active" : ""}`}
+                          href={item.href}
+                          prefetch={false}
+                          aria-current={active ? "page" : undefined}
+                          onClick={close}
+                        >
+                          <span className="nav-icon">
+                            <BIcon name={item.icon} size={20} />
+                          </span>
+                          <span className="nav-text">{item.label}</span>
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ))}
+            {/*end::Sidebar Menu-->
+            </nav>
+          </div>
+          {/*end::Sidebar Wrapper-->
+        </aside>
+        {/*end::Sidebar-->
+        {/* Solo se monta en mobile; el CSS lo oculta desde lg. */}
+        {open ? (
+          <div
+            className="app-sidebar-backdrop d-lg-none"
+            data-testid="app-sidebar-backdrop"
+            aria-hidden
+            onClick={close}
+          />
+        ) : null}
+      </>
+    );
   );
 }
