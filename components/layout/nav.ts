@@ -24,10 +24,10 @@ export type NavSection = {
 
 const ADMIN_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/admin/dashboard", icon: "house" },
-  { label: "Coaches", href: "/admin/coaches", icon: "person-star" },
+  { label: "Coaches", href: "/admin/coaches", icon: "person-badge" },
   { label: "Grupos", href: "/admin/groups", icon: "people" },
-  { label: "Atletas", href: "/admin/athletes", icon: "person-running" },
-  { label: "Plantillas oficiales", href: "/admin/templates", icon: "layout-template" },
+  { label: "Atletas", href: "/admin/athletes", icon: "person-arms-up" },
+  { label: "Plantillas oficiales", href: "/admin/templates", icon: "grid-1x2" },
   { label: "Configuración", href: "/admin/settings", icon: "gear" },
   { label: "Logs", href: "/admin/logs", icon: "file-earmark-text" },
   { label: "Exportes", href: "/exports", icon: "download" },
@@ -37,8 +37,8 @@ const COACH_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/coach/dashboard", icon: "house" },
   { label: "Mis Teams", href: "/coach/teams", icon: "people" },
   { label: "Calendario", href: "/coach/calendar", icon: "calendar" },
-  { label: "Plantillas", href: "/coach/templates", icon: "layout-template" },
-  { label: "Atletas", href: "/coach/athletes", icon: "person-running" },
+  { label: "Plantillas", href: "/coach/templates", icon: "grid-1x2" },
+  { label: "Atletas", href: "/coach/athletes", icon: "person-arms-up" },
   { label: "Métricas", href: "/coach/metrics", icon: "bar-chart" },
   { label: "Grupos", href: "/coach/groups", icon: "building" },
   { label: "Exportes", href: "/exports", icon: "download" },
@@ -47,7 +47,7 @@ const COACH_ITEMS: NavItem[] = [
 const DIRECTOR_ITEMS: NavItem[] = [
   { label: "Dashboard del grupo", href: "/director/dashboard", icon: "house" },
   { label: "Teams (comparativa)", href: "/director/teams", icon: "trophy" },
-  { label: "Atletas (lectura)", href: "/director/athletes", icon: "person-running" },
+  { label: "Atletas (lectura)", href: "/director/athletes", icon: "person-arms-up" },
   { label: "Anuncios", href: "/director/announcements", icon: "telephone-outbound" },
   { label: "Exportes", href: "/exports", icon: "download" },
 ];
@@ -56,7 +56,7 @@ const ATHLETE_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/athlete/dashboard", icon: "house" },
   { label: "Calendario", href: "/athlete/calendar", icon: "calendar" },
   { label: "Mis métricas", href: "/athlete/metrics", icon: "bar-chart" },
-  { label: "Perfil", href: "/profile", icon: "person-star" },
+  { label: "Perfil", href: "/profile", icon: "person-badge" },
 ];
 
 function visible(items: NavItem[]): NavItem[] {

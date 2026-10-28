@@ -1,4 +1,5 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.min.css";
 @import "admin-lte/dist/css/adminlte.min.css";
 @import "./styles/tokens.css";
 @import "./styles/components.css";
@@ -77,37 +78,11 @@ h1.page-title {
 }
 
 /* ===== Shell responsive (Fase 39) ===== */
-/* Por debajo de `lg` el sidebar se comporta como off-canvas: sale desde la
-   izquierda sobre un fondo oscurecido en vez de empujar el contenido. Antes
-   `navbar-expand-lg` lo dejaba reducido a una franja fija de 56 px que
-   tapaba el header, y su hamburguesa quedaba dentro de un elemento oculto. */
+/* El off-canvas del sidebar vive en `components.css`, junto al resto del
+   marcado de AdminLTE: allí la posición se declara con `margin-inline-start`
+   porque es lo que usa AdminLTE 4 y así no hay dos mecanismos compitiendo
+   (un `transform` aquí y un margen allí se anulaban entre sí). */
 @media (max-width: 991.98px) {
-  .app-sidebar {
-    /* Tabler solo saca el navbar vertical del flujo normal desde `lg`
-       (`@media (min-width: 992px) { .navbar-vertical.navbar-expand-lg … }`).
-       Por debajo quedaba `position: relative` y ocupaba 56 px de alto sobre
-       el header; hay que fijarlo aquí para que sea un panel flotante real. */
-    position: fixed;
-    inset-block: 0;
-    inset-inline-start: 0;
-    z-index: 1030;
-    width: min(var(--app-sidebar-width), 85vw);
-    transform: translateX(-100%);
-    visibility: hidden;
-    transition:
-      transform var(--app-dur-base) var(--app-ease),
-      visibility 0s linear var(--app-dur-base);
-    box-shadow: var(--app-shadow-1);
-  }
-
-  .app-sidebar.is-open {
-    transform: translateX(0);
-    visibility: visible;
-    transition:
-      transform var(--app-dur-base) var(--app-ease),
-      visibility 0s;
-  }
-
   .app-sidebar-backdrop {
     position: fixed;
     inset: 0;

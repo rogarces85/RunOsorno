@@ -96,6 +96,10 @@
 /* ===== Shell ===== */
 .app-header {
   min-height: var(--app-header-height);
+  /* El navbar de Bootstrap añade 8 px arriba y abajo; con el `min-height` del
+     contenedor eso daba 73 px frente a los 56 de `.sidebar-brand`, y las dos
+     líneas inferiores no coincidían. El alto lo fija `--app-header-height`. */
+  padding-block: 0;
   background: var(--app-surface);
   /* Acento del rol filtrado en la línea inferior: un matiz del acento por rol
      como toque sutil, no un bloque de color completo. */
@@ -195,15 +199,12 @@
   color: var(--app-ink);
 }
 
-.app-sidebar-brand {
+/* Marca del sidebar (AdminLTE 4). El alto de `.sidebar-brand` lo fija AdminLTE
+   en 3.5rem para que case con el `.app-header`; aquí solo se alinea el enlace. */
+.app-sidebar .sidebar-brand .brand-link {
   display: flex;
   align-items: center;
-  padding: 1rem 1.5rem;
-}
-
-.app-sidebar-brand .brand-link {
-  display: flex;
-  align-items: center;
+  gap: 0.625rem;
   text-decoration: none;
   color: var(--app-nav-ink);
   font-size: 1.25rem;
@@ -211,17 +212,65 @@
   letter-spacing: -0.01em;
 }
 
-.app-sidebar-brand .brand-text {
+.app-sidebar .sidebar-brand .brand-text {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--app-nav-ink);
 }
 
-.app-sidebar {
+/* Colocación del sidebar. AdminLTE espera que `sidebar-expand-lg` viva en el
+   `<body>` y que su JavaScript ponga `sidebar-open` ahí; aquí ambos viven en
+   `.app-wrapper` y el estado abierto lo pone React (`is-open`), así que la
+   posición se declara explícitamente para no depender de esa combinación.
+
+   Los colores van por las variables `--lte-sidebar-*` y no por reglas propias:
+   AdminLTE pinta cada estado con `.sidebar-wrapper .sidebar-menu > .nav-item >
+   .nav-link` (cuatro clases), así que cualquier regla de dos clases nuestra
+   pierde y el texto quedaría en el `#343a40` por defecto sobre el azul marino. */
+.app-wrapper.sidebar-expand-lg .app-sidebar {
+  --lte-sidebar-color: var(--app-nav-ink-2);
+  --lte-sidebar-hover-color: var(--app-nav-ink);
+  --lte-sidebar-hover-bg: var(--app-nav-hover);
+  --lte-sidebar-active-color: var(--app-nav-ink);
+  --lte-sidebar-menu-active-color: var(--app-nav-ink);
+  --lte-sidebar-menu-active-bg: color-mix(
+    in srgb,
+    var(--app-role-accent) 26%,
+    var(--app-nav-bg)
+  );
+  --lte-sidebar-header-color: var(--app-nav-ink-3);
+  --lte-sidebar-submenu-color: var(--app-nav-ink-2);
   background: var(--app-nav-bg);
   width: var(--app-sidebar-width);
   border-inline-end: 1px solid var(--app-nav-border);
+}
+
+@media (min-width: 992px) {
+  .app-wrapper.sidebar-expand-lg .app-sidebar {
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+    margin-inline-start: 0;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .app-wrapper.sidebar-expand-lg .app-sidebar {
+    --app-sidebar-current: min(var(--app-sidebar-width), 85vw);
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 1040;
+    width: var(--app-sidebar-current);
+    margin-inline-start: calc(var(--app-sidebar-current) * -1);
+    box-shadow: var(--app-shadow-1);
+    transition: margin-inline-start var(--app-dur-base) var(--app-ease);
+  }
+
+  .app-wrapper.sidebar-expand-lg .app-sidebar.is-open {
+    margin-inline-start: 0;
+  }
 }
 
 .app-sidebar .nav.sidebar-menu {
@@ -236,26 +285,15 @@
   min-height: 2.5rem;
   padding: 0.375rem 0.75rem;
   border-radius: var(--app-radius-control);
-  color: var(--app-nav-ink-2);
   font-weight: 500;
   transition:
     background-color var(--app-dur-fast) var(--app-ease),
     color var(--app-dur-fast) var(--app-ease);
 }
 
-.app-sidebar .nav-link:hover {
-  background: var(--app-nav-hover);
-  color: var(--app-nav-ink);
-}
-
-/* Ítem activo: el acento del rol vive en la barra lateral izquierda; el fondo
-   es un matiz del rol sobre la columna oscura y el texto queda en la tinta
-   clara de la navegación (legible sea cual sea el rol). */
-.app-sidebar .nav-link.active {
-  background: color-mix(in srgb, var(--app-role-accent) 26%, var(--app-nav-bg));
-  color: var(--app-nav-ink);
-}
-
+/* El color de los tres estados (normal, hover y activo) lo pone AdminLTE desde
+   las variables `--lte-sidebar-*` que se declaran arriba en `.app-sidebar`.
+   Aquí solo queda lo que AdminLTE no dibuja: la barra de acento del rol. */
 .app-sidebar .nav-link.active::before {
   content: "";
   position: absolute;
@@ -274,8 +312,11 @@
   color: var(--app-nav-ink-3);
 }
 
-.app-sidebar .nav-text {
+/* El texto va en `<p>`, que es lo que espera AdminLTE dentro de `.nav-link`;
+   sin margen para que el ítem no crezca de alto. */
+.app-sidebar .nav-link p {
   flex: 1;
+  margin: 0;
   font-weight: 500;
 }
 

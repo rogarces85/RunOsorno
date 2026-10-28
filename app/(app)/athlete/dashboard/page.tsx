@@ -160,7 +160,7 @@ export default async function AthleteDashboardPage() {
               key: "km",
               label: "Distancia del mes",
               value: metrics ? `${formatNumber(metrics.totals.km)} km` : "—",
-              stamp: { icon: <BIcon name="route" aria-hidden />, variant: "info" },
+              stamp: { icon: <BIcon name="map" aria-hidden />, variant: "info" },
             },
             {
               key: "minutes",

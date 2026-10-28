@@ -52,6 +52,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
+# volcados de consola y scripts de arranque usados al depurar a mano
+dev-*.log
+test-server*.ps1
+
 # env files (can opt-in for committing if needed)
 .env*
 !.env.example

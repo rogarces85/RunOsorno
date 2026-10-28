@@ -51,7 +51,7 @@ export default async function AdminDashboardPage() {
               label: "Atletas",
               value: stats.athletesCount,
               href: "/admin/athletes",
-              stamp: { icon: <BIcon name="person-running" aria-hidden />, variant: "success" },
+              stamp: { icon: <BIcon name="person-arms-up" aria-hidden />, variant: "success" },
             },
           ]}
         />

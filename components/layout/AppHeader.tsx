@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { requireAuth } from "@/lib/auth/guards";
@@ -29,58 +27,23 @@ export async function AppHeader() {
   }));
 
   return (
-    <header className="app-header navbar navbar-expand bg-body">
+    <header className="app-header navbar navbar-expand bg-body d-print-none">
       <div className="container-fluid">
-        {/*begin::Container-->
-        {/* Navbar links */}
-        <ul className="navbar-nav">
-          <li className="nav-item">
-            <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
-              <i class="bi bi-list"></i>
-            </a>
-          </li>
-          <li className="nav-item d-none d-md-block">
-            <a href="#" class="nav-link">Home</a>
-          </li>
-          <li className="nav-item d-none d-md-block">
-            <a href="#" class="nav-link">Contact</a>
-          </li>
-        </ul>
-        {/* End navbar links */}
-        {/* Navbar search: a quiet pill, the icon is the submit button (md and up) */}
-        <form className="navbar-search d-none d-md-block ms-3" role="search" action="search-results.html">
-          <label for="navbar-search-input" className="visually-hidden">Search</label>
-          <div className="navbar-search-field">
-            <input type="search" id="navbar-search-input" name="q" className="form-control" placeholder="Search…" autocomplete="off" />
-            <button className="navbar-search-submit" type="submit" aria-label="Submit search">
-              <i class="bi bi-search" aria-hidden="true" />
-            </button>
-          </div>
-        </form>
-        <ul className="navbar-nav ms-auto">
-          <!-- Search on small screens: link to the search page -->
-          <li className="nav-item d-md-none">
-            <a class="nav-link" href="search-results.html" aria-label="Search">
-              <i class="bi bi-search" aria-hidden="true" />
-            </a>
-          </li>
-          <li className="nav-item dropdown ms-auto">
-            <ThemeToggle initialTheme={theme} />
-          </li>
-          <li className="nav-item dropdown ms-auto">
-            <NotificationBell unreadCount={unreadCount} items={items} />
-          </li>
-          <li className="nav-item dropdown ms-auto">
-            <UserMenu
-              userId={user.id}
-              name={user.name}
-              role={user.role}
-              avatarKey={user.avatarKey}
-            />
-          </li>
-        </ul>
+        <NavToggle />
+        <Link href="/" className="navbar-brand d-lg-none" aria-label="RunOsorno Training">
+          <Logo variant="mark" />
+        </Link>
+        <div className="navbar-nav flex-row ms-auto align-items-center">
+          <ThemeToggle initialTheme={theme} />
+          <NotificationBell unreadCount={unreadCount} items={items} />
+          <UserMenu
+            userId={user.id}
+            name={user.name}
+            role={user.role}
+            avatarKey={user.avatarKey}
+          />
+        </div>
       </div>
-      <!--end::Container-->
     </header>
   );
 }

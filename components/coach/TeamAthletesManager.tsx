@@ -188,7 +188,7 @@ export function TeamAthletesManager({
                       disabled={busy}
                       onClick={() => remove(athlete.athleteId)}
                     >
-                      <BIcon name="person-minus" size={16} aria-hidden />
+                      <BIcon name="person-dash" size={16} aria-hidden />
                     </Button>
                   </td>
                 </tr>

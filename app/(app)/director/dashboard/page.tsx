@@ -160,7 +160,7 @@ async function DirectorSummary({
                 : compliancePercent >= 50
                   ? "warning"
                   : "danger",
-            stamp: { icon: <BIcon name="gauge" aria-hidden />, variant: "success" },
+            stamp: { icon: <BIcon name="speedometer2" aria-hidden />, variant: "success" },
           },
           {
             key: "alerts",

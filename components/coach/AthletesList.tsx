@@ -197,7 +197,7 @@ export function AthletesList({
                           title="Transferir a otro team"
                           onClick={() => setTransferring(athlete)}
                         >
-                          <BIcon name="transfer" size={16} aria-hidden />
+                          <BIcon name="arrow-left-right" size={16} aria-hidden />
                         </Button>
                       )}
                     </div>

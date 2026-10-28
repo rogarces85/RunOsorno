@@ -146,7 +146,7 @@ export default async function CoachDashboardPage({
                   : compliancePercent >= 50
                     ? "warning"
                     : "danger",
-              stamp: { icon: <BIcon name="gauge" aria-hidden />, variant: "primary" },
+              stamp: { icon: <BIcon name="speedometer2" aria-hidden />, variant: "primary" },
             },
             {
               key: "athletes",
