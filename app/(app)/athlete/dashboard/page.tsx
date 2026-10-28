@@ -1,10 +1,5 @@
 import Link from "next/link";
-import {
-  IconActivity,
-  IconRoute,
-  IconStopwatch,
-  IconTrophy,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { AthleteWeekSummary } from "@/components/dashboard/AthleteWeekSummary";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { Alert } from "@/components/ui/Alert";
@@ -151,7 +146,7 @@ export default async function AthleteDashboardPage() {
               sub: metrics
                 ? `${metrics.compliance.completed} de ${metrics.compliance.total} sesiones`
                 : "Sin datos",
-              stamp: { icon: <IconActivity />, variant: "primary" },
+              stamp: { icon: <BIcon name="activity" aria-hidden />, variant: "primary" },
             },
             {
               key: "streak",
@@ -159,13 +154,13 @@ export default async function AthleteDashboardPage() {
               value: metrics ? `${metrics.streak} d` : "—",
               sub: "Días consecutivos completados",
               tone: metrics && metrics.streak >= 3 ? "success" : "default",
-              stamp: { icon: <IconTrophy />, variant: "success" },
+              stamp: { icon: <BIcon name="trophy" aria-hidden />, variant: "success" },
             },
             {
               key: "km",
               label: "Distancia del mes",
               value: metrics ? `${formatNumber(metrics.totals.km)} km` : "—",
-              stamp: { icon: <IconRoute />, variant: "info" },
+              stamp: { icon: <BIcon name="route" aria-hidden />, variant: "info" },
             },
             {
               key: "minutes",
@@ -173,7 +168,7 @@ export default async function AthleteDashboardPage() {
               value: metrics
                 ? `${formatNumber(metrics.totals.minutes, { maximumFractionDigits: 0 })} min`
                 : "—",
-              stamp: { icon: <IconStopwatch />, variant: "warning" },
+              stamp: { icon: <BIcon name="stopwatch" aria-hidden />, variant: "warning" },
             },
           ]}
         />

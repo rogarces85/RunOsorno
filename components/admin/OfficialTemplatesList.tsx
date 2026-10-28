@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  IconEdit,
-  IconPlus,
-  IconTrash,
-  IconTemplate,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { deleteOfficialTemplateAction } from "@/lib/actions/template.actions";
 import { SESSION_TYPE_LABELS } from "@/lib/config/constants";
 import type { OfficialTemplateListItem } from "@/lib/services/template.service";
@@ -67,7 +62,7 @@ export function OfficialTemplatesList({
             : `${templates.length} plantilla${templates.length === 1 ? "" : "s"} oficial${templates.length === 1 ? "" : "es"}`}
         </p>
         <Button onClick={openCreate}>
-          <IconPlus size={18} stroke={1.75} className="me-1" />
+          <BIcon name="plus" size={18} className="me-1" aria-hidden />
           Nueva oficial
         </Button>
       </div>
@@ -86,7 +81,7 @@ export function OfficialTemplatesList({
         {templates.length === 0 ? (
           <div className="card-body">
             <EmptyState
-              icon={IconTemplate}
+              icon="layout-template"
               title="No hay plantillas oficiales"
               description="Las plantillas oficiales están precargadas para todos los coaches, que pueden clonarlas pero no editarlas. Carga la primera para arrancar la biblioteca."
               actionLabel="Nueva plantilla oficial"
@@ -136,7 +131,7 @@ export function OfficialTemplatesList({
                           setFormOpen(true);
                         }}
                       >
-                        <IconEdit size={16} stroke={1.75} />
+                        <BIcon name="pencil" size={16} aria-hidden />
                       </Button>
                       <Button
                         variant="danger-ghost"
@@ -146,7 +141,7 @@ export function OfficialTemplatesList({
                         title="Eliminar"
                         onClick={() => setDeleting(template)}
                       >
-                        <IconTrash size={16} stroke={1.75} />
+                        <BIcon name="trash" size={16} aria-hidden />
                       </Button>
                     </div>
                   </td>

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { IconLogout, IconUser } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { logout } from "@/lib/actions/auth.actions";
 import type { Role } from "@/lib/auth/role";
 import { Avatar } from "@/components/ui/Avatar";
@@ -122,7 +122,7 @@ export function UserMenu({
             data-testid="user-menu-profile"
             onClick={() => setOpen(false)}
           >
-            <IconUser size={16} stroke={1.75} className="me-2" aria-hidden />
+            <BIcon name="person" size={16} className="me-2" aria-hidden />
             Mi perfil
           </Link>
           <div className="dropdown-divider" />
@@ -134,12 +134,7 @@ export function UserMenu({
             >
               {/* Sin `onClick` que cierre el menú: desmontar el `<form>`
                   cancelaría la server action antes de navegar a /login. */}
-              <IconLogout
-                size={16}
-                stroke={1.75}
-                className="me-2"
-                aria-hidden
-              />
+              <BIcon name="box-arrow-right" size={16} className="me-2" aria-hidden />
               Cerrar sesión
             </button>
           </form>

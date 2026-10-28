@@ -9,11 +9,11 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 # 1. Preparación del proyecto
 
 - [x] 1.1 Crear proyecto Next.js 14+ con App Router, TypeScript y `npm create next-app@latest`
-- [x] 1.2 Configurar estilos Tabler: eliminar Tailwind e importar CSS de `@tabler/core` (verificar integración)
+- [x] 1.2 Configurar estilos AdminLTE: importar CSS de `admin-lte` y `bootstrap` (verificar integración)
 - [x] 1.3 Configurar ESLint + Prettier con reglas del proyecto
 - [x] 1.4 Configurar `tsconfig.json` con path aliases (`@/` → raíz del proyecto)
 - [x] 1.5 Crear estructura base de carpetas según `plan/mvp.md` Sección 3 (`app/`, `components/`, `lib/`, `db/`, `emails/`, `tests/`)
-- [x] 1.6 Instalar Tabler (`@tabler/core` + `@tabler/icons-react`) y verificar que renderiza un componente básico
+- [x] 1.6 Instalar AdminLTE (`admin-lte` + `bootstrap`) y Bootstrap Icons, verificar que renderiza un componente básico
 - [x] 1.7 Crear `.env.local` con variables de entorno vacías (`DATABASE_URL`, Resend API key, R2 credentials, Lucia secret)
 - [x] 1.8 Crear `.gitignore` completo (node_modules, .env.local, .next, etc.)
 - [x] 1.9 Inicializar repositorio Git y hacer commit inicial
@@ -24,9 +24,9 @@ Cada tarea usa formato checkbox. Marcar `[x]` al completar. Las tareas están or
 # 2. Layout y estructura de interfaz base
 
 - [x] 2.1 Crear root layout `app/layout.tsx` con `<html lang="es-CL">`, metadata base, importación de `globals.css`
-- [x] 2.2 Crear `app/globals.css` con imports de `@tabler/core` y variables de tema Tabler
+- [x] 2.2 Crear `app/globals.css` con imports de `bootstrap` y `admin-lte` y variables de tema
 - [x] 2.3 Crear route group `app/(auth)/` con layout minimalista (sin sidebar)
-- [x] 2.4 Crear route group `app/(app)/` con layout de aplicación: `AppShell` de Tabler con sidebar y header
+- [x] 2.4 Crear route group `app/(app)/` con layout de aplicación: `AppShell` de AdminLTE con sidebar y header
 - [x] 2.5 Implementar componente `AppSidebar` en `components/layout/AppSidebar.tsx` con items de menú placeholder
 - [x] 2.6 Implementar componente `AppHeader` en `components/layout/AppHeader.tsx` con logo, espacio para campanita, avatar placeholder
 - [x] 2.7 Crear componente `RoleGuard` en `components/layout/RoleGuard.tsx` que redirige según rol (placeholder hasta tener auth)

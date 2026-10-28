@@ -1,6 +1,6 @@
 "use client";
 
-import { IconArrowDown, IconArrowUp, IconTrash } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { SECTION_TYPE_LABELS, SECTION_TYPES } from "@/lib/config/constants";
 import type { UseFormRegister } from "react-hook-form";
 import type { TemplateInput } from "@/lib/validations/template.schemas";
@@ -53,7 +53,7 @@ export function SectionEditor({
             disabled={index === 0}
             onClick={() => onMove(index, -1)}
           >
-            <IconArrowUp size={16} stroke={1.75} />
+            <BIcon name="arrow-up" size={16} aria-hidden />
           </Button>
           <Button
             variant="ghost"
@@ -64,7 +64,7 @@ export function SectionEditor({
             disabled={isLast}
             onClick={() => onMove(index, 1)}
           >
-            <IconArrowDown size={16} stroke={1.75} />
+            <BIcon name="arrow-down" size={16} aria-hidden />
           </Button>
           <Button
             variant="ghost"
@@ -74,7 +74,7 @@ export function SectionEditor({
             title="Eliminar sección"
             onClick={() => onRemove(index)}
           >
-            <IconTrash size={16} stroke={1.75} />
+            <BIcon name="trash" size={16} aria-hidden />
           </Button>
         </>
       }

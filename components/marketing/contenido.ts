@@ -5,50 +5,31 @@
  * precios, cifras de clientes ni testimonios: el modelo comercial todavía no está
  * definido y no se inventa prueba social.
  *
- * Los iconos vienen de `@tabler/icons-react`, que ya usa la aplicación.
+ * Los iconos son nombres de Bootstrap Icons (sin el prefijo `bi bi-`).
  */
-
-import {
-  IconActivityHeartbeat,
-  IconBell,
-  IconCalendarEvent,
-  IconChartHistogram,
-  IconChevronDown,
-  IconClipboardList,
-  IconDeviceMobile,
-  IconFlame,
-  IconLayoutGrid,
-  IconMap2,
-  IconMessage2,
-  IconRun,
-  IconSchool,
-  IconTemplate,
-  IconUsers,
-  IconWand,
-  type Icon,
-} from "@tabler/icons-react";
 
 export type Paso = {
   titulo: string;
   texto: string;
-  icono: Icon;
+  /** Nombre del icono de Bootstrap Icons (sin el prefijo `bi bi-`). */
+  icono: string;
 };
 
 export const PASOS: Paso[] = [
   {
-    icono: IconTemplate,
+    icono: "layout-template",
     titulo: "El coach planifica",
     texto:
       "Elige plantillas de la biblioteca, arrástralas a los días de la semana, genera una semana tipo o copia la anterior.",
   },
   {
-    icono: IconRun,
+    icono: "person-running",
     titulo: "El atleta entrena y registra",
     texto:
       "Ve su plan en el calendario y anota distancia, tiempo, esfuerzo percibido y comentarios. Si no pudo, deja el motivo.",
   },
   {
-    icono: IconMessage2,
+    icono: "chat",
     titulo: "El coach revisa y responde",
     texto:
       "Ve el cumplimiento de cada atleta, lee el registro real y deja feedback en la misma sesión. Todo queda en el historial.",
@@ -59,7 +40,8 @@ export type Producto = {
   id: "atleta" | "coach" | "escuela";
   nombre: string;
   resumen: string;
-  icono: Icon;
+  /** Nombre del icono de Bootstrap Icons (sin el prefijo `bi bi-`). */
+  icono: string;
   capacidades: string[];
   /** Texto del asunto del correo cuando se pide información de este bloque. */
   seccion: string;
@@ -70,7 +52,7 @@ export const PRODUCTOS: Producto[] = [
     id: "atleta",
     nombre: "Atleta",
     resumen: "Tu plan, tu registro y tu progreso, sin planillas ni mensajes sueltos.",
-    icono: IconRun,
+    icono: "person-running",
     capacidades: [
       "Calendario mensual con el estado de cada sesión",
       "Registro de distancia, tiempo, RPE y comentarios",
@@ -83,7 +65,7 @@ export const PRODUCTOS: Producto[] = [
     id: "coach",
     nombre: "Coach",
     resumen: "Planifica la semana en minutos y sigue a cada atleta sin preguntar.",
-    icono: IconUsers,
+    icono: "people",
     capacidades: [
       "Biblioteca de plantillas propia, compartida al grupo u oficial",
       "Planificación con arrastrar y soltar, generador y copiar semana",
@@ -96,7 +78,7 @@ export const PRODUCTOS: Producto[] = [
     id: "escuela",
     nombre: "Escuela o club",
     resumen: "Varios coaches bajo una misma escuela, con lectura agregada.",
-    icono: IconSchool,
+    icono: "building",
     capacidades: [
       "Grupos con coaches y equipos, con solicitudes de ingreso",
       "Director técnico con visibilidad de todo el grupo",
@@ -110,54 +92,55 @@ export const PRODUCTOS: Producto[] = [
 export type Funcionalidad = {
   titulo: string;
   texto: string;
-  icono: Icon;
+  /** Nombre del icono de Bootstrap Icons (sin el prefijo `bi bi-`). */
+  icono: string;
 };
 
 export const FUNCIONALIDADES: Funcionalidad[] = [
   {
-    icono: IconTemplate,
+    icono: "layout-template",
     titulo: "Plantillas de sesión",
     texto:
       "Calentamiento, parte principal y enfriamiento en secciones que el coach reordena o amplía.",
   },
   {
-    icono: IconWand,
+    icono: "magic",
     titulo: "Generador de semana",
     texto:
       "Una semana tipo como «3 fondos + 1 series + 1 tempo + 2 descansos» distribuida en el calendario.",
   },
   {
-    icono: IconCalendarEvent,
+    icono: "calendar-event",
     titulo: "Calendario con estados",
     texto:
       "Planificada, en curso, completada, parcial o no realizada. Cada estado con color y forma propia.",
   },
   {
-    icono: IconClipboardList,
+    icono: "clipboard-list",
     titulo: "Registro real",
     texto:
       "Distancia, tiempo, RPE y comentarios. Editable durante la ventana configurada y bloqueado después.",
   },
   {
-    icono: IconChartHistogram,
+    icono: "bar-chart-steps",
     titulo: "Métricas de carga",
     texto:
       "Cumplimiento, carga semanal, progresión de 4 a 12 semanas y distribución por tipo de sesión.",
   },
   {
-    icono: IconActivityHeartbeat,
+    icono: "heartbeat",
     titulo: "Zonas y umbrales",
     texto:
       "VO₂máx estimado, frecuencia de umbral y zonas de frecuencia cardíaca a partir del perfil y los registros.",
   },
   {
-    icono: IconBell,
+    icono: "bell",
     titulo: "Avisos y feedback",
     texto:
       "Notificaciones en la campanita para cada evento y correo solo en los casos que importan.",
   },
   {
-    icono: IconLayoutGrid,
+    icono: "layout-grid",
     titulo: "Exportes",
     texto:
       "PDF y Excel para el atleta, el equipo y el grupo, con periodo por temporada, año o rango.",
@@ -167,7 +150,8 @@ export const FUNCIONALIDADES: Funcionalidad[] = [
 export type Linea = {
   nombre: string;
   texto: string;
-  icono: Icon;
+  /** Nombre del icono de Bootstrap Icons (sin el prefijo `bi bi-`). */
+  icono: string;
 };
 
 export const LINEAS: Linea[] = [
@@ -175,13 +159,13 @@ export const LINEAS: Linea[] = [
     nombre: "Running",
     texto:
       "Series, tempo y fondos en pista, parque o calle. La planificación semanal y las métricas de carga están pensadas para el calendario de competencia.",
-    icono: IconFlame,
+    icono: "flame",
   },
   {
     nombre: "Trail Running",
     texto:
       "Desnivel, terrenos y sesiones largas. El registro libre de distancia, tiempo y esfuerzo se adapta a entrenamientos que no caben en una planilla rígida.",
-    icono: IconMap2,
+    icono: "map",
   },
 ];
 
@@ -214,7 +198,7 @@ export const PREGUNTAS: { pregunta: string; respuesta: string }[] = [
 ];
 
 /** Icono de la pregunta frecuente (reservado para futuras variantes visuales). */
-export const ICONO_PREGUNTA = IconChevronDown;
+export const ICONO_PREGUNTA = "chevron-down";
 
 /** Icono de la sección de dispositivos, usado en la franja de confianza. */
-export const ICONO_MOVIL = IconDeviceMobile;
+export const ICONO_MOVIL = "device-mobile";

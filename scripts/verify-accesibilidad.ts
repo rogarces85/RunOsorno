@@ -639,7 +639,7 @@ async function verificarCalendario(ctx: BrowserContext) {
     ];
     // Los badges de estado del panel usan la paleta accesible de globals.css.
     const chip = document.createElement("span");
-    chip.className = "badge bg-success-lt text-success-ink";
+    chip.className = "badge app-badge text-bg-success";
     chip.textContent = "Completada";
     chip.style.fontSize = "12px";
     document.body.appendChild(chip);

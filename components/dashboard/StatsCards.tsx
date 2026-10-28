@@ -7,10 +7,10 @@ import { CountUp } from "./CountUp";
  *
  * Usa la primitiva `Card`. Cada ficha lleva una medalla circular de color con
  * el ícono (variante de `stamp`), la etiqueta al lado y el valor grande con
- * `.app-numeric`. La familia `text-*-ink` refuerza el tono de la cifra: las
- * utilidades crudas de Tabler (`text-green`, `text-yellow`…) no alcanzan
- * 4,5:1 sobre fondo claro y axe las reporta; el dato nunca se comunica solo
- * con color, la etiqueta impresa lo acompaña.
+ * `.app-numeric`. Las clases `text-*-emphasis` de Bootstrap refuerzan el tono
+ * de la cifra: las utilidades crudas de Tabler (`text-green`, `text-yellow`…)
+ * no alcanzan 4,5:1 sobre fondo claro y axe las reporta; el dato nunca se
+ * comunica solo con color, la etiqueta impresa lo acompaña.
  */
 
 /**
@@ -44,10 +44,10 @@ export type StatCardItem = {
 
 const TONE_CLASS: Record<NonNullable<StatCardItem["tone"]>, string> = {
   default: "",
-  success: "text-success-ink",
-  warning: "text-warning-ink",
-  danger: "text-danger-ink",
-  primary: "text-primary-ink",
+  success: "text-success-emphasis",
+  warning: "text-warning-emphasis",
+  danger: "text-danger-emphasis",
+  primary: "text-primary-emphasis",
 };
 
 export function StatsCards({ items }: { items: StatCardItem[] }) {

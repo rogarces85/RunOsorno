@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconArrowLeft, IconPlus } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   createTemplateAction,
   updateTemplateAction,
@@ -119,11 +119,7 @@ export function TemplateEditor({
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <div className="mb-3">
         <Link href="/coach/templates" className="link-secondary">
-          <IconArrowLeft
-            size={16}
-            stroke={1.75}
-            className="me-1 align-text-bottom"
-          />
+          <BIcon name="arrow-left" size={16} className="me-1 align-text-bottom" aria-hidden />
           Volver a la biblioteca
         </Link>
       </div>
@@ -199,7 +195,7 @@ export function TemplateEditor({
             })
           }
         >
-          <IconPlus size={16} stroke={1.75} className="me-1" />
+          <BIcon name="plus" size={16} className="me-1" aria-hidden />
           Añadir sección
         </Button>
       </div>

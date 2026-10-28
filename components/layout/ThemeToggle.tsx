@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IconMoon, IconSun } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   THEME_COOKIE,
   THEME_COOKIE_MAX_AGE,
@@ -40,9 +40,9 @@ export function ThemeToggle({ initialTheme }: { initialTheme: Theme }) {
       aria-pressed={theme === "dark"}
     >
       {theme === "dark" ? (
-        <IconSun size={18} stroke={1.75} aria-hidden="true" />
+        <BIcon name="sun" size={18} aria-hidden="true" />
       ) : (
-        <IconMoon size={18} stroke={1.75} aria-hidden="true" />
+        <BIcon name="moon" size={18} aria-hidden="true" />
       )}
       <span className="visually-hidden">{label}</span>
     </button>

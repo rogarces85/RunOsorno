@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IconCopy } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { Button } from "@/components/ui/Button";
 import { CloneDialog } from "./CloneDialog";
 
@@ -17,7 +17,7 @@ export function CloneButton({
   return (
     <>
       <Button variant={variant} onClick={() => setOpen(true)}>
-        <IconCopy size={18} stroke={1.75} className="me-1" />
+        <BIcon name="copy" size={18} className="me-1" aria-hidden />
         Clonar plantilla
       </Button>
       {open && (

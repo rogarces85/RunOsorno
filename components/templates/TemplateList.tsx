@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IconPlus, IconTemplate } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   deleteTemplateAction,
   unshareTemplateAction,
@@ -130,7 +130,7 @@ export function TemplateList({
           href="/coach/templates/new"
           className={buttonClassName({ variant: "primary" })}
         >
-          <IconPlus size={18} stroke={1.75} className="me-1" />
+          <BIcon name="plus" size={18} className="me-1" aria-hidden />
           Nueva plantilla
         </Link>
       </div>
@@ -181,7 +181,7 @@ export function TemplateList({
             <div className="card">
               <div className="card-body">
                 <EmptyState
-                  icon={IconTemplate}
+                  icon="layout-template"
                   title={EMPTY[tab].title}
                   description={EMPTY[tab].description}
                   actionLabel={EMPTY[tab].action?.label}

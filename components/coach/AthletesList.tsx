@@ -3,12 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  IconEdit,
-  IconPlus,
-  IconTransfer,
-  IconUserSearch,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { formatDateChile } from "@/lib/utils/date";
 import type { AthleteListItem } from "@/lib/services/athlete.service";
 import { Avatar } from "@/components/ui/Avatar";
@@ -65,7 +60,7 @@ export function AthletesList({
             }
             onClick={openCreate}
           >
-            <IconPlus size={18} stroke={1.75} className="me-1" />
+            <BIcon name="plus" size={18} className="me-1" aria-hidden />
             Nuevo atleta
           </Button>
         )}
@@ -94,7 +89,7 @@ export function AthletesList({
         {athletes.length === 0 ? (
           <div className="card-body">
             <EmptyState
-              icon={IconUserSearch}
+              icon="person-search"
               title="No hay atletas en este listado"
               description={
                 teams.length === 0 && editable
@@ -190,7 +185,7 @@ export function AthletesList({
                             setFormOpen(true);
                           }}
                         >
-                          <IconEdit size={16} stroke={1.75} />
+                          <BIcon name="pencil" size={16} aria-hidden />
                         </Button>
                       )}
                       {canTransfer && athlete.teamNames.length > 0 && (
@@ -202,7 +197,7 @@ export function AthletesList({
                           title="Transferir a otro team"
                           onClick={() => setTransferring(athlete)}
                         >
-                          <IconTransfer size={16} stroke={1.75} />
+                          <BIcon name="transfer" size={16} aria-hidden />
                         </Button>
                       )}
                     </div>

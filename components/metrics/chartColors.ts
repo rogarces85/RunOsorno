@@ -26,15 +26,15 @@ export function colorForIndex(index: number): string {
 /**
  * Clases del badge de cumplimiento.
  *
- * Usa la familia `text-*-ink`, que sí alcanza 4,5:1 sobre el tinte. La versión
- * anterior (`bg-green-lt text-green`) quedaba en 2,48:1 y axe la reportaba.
+ * Usa las clases `text-bg-*` de Bootstrap/AdminLTE, que generan un fondo con
+ * tinte y texto con contraste adecuado (4,5:1) sobre ambos temas.
  */
 export function complianceBadgeClass(percent: number): string {
   if (percent >= 80) {
-    return "badge app-badge bg-success-lt text-success-ink";
+    return "badge app-badge text-bg-success";
   }
   if (percent >= 50) {
-    return "badge app-badge bg-warning-lt text-warning-ink";
+    return "badge app-badge text-bg-warning";
   }
-  return "badge app-badge bg-danger-lt text-danger-ink";
+  return "badge app-badge text-bg-danger";
 }

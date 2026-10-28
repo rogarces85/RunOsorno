@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconAlertCircle, IconDownload } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { exportDataAction } from "@/lib/actions/export.actions";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
@@ -181,7 +181,7 @@ export function ExportButton({
           loading={busy}
           onClick={() => runExport("csv")}
         >
-          <IconDownload size={16} stroke={1.75} className="me-1" />
+          <BIcon name="download" size={16} className="me-1" aria-hidden />
           {busy ? "Generando…" : `${label} CSV`}
         </Button>
         {error && (
@@ -205,7 +205,7 @@ export function ExportButton({
         }}
         aria-expanded={open}
       >
-        <IconDownload size={16} stroke={1.75} className="me-1" />
+        <BIcon name="download" size={16} className="me-1" aria-hidden />
         {busy ? "Generando…" : label}
       </Button>
 
@@ -285,7 +285,7 @@ export function ExportButton({
                   loading={busy}
                   onClick={() => runExport(format)}
                 >
-                  <IconDownload size={14} stroke={1.75} className="me-1" />
+                  <BIcon name="download" size={14} className="me-1" aria-hidden />
                   {FORMAT_LABEL[format]}
                 </Button>
               ))}
@@ -293,7 +293,7 @@ export function ExportButton({
 
             {error && (
               <Alert variant="danger" className="mt-2 mb-0 py-1 px-2 small">
-                <IconAlertCircle size={14} className="me-1" />
+                <BIcon name="exclamation-circle" size={14} className="me-1" aria-hidden />
                 {error}
               </Alert>
             )}

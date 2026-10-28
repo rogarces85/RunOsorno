@@ -6,17 +6,17 @@ export type BadgeTone =
 /**
  * Clases por tono (Fase C, tarea 5.5).
  *
- * El texto usa la familia `text-*-ink` del proyecto: las utilidades de color de
- * Tabler no llegan a 4,5:1 sobre los fondos `-lt`, y el tono se refuerza además con
- * un punto de color, de modo que el estado no se comunica solo con color.
+ * El texto usa las clases `text-bg-*` de Bootstrap/AdminLTE, que alcanzan 4,5:1
+ * sobre el tinte en ambos temas. El tono se refuerza además con un punto de color,
+ * de modo que el estado no se comunica solo con color.
  */
 const TONE_CLASS: Record<BadgeTone, string> = {
-  neutral: "bg-secondary-lt text-secondary-ink",
-  primary: "bg-primary-lt text-primary-ink",
-  success: "bg-success-lt text-success-ink",
-  warning: "bg-warning-lt text-warning-ink",
-  danger: "bg-danger-lt text-danger-ink",
-  info: "bg-info-lt text-info-ink",
+  neutral: "text-bg-secondary",
+  primary: "text-bg-primary",
+  success: "text-bg-success",
+  warning: "text-bg-warning",
+  danger: "text-bg-danger",
+  info: "text-bg-info",
 };
 
 /**
@@ -62,8 +62,8 @@ export function complianceTone(percent: number): BadgeTone {
  * Etiqueta de estado.
  *
  * El texto es la señal principal; el punto es decorativo (`aria-hidden`). Se debe
- * usar en lugar de las utilidades de color crudas de Tabler (`text-green`,
- * `bg-green-lt text-green`), que no cumplen contraste.
+ * usar en lugar de las clases de color crudas (`bg-*-lt text-*`), que no
+ * cumplen contraste.
  */
 export function Badge({
   tone = "neutral",

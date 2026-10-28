@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconSchool, IconRun, IconUserX, IconUsers } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -29,7 +29,7 @@ export default async function AdminDashboardPage() {
               label: "Coaches activos",
               value: stats.coachesActive,
               href: "/admin/coaches",
-              stamp: { icon: <IconUsers />, variant: "primary" },
+              stamp: { icon: <BIcon name="people" aria-hidden />, variant: "primary" },
             },
             {
               key: "coaches-inactive",
@@ -37,21 +37,21 @@ export default async function AdminDashboardPage() {
               value: stats.coachesInactive,
               tone: stats.coachesInactive > 0 ? "warning" : "default",
               href: "/admin/coaches",
-              stamp: { icon: <IconUserX />, variant: "warning" },
+              stamp: { icon: <BIcon name="person-x" aria-hidden />, variant: "warning" },
             },
             {
               key: "groups",
               label: "Grupos",
               value: stats.groupsCount,
               href: "/admin/groups",
-              stamp: { icon: <IconSchool />, variant: "info" },
+              stamp: { icon: <BIcon name="building" aria-hidden />, variant: "info" },
             },
             {
               key: "athletes",
               label: "Atletas",
               value: stats.athletesCount,
               href: "/admin/athletes",
-              stamp: { icon: <IconRun />, variant: "success" },
+              stamp: { icon: <BIcon name="person-running" aria-hidden />, variant: "success" },
             },
           ]}
         />
@@ -67,7 +67,7 @@ export default async function AdminDashboardPage() {
                 />
               ) : (
                 <>
-                  <div className="h1 mb-2 app-numeric text-warning-ink">
+                  <div className="h1 mb-2 app-numeric text-warning-emphasis">
                     {stats.pendingRequests}
                   </div>
                   <p className="text-secondary mb-2">

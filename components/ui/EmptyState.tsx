@@ -1,10 +1,10 @@
 import Link from "next/link";
 import type { ComponentType, ReactNode } from "react";
-import { IconInbox } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { Button, buttonClassName } from "@/components/ui/Button";
 
 /**
- * Estado vacío de Tabler (tarea 38.1).
+ * Estado vacío (tarea 38.1).
  *
  * Se usa dentro de un `.card-body` o como bloque suelto. La acción es
  * opcional porque no todos los vacíos son "algo falta crear": a veces el
@@ -12,7 +12,7 @@ import { Button, buttonClassName } from "@/components/ui/Button";
  * acción correcta es cambiar el filtro, no crear un registro.
  */
 export function EmptyState({
-  icon: Icon = IconInbox,
+  icon = "inbox",
   title,
   description,
   actionLabel,
@@ -22,7 +22,8 @@ export function EmptyState({
   compact = false,
   children,
 }: {
-  icon?: ComponentType<{ size?: number; stroke?: number; className?: string }>;
+  /** Nombre del icono de Bootstrap Icons (sin el prefijo `bi bi-`). */
+  icon?: string;
   /** Mensaje principal. */
   title: string;
   /** Explicación orientativa de qué hacer a continuación. */
@@ -66,8 +67,8 @@ export function EmptyState({
       data-testid="empty-state"
     >
       <div className="mb-3">
-        <span className="avatar avatar-md bg-secondary-lt text-secondary-ink">
-          <Icon size={24} stroke={1.5} />
+        <span className="avatar avatar-md text-bg-secondary">
+          <BIcon name={icon} size={24} aria-hidden />
         </span>
       </div>
       <p

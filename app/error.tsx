@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { IconAlertTriangle } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 
 export default function Error({
   reset,
@@ -16,7 +16,7 @@ export default function Error({
       <div className="container container-tight py-4">
         <div className="empty">
           <div className="empty-icon">
-            <IconAlertTriangle size={48} stroke={1.5} />
+            <BIcon name="exclamation-triangle" size={48} aria-hidden />
           </div>
           <p className="empty-title">Algo salió mal</p>
           <p className="empty-subtitle text-secondary">

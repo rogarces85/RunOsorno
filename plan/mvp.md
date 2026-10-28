@@ -24,7 +24,7 @@ Antes de definir el plan, se señalan tres puntos que requieren decisión:
 ┌─────────────────────────────────────────────────┐
 │                  Navegador (Cliente)            │
 │  React Server Components + Client Components    │
-│  Tabler UI (@tabler/core CSS + React wrappers)   │
+│  AdminLTE UI (admin-lte CSS + React wrappers)   │
 └──────────────────────┬──────────────────────────┘
                        │ HTTP (cookies de sesión)
 ┌──────────────────────▼──────────────────────────┐
@@ -75,8 +75,8 @@ Resend API ←── Email saliente
 | Capa | Tecnología | Propósito |
 |------|------------|-----------|
 | Framework | **Next.js 14+ (App Router)** | SSR, RSC, Server Actions, proxy, routing por carpetas. |
-| UI | **Tabler** (`@tabler/core` + `@tabler/icons-react`) | `@tabler/core` = CSS oficial Tabler (base Bootstrap 5); componentes React propios en `components/ui/` escritos con clases Tabler (`btn`, `card`, `modal`...). Iconos con `@tabler/icons-react`. |
-| Estilos | **`@tabler/core` CSS** | Un solo framework CSS. Tailwind descartado (conflicto con la base Bootstrap de Tabler). Tema claro/oscuro y personalización con CSS custom properties de Tabler. |
+| UI | **AdminLTE 4** (`admin-lte` + `bootstrap`) | AdminLTE sobre Bootstrap 5; componentes React propios en `components/ui/` con clases Bootstrap/AdminLTE (`btn`, `card`, `modal`...). Iconos Bootstrap Icons vía `components/ui/BIcon`. |
+| Estilos | **Bootstrap 5 + AdminLTE CSS** | Un solo framework CSS base. Tema claro/oscuro y personalización con CSS custom properties (`--app-*`, `--bs-*`). |
 | Base de datos | **MySQL** (dev: XAMPP local · prod: PlanetScale u otro MySQL) | Persistencia relacional. Misma compatibilidad MySQL en ambos entornos vía `DATABASE_URL`. |
 | Conexión DB | **Cloudflare Hyperdrive** | Connection pooling global + query cache en edge. |
 | ORM | **Drizzle ORM** | Queries type-safe, migraciones SQL nativas, compatible con edge. |
@@ -172,7 +172,7 @@ runosorno/
 │   │
 │   ├── layout.tsx                    # Root layout (providers, html lang)
 │   ├── page.tsx                      # Redirect → /login o dashboard según rol
-│   ├── globals.css                   # @tabler/core + variables tema Tabler
+│   ├── globals.css                   # Bootstrap/AdminLTE CSS + variables tema
 │   └── error.tsx                     # Error boundary global
 │
 ├── components/
@@ -1012,39 +1012,39 @@ En UI (cualquier pantalla):
 └──────────────┴──────────────────────────────────────┘
 ```
 
-### Componentes a construir (clases Tabler)
+### Componentes a construir (clases Bootstrap/AdminLTE)
 
-> **Nota:** Tabler no publica librería React de componentes (el paquete `@tabler/react` no existe; `tabler-react` está archivado). La guía oficial React usa `@tabler/core` (CSS) + JSX propio con clases Tabler. Escribimos los wrappers en `components/ui/` con esas clases.
+> **Nota:** AdminLTE se construye sobre Bootstrap 5 y no publica librería React propia. Escribimos los wrappers en `components/ui/` con clases Bootstrap/AdminLTE (`btn`, `card`, `modal`...) y los iconos con Bootstrap Icons (`bi bi-*`) vía `components/ui/BIcon`.
 
-| Wrapper React (nuestro) | Clases Tabler | Uso en RunOsorno |
-|-------------------------|--------------|------------------|
-| `AppShell` (layout) | `.page`, `.page-wrapper`, `.navbar`, `.navbar-expand`, `.header` | Layout principal con sidebar + header |
+| Wrapper React (nuestro) | Clases Bootstrap/AdminLTE | Uso en RunOsorno |
+|-------------------------|---------------------------|------------------|
+| `AppShell` (layout) | `.app-sidebar`, `.app-header`, `.sidebar-brand`, `.brand-link`, `.nav-link`, `.nav-link-icon` | Layout principal con sidebar + header |
 | `NavLink` | `.nav-link`, `.nav-link-icon` | Navegación del sidebar |
-| `Avatar` | `.avatar`, `.avatar-img`, `.avatar-initials` | Avatares en header, listas, perfiles |
-| `StatusBadge` | `.badge`, `.bg-green-lt` / `.bg-red-lt`... | Estados de sesión (colores), contador campanita |
-| `Button` | `.btn`, `.btn-primary`, `.btn-icon` | Acciones |
+| `Avatar` | `.avatar`, `.avatar-img` | Avatares en header, listas, perfiles |
+| `StatusBadge` | `.badge`, `.text-bg-success` / `.text-bg-danger`... | Estados de sesión (colores), contador campanita |
+| `Button` | `.btn`, `.btn-primary`, `.btn-ghost` | Acciones |
 | Campos de formulario | `.form-control`, `.form-select`, `.form-label` | TextInput, Select, Textarea, NumberInput |
-| `Modal` / `Drawer` | `.modal`, `.modal-dialog`, `.offcanvas` (estado React) | Detalle de sesión, confirmaciones |
+| `Modal` / `Drawer` | `.modal`, `.modal-dialog`, `.modal-content` (estado React) | Detalle de sesión, confirmaciones |
 | `DataTable` | `.table`, `.table-hover` | Listados (coaches, atletas, logs) |
-| `Tabs` | `.nav-tabs`, `.nav-underline` (estado React) | Secciones dentro de pantallas (config, perfil) |
+| `Tabs` | `.nav-tabs` (estado React) | Secciones dentro de pantallas (config, perfil) |
 | `Alert` | `.alert`, `.alert-success`, `.alert-danger` | Mensajes de error, éxito, advertencia |
 | `Card` | `.card`, `.card-body`, `.card-title` | Dashboards, métricas, plantillas |
 | `Progress` | `.progress`, `.progress-bar` | Barras de cumplimiento |
 | `ThemeSwitch` | atributo `data-bs-theme` (estado React) | Toggle dark/light |
 | `Breadcrumb` | `.breadcrumb`, `.breadcrumb-item` | Navegación secundaria |
-| `EmptyState` | `.empty`, `.empty-icon` | Estados vacíos |
+| `EmptyState` | `.card-body` con `BIcon` | Estados vacíos |
 | `Tooltip` | `[data-bs-toggle="tooltip"]` + init en `useEffect` | Ayuda contextual |
 
-> Iconos: `@tabler/icons-react` (importar por icono, tree-shakable). JavaScript de Tabler (`tabler.min.js`) solo para tooltips u otros widgets DOM; los modales/dropdowns/tabs se manejan con estado React.
+> Iconos: Bootstrap Icons (`bi bi-*`) vía `components/ui/BIcon`. Los modales, dropdowns y tabs se manejan con estado React (no se carga el JS de AdminLTE/Bootstrap).
 
 ### Colores por estado de sesión
 
-| Estado | Color Tabler | Clase Tabler (`@tabler/core`) |
-|--------|-------------|------------------------------|
-| Completada | `green` | `.bg-green-lt` / `.text-green` |
-| Parcial | `yellow` | `.bg-yellow-lt` / `.text-yellow` |
-| No realizada | `red` | `.bg-red-lt` / `.text-red` |
-| Planificada (futuro) | `blue` | `.bg-blue-lt` / `.text-blue` |
+| Estado | Color Bootstrap/AdminLTE | Clase |
+|--------|--------------------------|-------|
+| Completada | `success` | `.text-bg-success` |
+| Parcial | `warning` | `.text-bg-warning` |
+| No realizada | `danger` | `.text-bg-danger` |
+| Planificada (futuro) | `primary` | `.text-bg-primary` |
 | En curso (hoy) | `cyan` | `.bg-cyan-lt` / `.text-cyan` |
 | Descanso / sin asignar | `gray` | `.bg-secondary-lt` / `.text-secondary` |
 
@@ -1226,7 +1226,7 @@ sectionSchema = z.object({
 | # | Tarea | Resultado verificable |
 |---|-------|-----------------------|
 | 1.1 | Proyecto Next.js + TypeScript + ESLint/Prettier | `npm run dev` funciona, linting pasa |
-| 1.2 | Configurar Tabler (`@tabler/core`) + AppShell layout | Layout con sidebar y header renderiza |
+| 1.2 | Configurar AdminLTE (`admin-lte`) + Bootstrap + AppShell layout | Layout con sidebar y header renderiza |
 | 1.3 | Configurar Drizzle + schema de DB + migración inicial | Tablas creadas en MySQL local |
 | 1.4 | Configurar Lucia Auth + proxy + login/logout | Login funciona, rutas protegidas redirigen |
 | 1.5 | Seed: admin inicial + configuración default | Admin puede loguearse |

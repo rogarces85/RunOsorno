@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconSend } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { sendAnnouncementAction } from "@/lib/actions/group.actions";
 import {
   sendAnnouncementSchema,
@@ -176,7 +176,7 @@ export function AnnouncementForm({
               </div>
 
               <Button type="submit" loading={isSubmitting}>
-                <IconSend size={18} stroke={1.75} className="me-1" />
+                <BIcon name="send" size={18} className="me-1" aria-hidden />
                 {isSubmitting ? "Enviando…" : "Enviar anuncio"}
               </Button>
             </form>
@@ -194,7 +194,7 @@ export function AnnouncementForm({
           </div>
           <div className="card-body">
             {title || message ? (
-              <div className="card bg-azure-lt">
+              <div className="card text-bg-info">
                 <div className="card-body">
                   <div className="d-flex align-items-center gap-2 mb-2">
                     <Badge tone="info" dot={false}>

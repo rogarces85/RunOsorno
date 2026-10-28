@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import type { AuditLogRow } from "@/lib/services/audit-query.service";
 import { auditLogsToQuery } from "@/lib/validations/audit.schemas";
 import { formatDateTime } from "@/lib/i18n/format";
@@ -127,7 +127,7 @@ export function LogsTable({ rows, total, page, totalPages, filters }: Props) {
                   })}
                   aria-label="Página anterior"
                 >
-                  <IconChevronLeft size={16} stroke={1.75} />
+                  <BIcon name="chevron-left" size={16} aria-hidden />
                   Anterior
                 </Link>
               )}
@@ -141,7 +141,7 @@ export function LogsTable({ rows, total, page, totalPages, filters }: Props) {
                   aria-label="Página siguiente"
                 >
                   Siguiente
-                  <IconChevronRight size={16} stroke={1.75} />
+                  <BIcon name="chevron-right" size={16} aria-hidden />
                 </Link>
               )}
             </div>

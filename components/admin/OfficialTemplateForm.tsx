@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconPlus } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   createOfficialTemplateAction,
   updateOfficialTemplateAction,
@@ -213,7 +213,7 @@ export function OfficialTemplateForm({
               size="sm"
               onClick={() => append({ title: "", type: "custom", content: "" })}
             >
-              <IconPlus size={16} stroke={1.75} className="me-1" />
+              <BIcon name="plus" size={16} className="me-1" aria-hidden />
               Añadir sección
             </Button>
           </div>

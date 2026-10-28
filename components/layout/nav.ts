@@ -1,18 +1,3 @@
-import {
-  IconBuildingCommunity,
-  IconCalendar,
-  IconChartBar,
-  IconDownload,
-  IconFileText,
-  IconHome,
-  IconRun,
-  IconSettings,
-  IconSpeakerphone,
-  IconTemplate,
-  IconTrophy,
-  IconUserStar,
-  IconUsers,
-} from "@tabler/icons-react";
 import type { Role } from "@/lib/auth/role";
 
 /**
@@ -26,7 +11,8 @@ import type { Role } from "@/lib/auth/role";
 export type NavItem = {
   label: string;
   href: string;
-  icon: typeof IconHome;
+  /** Nombre del icono de Bootstrap Icons (sin el prefijo `bi bi-`). */
+  icon: string;
   pending?: boolean;
 };
 
@@ -37,40 +23,40 @@ export type NavSection = {
 };
 
 const ADMIN_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: IconHome },
-  { label: "Coaches", href: "/admin/coaches", icon: IconUserStar },
-  { label: "Grupos", href: "/admin/groups", icon: IconUsers },
-  { label: "Atletas", href: "/admin/athletes", icon: IconRun },
-  { label: "Plantillas oficiales", href: "/admin/templates", icon: IconTemplate },
-  { label: "Configuración", href: "/admin/settings", icon: IconSettings },
-  { label: "Logs", href: "/admin/logs", icon: IconFileText },
-  { label: "Exportes", href: "/exports", icon: IconDownload },
+  { label: "Dashboard", href: "/admin/dashboard", icon: "house" },
+  { label: "Coaches", href: "/admin/coaches", icon: "person-star" },
+  { label: "Grupos", href: "/admin/groups", icon: "people" },
+  { label: "Atletas", href: "/admin/athletes", icon: "person-running" },
+  { label: "Plantillas oficiales", href: "/admin/templates", icon: "layout-template" },
+  { label: "Configuración", href: "/admin/settings", icon: "gear" },
+  { label: "Logs", href: "/admin/logs", icon: "file-earmark-text" },
+  { label: "Exportes", href: "/exports", icon: "download" },
 ];
 
 const COACH_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/coach/dashboard", icon: IconHome },
-  { label: "Mis Teams", href: "/coach/teams", icon: IconUsers },
-  { label: "Calendario", href: "/coach/calendar", icon: IconCalendar },
-  { label: "Plantillas", href: "/coach/templates", icon: IconTemplate },
-  { label: "Atletas", href: "/coach/athletes", icon: IconRun },
-  { label: "Métricas", href: "/coach/metrics", icon: IconChartBar },
-  { label: "Grupos", href: "/coach/groups", icon: IconBuildingCommunity },
-  { label: "Exportes", href: "/exports", icon: IconDownload },
+  { label: "Dashboard", href: "/coach/dashboard", icon: "house" },
+  { label: "Mis Teams", href: "/coach/teams", icon: "people" },
+  { label: "Calendario", href: "/coach/calendar", icon: "calendar" },
+  { label: "Plantillas", href: "/coach/templates", icon: "layout-template" },
+  { label: "Atletas", href: "/coach/athletes", icon: "person-running" },
+  { label: "Métricas", href: "/coach/metrics", icon: "bar-chart" },
+  { label: "Grupos", href: "/coach/groups", icon: "building" },
+  { label: "Exportes", href: "/exports", icon: "download" },
 ];
 
 const DIRECTOR_ITEMS: NavItem[] = [
-  { label: "Dashboard del grupo", href: "/director/dashboard", icon: IconHome },
-  { label: "Teams (comparativa)", href: "/director/teams", icon: IconTrophy },
-  { label: "Atletas (lectura)", href: "/director/athletes", icon: IconRun },
-  { label: "Anuncios", href: "/director/announcements", icon: IconSpeakerphone },
-  { label: "Exportes", href: "/exports", icon: IconDownload },
+  { label: "Dashboard del grupo", href: "/director/dashboard", icon: "house" },
+  { label: "Teams (comparativa)", href: "/director/teams", icon: "trophy" },
+  { label: "Atletas (lectura)", href: "/director/athletes", icon: "person-running" },
+  { label: "Anuncios", href: "/director/announcements", icon: "telephone-outbound" },
+  { label: "Exportes", href: "/exports", icon: "download" },
 ];
 
 const ATHLETE_ITEMS: NavItem[] = [
-  { label: "Dashboard", href: "/athlete/dashboard", icon: IconHome },
-  { label: "Calendario", href: "/athlete/calendar", icon: IconCalendar },
-  { label: "Mis métricas", href: "/athlete/metrics", icon: IconChartBar },
-  { label: "Perfil", href: "/profile", icon: IconUserStar },
+  { label: "Dashboard", href: "/athlete/dashboard", icon: "house" },
+  { label: "Calendario", href: "/athlete/calendar", icon: "calendar" },
+  { label: "Mis métricas", href: "/athlete/metrics", icon: "bar-chart" },
+  { label: "Perfil", href: "/profile", icon: "person-star" },
 ];
 
 function visible(items: NavItem[]): NavItem[] {

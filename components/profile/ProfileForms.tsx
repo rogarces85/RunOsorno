@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { IconCheck, IconDeviceFloppy, IconX } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   changePasswordAction,
   updateProfileAction,
@@ -30,9 +30,9 @@ function NoticeBox({ notice }: { notice: Notice }) {
       variant={notice.type}
       icon={
         notice.type === "success" ? (
-          <IconCheck size={16} />
+          <BIcon name="check" size={16} aria-hidden />
         ) : (
-          <IconX size={16} />
+          <BIcon name="x" size={16} aria-hidden />
         )
       }
     >
@@ -130,7 +130,7 @@ export function ProfileForm({
         loading={isPending}
         disabled={isPending || !isDirty}
       >
-        <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
+        <BIcon name="save" size={16} className="me-1" aria-hidden />
         {isPending ? "Guardando…" : "Guardar cambios"}
       </Button>
     </form>
@@ -243,7 +243,7 @@ export function PasswordChange() {
       </Alert>
 
       <Button type="submit" loading={isPending}>
-        <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
+        <BIcon name="save" size={16} className="me-1" aria-hidden />
         {isPending ? "Cambiando…" : "Cambiar contraseña"}
       </Button>
     </form>

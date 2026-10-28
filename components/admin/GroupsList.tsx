@@ -3,12 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  IconEdit,
-  IconPlus,
-  IconTrash,
-  IconUsersGroup,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { deleteGroupAction } from "@/lib/actions/group.actions";
 import type { GroupListItem } from "@/lib/services/group.service";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -56,7 +51,7 @@ export function GroupsList({ groups }: { groups: GroupListItem[] }) {
             setFormOpen(true);
           }}
         >
-          <IconPlus size={18} stroke={1.75} className="me-1" />
+          <BIcon name="plus" size={18} className="me-1" aria-hidden />
           Nuevo grupo
         </Button>
       </div>
@@ -75,7 +70,7 @@ export function GroupsList({ groups }: { groups: GroupListItem[] }) {
         {groups.length === 0 ? (
           <div className="card-body">
             <EmptyState
-              icon={IconUsersGroup}
+              icon="people-fill"
               title="No hay grupos ni escuelas"
               description="Crea el primer grupo. Los coaches podrán solicitar unirse a él y tú podrás aprobar su solicitud."
               actionLabel="Nuevo grupo"
@@ -144,7 +139,7 @@ export function GroupsList({ groups }: { groups: GroupListItem[] }) {
                           setFormOpen(true);
                         }}
                       >
-                        <IconEdit size={16} stroke={1.75} />
+                        <BIcon name="pencil" size={16} aria-hidden />
                       </Button>
                       <Button
                         variant="danger-ghost"
@@ -154,7 +149,7 @@ export function GroupsList({ groups }: { groups: GroupListItem[] }) {
                         title="Eliminar"
                         onClick={() => setDeleting(group)}
                       >
-                        <IconTrash size={16} stroke={1.75} />
+                        <BIcon name="trash" size={16} aria-hidden />
                       </Button>
                     </div>
                   </td>

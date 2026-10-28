@@ -37,7 +37,7 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Cumplimiento alto</div>
-            <div className="h1 mb-0 app-numeric text-success-ink">
+            <div className="h1 mb-0 app-numeric text-success-emphasis">
               {buckets.high}
             </div>
             <div className="text-secondary small">
@@ -48,7 +48,7 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Cumplimiento medio</div>
-            <div className="h1 mb-0 app-numeric text-warning-ink">
+            <div className="h1 mb-0 app-numeric text-warning-emphasis">
               {buckets.medium}
             </div>
             <div className="text-secondary small">
@@ -59,7 +59,7 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Cumplimiento bajo</div>
-            <div className="h1 mb-0 app-numeric text-danger-ink">
+            <div className="h1 mb-0 app-numeric text-danger-emphasis">
               {buckets.low}
             </div>
             <div className="text-secondary small">

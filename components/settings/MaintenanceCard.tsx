@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { IconTrash } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { cleanupOrphanAvatarsAction } from "@/lib/actions/avatar.actions";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
@@ -44,7 +44,7 @@ export function MaintenanceCard() {
           uso.
         </p>
         <Button variant="danger" onClick={() => void run()} loading={busy}>
-          <IconTrash size={18} stroke={1.75} className="me-1" />
+          <BIcon name="trash" size={18} className="me-1" aria-hidden />
           {busy ? "Revisando…" : "Limpiar avatares huérfanos"}
         </Button>
 

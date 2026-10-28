@@ -5,29 +5,28 @@ import { DAY_STATE_META, type CalendarDayState } from "./dayState";
 import { formatPercent } from "@/lib/i18n/format";
 
 /**
- * Clases de la píldora de sesión según la familia del estado. Es el mismo
- * patrón verificado de badges (`bg-<color>-lt` + `text-<color>-ink`): sobre el
- * propio tinte ningún color puro llega a 4,5:1 y los `-ink` son los hex
- * medidos de la Fase 48. Las píldoras funcionan igual en tema claro y oscuro.
+ * Clases de la píldora de sesión según la familia del estado. Usa las clases
+ * `text-bg-*` de Bootstrap/AdminLTE, que generan un fondo con tinte y texto
+ * con contraste adecuado sobre ambos temas. Las píldoras funcionan igual en
+ * tema claro y oscuro.
  */
 const PILL_CLASSES: Record<string, string> = {
-  success: "bg-success-lt text-success-ink",
-  warning: "bg-warning-lt text-warning-ink",
-  danger: "bg-danger-lt text-danger-ink",
-  primary: "bg-primary-lt text-primary-ink",
-  info: "bg-info-lt text-info-ink",
-  secondary: "bg-secondary-lt text-secondary-ink",
+  success: "text-bg-success",
+  warning: "text-bg-warning",
+  danger: "text-bg-danger",
+  primary: "text-bg-primary",
+  info: "text-bg-info",
+  secondary: "text-bg-secondary",
 };
 
 function complianceClass(done: number, total: number): string {
   const pct = Math.round((done / total) * 100);
-  // Fondo `-lt` con texto `-ink`, no color sólido (Fase 48, tarea 48.2). Un
-  // badge sólido sobre verde no llega a 4,5:1 con texto blanco ni con texto
-  // gris: el gris salía en 1,72:1 y el blanco en 2,7:1. El punto de la celda
-  // ya lleva el color del estado, así que aquí solo hace falta que se lea.
-  if (pct >= 80) return "bg-success-lt text-success-ink";
-  if (pct >= 50) return "bg-warning-lt text-warning-ink";
-  return "bg-danger-lt text-danger-ink";
+  // Fondo con tinte + texto de contraste (Bootstrap `text-bg-*`), no color
+  // sólido. El punto de la celda ya lleva el color del estado, así que aquí
+  // solo hace falta que se lea.
+  if (pct >= 80) return "text-bg-success";
+  if (pct >= 50) return "text-bg-warning";
+  return "text-bg-danger";
 }
 
 /**
@@ -105,7 +104,7 @@ export const CalendarDay = memo(function CalendarDay({
       */}
       <span
         className="calendar-day-badge"
-        style={{ color: `var(--tblr-${meta.color})` }}
+        style={{ color: `var(--bs-${meta.color})` }}
         title={meta.label}
       />
       {showCompliance && (

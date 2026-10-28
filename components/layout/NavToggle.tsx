@@ -1,6 +1,6 @@
 "use client";
 
-import { IconMenu2 } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { useNav } from "./NavProvider";
 
 /**
@@ -25,7 +25,7 @@ export function NavToggle() {
       data-testid="nav-toggle"
       onClick={toggle}
     >
-      <IconMenu2 size={22} stroke={1.75} />
+      <BIcon name="list" size={22} />
     </button>
   );
 }

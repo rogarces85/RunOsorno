@@ -11,7 +11,6 @@ import { formatDate } from "@/lib/i18n/format";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { IconUserCheck } from "@tabler/icons-react";
 
 export function RequestsPending({
   requests,
@@ -43,7 +42,7 @@ export function RequestsPending({
         <div className="card-body">
           <EmptyState
             compact
-            icon={IconUserCheck}
+            icon="person-check"
             title="No hay solicitudes pendientes"
             description="Cuando un coach solicite unirse a este grupo, aparecerá aquí para que lo apruebes o rechaces."
           />

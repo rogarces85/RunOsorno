@@ -1,14 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  IconCopy,
-  IconEdit,
-  IconEye,
-  IconShare,
-  IconTrash,
-  IconUsers,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { formatSessionType } from "@/lib/utils/format";
 import type { TemplateListItem } from "@/lib/services/template.service";
 import { Badge } from "@/components/ui/Badge";
@@ -60,7 +53,7 @@ export function TemplateCard({
 
       {item.isShared && item.groupName && (
         <p className="text-secondary small mb-3 d-flex align-items-center">
-          <IconUsers size={14} stroke={1.75} className="me-1" />
+          <BIcon name="people" size={14} className="me-1" aria-hidden />
           Visible para el grupo {item.groupName}
         </p>
       )}
@@ -76,9 +69,9 @@ export function TemplateCard({
           title={item.canEdit ? "Editar" : "Ver"}
         >
           {item.canEdit ? (
-            <IconEdit size={16} stroke={1.75} />
+            <BIcon name="pencil" size={16} aria-hidden />
           ) : (
-            <IconEye size={16} stroke={1.75} />
+            <BIcon name="eye" size={16} aria-hidden />
           )}
           <span className="visually-hidden">
             {item.canEdit ? "Editar plantilla" : "Ver plantilla"}
@@ -92,7 +85,7 @@ export function TemplateCard({
           title="Clonar"
           onClick={onClone}
         >
-          <IconCopy size={16} stroke={1.75} />
+          <BIcon name="copy" size={16} aria-hidden />
         </Button>
         {item.canShare && !item.isShared && (
           <Button
@@ -103,7 +96,7 @@ export function TemplateCard({
             title="Compartir con mi grupo"
             onClick={onShare}
           >
-            <IconShare size={16} stroke={1.75} />
+            <BIcon name="share" size={16} aria-hidden />
           </Button>
         )}
         {item.canShare && item.isShared && (
@@ -115,7 +108,7 @@ export function TemplateCard({
             title="Dejar de compartir"
             onClick={onUnshare}
           >
-            <IconUsers size={16} stroke={1.75} />
+            <BIcon name="people" size={16} aria-hidden />
           </Button>
         )}
         {item.canDelete && (
@@ -127,7 +120,7 @@ export function TemplateCard({
             title="Eliminar"
             onClick={onDelete}
           >
-            <IconTrash size={16} stroke={1.75} />
+            <BIcon name="trash" size={16} aria-hidden />
           </Button>
         )}
       </div>

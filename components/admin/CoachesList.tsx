@@ -2,15 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  IconEdit,
-  IconKey,
-  IconPlus,
-  IconPower,
-  IconRefresh,
-  IconTrash,
-  IconUserSearch,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   deactivateCoachAction,
   deleteCoachAction,
@@ -152,7 +144,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
             : `${coaches.length} coach${coaches.length === 1 ? "" : "es"} en el sistema`}
         </p>
         <Button onClick={openCreate}>
-          <IconPlus size={18} stroke={1.75} className="me-1" />
+          <BIcon name="plus" size={18} className="me-1" aria-hidden />
           Nuevo coach
         </Button>
       </div>
@@ -180,7 +172,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
         {coaches.length === 0 ? (
           <div className="card-body">
             <EmptyState
-              icon={IconUserSearch}
+              icon="person-search"
               title="No hay coaches registrados"
               description="Crea el primer coach para que pueda gestionar sus equipos y atletas. Le llegará un email con su contraseña temporal."
               actionLabel="Nuevo coach"
@@ -229,7 +221,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
                         title="Editar"
                         onClick={() => openEdit(coach)}
                       >
-                        <IconEdit size={16} stroke={1.75} />
+                        <BIcon name="pencil" size={16} aria-hidden />
                       </Button>
                       {coach.isActive ? (
                         <Button
@@ -242,7 +234,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
                             setConfirm({ kind: "deactivate", coach })
                           }
                         >
-                          <IconPower size={16} stroke={1.75} />
+                          <BIcon name="power" size={16} aria-hidden />
                         </Button>
                       ) : (
                         <Button
@@ -255,7 +247,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
                             setConfirm({ kind: "activate", coach })
                           }
                         >
-                          <IconPower size={16} stroke={1.75} />
+                          <BIcon name="power" size={16} aria-hidden />
                         </Button>
                       )}
                       <Button
@@ -266,7 +258,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
                         title="Restablecer contraseña"
                         onClick={() => setConfirm({ kind: "reset", coach })}
                       >
-                        <IconKey size={16} stroke={1.75} />
+                        <BIcon name="key" size={16} aria-hidden />
                       </Button>
                       <Button
                         variant="ghost"
@@ -276,7 +268,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
                         title="Reenviar invitación"
                         onClick={() => setConfirm({ kind: "resend", coach })}
                       >
-                        <IconRefresh size={16} stroke={1.75} />
+                        <BIcon name="arrow-repeat" size={16} aria-hidden />
                       </Button>
                       <Button
                         variant="danger-ghost"
@@ -286,7 +278,7 @@ export function CoachesList({ coaches }: { coaches: CoachListItem[] }) {
                         title="Eliminar"
                         onClick={() => setConfirm({ kind: "delete", coach })}
                       >
-                        <IconTrash size={16} stroke={1.75} />
+                        <BIcon name="trash" size={16} aria-hidden />
                       </Button>
                     </div>
                   </td>

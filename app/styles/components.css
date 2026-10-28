@@ -765,50 +765,9 @@ a.card.card-link {
   font-weight: 600;
 }
 
-/*
- * Compatibilidad de contraste para el patrón heredado `bg-*-lt` + `text-*`.
- *
- * Tabler pinta el texto de `.bg-*-lt` con el color puro de la variante, que sobre su
- * propio tinte queda entre 1,97:1 y 4,03:1 (axe lo reporta como violación). En lugar
- * de reescribir cada marcado —hay una docena de usos en listados, métricas y
- * plantillas— se corrige aquí al tono del tema, así cualquier resto futuro también
- * queda legible. El marcado nuevo usa `Badge`, que ya nace con `text-*-ink`.
- */
-.bg-green-lt.text-green,
-.bg-success-lt.text-success {
-  color: var(--app-success) !important;
-}
-
-.bg-yellow-lt.text-yellow,
-.bg-warning-lt.text-warning,
-.bg-orange-lt.text-orange {
-  color: var(--app-warning) !important;
-}
-
-.bg-red-lt.text-red,
-.bg-danger-lt.text-danger {
-  color: var(--app-danger) !important;
-}
-
-.bg-blue-lt.text-blue,
-.bg-primary-lt.text-primary {
-  color: var(--app-accent) !important;
-}
-
-.bg-azure-lt.text-azure,
-.bg-info-lt.text-info {
-  color: var(--app-info) !important;
-}
-
-.bg-purple-lt.text-purple {
-  color: var(--app-purple) !important;
-}
-
-/* `.nav` declara su propio color de enlace (gris 500 = 4,42:1 sobre el lienzo). */
-.nav {
-  --tblr-nav-link-color: var(--app-ink-2);
-  --tblr-nav-link-hover-color: var(--app-ink);
-}
+/* `.nav` declara su propio color de enlace. Con Bootstrap/AdminLTE usamos
+   `--bs-*` que ya mapeamos en `tokens.css`, así que no hace falta sobreescribir
+   aquí. Se conserva el bloque por si algún componente antiguo lo necesita. */
 
 .app-badge {
   display: inline-flex;

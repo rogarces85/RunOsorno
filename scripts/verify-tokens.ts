@@ -7,10 +7,10 @@
  * 1. Que cada token `--app-*` declarado en claro exista también en oscuro.
  * 2. Que cada par texto/fondo declarado en `design.md` §2 alcance su mínimo: 4,5:1
  *    para texto normal, 3:1 para bordes de control y anillo de foco.
- * 3. Que los badges de estado (`bg-*-lt` + `text-*-ink`) sigan alcanzando 4,5:1.
+ * 3. Que los badges de estado (`text-bg-*`) sigan alcanzando 4,5:1.
  *
  * Los colores se leen del navegador y se componen sobre su fondo con un `<canvas>`:
- * los tintes de Tabler son `color-mix(... / 10%)`, así que el valor computado tiene
+ * los tintes de Bootstrap/AdminLTE son `color-mix(...)`, así que el valor computado tiene
  * alfa y compararlo "a ojo" daría un ratio falso.
  *
  * Uso:
@@ -49,24 +49,12 @@ const PARES: Par[] = [
   { nombre: "borde de control sobre lienzo", varFrente: "--app-border-strong", varFondo: "--app-canvas", frente: "", fondo: "", minimo: 3 },
   { nombre: "anillo de foco sobre lienzo", varFrente: "--app-accent", varFondo: "--app-canvas", frente: "", fondo: "", minimo: 3 },
   { nombre: "azul de marca sobre lienzo (gráficos)", varFrente: "--app-brand", varFondo: "--app-canvas", frente: "", fondo: "", minimo: 3 },
-  { nombre: "badge primario", badge: "bg-primary-lt text-primary-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge de éxito", badge: "bg-success-lt text-success-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge de aviso", badge: "bg-warning-lt text-warning-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge de peligro", badge: "bg-danger-lt text-danger-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge informativo", badge: "bg-info-lt text-info-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge neutro", badge: "bg-secondary-lt text-secondary-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge verde", badge: "bg-green-lt text-green-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge amarillo", badge: "bg-yellow-lt text-yellow-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge rojo", badge: "bg-red-lt text-red-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge azul", badge: "bg-blue-lt text-blue-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge azure", badge: "bg-azure-lt text-azure-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge cyan", badge: "bg-cyan-lt text-cyan-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge teal", badge: "bg-teal-lt text-teal-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge lime", badge: "bg-lime-lt text-lime-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge purple", badge: "bg-purple-lt text-purple-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge indigo", badge: "bg-indigo-lt text-indigo-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge pink", badge: "bg-pink-lt text-pink-ink", frente: "", fondo: "", minimo: 4.5 },
-  { nombre: "badge naranja", badge: "bg-orange-lt text-orange-ink", frente: "", fondo: "", minimo: 4.5 },
+  { nombre: "badge primario", badge: "text-bg-primary", frente: "", fondo: "", minimo: 4.5 },
+  { nombre: "badge de éxito", badge: "text-bg-success", frente: "", fondo: "", minimo: 4.5 },
+  { nombre: "badge de aviso", badge: "text-bg-warning", frente: "", fondo: "", minimo: 4.5 },
+  { nombre: "badge de peligro", badge: "text-bg-danger", frente: "", fondo: "", minimo: 4.5 },
+  { nombre: "badge informativo", badge: "text-bg-info", frente: "", fondo: "", minimo: 4.5 },
+  { nombre: "badge neutro", badge: "text-bg-secondary", frente: "", fondo: "", minimo: 4.5 },
 ];
 
 /** `rgb(r g b)` / `color(...)` → [r, g, b] componiendo sobre `fondo` con canvas. */

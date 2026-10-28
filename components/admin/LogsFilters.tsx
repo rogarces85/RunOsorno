@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconFilter, IconSearch, IconX } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { Button } from "@/components/ui/Button";
 
 type Props = {
@@ -59,7 +59,7 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
       <div className="card-header">
         <div className="d-flex align-items-center">
           <h2 className="card-title">
-            <IconFilter size={18} stroke={1.75} className="me-1" />
+            <BIcon name="filter" size={18} className="me-1" aria-hidden />
             Filtros
           </h2>
           <Button
@@ -176,7 +176,7 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
 
             <div className="col-md-4 d-flex align-items-end gap-2">
               <Button type="submit">
-                <IconSearch size={16} stroke={1.75} className="me-1" />
+                <BIcon name="search" size={16} className="me-1" aria-hidden />
                 Aplicar
               </Button>
               {hasFilters && (
@@ -184,7 +184,7 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
                   variant="ghost"
                   onClick={() => router.push("/admin/logs")}
                 >
-                  <IconX size={16} stroke={1.75} className="me-1" />
+                  <BIcon name="x" size={16} className="me-1" aria-hidden />
                   Limpiar
                 </Button>
               )}

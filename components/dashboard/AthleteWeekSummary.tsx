@@ -126,7 +126,7 @@ export function AthleteWeekSummary({
               */}
               <span
                 className="weekstrip-badge calendar-day-badge"
-                style={{ color: `var(--tblr-${dia.meta.color})` }}
+                style={{ color: `var(--bs-${dia.meta.color})` }}
                 title={dia.meta.label}
                 aria-hidden
               />

@@ -7,6 +7,7 @@ import type { Role } from "@/lib/auth/role";
 import { Logo } from "./Logo";
 import { useNav } from "./NavProvider";
 import { navForRole, type NavItem } from "./nav";
+import { BIcon } from "@/components/ui/BIcon";
 
 function isActive(pathname: string, href: string): boolean {
   if (href === "/") {
@@ -87,7 +88,7 @@ export function AppSidebar({
                         onClick={close}
                       >
                         <span className="nav-link-icon">
-                          <item.icon size={20} stroke={1.75} />
+                          <BIcon name={item.icon} size={20} />
                         </span>
                         <span>{item.label}</span>
                       </Link>

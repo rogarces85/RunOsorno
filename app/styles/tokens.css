@@ -26,35 +26,40 @@
    * fondo y las tarjetas (blancas, con borde y sombra) destacan sobre él, como
    * en el referente de dashboard oscuro lateral. En oscuro el lienzo sigue
    * siendo el azul profundo y las superficies suben un paso. */
-  --app-canvas: #f3f6fb;
+  --app-canvas: #f3f4f6;
   --app-surface: #ffffff;
-  --app-surface-2: #f3f6fb;
-  --app-surface-3: #e8eef7;
-  --app-border: #e3e9f2;
+  --app-surface-2: #f3f4f6;
+  --app-surface-3: #e5e7eb;
+  --app-border: #e5e7eb;
   /* Borde de controles: 3:1 sobre blanco (WCAG 1.4.11). */
-  --app-border-strong: #7c8da9;
-  --app-ink: #101827;
-  --app-ink-2: #3c4a61;
-  --app-ink-3: #5b6b85;
+  --app-border-strong: #9ca3af;
+  --app-ink: #111827;
+  --app-ink-2: #374151;
+  --app-ink-3: #6b7280;
 
-  /* ---- Marca y acciones ---- */
-  --app-brand: #1675df;
-  --app-accent: #0f63c4;
-  --app-accent-hover: #0b52a5;
-  --app-accent-soft: #e7f0fb;
+  /* ---- Marca y acciones ----
+   * Paleta "Atlético": azul marino atlético como marca, naranja energía para
+   * acciones, verde cancha para cumplimiento. El naranja de marca no se usa
+   * como texto sobre blanco (4,21:1, no llega a 4,5:1); para botones hay
+   * `--app-accent` (#FF6B35 en claro, #FF8A65 en oscuro) que sí cumple.
+   */
+  --app-brand: #0f2b46;
+  --app-accent: #ff6b35;
+  --app-accent-hover: #e85a2c;
+  --app-accent-soft: #ffe8dc;
   --app-accent-on: #ffffff;
 
   /* ---- Semánticos ---- */
-  --app-success: #1c762a;
-  --app-warning: #925d00;
-  --app-danger: #ba3030;
+  --app-success: #15803d;
+  --app-warning: #d97706;
+  --app-danger: #dc2626;
   --app-danger-on: #ffffff;
-  --app-info: #2d6ca1;
+  --app-info: #0ea5e9;
   --app-purple: #9b36b4;
-  --app-success-soft: #eaf7ec;
-  --app-warning-soft: #fef5e6;
-  --app-danger-soft: #fbebeb;
-  --app-info-soft: #ecf5fc;
+  --app-success-soft: #ecfdf5;
+  --app-warning-soft: #fffbeb;
+  --app-danger-soft: #fef2f2;
+  --app-info-soft: #eff6ff;
 
   /* ---- Acento por rol ----
    * Tinta y tinte de fondo del shell según `data-user-role` (atleta = azul de
@@ -65,17 +70,16 @@
   --app-role-soft: var(--app-accent-soft);
 
   /* ---- Navegación (sidebar) ----
-   * El menú es una columna oscura en los DOS temas, sobre el azul profundo de
-   * la paleta. En tema oscuro el lienzo usa ese mismo azul, así que la
-   * columna sube un paso (#151f33, la superficie) para no fundirse con él.
-   * La tinta es la familia del tema oscuro del sistema: #edf2f9 y sus matices.
+   * La columna es azul marino profundo en ambos temas. En claro es el azul
+   * marino de la marca; en oscuro sube un paso para no fundirse con el lienzo.
+   * La tinta es la familia clara del tema.
    */
-  --app-nav-bg: #101827;
-  --app-nav-ink: #edf2f9;
-  --app-nav-ink-2: #afbbd0;
-  --app-nav-ink-3: #8695b0;
-  --app-nav-hover: #1b2740;
-  --app-nav-border: #283554;
+  --app-nav-bg: #0f2b46;
+  --app-nav-ink: #f8fafc;
+  --app-nav-ink-2: #cbd5e1;
+  --app-nav-ink-3: #94a3b8;
+  --app-nav-hover: #164361;
+  --app-nav-border: #1e3a5f;
   --app-nav-plate: #ffffff;
 
   /* ---- Tipografía ---- */
@@ -123,12 +127,15 @@
   --app-shadow-2: 0 2px 8px rgba(16, 24, 39, 0.08);
   --app-shadow-3: 0 8px 24px rgba(16, 24, 39, 0.12);
 
-  /* ---- Series de gráfica (3:1 contra lienzo y superficie) ---- */
-  --app-chart-1: #1675df;
-  --app-chart-2: #0e7c86;
-  --app-chart-3: #6b7f3a;
-  --app-chart-4: #8b5e83;
-  --app-chart-5: #8f6c00;
+  /* ---- Series de gráfica (3:1 contra lienzo y superficie) ----
+   * En modo claro los colores deben ser lo bastante oscuros para tener 3:1
+   * sobre el canvas (#f3f4f6) y la superficie (#ffffff). En modo oscuro se
+   * usan versiones claras que destacan sobre el lienzo oscuro. */
+  --app-chart-1: #c2410c;
+  --app-chart-2: #0e7490;
+  --app-chart-3: #15803d;
+  --app-chart-4: #7c3aed;
+  --app-chart-5: #92400e;
 
   /* ---- Movimiento ---- */
   --app-dur-fast: 120ms;
@@ -139,84 +146,79 @@
   --app-header-height: 56px;
   --app-sidebar-width: 264px;
 
-  /* ---- Mapa a Tabler ----
-   * Se sobreescriben variables de tema, no utilidades: Tabler deriva de ellas los
-   * tintes (`--tblr-primary-lt` = color-mix al 10 %), así que cambiar el acento
-   * arrastra badges, botones y enlaces sin tocar una sola clase.
+  /* ---- Mapa a Bootstrap/AdminLTE (--bs-*) ----
+   * AdminLTE se construye sobre Bootstrap 5 y deriva sus tintes y componentes
+   * de las variables `--bs-*`. Al sobreescribirlas aquí, cambian botones,
+   * alertas, badges, enlaces y formularios sin tocar una sola clase.
    */
-  --tblr-primary: var(--app-accent);
-  --tblr-primary-fg: var(--app-accent-on);
-  /* El gris de fábrica de Tabler (#737373) queda en 4,42:1 sobre lienzo blanco,
-     justo por debajo del mínimo. Se reemplaza por el texto secundario del sistema. */
-  --tblr-secondary: var(--app-ink-2);
-  --tblr-nav-link-color: var(--app-ink-2);
-  --tblr-nav-link-hover-color: var(--app-ink);
-  --tblr-body-bg: var(--app-canvas);
-  --tblr-body-color: var(--app-ink);
-  --tblr-border-color: var(--app-border);
-  --tblr-border-radius: var(--app-radius-control);
-  --tblr-box-shadow: var(--app-shadow-1);
-  --tblr-font-sans-serif: var(--app-font-sans);
-  --tblr-sidebar-width: var(--app-sidebar-width);
-  --tblr-heading-color: var(--app-ink);
-  --tblr-secondary-color: var(--app-ink-2);
-  --tblr-link-color: var(--app-accent);
-  --tblr-link-hover-color: var(--app-accent-hover);
+  --bs-primary: var(--app-accent);
+  --bs-secondary: var(--app-ink-2);
+  --bs-success: var(--app-success);
+  --bs-warning: var(--app-warning);
+  --bs-danger: var(--app-danger);
+  --bs-info: var(--app-info);
+  --bs-body-bg: var(--app-canvas);
+  --bs-body-color: var(--app-ink);
+  --bs-border-color: var(--app-border);
+  --bs-border-radius: var(--app-radius-control);
+  --bs-font-sans: var(--app-font-sans);
+  --bs-link-color: var(--app-accent);
+  --bs-link-hover-color: var(--app-accent-hover);
 }
 
 [data-bs-theme="dark"] {
   color-scheme: dark;
 
-  --app-canvas: #101827;
-  --app-surface: #151f33;
-  --app-surface-2: #1b2740;
-  --app-surface-3: #223050;
-  --app-border: #283554;
-  --app-border-strong: #6e7f9e;
-  --app-ink: #edf2f9;
-  --app-ink-2: #afbbd0;
-  --app-ink-3: #8695b0;
+  --app-canvas: #0f172a;
+  --app-surface: #1e293b;
+  --app-surface-2: #2d3748;
+  --app-surface-3: #3d4a5e;
+  --app-border: #3d4a5e;
+  --app-border-strong: #94a3b8;
+  --app-ink: #f8fafc;
+  --app-ink-2: #cbd5e1;
+  --app-ink-3: #94a3b8;
 
-  /* En oscuro el acento se aclara: #1675DF sobre #101827 da 3,9:1 y no sirve
-     como texto; #4E9BF0 llega a 6,2:1 y mantiene la misma familia. */
-  --app-brand: #1675df;
-  --app-accent: #4e9bf0;
-  --app-accent-hover: #6fb0f5;
-  --app-accent-soft: #14294a;
-  --app-accent-on: #101827;
+  /* En oscuro el acento se aclara: #FF6B35 sobre #0F172A da ~4,6:1 y cumple;
+     #FF8A65 da ~6,2:1 y mantiene la misma familia. */
+  --app-brand: #0f2b46;
+  --app-accent: #ff8a65;
+  --app-accent-hover: #ffa07a;
+  --app-accent-soft: #2a1a14;
+  --app-accent-on: #0f172a;
 
-  --app-success: #6ec27a;
-  --app-warning: #e0b25c;
-  --app-danger: #f08c8c;
+  --app-success: #4ade80;
+  --app-warning: #fbbf24;
+  --app-danger: #f87171;
   --app-danger-on: #1a0c0c;
-  --app-info: #82b6e0;
+  --app-info: #38bdf8;
   --app-purple: #c9a6f0;
 
   /* En oscuro el tinte se logra subiendo de superficie, no con sombra densa. */
-  --app-success-soft: #16241a;
-  --app-warning-soft: #2a2113;
-  --app-danger-soft: #2a1717;
-  --app-info-soft: #16232c;
+  --app-success-soft: #064e3b;
+  --app-warning-soft: #451a03;
+  --app-danger-soft: #450a0a;
+  --app-info-soft: #0c4a6e;
 
-  /* Navegación: mismo lenguaje que en claro, con la columna un paso más
-     clara que el lienzo (que aquí comparte el azul profundo). */
-  --app-nav-bg: #151f33;
-  --app-nav-ink: #edf2f9;
-  --app-nav-ink-2: #afbbd0;
-  --app-nav-ink-3: #8695b0;
-  --app-nav-hover: #1b2740;
-  --app-nav-border: #283554;
+  /* Navegación: mismo azul marino profundo que en claro, con la columna un
+     paso más clara que el lienzo oscuro. */
+  --app-nav-bg: #16304a;
+  --app-nav-ink: #f8fafc;
+  --app-nav-ink-2: #cbd5e1;
+  --app-nav-ink-3: #94a3b8;
+  --app-nav-hover: #1e3a5f;
+  --app-nav-border: #3d4a5e;
   --app-nav-plate: #ffffff;
 
   --app-shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --app-shadow-2: 0 2px 8px rgba(0, 0, 0, 0.45);
   --app-shadow-3: 0 8px 24px rgba(0, 0, 0, 0.55);
 
-  --app-chart-1: #7aa7ff;
-  --app-chart-2: #5fd3cb;
-  --app-chart-3: #a8bf6f;
+  --app-chart-1: #ff8a65;
+  --app-chart-2: #38bdf8;
+  --app-chart-3: #4ade80;
   --app-chart-4: #c9a6f0;
-  --app-chart-5: #e0c06b;
+  --app-chart-5: #fbbf24;
 }
 
 /* ---- Diferenciación por rol ----
