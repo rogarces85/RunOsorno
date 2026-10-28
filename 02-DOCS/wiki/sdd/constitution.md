@@ -28,7 +28,7 @@ version: v1.0.0
 2. El esquema de base de datos nace **solo de migraciones Drizzle**; nada se importa de volcados SQL entre motores (dev MariaDB 10.4 / prod MySQL 8.4). Comprobable: existen `drizzle/migrations` y no hay dump importado.
 3. La autenticación es **por sesión con cookies** (Lucia), aplicada en los layouts (`requireAuth()`); **sin middleware** (`proxy.ts`), sin API pública y sin tiempo real. Comprobable: no existe `proxy.ts`; `app/(app)/layout.tsx` llama `requireAuth()`.
 4. Las reglas de runtime Workers son innegociables: **no `eval` ni `new Function`** (incluye dependencias nuevas), **no I/O compartido entre peticiones** (el cliente Drizzle vive junto al contexto de petición), **no `NEXT_PUBLIC_` para configuración de servidor**. Comprobable: `lib/db/index.ts` usa `disableEval: true`.
-5. El UI usa **`@tabler/core` + `@tabler/icons-react`** con primitivas propias (`components/ui/`); no se introduce otro framework CSS (Tailwind descartado por conflicto). Comprobable: `package.json`.
+5. El UI usa **AdminLTE 4** (`admin-lte` + `bootstrap`) con primitivas propias (`components/ui/`); los iconos son Bootstrap Icons vía `components/ui/BIcon`. Comprobable: `package.json` → `admin-lte`, `bootstrap`.
 
 ## 2. Quality bar
 
