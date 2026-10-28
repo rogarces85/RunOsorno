@@ -67,7 +67,7 @@ export default async function AdminDashboardPage() {
                 />
               ) : (
                 <>
-                  <div className="h1 mb-2 app-numeric text-warning-emphasis">
+                  <div className="app-stat-value mb-2 app-numeric">
                     {stats.pendingRequests}
                   </div>
                   <p className="text-secondary mb-2">

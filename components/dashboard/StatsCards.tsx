@@ -5,12 +5,15 @@ import { CountUp } from "./CountUp";
 /**
  * Fila de tarjetas de estadística para los dashboards (Fases 30, 36 y D8).
  *
- * Usa la primitiva `Card`. Cada ficha lleva una medalla circular de color con
- * el ícono (variante de `stamp`), la etiqueta al lado y el valor grande con
- * `.app-numeric`. Las clases `text-*-emphasis` de Bootstrap refuerzan el tono
- * de la cifra: las utilidades crudas de Tabler (`text-green`, `text-yellow`…)
- * no alcanzan 4,5:1 sobre fondo claro y axe las reporta; el dato nunca se
- * comunica solo con color, la etiqueta impresa lo acompaña.
+ * Usa la primitiva `Card`. Cada ficha lleva una medalla circular con el ícono,
+ * la etiqueta en versalitas y la cifra grande con `.app-numeric`.
+ *
+ * El tono no se pinta en la cifra: `text-*-emphasis` de AdminLTE caía en un
+ * verde aceituna y competía con el color de la medalla. El tono vive en el
+ * carril superior de la tarjeta y en la medalla (tinte suave + ícono en el
+ * tono, que pasa 3:1 en ambos temas), y la cifra queda en la tinta de la
+ * interfaz. El dato nunca se comunica solo con color: la etiqueta impresa lo
+ * acompaña.
  */
 
 /**
@@ -42,14 +45,6 @@ export type StatCardItem = {
   };
 };
 
-const TONE_CLASS: Record<NonNullable<StatCardItem["tone"]>, string> = {
-  default: "",
-  success: "text-success-emphasis",
-  warning: "text-warning-emphasis",
-  danger: "text-danger-emphasis",
-  primary: "text-primary-emphasis",
-};
-
 export function StatsCards({ items }: { items: StatCardItem[] }) {
   return (
     <div className="row">
@@ -58,7 +53,10 @@ export function StatsCards({ items }: { items: StatCardItem[] }) {
           {/* Con `href`, la tarjeta completa es el enlace (`card-link
               card-link-pop`), no un `<a>` envolviendo la tarjeta: la
               elevación del hover cae sobre la tarjeta misma. */}
-          <Card className="h-100 text-decoration-none" href={item.href}>
+          <Card
+            className={`h-100 text-decoration-none app-stat-card app-stat-card-${item.tone ?? "default"}`}
+            href={item.href}
+          >
             <div className="app-stat-top">
               {item.stamp ? (
                 <span
@@ -70,14 +68,10 @@ export function StatsCards({ items }: { items: StatCardItem[] }) {
               ) : null}
               <span className="app-stat-label">{item.label}</span>
             </div>
-            <div
-              className={`h1 mb-0 app-numeric ${TONE_CLASS[item.tone ?? "default"]}`.trim()}
-            >
+            <div className="app-stat-value app-numeric">
               {valorAnimado(item.value)}
             </div>
-            {item.sub ? (
-              <div className="text-secondary small">{item.sub}</div>
-            ) : null}
+            {item.sub ? <div className="app-stat-sub">{item.sub}</div> : null}
           </Card>
         </div>
       ))}

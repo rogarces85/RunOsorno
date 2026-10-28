@@ -46,10 +46,10 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Cumplimiento</div>
-            <div className="h1 mb-0 app-numeric">
+            <div className="app-stat-value app-numeric">
               {formatPercent(compliance.percent)}
             </div>
-            <div className="text-secondary small">
+            <div className="app-stat-sub">
               {compliance.completed} de {compliance.total} sesiones
             </div>
           </Card>
@@ -57,10 +57,10 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Carga semanal</div>
-            <div className="h1 mb-0 app-numeric">
+            <div className="app-stat-value app-numeric">
               {formatDistance(weeklyLoad.km)}
             </div>
-            <div className="text-secondary small">
+            <div className="app-stat-sub">
               {weeklyLoad.minutes} min · TSS {formatNullable(weeklyLoad.tss)} ·
               TRIMP {formatNullable(weeklyLoad.trimp)}
             </div>
@@ -69,8 +69,8 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Racha</div>
-            <div className="h1 mb-0 app-numeric">{streak}</div>
-            <div className="text-secondary small">días consecutivos</div>
+            <div className="app-stat-value app-numeric">{streak}</div>
+            <div className="app-stat-sub">días consecutivos</div>
           </Card>
         </div>
         <div className="col-md-6 col-xl-3">
@@ -98,7 +98,7 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
             <div className="h2 mb-0 app-numeric">
               {vo2max === null ? "—" : Math.round(vo2max * 10) / 10}
             </div>
-            <div className="text-secondary small">ml/kg/min</div>
+            <div className="app-stat-sub">ml/kg/min</div>
           </Card>
         </div>
         <div className="col-md-6 col-xl-3">
@@ -107,7 +107,7 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
             <div className="h2 mb-0 app-numeric">
               {formatNullable(thresholdHr)}
             </div>
-            <div className="text-secondary small">
+            <div className="app-stat-sub">
               {thresholdHr === null ? "sin datos de FC" : "lpm estimados"}
             </div>
           </Card>
@@ -122,7 +122,7 @@ export function AthleteMetricsPanel({ metrics }: AthleteMetricsPanelProps) {
               </span>
             </div>
             {rpeDelta === null ? (
-              <div className="text-secondary small">real / planificado</div>
+              <div className="app-stat-sub">real / planificado</div>
             ) : rpeDelta > 0 ? (
               <Badge tone="danger">+{rpeDelta} sobre objetivo</Badge>
             ) : rpeDelta < 0 ? (

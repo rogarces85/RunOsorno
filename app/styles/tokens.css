@@ -52,6 +52,8 @@
   --app-accent-hover: #a3350a;
   --app-accent-soft: #ffe8dc;
   --app-accent-on: #ffffff;
+  /* Tinte de marca: fondo de la medalla y de los distintivos del azul marino. */
+  --app-brand-soft: #e7eef6;
 
   /* ---- Semánticos ---- */
   --app-success: #15803d;
@@ -203,6 +205,7 @@
   --app-accent-hover: #ffa07a;
   --app-accent-soft: #2a1a14;
   --app-accent-on: #0f172a;
+  --app-brand-soft: #1b3a5e;
 
   --app-success: #4ade80;
   --app-warning: #fbbf24;

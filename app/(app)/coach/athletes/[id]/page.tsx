@@ -118,19 +118,19 @@ export default async function CoachAthleteDetailPage({
             <Card title="Resumen" className="mb-3">
               <div className="row text-center">
                 <div className="col">
-                  <div className="h1 mb-0 app-numeric">
+                  <div className="app-stat-value app-numeric">
                     {compliancePct === null ? "—" : `${compliancePct}%`}
                   </div>
                   <div className="text-secondary">Cumplimiento</div>
                 </div>
                 <div className="col">
-                  <div className="h1 mb-0 app-numeric">
+                  <div className="app-stat-value app-numeric">
                     {athlete.completedSessions}/{athlete.totalSessions}
                   </div>
                   <div className="text-secondary">Sesiones completadas</div>
                 </div>
                 <div className="col">
-                  <div className="h1 mb-0 app-numeric">
+                  <div className="app-stat-value app-numeric">
                     {athlete.lastRecord
                       ? formatDistance(athlete.lastRecord.distanceKm)
                       : "—"}

@@ -37,10 +37,10 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Cumplimiento alto</div>
-            <div className="h1 mb-0 app-numeric text-success-emphasis">
+            <div className="app-stat-value app-numeric">
               {buckets.high}
             </div>
-            <div className="text-secondary small">
+            <div className="app-stat-sub">
               &gt;80% · {bucketPct(buckets.high, total)} del team
             </div>
           </Card>
@@ -48,10 +48,10 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Cumplimiento medio</div>
-            <div className="h1 mb-0 app-numeric text-warning-emphasis">
+            <div className="app-stat-value app-numeric">
               {buckets.medium}
             </div>
-            <div className="text-secondary small">
+            <div className="app-stat-sub">
               50–80% · {bucketPct(buckets.medium, total)} del team
             </div>
           </Card>
@@ -59,10 +59,10 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Cumplimiento bajo</div>
-            <div className="h1 mb-0 app-numeric text-danger-emphasis">
+            <div className="app-stat-value app-numeric">
               {buckets.low}
             </div>
-            <div className="text-secondary small">
+            <div className="app-stat-sub">
               &lt;50% · {bucketPct(buckets.low, total)} del team
             </div>
           </Card>
@@ -70,8 +70,10 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
         <div className="col-md-6 col-xl-3">
           <Card className="h-100">
             <div className="text-secondary mb-1">Sin plan</div>
-            <div className="h1 mb-0 app-numeric">{buckets.withoutPlan}</div>
-            <div className="text-secondary small">
+            <div className="app-stat-value app-numeric">
+              {buckets.withoutPlan}
+            </div>
+            <div className="app-stat-sub">
               sin sesiones · {bucketPct(buckets.withoutPlan, total)} del team
             </div>
           </Card>
@@ -81,10 +83,10 @@ export function TeamMetricsPanel({ metrics }: TeamMetricsPanelProps) {
       <div className="row">
         <div className="col-lg-6 mb-3">
           <Card title="Carga media del team" className="h-100">
-            <div className="h1 mb-0 app-numeric">
+            <div className="app-stat-value app-numeric">
               {formatDistance(averageLoadKm)}
             </div>
-            <div className="text-secondary small">
+            <div className="app-stat-sub">
               promedio por atleta en el periodo
             </div>
             <Table label="Carga por atleta" className="mt-3" stackOnMobile>
