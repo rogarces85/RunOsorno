@@ -234,11 +234,10 @@
   --lte-sidebar-hover-bg: var(--app-nav-hover);
   --lte-sidebar-active-color: var(--app-nav-ink);
   --lte-sidebar-menu-active-color: var(--app-nav-ink);
-  --lte-sidebar-menu-active-bg: color-mix(
-    in srgb,
-    var(--app-role-accent) 26%,
-    var(--app-nav-bg)
-  );
+  /* Un velo blanco, no una mezcla del acento con el azul marino: el naranja al
+     26 % sobre `--app-nav-bg` salía marrón y ensuciaba el ítem activo. El
+     acento se reserva para la barra lateral del indicador. */
+  --lte-sidebar-menu-active-bg: rgb(255 255 255 / 8%);
   --lte-sidebar-header-color: var(--app-nav-ink-3);
   --lte-sidebar-submenu-color: var(--app-nav-ink-2);
   background: var(--app-nav-bg);
@@ -299,9 +298,15 @@
   position: absolute;
   inset-block: 0.5rem;
   inset-inline-start: 0;
-  width: 2px;
+  width: 3px;
   border-radius: var(--app-radius-full);
   background: var(--app-role-accent);
+}
+
+/* El icono del ítem activo toma el acento del rol. El color no es la única
+   señal: también están el velo de fondo y `aria-current="page"` en el enlace. */
+.app-sidebar .nav-link.active .nav-icon {
+  color: var(--app-role-accent);
 }
 
 .app-sidebar .nav-icon {
