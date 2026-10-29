@@ -31,6 +31,9 @@
   --app-surface: #ffffff;
   --app-surface-2: #f3f4f6;
   --app-surface-3: #e5e7eb;
+  /* Superficies elevadas y hover */
+  --app-surface-elevated: #ffffff;
+  --app-surface-hover: #f8f9fa;
   --app-border: #e5e7eb;
   /* Borde de controles: 3:1 sobre lienzo (WCAG 1.4.11). #7F8896 da 3,25:1
      sobre el lienzo y 3,58:1 sobre la superficie. */
@@ -39,6 +42,9 @@
   --app-ink-2: #374151;
   /* Rótulos y ayudas: 4,93:1 sobre lienzo y 5,43:1 sobre superficie. */
   --app-ink-3: #5f6b7a;
+  /* Tinta sobre superficies y estados */
+  --app-ink-on-surface: #f8fafc;
+  --app-ink-disabled: #a0aec0;
 
   /* ---- Marca y acciones ----
    * Dos naranjas con trabajos distintos, no dos tonos del mismo:
@@ -51,15 +57,25 @@
   --app-accent-ink: #b93c0a;
   --app-accent-hover: #a3350a;
   --app-accent-soft: #ffe8dc;
+  /* Variaciones de acento para estados */
+  --app-accent-disabled: rgba(255, 107, 51, 0.3);
+  --app-brand-overlight: #f0f4f8;
   --app-accent-on: #ffffff;
   /* Tinte de marca: fondo de la medalla y de los distintivos del azul marino. */
   --app-brand-soft: #e7eef6;
+  /* Brand overlays y variantes */
+  --app-brand-overlay: rgba(15, 43, 70, 0.08);
+  --app-brand-contrast: #0f2b46;
 
   /* ---- Semánticos ---- */
   --app-success: #15803d;
   --app-warning: #d97706;
   --app-danger: #dc2626;
   --app-danger-on: #ffffff;
+  --app-success-on: #1a1a1a;
+  --app-warning-on: #1a1a1a;
+  --app-info-on: #0c0c0c;
+  --app-purple-soft: #f5f0ff;
   --app-info: #0ea5e9;
   --app-purple: #9b36b4;
   --app-success-soft: #ecfdf5;
@@ -74,10 +90,13 @@
    * `--app-role-nav-accent` es el que se ve sobre el azul marino del sidebar
    * (barra del ítem activo e icono), así que tiene que ser claro. El atleta
    * usa el naranja decorativo ahí: sobre el marino da 5,09:1.
+   * `--app-role-soft` es un matiz sutil para fondos de controles.
+   * `--app-role-border` es el borde que rodea elementos de rol.
    */
   --app-role-accent: var(--app-accent-ink);
   --app-role-nav-accent: var(--app-accent);
   --app-role-soft: var(--app-accent-soft);
+  --app-role-border: var(--app-border);
 
   /* ---- Navegación (sidebar) ----
    * La columna es azul marino profundo en ambos temas. En claro es el azul
@@ -131,11 +150,17 @@
   --app-radius-card: 12px;
   --app-radius-modal: 16px;
   --app-radius-full: 999px;
+  --app-radius-sm: 4px;
+  --app-radius-md: 8px;
+  --app-radius-larger: 16px;
 
   /* ---- Sombras (siempre acompañadas de borde de 1 px) ---- */
+  --app-shadow-0: none;
   --app-shadow-1: 0 1px 2px rgba(16, 24, 39, 0.06);
   --app-shadow-2: 0 2px 8px rgba(16, 24, 39, 0.08);
   --app-shadow-3: 0 8px 24px rgba(16, 24, 39, 0.12);
+  --app-shadow-4: 0 4px 16px rgba(16, 24, 39, 0.14);
+  --app-shadow-inset: inset 0 1px 2px rgba(16, 24, 39, 0.06);
 
   /* ---- Series de gráfica (3:1 contra lienzo y superficie) ----
    * En modo claro los colores deben ser lo bastante oscuros para tener 3:1
@@ -146,6 +171,12 @@
   --app-chart-3: #15803d;
   --app-chart-4: #7c3aed;
   --app-chart-5: #92400e;
+  /* Versiones suaves para modo oscuro */
+  --app-chart-1-soft: #e87d4c;
+  --app-chart-2-soft: #5a9fd4;
+  --app-chart-3-soft: #2c7a7b;
+  --app-chart-4-soft: #a29bfe;
+  --app-chart-5-soft: #d4a853;
 
   /* ---- Movimiento ---- */
   --app-dur-fast: 120ms;
