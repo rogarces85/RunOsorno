@@ -1087,6 +1087,386 @@ a.card.card-link {
   }
 }
 
+/* ===== Calendario mensual =====
+ * La celda es un azulejo: superficie propia, borde fino y radio de control, para
+ * que la rejilla se lea como un tablero de entrenamiento y no como una tabla de
+ * líneas sobre el lienzo.
+ *
+ * El color del estado vive en un solo sitio, el punto de la cabecera, y ahí no
+ * basta el color: cada estado tiene forma propia (Fase 48, tarea 48.2). El
+ * cumplimiento va en un carril de 4 px con su porcentaje al lado, y el tipo de
+ * sesión queda neutro, porque antes la celda decía el mismo estado dos veces con
+ * dos colores distintos.
+ */
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--app-space-1);
+  margin-bottom: var(--app-space-2);
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--app-tracking-label);
+  text-transform: uppercase;
+  color: var(--app-ink-3);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--app-space-1);
+}
+
+.calendar-cell-empty {
+  min-height: 76px;
+}
+
+.calendar-cell,
+.calendar-droppable {
+  display: flex;
+}
+
+.calendar-cell .calendar-day,
+.calendar-droppable .calendar-day {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Arrastrar una plantilla encima es un estado transitorio del puntero, no un
+   estado del día: se pinta con el acento de tinta, no con el color de sesión. */
+.calendar-droppable.is-over .calendar-day {
+  border-color: var(--app-accent-ink);
+  background: var(--app-accent-soft);
+}
+
+.calendar-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-2);
+  margin-bottom: var(--app-space-3);
+}
+
+.drag-overlay-chip {
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--app-radius-chip);
+  background: var(--app-accent-ink);
+  color: var(--app-accent-on);
+  font-size: var(--app-text-sm);
+  font-weight: 600;
+  box-shadow: var(--app-shadow-2);
+}
+
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--app-space-2);
+  min-height: 76px;
+  padding: var(--app-space-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-control);
+  background: var(--app-surface);
+  color: var(--app-ink);
+  cursor: pointer;
+  text-align: start;
+  transition:
+    border-color var(--app-dur-fast) var(--app-ease),
+    background-color var(--app-dur-fast) var(--app-ease),
+    box-shadow var(--app-dur-fast) var(--app-ease);
+}
+
+.calendar-day:hover {
+  border-color: var(--app-border-strong);
+}
+
+/* Hoy se marca con un anillo interior y no con relleno: el relleno compite con
+   el estado del día y con la selección, que son la información de la celda.
+   El anillo va en el acento de tinta y no en el acento del rol: el calendario ya
+   habla en naranja (selección, arrastre, botones), y el acento del rol —morado
+   para el coach— metía un cuarto color en la paleta de la rejilla. */
+.calendar-day.is-today {
+  box-shadow: inset 0 0 0 2px var(--app-accent-ink);
+}
+
+.calendar-day.is-selected {
+  border-color: var(--app-accent-ink);
+  background: var(--app-accent-soft);
+}
+
+.calendar-day-head {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+}
+
+.calendar-day-number {
+  font-size: var(--app-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/*
+ * Punto de estado del día.
+ *
+ * **Cada estado tiene además una forma distinta** (Fase 48, tarea 48.2). El
+ * punto de color era el único indicio: con los seis estados del calendario,
+ * quien tiene daltonismo —o simplemente una pantalla mala— no distinguía
+ * "completada" de "descanso". Eso es justo lo que WCAG 1.4.1 (uso del color)
+ * prohíbe: el color no puede ser el único medio de transmitir información.
+ *
+ * Las formas son deliberadamente contrastadas entre sí y no dependen solo de
+ * distinguir tonos: círculo lleno, cuadrado, triángulo, círculo hueco, anillo
+ * y punto hueco.
+ */
+.calendar-day-badge {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  flex-shrink: 0;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="completed"] .calendar-day-badge,
+.weekstrip-day[data-state="completed"] .weekstrip-badge {
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.calendar-day[data-state="partial"] .calendar-day-badge,
+.weekstrip-day[data-state="partial"] .weekstrip-badge {
+  border-radius: 1px;
+  background-color: currentColor;
+}
+
+.calendar-day[data-state="not_done"] .calendar-day-badge,
+.weekstrip-day[data-state="not_done"] .weekstrip-badge {
+  width: 0;
+  height: 0;
+  border-inline: 0.33rem solid transparent;
+  border-block-start: 0.55rem solid currentColor;
+  border-block-end: 0;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="planned"] .calendar-day-badge,
+.weekstrip-day[data-state="planned"] .weekstrip-badge {
+  border-radius: 1px;
+  border: 2px solid currentColor;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="in_progress"] .calendar-day-badge,
+.weekstrip-day[data-state="in_progress"] .weekstrip-badge {
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="rest"] .calendar-day-badge,
+.weekstrip-day[data-state="rest"] .weekstrip-badge {
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background-color: transparent;
+  opacity: 0.55;
+}
+
+/* El color del punto lo pone `style="color: var(--bs-<familia>)"` en
+   `CalendarDay`, así que aquí no hay que repetirlo para los seis estados. */
+
+/* Cumplimiento: carril de 4 px con el porcentaje al lado.
+ * El tono lo lleva el relleno del carril (`data-tone`) y el ancho la fracción
+ * cumplida; el porcentaje va en tinta y no en el tono porque el ámbar de aviso
+ * (#D97706) no llega a 4,5:1 como texto sobre ninguna superficie clara. El
+ * carril es redundante a propósito: el número ya dice lo mismo. */
+.calendar-day-compliance {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  min-width: 0;
+  color: var(--app-ink-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.calendar-day-rail {
+  flex: 1 1 auto;
+  min-width: 0.75rem;
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--app-radius-full);
+  background: color-mix(in srgb, var(--app-ink) 16%, transparent);
+}
+
+.calendar-day-rail-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--app-ink-3);
+}
+
+.calendar-day-compliance[data-tone="success"] .calendar-day-rail-fill {
+  background: var(--app-success);
+}
+
+.calendar-day-compliance[data-tone="warning"] .calendar-day-rail-fill {
+  background: var(--app-warning);
+}
+
+.calendar-day-compliance[data-tone="danger"] .calendar-day-rail-fill {
+  background: var(--app-danger);
+}
+
+/* Tipo de sesión: píldora neutra. El tinte sale de la tinta mezclada con el
+   fondo que haya debajo, así que también funciona sobre la celda seleccionada
+   (que es naranja claro) sin cambiar de color a mano. Se ajusta a su texto: a
+   todo lo ancho se leía como un campo de formulario. */
+.calendar-day-session {
+  display: inline-flex;
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0.0625rem 0.4375rem;
+  border-radius: var(--app-radius-full);
+  background: color-mix(in srgb, var(--app-ink) 10%, transparent);
+  color: var(--app-ink-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* En móvil la celda queda en ~42 px: no caben el carril y el porcentaje, y el
+   nombre de la sesión se cortaba a "Te…". Queda el número, el punto de estado y
+   el porcentaje, que es lo que se lee de un vistazo. */
+@media (max-width: 575.98px) {
+  .calendar-weekdays {
+    gap: 2px;
+    font-size: 0.625rem;
+  }
+
+  .calendar-grid {
+    gap: 2px;
+  }
+
+  .calendar-day,
+  .calendar-cell-empty {
+    min-height: 56px;
+  }
+
+  .calendar-day {
+    gap: 3px;
+    padding: 4px 3px;
+  }
+
+  .calendar-day-number {
+    font-size: 0.8rem;
+  }
+
+  .calendar-day-rail {
+    display: none;
+  }
+
+  .calendar-day-compliance {
+    font-size: 0.625rem;
+  }
+
+  .calendar-day-session {
+    display: none;
+  }
+}
+
+/* ===== Tira de la semana (dashboard del atleta, Fase 49) =====
+ * Siete bloques apretados con el lenguaje del calendario: mismos estados,
+ * mismas formas por `data-state`. La tira entera enlaza al calendario, que es
+ * donde se registra la sesión. */
+.weekstrip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--app-space-1);
+}
+
+.weekstrip-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--app-space-2) var(--app-space-1);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-control);
+  background: var(--app-surface-2);
+  transition:
+    border-color var(--app-dur-fast) var(--app-ease),
+    background-color var(--app-dur-fast) var(--app-ease);
+}
+
+a.weekstrip:hover .weekstrip-day {
+  border-color: var(--app-accent-ink);
+}
+
+/* El hoy no se comunica solo con el anillo: además queda con el número en el
+   color del acento del rol (la forma del anillo ya está en `.calendar-day`…,
+   aquí el hoy es el anillo de la celda). */
+.weekstrip-day.is-today {
+  box-shadow: inset 0 0 0 2px var(--app-role-accent);
+  background: var(--app-surface);
+}
+
+/* Sin planificar: la tira se dibuja como maqueta (borde punteado, sin fondo)
+   para que se lea como expectativa, pero los textos conservan la tinta plena:
+   una atenuación por `opacity` mezcla el color con el fondo y axe lo reporta
+   bajo 4,5:1. */
+.weekstrip-day--muted {
+  border-style: dashed;
+  background: transparent;
+}
+
+.weekstrip-weekday {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--app-tracking-label);
+  text-transform: uppercase;
+  color: var(--app-ink-3);
+}
+
+.weekstrip-number {
+  font-size: var(--app-text-body);
+  font-weight: 600;
+  color: var(--app-ink);
+}
+
+.weekstrip-badge {
+  margin-block-start: 1px;
+}
+
+.weekstrip-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: var(--app-ink-2);
+}
+
+/* En móvil el nombre no cabe en ~45 px por bloque (el calendario mensual
+   también oculta las etiquetas de sesión): el estado queda en el punto y el
+   día se ve en el calendario con un toque. */
+@media (max-width: 575.98px) {
+  .weekstrip-label {
+    display: none;
+  }
+
+  .weekstrip-day {
+    padding: 6px 2px;
+  }
+}
+
 /* ===== Badges ===== */
 .badge {
   border-radius: var(--app-radius-chip);

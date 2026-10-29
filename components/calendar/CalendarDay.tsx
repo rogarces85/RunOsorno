@@ -5,28 +5,20 @@ import { DAY_STATE_META, type CalendarDayState } from "./dayState";
 import { formatPercent } from "@/lib/i18n/format";
 
 /**
- * Clases de la píldora de sesión según la familia del estado. Usa las clases
- * `text-bg-*` de Bootstrap/AdminLTE, que generan un fondo con tinte y texto
- * con contraste adecuado sobre ambos temas. Las píldoras funcionan igual en
- * tema claro y oscuro.
+ * Tono del cumplimiento del día.
+ *
+ * Se devuelve el tono, no la clase: el carril lo pinta el CSS con
+ * `[data-tone]` y los tres tonos son tokens del sistema visual. El texto del
+ * porcentaje va en tinta porque el ámbar de aviso no alcanza 4,5:1 como texto.
  */
-const PILL_CLASSES: Record<string, string> = {
-  success: "text-bg-success",
-  warning: "text-bg-warning",
-  danger: "text-bg-danger",
-  primary: "text-bg-primary",
-  info: "text-bg-info",
-  secondary: "text-bg-secondary",
-};
-
-function complianceClass(done: number, total: number): string {
+function complianceTone(
+  done: number,
+  total: number,
+): "success" | "warning" | "danger" {
   const pct = Math.round((done / total) * 100);
-  // Fondo con tinte + texto de contraste (Bootstrap `text-bg-*`), no color
-  // sólido. El punto de la celda ya lleva el color del estado, así que aquí
-  // solo hace falta que se lea.
-  if (pct >= 80) return "text-bg-success";
-  if (pct >= 50) return "text-bg-warning";
-  return "text-bg-danger";
+  if (pct >= 80) return "success";
+  if (pct >= 50) return "warning";
+  return "danger";
 }
 
 /**
@@ -86,6 +78,10 @@ export const CalendarDay = memo(function CalendarDay({
    * justamente lo que no se lee con un lector de pantalla— se añade como texto
    * oculto visualmente. Así el nombre suena "1, Tempo, Completada": el "1" que
    * se ve, lo que se lee y el estado que solo estaba en el color.
+   *
+   * Los `{" "}` sueltos entre bloques son para eso: los elementos en línea se
+   * concatenan sin espacio en el nombre accesible ("CompletadaTempo"), y en un
+   * contenedor flex un nodo de texto en blanco no crea caja, así que no se ven.
    */
   return (
     <button
@@ -96,31 +92,38 @@ export const CalendarDay = memo(function CalendarDay({
       aria-current={isToday ? "date" : undefined}
       onClick={onSelect ? () => onSelect(dateISO) : undefined}
     >
-      <span className="calendar-day-number">{dayNumber}</span>
-      <span className="visually-hidden">, {meta.label}</span>
-      {/*
-        El punto lleva el color en línea y la forma la pone el CSS según
-        `data-state`: el color no puede ser el único indicio (Fase 48, 48.2).
-      */}
-      <span
-        className="calendar-day-badge"
-        style={{ color: `var(--bs-${meta.color})` }}
-        title={meta.label}
-      />
+      <span className="calendar-day-head">
+        <span className="calendar-day-number">{dayNumber}</span>
+        {/*
+          El punto lleva el color en línea y la forma la pone el CSS según
+          `data-state`: el color no puede ser el único indicio (Fase 48, 48.2).
+        */}
+        <span
+          className="calendar-day-badge"
+          style={{ color: `var(--bs-${meta.color})` }}
+          title={meta.label}
+        />
+        <span className="visually-hidden">, {meta.label}</span>
+      </span>{" "}
       {showCompliance && (
         <span
-          className={`calendar-day-compliance badge ${complianceClass(compliance.done, compliance.total)}`}
+          className="calendar-day-compliance"
+          data-tone={complianceTone(compliance.done, compliance.total)}
           data-testid="day-compliance"
           data-pct={pct}
           title={`Cumplimiento: ${compliance.done}/${compliance.total}`}
         >
-          {formatPercent(pct)}
+          <span className="calendar-day-rail" aria-hidden="true">
+            <span
+              className="calendar-day-rail-fill"
+              style={{ width: `${pct}%` }}
+            />
+          </span>
+          <span className="calendar-day-pct">{formatPercent(pct)}</span>
         </span>
-      )}
+      )}{" "}
       {sessionLabel && (
-        <span className={`calendar-day-session badge ${PILL_CLASSES[meta.color]}`}>
-          {sessionLabel}
-        </span>
+        <span className="calendar-day-session">{sessionLabel}</span>
       )}
     </button>
   );

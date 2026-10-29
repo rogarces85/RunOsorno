@@ -596,7 +596,14 @@ async function verificarCalendario(ctx: BrowserContext) {
     `ejemplo: "${nombres[0]?.nombreCalculado}" (aria-label propio: ${nombres[0]?.tieneAriaLabel})`,
   );
 
-  // Contraste real de los estados: se mide, no se supone (48.2).
+  // Contraste real del calendario: se mide, no se supone (48.2). Se mide el
+  // porcentaje de cumplimiento, que es el texto más pequeño de la celda, sobre
+  // el fondo que tiene de verdad. Antes se medía un chip `text-bg-success`
+  // sintético, que ya no es lo que pinta el calendario: el estado del día es un
+  // punto y el cumplimiento un carril con su cifra al lado.
+  await login(ctx, page, COACH);
+  await goto(page, `/coach/calendar/${TEAM_ELITE}/${ATLETA_CALENDARIO}`);
+  await page.waitForSelector(".calendar-day-compliance");
   const contraste = (await page.evaluate(`(() => {
     const funcion = (L) => {
       const f = (v) => {
@@ -637,22 +644,16 @@ async function verificarCalendario(ctx: BrowserContext) {
       Math.round(f[1] * f[3] + n[1] * (1 - f[3])),
       Math.round(f[2] * f[3] + n[2] * (1 - f[3])),
     ];
-    // Los badges de estado del panel usan la paleta accesible de globals.css.
-    const chip = document.createElement("span");
-    chip.className = "badge app-badge text-bg-success";
-    chip.textContent = "Completada";
-    chip.style.fontSize = "12px";
-    document.body.appendChild(chip);
-    const cs = getComputedStyle(chip);
-    const fg = componer(aSrgb(cs.color), [255, 255, 255]);
-    const bg = componer(aSrgb(cs.backgroundColor), [255, 255, 255]);
-    chip.remove();
+    const cifra = document.querySelector(".calendar-day-compliance");
+    const celda = cifra.closest(".calendar-day");
+    const fg = componer(aSrgb(getComputedStyle(cifra).color), [255, 255, 255]);
+    const bg = componer(aSrgb(getComputedStyle(celda).backgroundColor), [255, 255, 255]);
     return Math.round((ratio(fg, bg) + Number.EPSILON) * 100) / 100;
   })()`)) as number;
 
   record(
     contraste >= 4.5,
-    "48.2 el badge de estado del calendario alcanza 4,5:1 (WCAG AA)",
+    "48.2 el porcentaje de cumplimiento del calendario alcanza 4,5:1 (WCAG AA)",
     `contraste medido=${contraste}:1`,
   );
 
