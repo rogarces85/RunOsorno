@@ -158,8 +158,8 @@ context: |
     renderizarse dinámicamente en el servidor.
   - Los formularios validan con Zod en cliente y servidor con el mismo esquema de
     `lib/validations/`; nunca se confía en el cliente.
-  - UI: `@tabler/core` con wrappers propios en `components/ui/`; Tailwind está
-    descartado. Iconos `@tabler/icons-react`. Nada de librerías de gráficas.
+  - UI: `admin-lte` + `bootstrap` con wrappers propios en `components/ui/`; Tailwind está
+    descartado. Iconos Bootstrap Icons vía `components/ui/BIcon`. Nada de librerías de gráficas.
   - Los exports (`@react-pdf/renderer`, `exceljs`) y Sentry se importan de forma
     perezosa para no cargarlos en cada isolate.
 
@@ -207,9 +207,9 @@ context: |
     `messages/es-CL.json`.
   - Ningún modal se escribe a mano: todos pasan por `components/ui/ModalShell.tsx`
     (Escape, foco inicial, trampa de foco y devolución del foco).
-  - El color de un badge no sale de utilidades de Tabler porque llevan `!important`
-    y dan bajo contraste; para texto sobre fondo claro se usa la familia
-    `text-*-ink` de `app/globals.css`. El estado nunca se comunica solo con color:
+  - El color de un badge usa clases `text-bg-*` de Bootstrap/AdminLTE; el estado
+    nunca se comunica solo con color: cada estado tiene su forma y un punto
+    decorativo además del tono.
     cada estado del calendario tiene forma propia vía `[data-state=…]`.
   - Ningún `<button>` lleva `aria-label` que reescriba su texto visible (rompe
     WCAG 2.5.3); para añadir información se usa `<span className="visually-hidden">`.
@@ -308,8 +308,9 @@ context: |
   - Next.js 14+ → Next.js 16.3.x (no subir a 16.4).
   - Recharts → SVG propio (`chartGeometry.ts` y `ChartFrame.tsx`).
   - bcrypt o argon2 → PBKDF2-HMAC-SHA512 nativo.
-  - `@tabler/icons-react` ya está; el JavaScript de Tabler no se usa para modales,
-    dropdowns ni tabs, que se manejan con estado de React.
+  - Bootstrap Icons (`bi bi-*`) vía `components/ui/BIcon`; el JavaScript de
+    Bootstrap/AdminLTE no se usa para modales, dropdowns ni tabs, que se
+    manejan con estado de React.
   - `alert_no_record_days` es 7, no 3.
   No cites `plan/mvp.md` como fuente de verdad de una decisión técnica sin
   comprobarla en el código.
@@ -384,7 +385,7 @@ operations:
       - "Si tocaste fechas o números corre `npx tsx scripts/verify-i18n.ts`; si tocaste una pantalla corre `npx tsx scripts/verify-accesibilidad.ts`."
       - "No modifiques la base de producción ni ejecutes `db:seed:demo` fuera de local. Para comprobar producción usa `verify-produccion` o `wrangler tail`."
       - "Si el cambio agrega dependencias, revisa que no usen eval ni new Function y vuelve a medir el bundle con `npx tsx scripts/verify-rendimiento.ts`."
-      - "Mantén el estilo del código vecino (Tabler más los wrappers de `components/ui/`, servicios en `lib/services/` y validaciones Zod compartidas)."
+      - "Mantén el estilo del código vecino (Bootstrap/AdminLTE más los wrappers de `components/ui/`, servicios en `lib/services/` y validaciones Zod compartidas)."
       - "No copies decisiones técnicas de `plan/mvp.md` sin comprobarlas en el código: ese documento es histórico y contradice el stack actual en varios puntos."
       - "Actualiza la documentación afectada en el mismo cambio: `docs/roadmap.md` cuando cierres un pendiente, `AGENTS.md` cuando cambie una restricción del runtime, `specs/mvp.md` cuando cambie una regla de negocio y `README.md` cuando cambien scripts o credenciales."
       - "Detente y pregunta si aparece una decisión de producto, un cambio de alcance o un costo nuevo; no la resuelvas por tu cuenta."

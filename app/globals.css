@@ -1,15 +1,18 @@
-@import "@tabler/core/dist/css/tabler.min.css";
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "bootstrap-icons/font/bootstrap-icons.min.css";
+@import "admin-lte/dist/css/adminlte.min.css";
 @import "./styles/tokens.css";
 @import "./styles/components.css";
 
 /*
  * La paleta, la tipografía y las medidas viven en `styles/tokens.css` (Fase A).
- * Aquí solo se enlaza la familia tipográfica con el cuerpo del documento: el resto
- * de variables que Tabler consulta (`--tblr-body-bg`, `--tblr-primary`,
- * `--tblr-border-color`…) se mapean allí y no se repiten en este archivo.
+ * AdminLTE se construye sobre Bootstrap 5 y usa sus propias variables CSS
+ * (`--bs-*`). Aquí solo se enlaza la familia tipográfica con el cuerpo del
+ * documento; el resto de variables que AdminLTE consulta se mapean en
+ * `tokens.css` y no se repiten en este archivo.
  */
 :root {
-  --tblr-body-font-family: var(--tblr-font-sans-serif);
+  --bs-body-font-family: var(--app-font-sans);
 }
 
 html {
@@ -18,9 +21,9 @@ html {
 
 body {
   min-height: 100%;
-  background-color: var(--tblr-body-bg);
-  color: var(--tblr-body-color);
-  font-family: var(--tblr-body-font-family);
+  background-color: var(--app-canvas);
+  color: var(--app-ink);
+  font-family: var(--app-font-sans);
 }
 
 /* ===== Accesibilidad (Fase 48) ===== */
@@ -32,7 +35,7 @@ main:focus {
 }
 
 main:focus-visible {
-  outline: 2px solid var(--tblr-primary, #206bc4);
+  outline: 2px solid var(--bs-primary, var(--app-accent-ink));
   outline-offset: -2px;
 }
 
@@ -44,7 +47,7 @@ main:focus-visible {
   top: 0;
   z-index: 1080;
   padding: 0.5rem 1rem;
-  background-color: var(--tblr-primary, #206bc4);
+  background-color: var(--bs-primary, var(--app-accent-ink));
   color: #fff;
   border-radius: 0 0 0.25rem 0;
   font-weight: 600;
@@ -59,7 +62,7 @@ main:focus-visible {
    contenedor lleva `tabindex="0"` para poder recorrerlo con teclado, hay que
    mostrar dónde está el foco: sin esto se desplazaría a ciegas. */
 .table-responsive:focus-visible {
-  outline: 2px solid var(--tblr-primary, #206bc4);
+  outline: 2px solid var(--bs-primary, var(--app-accent-ink));
   outline-offset: -2px;
 }
 
@@ -74,125 +77,12 @@ h1.page-title {
   color: var(--app-ink);
 }
 
-/* ===== Contraste de los badges (Fase 48, tarea 48.2) =====
-   **Ninguna** combinación `bg-*-lt` + `text-*` de Tabler 1.6 cumple WCAG AA.
-   Los fondos `-lt` son muy claros y los textos `-lt` están pensados para
-   superficies grandes, no para 12 px. Medido con axe sobre la app real: 103
-   nodos por debajo del mínimo, con casos tan visibles como
-   `bg-success-lt text-success` en 2,48:1 o `bg-warning-lt text-warning` en
-   1,97:1, cuando se pide 4,5:1.
-
-   La paleta de Tabler no ofrece ningún color de texto accesible sobre esos
-   fondos (comprobado uno a uno), así que se definen aquí: el mismo tono,
-   oscurecido lo justo para llegar a ~5:1. El color sigue siendo reconocible —un
-   badge verde es verde, un amarillo es amarillo— y ahora se lee.
-
-   Cada valor sale de mezclar el color de Tabler con negro en `oklab` hasta
-   cruzar el umbral, y está medido, no estimado:
-   `scripts/verify-accesibilidad.ts` vuelve a comprobarlo en el navegador.
-
-   El `!important` no es descuido: **las utilidades de color de Tabler 1.6
-   también lo llevan** (`.bg-success-lt{color:…!important}`), y además
-   `.bg-*-lt` fija el color del texto, no solo el fondo. Sin `!important` aquí
-   gana Tabler y el badge sigue sin contraste. */
-.text-blue-ink { color: #0564be !important; } /* 5,13:1 sobre rgb(230,241,250) */
-.text-green-ink { color: #1c762a !important; } /* 5,18:1 sobre rgb(234,247,236) */
-.text-orange-ink { color: #ae4603 !important; } /* 5,12:1 sobre rgb(254,240,230) */
-.text-red-ink { color: #ba3030 !important; } /* 5,12:1 sobre rgb(251,235,235) */
-.text-yellow-ink { color: #925d00 !important; } /* 5,13:1 sobre rgb(254,245,230) */
-.text-azure-ink { color: #2d6ca1 !important; } /* 5,05:1 sobre rgb(236,245,252) */
-.text-cyan-ink { color: #0d7181 !important; } /* 5,13:1 sobre rgb(232,246,248) */
-.text-purple-ink { color: #9b36b4 !important; } /* 5,12:1 sobre rgb(247,236,250) */
-.text-indigo-ink { color: #3b59d5 !important; } /* 5,13:1 sobre rgb(236,239,253) */
-.text-teal-ink { color: #067654 !important; } /* 5,06:1 sobre rgb(231,246,242) */
-.text-lime-ink { color: #48750a !important; } /* 5,05:1 sobre rgb(241,248,232) */
-.text-pink-ink { color: #ba2b5d !important; } /* 5,08:1 sobre rgb(251,235,240) */
-.text-primary-ink { color: #0564be !important; } /* 5,05:1 sobre el tinte vigente de `--tblr-primary` (medido por verify-tokens) */
-.text-secondary-ink { color: #666 !important; } /* 5,08:1 sobre rgb(241,241,241) */
-.text-success-ink { color: #1c762a !important; } /* 5,18:1 sobre rgb(234,247,236) */
-.text-warning-ink { color: #925d00 !important; } /* 5,13:1 sobre rgb(254,245,230) */
-.text-danger-ink { color: #ba3030 !important; } /* 5,12:1 sobre rgb(251,235,235) */
-.text-info-ink { color: #2d6ca1 !important; } /* 5,05:1 sobre rgb(236,245,252) */
-
-/* En tema oscuro el tinte del badge es oscuro: los `-ink` de arriba quedarían
-   ilegibles (2,5:1 medido). Se redefine la misma familia con tonos claros de la
-   misma gama; el par y el ratio se comprueban en `scripts/verify-tokens.ts`. */
-[data-bs-theme="dark"] .text-blue-ink,
-[data-bs-theme="dark"] .text-primary-ink,
-[data-bs-theme="dark"] .text-info-ink { color: #8fb8f5 !important; }
-[data-bs-theme="dark"] .text-green-ink,
-[data-bs-theme="dark"] .text-success-ink { color: #8fd79a !important; }
-[data-bs-theme="dark"] .text-yellow-ink,
-[data-bs-theme="dark"] .text-warning-ink { color: #efc97e !important; }
-[data-bs-theme="dark"] .text-red-ink,
-[data-bs-theme="dark"] .text-danger-ink { color: #f3a3a3 !important; }
-[data-bs-theme="dark"] .text-orange-ink { color: #f3b37a !important; }
-[data-bs-theme="dark"] .text-azure-ink { color: #8fc7e8 !important; }
-[data-bs-theme="dark"] .text-cyan-ink { color: #82d3d8 !important; }
-[data-bs-theme="dark"] .text-purple-ink { color: #c9a6f0 !important; }
-[data-bs-theme="dark"] .text-indigo-ink { color: #a9b4f5 !important; }
-[data-bs-theme="dark"] .text-teal-ink { color: #7fd3b4 !important; }
-[data-bs-theme="dark"] .text-lime-ink { color: #b9d97a !important; }
-[data-bs-theme="dark"] .text-pink-ink { color: #f0a2c0 !important; }
-[data-bs-theme="dark"] .text-secondary-ink { color: #b9c1cc !important; }
-
-/* Y lo mismo con los avisos: su texto sale de `--tblr-alert-variant-color`, que en
-   oscuro necesita el tono claro o queda en 2,5:1 sobre su propio tinte. */
-[data-bs-theme="dark"] .alert-success { --tblr-alert-variant-color: #8fd79a; }
-[data-bs-theme="dark"] .alert-warning { --tblr-alert-variant-color: #efc97e; }
-[data-bs-theme="dark"] .alert-danger { --tblr-alert-variant-color: #f3a3a3; }
-[data-bs-theme="dark"] .alert-info { --tblr-alert-variant-color: #9cc7ee; }
-
-/* Lo mismo pasa con los `alert`: Tabler 1.6 saca el color del texto de
-   `--tblr-alert-variant-color`, y con el valor de fábrica un `.alert-success`
-   queda en 2,55:1 (verde sobre verde muy claro). Se redefine la variable por
-   variante con el mismo criterio de arriba; el fondo se sigue derivando de ella,
-   así que sigue siendo un tinte claro. */
-.alert-success {
-  --tblr-alert-variant-color: #1c762a;
-}
-.alert-warning {
-  --tblr-alert-variant-color: #925d00;
-}
-.alert-danger {
-  --tblr-alert-variant-color: #ba3030;
-}
-.alert-info {
-  --tblr-alert-variant-color: #2d6ca1;
-}
-
 /* ===== Shell responsive (Fase 39) ===== */
-/* Por debajo de `lg` el sidebar se comporta como off-canvas: sale desde la
-   izquierda sobre un fondo oscurecido en vez de empujar el contenido. Antes
-   `navbar-expand-lg` lo dejaba reducido a una franja fija de 56 px que
-   tapaba el header, y su hamburguesa quedaba dentro de un elemento oculto. */
+/* El off-canvas del sidebar vive en `components.css`, junto al resto del
+   marcado de AdminLTE: allí la posición se declara con `margin-inline-start`
+   porque es lo que usa AdminLTE 4 y así no hay dos mecanismos compitiendo
+   (un `transform` aquí y un margen allí se anulaban entre sí). */
 @media (max-width: 991.98px) {
-  .app-sidebar {
-    /* Tabler solo saca el navbar vertical del flujo normal desde `lg`
-       (`@media (min-width: 992px) { .navbar-vertical.navbar-expand-lg … }`).
-       Por debajo quedaba `position: relative` y ocupaba 56 px de alto sobre
-       el header; hay que fijarlo aquí para que sea un panel flotante real. */
-    position: fixed;
-    inset-block: 0;
-    inset-inline-start: 0;
-    z-index: 1030;
-    width: min(var(--tblr-sidebar-width), 85vw);
-    transform: translateX(-100%);
-    visibility: hidden;
-    transition:
-      transform var(--app-dur-base) var(--app-ease),
-      visibility 0s linear var(--app-dur-base);
-    box-shadow: var(--tblr-box-shadow);
-  }
-
-  .app-sidebar.is-open {
-    transform: translateX(0);
-    visibility: visible;
-    transition:
-      transform var(--app-dur-base) var(--app-ease),
-      visibility 0s;
-  }
-
   .app-sidebar-backdrop {
     position: fixed;
     inset: 0;
@@ -224,7 +114,7 @@ body.app-nav-open {
   font-size: 0.65rem;
   line-height: 1;
   padding: 0.15rem 0.3rem;
-  border: 1px solid var(--tblr-body-bg);
+  border: 1px solid var(--bs-body-bg);
 }
 
 @media (max-width: 991.98px) {
@@ -288,7 +178,7 @@ body.app-nav-open {
 }
 
 .donut-chart-legend-value {
-  color: var(--tblr-secondary, #868e96);
+  color: var(--bs-secondary, var(--app-ink-2));
   font-variant-numeric: tabular-nums;
 }
 
@@ -308,7 +198,7 @@ body.app-nav-open {
 .metric-chart-unit {
   align-self: flex-start;
   font-size: 0.75rem;
-  color: var(--tblr-secondary, #868e96);
+  color: var(--bs-secondary, var(--app-ink-2));
   white-space: nowrap;
 }
 
@@ -324,7 +214,7 @@ body.app-nav-open {
   right: 0;
   transform: translateY(50%);
   font-size: 0.75rem;
-  color: var(--tblr-secondary, #868e96);
+  color: var(--bs-secondary, var(--app-ink-2));
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -352,7 +242,7 @@ body.app-nav-open {
 }
 
 .metric-chart-grid {
-  stroke: var(--tblr-border-color, #e9ecef);
+  stroke: var(--bs-border-color, var(--app-border));
   stroke-dasharray: 3 3;
 }
 
@@ -367,7 +257,7 @@ body.app-nav-open {
   top: 0.25rem;
   transform: translateX(-50%);
   font-size: 0.75rem;
-  color: var(--tblr-secondary, #868e96);
+  color: var(--bs-secondary, var(--app-ink-2));
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -463,7 +353,7 @@ body.app-nav-open {
   min-width: 0;
   height: 0.75rem;
   border-radius: var(--app-radius-full);
-  background: var(--tblr-gray-200, #e9ecef);
+  background: var(--app-surface-2);
   overflow: hidden;
 }
 
@@ -471,7 +361,7 @@ body.app-nav-open {
   display: block;
   height: 100%;
   border-radius: var(--app-radius-full);
-  background: var(--tblr-primary, #206bc4);
+  background: var(--bs-primary, var(--app-accent-ink));
 }
 
 @media (max-width: 575.98px) {
@@ -497,311 +387,6 @@ body.app-nav-open {
    página y el arrastre nunca arranca. */
 .template-drag-item {
   touch-action: none;
-}
-
-/* ===== Calendario mensual ===== */
-.calendar-weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 4px;
-  margin-bottom: 4px;
-  text-align: center;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: var(--tblr-secondary, #868e96);
-}
-
-.calendar-grid {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 4px;
-}
-
-.calendar-cell-empty {
-  min-height: 68px;
-}
-
-.calendar-cell,
-.calendar-droppable {
-  display: flex;
-}
-
-.calendar-cell .calendar-day,
-.calendar-droppable .calendar-day {
-  flex: 1;
-  min-width: 0;
-  width: 100%;
-}
-
-.calendar-droppable.is-over .calendar-day {
-  border-color: var(--tblr-primary);
-  background-color: color-mix(in srgb, var(--tblr-primary) 14%, transparent);
-}
-
-.calendar-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.drag-overlay-chip {
-  background-color: var(--tblr-primary);
-  color: #fff;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 0.8rem;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 25%);
-}
-
-.calendar-day {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  min-height: 68px;
-  padding: 6px;
-  border: 1px solid var(--tblr-border-color, #e6e7e9);
-  border-radius: 6px;
-  background-color: transparent;
-  color: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-
-.calendar-day:hover {
-  border-color: var(--tblr-primary);
-}
-
-.calendar-day.is-today {
-  box-shadow: inset 0 0 0 2px var(--tblr-primary);
-  font-weight: 600;
-}
-
-.calendar-day.is-selected {
-  border-color: var(--tblr-primary);
-  background-color: color-mix(in srgb, var(--tblr-primary) 12%, transparent);
-}
-
-.calendar-day-number {
-  font-size: 0.875rem;
-  line-height: 1;
-}
-
-/*
- * Punto de estado del día.
- *
- * **Cada estado tiene además una forma distinta** (Fase 48, tarea 48.2). El
- * punto de color era el único indicio: con los seis estados del calendario,
- * quien tiene daltonismo —o simplemente una pantalla mala— no distinguía
- * "completada" de "descanso". Eso es justo lo que WCAG 1.4.1 (uso del color)
- * prohíbe: el color no puede ser el único medio de transmitir información.
- *
- * Las formas son deliberadamente contrastadas entre sí y no dependen solo de
- * distinguir tonos: círculo lleno, cuadrado, triángulo, círculo hueco, anillo
- * y punto hueco.
- */
-.calendar-day-badge {
-  display: inline-block;
-  width: 0.65rem;
-  height: 0.65rem;
-  flex-shrink: 0;
-  background-color: transparent;
-}
-
-.calendar-day[data-state="completed"] .calendar-day-badge,
-.weekstrip-day[data-state="completed"] .weekstrip-badge {
-  border-radius: 50%;
-  background-color: currentColor;
-}
-
-.calendar-day[data-state="partial"] .calendar-day-badge,
-.weekstrip-day[data-state="partial"] .weekstrip-badge {
-  border-radius: 1px;
-  background-color: currentColor;
-}
-
-.calendar-day[data-state="not_done"] .calendar-day-badge,
-.weekstrip-day[data-state="not_done"] .weekstrip-badge {
-  width: 0;
-  height: 0;
-  border-inline: 0.33rem solid transparent;
-  border-block-start: 0.55rem solid currentColor;
-  border-block-end: 0;
-  background-color: transparent;
-}
-
-.calendar-day[data-state="planned"] .calendar-day-badge,
-.weekstrip-day[data-state="planned"] .weekstrip-badge {
-  border-radius: 1px;
-  border: 2px solid currentColor;
-  background-color: transparent;
-}
-
-.calendar-day[data-state="in_progress"] .calendar-day-badge,
-.weekstrip-day[data-state="in_progress"] .weekstrip-badge {
-  border-radius: 50%;
-  border: 2px solid currentColor;
-  background-color: transparent;
-}
-
-.calendar-day[data-state="rest"] .calendar-day-badge,
-.weekstrip-day[data-state="rest"] .weekstrip-badge {
-  border-radius: 50%;
-  border: 1px solid currentColor;
-  background-color: transparent;
-  opacity: 0.55;
-}
-
-/* El color del punto lo pone `style="color: var(--tblr-<familia>)"` en
-   `CalendarDay`, así que aquí no hay que repetirlo para los seis estados. */
-
-/* ===== Tira de la semana (dashboard del atleta, Fase 49) =====
- * Siete bloques apretados con el lenguaje del calendario: mismos estados,
- * mismas formas por `data-state`. La tira entera enlaza al calendario, que es
- * donde se registra la sesión. */
-.weekstrip {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.weekstrip-day {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-  padding: 8px 4px;
-  border: 1px solid var(--app-border);
-  border-radius: var(--app-radius-control);
-  background: var(--app-surface-2);
-  transition:
-    border-color var(--app-dur-fast) var(--app-ease),
-    background-color var(--app-dur-fast) var(--app-ease);
-}
-
-a.weekstrip:hover .weekstrip-day {
-  border-color: var(--app-accent);
-}
-
-/* El hoy no se comunica solo con el anillo: además queda con el número en el
-   color del acento del rol (la forma del anillo ya está en `.calendar-day`…,
-   aquí el hoy es el anillo de la celda). */
-.weekstrip-day.is-today {
-  box-shadow: inset 0 0 0 2px var(--app-role-accent);
-  background: var(--app-surface);
-}
-
-/* Sin planificar: la tira se dibuja como maqueta (borde punteado, sin fondo)
-   para que se lea como esperativa, pero los textos conservan la tinta plena:
-   una atenuación por `opacity` mezcla el color con el fondo y axe lo reporta
-   bajo 4,5:1. */
-.weekstrip-day--muted {
-  border-style: dashed;
-  background: transparent;
-}
-
-.weekstrip-weekday {
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: var(--app-tracking-label);
-  text-transform: uppercase;
-  color: var(--app-ink-3);
-}
-
-.weekstrip-number {
-  font-size: var(--app-text-body);
-  font-weight: 600;
-  color: var(--app-ink);
-}
-
-.weekstrip-badge {
-  margin-block-start: 1px;
-}
-
-.weekstrip-label {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.6875rem;
-  line-height: 1.3;
-  color: var(--app-ink-2);
-}
-
-/* En móvil el nombre no cabe en ~45 px por bloque (el calendario mensual
-   también oculta las etiquetas de sesión): el estado queda en el punto y el
-   día se ve en el calendario con un toque. */
-@media (max-width: 575.98px) {
-  .weekstrip-label {
-    display: none;
-  }
-
-  .weekstrip-day {
-    padding: 6px 2px;
-  }
-}
-
-
-.calendar-day-compliance {
-  font-size: 0.65rem;
-  line-height: 1.4;
-  padding: 0 4px;
-  font-weight: 600;
-}
-
-.calendar-day-session {
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 0.7rem;
-  line-height: 1.35;
-  padding-inline: 0.375rem;
-  border-radius: var(--app-radius-full);
-  font-weight: 600;
-}
-
-/* En móvil la celda queda en ~42 px: el nombre del tipo de sesión se corta a
-   "Te…" y el badge de cumplimiento se come la celda. Se compactan ambos para
-   que lo legible sea el número del día y el punto de estado, que además es lo
-   que el `aria-label` de la celda anuncia. */
-@media (max-width: 575.98px) {
-  .calendar-weekdays {
-    font-size: 0.62rem;
-    gap: 2px;
-  }
-
-  .calendar-grid,
-  .calendar-weekdays {
-    gap: 2px;
-  }
-
-  .calendar-day,
-  .calendar-cell-empty {
-    min-height: 56px;
-  }
-
-  .calendar-day {
-    padding: 4px 3px;
-    gap: 3px;
-  }
-
-  .calendar-day-number {
-    font-size: 0.8rem;
-  }
-
-  .calendar-day-session {
-    display: none;
-  }
-
-  .calendar-day-compliance {
-    font-size: 0.58rem;
-    padding: 0 3px;
-    line-height: 1.2;
-  }
 }
 
 /* ===== Tipografía del sistema visual (Fase A, tarea 2.5) =====

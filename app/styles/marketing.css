@@ -148,7 +148,7 @@
   padding: 0.125rem 0.5rem;
   border-radius: var(--app-radius-full);
   background: var(--app-accent-soft);
-  color: var(--app-accent);
+  color: var(--app-accent-ink);
   font-size: var(--app-text-caption);
   font-weight: 600;
 }
@@ -199,7 +199,7 @@
 
 .app-hero-state--en-curso {
   background: var(--app-accent-soft);
-  color: var(--app-accent);
+  color: var(--app-accent-ink);
 }
 
 .app-hero-chip {
@@ -292,7 +292,7 @@
   height: 2.5rem;
   border-radius: var(--app-radius-control);
   background: var(--app-accent-soft);
-  color: var(--app-accent);
+  color: var(--app-accent-ink);
 }
 
 .app-step-title {
@@ -378,7 +378,7 @@
 .app-product-action {
   margin-top: auto;
   padding-top: var(--app-space-3);
-  color: var(--app-accent);
+  color: var(--app-accent-ink);
   font-weight: 600;
   font-size: var(--app-text-body);
   text-decoration: none;
@@ -481,7 +481,7 @@
   flex: none;
   width: 1.5rem;
   text-align: center;
-  color: var(--app-accent);
+  color: var(--app-accent-ink);
   font-size: 1.125rem;
   line-height: 1;
 }
@@ -549,7 +549,7 @@
 
 /* Una dirección de correo larga no debe empujar el layout en móvil. */
 .app-cta-text a {
-  color: var(--app-accent);
+  color: var(--app-accent-ink);
   overflow-wrap: anywhere;
 }
 
@@ -593,7 +593,7 @@
 }
 
 .app-public-footer-links a:hover {
-  color: var(--app-accent);
+  color: var(--app-accent-ink);
   text-decoration: underline;
 }
 

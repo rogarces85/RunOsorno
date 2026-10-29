@@ -19,7 +19,7 @@ con cookies y despliegue en Cloudflare Workers con MySQL en Aiven vía Hyperdriv
 | Capa | Tecnología |
 |---|---|
 | Framework | Next.js 16.3.x (App Router, RSC, Turbopack) |
-| UI | Tabler (`@tabler/core` + `@tabler/icons-react`) + sistema visual propio (`app/styles/tokens.css`) |
+| UI | AdminLTE 4 (`admin-lte` + `bootstrap`) + Bootstrap Icons (`bi bi-*`) + sistema visual propio (`app/styles/tokens.css`) |
 | Base de datos | MySQL 8.4 (producción, Aiven) / MariaDB 10.4 (desarrollo, XAMPP) |
 | ORM | Drizzle ORM + `drizzle-kit` |
 | Auth | Lucia (sesiones en base de datos, cookie `HttpOnly`/`Secure`) + PBKDF2-HMAC-SHA512 |

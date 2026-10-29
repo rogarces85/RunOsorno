@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import type { PlanItem } from "@/lib/services/plan.service";
 import { formatMonthYear, formatWeekdays } from "@/lib/i18n/format";
 import { toISODate } from "@/lib/utils/date";
@@ -122,7 +122,7 @@ export function MonthCalendar({
             title="Mes anterior"
             onClick={goPrev}
           >
-            <IconChevronLeft size={18} stroke={1.75} />
+            <BIcon name="chevron-left" size={18} aria-hidden />
           </Button>
           <Button
             variant="ghost"
@@ -132,7 +132,7 @@ export function MonthCalendar({
             title="Mes siguiente"
             onClick={goNext}
           >
-            <IconChevronRight size={18} stroke={1.75} />
+            <BIcon name="chevron-right" size={18} aria-hidden />
           </Button>
         </div>
       </div>

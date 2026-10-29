@@ -112,11 +112,11 @@ describe("paleta de gráficas", () => {
   });
 
   it("el badge de cumplimiento usa la familia de contraste", () => {
-    expect(complianceBadgeClass(90)).toContain("text-success-ink");
-    expect(complianceBadgeClass(60)).toContain("text-warning-ink");
-    expect(complianceBadgeClass(10)).toContain("text-danger-ink");
+    expect(complianceBadgeClass(90)).toContain("text-bg-success");
+    expect(complianceBadgeClass(60)).toContain("text-bg-warning");
+    expect(complianceBadgeClass(10)).toContain("text-bg-danger");
     for (const porcentaje of [0, 49, 50, 79, 80, 100]) {
-      expect(complianceBadgeClass(porcentaje)).not.toMatch(/text-(green|yellow|red)\b/);
+      expect(complianceBadgeClass(porcentaje)).not.toMatch(/bg-(success|warning|danger)-lt/);
     }
   });
 });

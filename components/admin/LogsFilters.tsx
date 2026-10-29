@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconFilter, IconSearch, IconX } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 
 type Props = {
   actions: string[];
@@ -55,27 +56,30 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
   }
 
   return (
-    <div className="card mb-3">
-      <div className="card-header">
-        <div className="d-flex align-items-center">
-          <h2 className="card-title">
-            <IconFilter size={18} stroke={1.75} className="me-1" />
-            Filtros
-          </h2>
-          <Button
-            variant="secondary"
-            size="sm"
-            className="ms-auto"
-            aria-expanded={open}
-            onClick={() => setOpen((value) => !value)}
-          >
-            {open ? "Ocultar" : "Mostrar"}
-          </Button>
-        </div>
-      </div>
-
-      <div className="card-body">
-        <form onSubmit={submit} method="get" action="/admin/logs">
+    <Card
+      className="mb-3"
+      title={
+        <>
+          <BIcon name="filter" size={18} className="me-2" aria-hidden />
+          Filtros
+        </>
+      }
+      actions={
+        <Button
+          variant="secondary"
+          size="sm"
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
+        >
+          {open ? "Ocultar" : "Mostrar"}
+        </Button>
+      }
+      /* El cuerpo se oculta con `d-none` en vez de no renderizarse: la tarjeta
+         siempre pinta su `card-body`, y sin esto quedaba un hueco en blanco
+         debajo de la cabecera al plegar los filtros. */
+      bodyClassName={open ? "" : "d-none"}
+    >
+      <form onSubmit={submit} method="get" action="/admin/logs">
           <div className="row g-3">
             <div className="col-md-3">
               <label className="form-label" htmlFor="log-from">
@@ -176,7 +180,7 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
 
             <div className="col-md-4 d-flex align-items-end gap-2">
               <Button type="submit">
-                <IconSearch size={16} stroke={1.75} className="me-1" />
+                <BIcon name="search" size={16} className="me-1" aria-hidden />
                 Aplicar
               </Button>
               {hasFilters && (
@@ -184,14 +188,13 @@ export function LogsFilters({ actions, entityTypes, users, current }: Props) {
                   variant="ghost"
                   onClick={() => router.push("/admin/logs")}
                 >
-                  <IconX size={16} stroke={1.75} className="me-1" />
+                  <BIcon name="x" size={16} className="me-1" aria-hidden />
                   Limpiar
                 </Button>
               )}
             </div>
           </div>
         </form>
-      </div>
-    </div>
+    </Card>
   );
 }

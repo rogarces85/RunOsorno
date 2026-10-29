@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   FUNCIONALIDADES,
   LINEAS,
@@ -123,7 +124,7 @@ export default function LandingPage() {
                   {indice + 1}
                 </span>
                 <span className="app-step-icon" aria-hidden="true">
-                  <paso.icono size={22} stroke={1.75} />
+                  <BIcon name={paso.icono} size={22} aria-hidden />
                 </span>
                 <h3 className="app-step-title">{paso.titulo}</h3>
                 <p className="app-step-text">{paso.texto}</p>
@@ -154,7 +155,7 @@ export default function LandingPage() {
             {PRODUCTOS.map((producto) => (
               <article key={producto.id} className="app-product">
                 <span className="app-product-icon" aria-hidden="true">
-                  <producto.icono size={24} stroke={1.75} />
+                  <BIcon name={producto.icono} size={24} aria-hidden />
                 </span>
                 <h3 className="app-product-title">{producto.nombre}</h3>
                 <p className="app-product-lead">{producto.resumen}</p>
@@ -192,7 +193,7 @@ export default function LandingPage() {
             {FUNCIONALIDADES.map((funcion) => (
               <li key={funcion.titulo} className="app-feature">
                 <span className="app-feature-icon" aria-hidden="true">
-                  <funcion.icono size={20} stroke={1.75} />
+                  <BIcon name={funcion.icono} size={20} aria-hidden />
                 </span>
                 <h3 className="app-feature-title">{funcion.titulo}</h3>
                 <p className="app-feature-text">{funcion.texto}</p>
@@ -222,7 +223,7 @@ export default function LandingPage() {
             {LINEAS.map((linea) => (
               <article key={linea.nombre} className="app-line">
                 <span className="app-line-icon" aria-hidden="true">
-                  <linea.icono size={22} stroke={1.75} />
+                  <BIcon name={linea.icono} size={22} aria-hidden />
                 </span>
                 <h3 className="app-line-title">{linea.nombre}</h3>
                 <p className="app-line-text">{linea.texto}</p>

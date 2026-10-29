@@ -107,8 +107,8 @@ Sistema web **SSR (renderizado en servidor)** con **autenticación por sesión (
 | Capa | Tecnología | Justificación |
 |------|------------|---------------|
 | **Framework SSR** | **Next.js 16.3.x (App Router, React Server Components)** | SSR nativo, auth por cookies, RSC reduce JS cliente, compatible con Cloudflare Workers vía OpenNext. **No subir a 16.4.0**: ver "Restricciones de Cloudflare Workers" |
-| **UI / Design System** | **Tabler** (`@tabler/core` + `@tabler/icons-react`) | `@tabler/core` (HTML/CSS Bootstrap 5-based) + wrappers React propios en `components/ui/` con clases Tabler. Iconos React oficiales. Responsive, dark/light, accesible. |
-| **Estilos** | **`@tabler/core` CSS** | Un solo framework CSS (el de Tabler). Tailwind descartado: conflicta con Bootstrap base de Tabler. Personalización vía CSS custom properties / SCSS de Tabler. |
+| **UI / Design System** | **AdminLTE 4** (`admin-lte` + `bootstrap`) + wrappers React propios en `components/ui/` con clases Bootstrap/AdminLTE. Iconos Bootstrap Icons (`bi bi-*`) vía `components/ui/BIcon`. Responsive, dark/light, accesible. |
+| **Estilos** | **Bootstrap 5 + AdminLTE CSS** importados en `app/globals.css`. Un solo framework CSS base. Personalización vía CSS custom properties (`--app-*`, `--bs-*`) en `app/styles/tokens.css`. |
 | **Base de Datos** | **MySQL** — dev local (XAMPP/MariaDB), producción Aiven MySQL 8.4 + Cloudflare Hyperdrive | Hyperdrive crea connection pooling global y cachea queries en edge. Ojo: en desarrollo el motor es MariaDB 10.4 (XAMPP) y en producción MySQL 8.4; el esquema se genera siempre con las migraciones de Drizzle, nunca importando volcados entre motores. |
 | **ORM** | **Drizzle ORM** | Type-safe, ligero, funciona en edge (Cloudflare Workers), migraciones SQL nativas, mejor performance que Prisma en edge |
 | **Autenticación** | **Lucia Auth** | Session-based, cookies HttpOnly/Secure, multi-runtime (Node/Edge), DB-agnostic, sin vendor lock-in. Simple y edge-ready. |

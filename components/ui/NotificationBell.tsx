@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IconBell, IconCheck, IconMailOpened } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   markAllAsReadAction,
   markAsReadAction,
@@ -141,7 +141,7 @@ export function NotificationBell({
         aria-haspopup="true"
         onClick={() => setOpen((value) => !value)}
       >
-        <IconBell size={20} stroke={1.75} aria-hidden="true" />
+        <BIcon name="bell" size={20} aria-hidden="true" />
         {unreadCount > 0 && (
           <span
             className="badge notification-badge text-bg-danger"
@@ -175,7 +175,7 @@ export function NotificationBell({
                 data-testid="mark-all-read"
                 onClick={markAll}
               >
-                <IconMailOpened size={16} stroke={1.75} className="me-1" />
+                <BIcon name="envelope-open" size={16} className="me-1" aria-hidden />
                 Marcar todas como leídas
               </button>
             )}
@@ -223,7 +223,7 @@ export function NotificationBell({
             data-testid="notifications-all-link"
             onClick={() => setOpen(false)}
           >
-            <IconCheck size={16} stroke={1.75} className="me-1" />
+            <BIcon name="check" size={16} className="me-1" aria-hidden />
             Ver todas
           </Link>
         </div>

@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import {
-  IconCheck,
-  IconDeviceFloppy,
-  IconPencil,
-  IconPlus,
-  IconTrash,
-  IconX,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   updateBaseSessionTypesAction,
   updateNotDoneReasonsAction,
@@ -151,9 +144,9 @@ export function EditableListForm({ kind, initial }: Props) {
       {notice && (
         <div className={`alert alert-${notice.type}`} role="alert">
           {notice.type === "success" ? (
-            <IconCheck size={16} className="me-1" />
+            <BIcon name="check" size={16} className="me-1" aria-hidden />
           ) : (
-            <IconX size={16} className="me-1" />
+            <BIcon name="x" size={16} className="me-1" aria-hidden />
           )}
           {notice.message}
         </div>
@@ -216,7 +209,7 @@ export function EditableListForm({ kind, initial }: Props) {
                       aria-label="Guardar cambios"
                       onClick={saveEdit}
                     >
-                      <IconCheck size={16} stroke={1.75} />
+                      <BIcon name="check" size={16} aria-hidden />
                     </Button>
                     <Button
                       variant="secondary"
@@ -228,7 +221,7 @@ export function EditableListForm({ kind, initial }: Props) {
                         setDraft({ id: "", label: "" });
                       }}
                     >
-                      <IconX size={16} stroke={1.75} />
+                      <BIcon name="x" size={16} aria-hidden />
                     </Button>
                   </div>
                 ) : (
@@ -240,7 +233,7 @@ export function EditableListForm({ kind, initial }: Props) {
                       aria-label={`Editar ${item.label}`}
                       onClick={() => startEdit(index)}
                     >
-                      <IconPencil size={16} stroke={1.75} />
+                      <BIcon name="pencil" size={16} aria-hidden />
                     </Button>
                     <Button
                       variant="danger-ghost"
@@ -250,7 +243,7 @@ export function EditableListForm({ kind, initial }: Props) {
                       disabled={items.length <= 1}
                       onClick={() => removeItem(index)}
                     >
-                      <IconTrash size={16} stroke={1.75} />
+                      <BIcon name="trash" size={16} aria-hidden />
                     </Button>
                   </div>
                 )}
@@ -290,7 +283,7 @@ export function EditableListForm({ kind, initial }: Props) {
                     aria-label="Agregar elemento"
                     onClick={addItem}
                   >
-                    <IconCheck size={16} stroke={1.75} />
+                    <BIcon name="check" size={16} aria-hidden />
                   </Button>
                   <Button
                     variant="secondary"
@@ -302,7 +295,7 @@ export function EditableListForm({ kind, initial }: Props) {
                       setDraft({ id: "", label: "" });
                     }}
                   >
-                    <IconX size={16} stroke={1.75} />
+                    <BIcon name="x" size={16} aria-hidden />
                   </Button>
                 </div>
               </td>
@@ -321,12 +314,12 @@ export function EditableListForm({ kind, initial }: Props) {
               setDraft({ id: "", label: "" });
             }}
           >
-            <IconPlus size={16} stroke={1.75} className="me-1" />
+            <BIcon name="plus" size={16} className="me-1" aria-hidden />
             Agregar
           </Button>
         )}
         <Button loading={isPending} onClick={onSave}>
-          <IconDeviceFloppy size={16} stroke={1.75} className="me-1" />
+          <BIcon name="save" size={16} className="me-1" aria-hidden />
           {isPending ? "Guardando…" : "Guardar lista"}
         </Button>
       </div>

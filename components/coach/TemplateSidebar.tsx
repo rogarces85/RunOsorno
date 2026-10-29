@@ -1,7 +1,7 @@
 "use client";
 
 import { useDraggable } from "@dnd-kit/core";
-import { IconGripVertical } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { formatSessionType } from "@/lib/utils/format";
 
 export type TemplateOption = {
@@ -30,7 +30,7 @@ function DraggableTemplate({ template }: { template: TemplateOption }) {
           {formatSessionType(template.sessionType)}
         </div>
       </div>
-      <IconGripVertical size={16} stroke={1.75} className="text-secondary" />
+      <BIcon name="grip-vertical" size={16} className="text-secondary" aria-hidden />
     </div>
   );
 }

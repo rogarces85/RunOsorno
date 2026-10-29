@@ -27,7 +27,7 @@ export async function AppHeader() {
   }));
 
   return (
-    <header className="navbar navbar-expand-lg d-print-none app-header">
+    <header className="app-header navbar navbar-expand bg-body d-print-none">
       <div className="container-fluid">
         <NavToggle />
         <Link href="/" className="navbar-brand d-lg-none" aria-label="RunOsorno Training">

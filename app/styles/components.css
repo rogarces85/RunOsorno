@@ -61,9 +61,22 @@
   height: auto;
 }
 
+/* El sidebar es azul marino en los dos temas, así que el símbolo —que es azul
+   profundo— necesita su pastilla clara siempre, no solo en oscuro. La pastilla
+   del tema oscuro se mantiene para el header y el login, donde el fondo sí
+   cambia. `--app-nav-plate` existe justo para esto. */
+.app-sidebar .app-logo-plate {
+  padding: 5px 7px;
+  background: var(--app-nav-plate);
+}
+
+.app-sidebar .app-logo-mark {
+  height: 22px;
+}
+
 [data-bs-theme="dark"] .app-logo-plate {
   padding: 6px 8px;
-  background: #ffffff;
+  background: var(--app-nav-plate);
 }
 
 [data-bs-theme="dark"] .app-logo-mark {
@@ -88,7 +101,7 @@
   .form-control,
   .form-select
 ):focus-visible {
-  outline: 2px solid var(--app-accent);
+  outline: 2px solid var(--app-accent-ink);
   outline-offset: 2px;
   border-radius: var(--app-radius-control);
 }
@@ -96,6 +109,10 @@
 /* ===== Shell ===== */
 .app-header {
   min-height: var(--app-header-height);
+  /* El navbar de Bootstrap añade 8 px arriba y abajo; con el `min-height` del
+     contenedor eso daba 73 px frente a los 56 de `.sidebar-brand`, y las dos
+     líneas inferiores no coincidían. El alto lo fija `--app-header-height`. */
+  padding-block: 0;
   background: var(--app-surface);
   /* Acento del rol filtrado en la línea inferior: un matiz del acento por rol
      como toque sutil, no un bloque de color completo. */
@@ -195,33 +212,81 @@
   color: var(--app-ink);
 }
 
-.app-sidebar-brand {
+/* Marca del sidebar (AdminLTE 4). El alto de `.sidebar-brand` lo fija AdminLTE
+   en 3.5rem para que case con el `.app-header`; aquí solo se alinea el enlace. */
+.app-sidebar .sidebar-brand .brand-link {
   display: flex;
   align-items: center;
-  min-height: var(--app-header-height);
-  padding-inline: var(--app-space-4);
-  border-bottom: 1px solid var(--app-nav-border);
+  gap: 0.625rem;
+  text-decoration: none;
+  color: var(--app-nav-ink);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
-/* Columna de navegación oscura en ambos temas (tokens --app-nav-*): sobre el
-   azul profundo de la paleta en claro; un paso por encima del lienzo en oscuro.
-   En mobile es el fondo del panel off-canvas, que hereda el mismo look. */
-.app-sidebar {
+.app-sidebar .sidebar-brand .brand-text {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--app-nav-ink);
+}
+
+/* Colocación del sidebar. AdminLTE espera que `sidebar-expand-lg` viva en el
+   `<body>` y que su JavaScript ponga `sidebar-open` ahí; aquí ambos viven en
+   `.app-wrapper` y el estado abierto lo pone React (`is-open`), así que la
+   posición se declara explícitamente para no depender de esa combinación.
+
+   Los colores van por las variables `--lte-sidebar-*` y no por reglas propias:
+   AdminLTE pinta cada estado con `.sidebar-wrapper .sidebar-menu > .nav-item >
+   .nav-link` (cuatro clases), así que cualquier regla de dos clases nuestra
+   pierde y el texto quedaría en el `#343a40` por defecto sobre el azul marino. */
+.app-wrapper.sidebar-expand-lg .app-sidebar {
+  --lte-sidebar-color: var(--app-nav-ink-2);
+  --lte-sidebar-hover-color: var(--app-nav-ink);
+  --lte-sidebar-hover-bg: var(--app-nav-hover);
+  --lte-sidebar-active-color: var(--app-nav-ink);
+  --lte-sidebar-menu-active-color: var(--app-nav-ink);
+  /* Un velo blanco, no una mezcla del acento con el azul marino: el naranja al
+     26 % sobre `--app-nav-bg` salía marrón y ensuciaba el ítem activo. El
+     acento se reserva para la barra lateral del indicador. */
+  --lte-sidebar-menu-active-bg: rgb(255 255 255 / 8%);
+  --lte-sidebar-header-color: var(--app-nav-ink-3);
+  --lte-sidebar-submenu-color: var(--app-nav-ink-2);
   background: var(--app-nav-bg);
-}
-
-/* El logo necesita pastilla clara sobre el fondo oscuro (mismo motivo del
-   tema oscuro: el lettering azul profundo desaparecería). */
-.app-sidebar .app-logo-plate {
-  padding: 6px 8px;
-  background: var(--app-nav-plate);
+  width: var(--app-sidebar-width);
+  border-inline-end: 1px solid var(--app-nav-border);
 }
 
 @media (min-width: 992px) {
-  .app-sidebar {
-    width: var(--app-sidebar-width);
-    border-inline-end: 1px solid var(--app-nav-border);
+  .app-wrapper.sidebar-expand-lg .app-sidebar {
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+    margin-inline-start: 0;
   }
+}
+
+@media (max-width: 991.98px) {
+  .app-wrapper.sidebar-expand-lg .app-sidebar {
+    --app-sidebar-current: min(var(--app-sidebar-width), 85vw);
+    position: fixed;
+    inset-block: 0;
+    inset-inline-start: 0;
+    z-index: 1040;
+    width: var(--app-sidebar-current);
+    margin-inline-start: calc(var(--app-sidebar-current) * -1);
+    box-shadow: var(--app-shadow-1);
+    transition: margin-inline-start var(--app-dur-base) var(--app-ease);
+  }
+
+  .app-wrapper.sidebar-expand-lg .app-sidebar.is-open {
+    margin-inline-start: 0;
+  }
+}
+
+.app-sidebar .nav.sidebar-menu {
+  padding-top: 1rem;
 }
 
 .app-sidebar .nav-link {
@@ -232,44 +297,48 @@
   min-height: 2.5rem;
   padding: 0.375rem 0.75rem;
   border-radius: var(--app-radius-control);
-  color: var(--app-nav-ink-2);
   font-weight: 500;
   transition:
     background-color var(--app-dur-fast) var(--app-ease),
     color var(--app-dur-fast) var(--app-ease);
 }
 
-.app-sidebar .nav-link:hover {
-  background: var(--app-nav-hover);
-  color: var(--app-nav-ink);
-}
-
-/* Ítem activo: el acento del rol vive en la barra lateral izquierda; el fondo
-   es un matiz del rol sobre la columna oscura y el texto queda en la tinta
-   clara de la navegación (legible sea cual sea el rol). */
-.app-sidebar .nav-link.active {
-  background: color-mix(in srgb, var(--app-role-accent) 26%, var(--app-nav-bg));
-  color: var(--app-nav-ink);
-}
-
+/* El color de los tres estados (normal, hover y activo) lo pone AdminLTE desde
+   las variables `--lte-sidebar-*` que se declaran arriba en `.app-sidebar`.
+   Aquí solo queda lo que AdminLTE no dibuja: la barra de acento del rol. */
 .app-sidebar .nav-link.active::before {
   content: "";
   position: absolute;
   inset-block: 0.5rem;
   inset-inline-start: 0;
-  width: 2px;
+  width: 3px;
   border-radius: var(--app-radius-full);
-  background: var(--app-role-accent);
+  background: var(--app-role-nav-accent);
 }
 
-.app-sidebar .nav-link-icon {
+/* El icono del ítem activo toma el acento del rol. El color no es la única
+   señal: también están el velo de fondo y `aria-current="page"` en el enlace. */
+.app-sidebar .nav-link.active .nav-icon {
+  color: var(--app-role-nav-accent);
+}
+
+.app-sidebar .nav-icon {
   display: inline-flex;
   flex: none;
+  min-width: 1.75rem;
+  text-align: center;
+  color: var(--app-nav-ink-3);
 }
 
-/* Rótulo de sección del menú: hereda el `.nav-link` del `<span>`, así que se
-   neutraliza el padding para que no parezca un ítem pulsable. */
-.app-sidebar .nav-item > span.nav-link {
+/* El texto va en `<p>`, que es lo que espera AdminLTE dentro de `.nav-link`;
+   sin margen para que el ítem no crezca de alto. */
+.app-sidebar .nav-link p {
+  flex: 1;
+  margin: 0;
+  font-weight: 500;
+}
+
+.app-sidebar .nav-header {
   min-height: auto;
   padding: 0.75rem 0.75rem 0.25rem;
   color: var(--app-nav-ink-3);
@@ -280,7 +349,7 @@
   cursor: default;
 }
 
-.app-sidebar .nav-item > span.nav-link:hover {
+.app-sidebar .nav-header:hover {
   background: transparent;
   color: var(--app-nav-ink-3);
 }
@@ -373,7 +442,7 @@
 }
 
 .app-btn-primary {
-  background: var(--app-accent);
+  background: var(--app-accent-ink);
   color: var(--app-accent-on);
 }
 
@@ -438,6 +507,56 @@
   height: 0.875rem;
 }
 
+/* ===== Botones de Bootstrap atados a los tokens =====
+ * AdminLTE compila `.btn-primary`, `.btn-outline-primary` y
+ * `.btn-outline-secondary` con hex fijos de su SCSS: `--bs-primary` no los
+ * alcanza. Sin este bloque, un `<button class="btn btn-primary">` seguiría
+ * saliendo azul y un `btn-outline-secondary` con el gris #6c757d, que sobre el
+ * lienzo da 4,26:1 y axe lo reporta. Se reapuntan a los tokens, así que la
+ * misma regla vale en ambos temas.
+ */
+.btn-primary {
+  --bs-btn-color: var(--app-accent-on);
+  --bs-btn-bg: var(--app-accent-ink);
+  --bs-btn-border-color: var(--app-accent-ink);
+  --bs-btn-hover-color: var(--app-accent-on);
+  --bs-btn-hover-bg: var(--app-accent-hover);
+  --bs-btn-hover-border-color: var(--app-accent-hover);
+  --bs-btn-active-color: var(--app-accent-on);
+  --bs-btn-active-bg: var(--app-accent-hover);
+  --bs-btn-active-border-color: var(--app-accent-hover);
+}
+
+.btn-outline-primary {
+  --bs-btn-color: var(--app-accent-ink);
+  --bs-btn-border-color: var(--app-accent-ink);
+  --bs-btn-hover-color: var(--app-accent-on);
+  --bs-btn-hover-bg: var(--app-accent-ink);
+  --bs-btn-hover-border-color: var(--app-accent-ink);
+  --bs-btn-active-color: var(--app-accent-on);
+  --bs-btn-active-bg: var(--app-accent-hover);
+  --bs-btn-active-border-color: var(--app-accent-hover);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--app-ink-2);
+  --bs-btn-border-color: var(--app-border-strong);
+  --bs-btn-hover-color: var(--app-surface);
+  --bs-btn-hover-bg: var(--app-ink-2);
+  --bs-btn-hover-border-color: var(--app-ink-2);
+  --bs-btn-active-color: var(--app-surface);
+  --bs-btn-active-bg: var(--app-ink-2);
+  --bs-btn-active-border-color: var(--app-ink-2);
+}
+
+/* En oscuro los rellenos de Bootstrap (`text-bg-*`) llevan tinta clara, y el
+   naranja de tinta y el gris terciario son claros: el texto tiene que ser el
+   del lienzo, no blanco. */
+[data-bs-theme="dark"] .text-bg-primary,
+[data-bs-theme="dark"] .text-bg-secondary {
+  color: var(--app-canvas) !important;
+}
+
 /* ===== Campos ===== */
 .form-label {
   font-size: var(--app-text-sm);
@@ -461,7 +580,7 @@
 
 .form-control:focus,
 .form-select:focus {
-  border-color: var(--app-accent);
+  border-color: var(--app-accent-ink);
   box-shadow: 0 0 0 3px var(--app-accent-soft);
   background-color: var(--app-surface);
   color: var(--app-ink);
@@ -526,18 +645,58 @@ a.card.card-link {
  * es decorativa (el nombre del dato está impreso al lado), por eso el color
  * pleno no necesita 3:1 y el ícono viaja con `aria-hidden`.
  */
+/* ===== Ficha de estadística =====
+ * Cifra en la tinta de la interfaz, no en color: `text-*-emphasis` de AdminLTE
+ * caía en un verde aceituna y peleaba con el color de la medalla. El tono vive
+ * en dos sitios, ambos decorativos: el carril superior y la medalla (tinte
+ * suave con el ícono en el tono). Los rellenos saturados con ícono blanco
+ * daban 2,3:1 y no se veían.
+ */
+.app-stat-card {
+  position: relative;
+}
+
+.app-stat-card::before {
+  content: "";
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline: 0;
+  height: 3px;
+  border-start-start-radius: var(--app-radius-card);
+  border-start-end-radius: var(--app-radius-card);
+  background: var(--app-stat-tone, var(--app-border-strong));
+}
+
+.app-stat-card-primary {
+  --app-stat-tone: var(--app-accent);
+}
+
+.app-stat-card-success {
+  --app-stat-tone: var(--app-success);
+}
+
+.app-stat-card-warning {
+  --app-stat-tone: var(--app-warning);
+}
+
+.app-stat-card-danger {
+  --app-stat-tone: var(--app-danger);
+}
+
 .app-stat-top {
   display: flex;
   align-items: center;
   gap: var(--app-space-3);
-  margin-bottom: var(--app-space-2);
+  margin-bottom: var(--app-space-3);
 }
 
 .app-stat-label {
-  color: var(--app-ink-2);
-  font-size: var(--app-text-sm);
-  font-weight: 600;
+  color: var(--app-ink-3);
+  font-size: var(--app-text-caption);
+  font-weight: 700;
+  letter-spacing: var(--app-tracking-label);
   line-height: 1.3;
+  text-transform: uppercase;
 }
 
 .app-stat-medal {
@@ -545,33 +704,51 @@ a.card.card-link {
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: var(--app-radius-full);
-}
-
-.app-stat-medal svg {
-  color: #ffffff;
+  background: var(--app-surface-2);
+  color: var(--app-ink-2);
+  font-size: 1.125rem;
 }
 
 .app-stat-medal-primary {
-  background: var(--app-role-accent);
+  background: var(--app-accent-soft);
+  color: var(--app-accent-ink);
 }
 
 .app-stat-medal-success {
-  background: var(--app-success);
+  background: var(--app-success-soft);
+  color: var(--app-success);
 }
 
 .app-stat-medal-info {
-  background: var(--app-info);
+  background: var(--app-brand-soft);
+  color: var(--app-brand);
 }
 
 .app-stat-medal-warning {
-  background: var(--app-warning);
+  background: var(--app-warning-soft);
+  color: var(--app-warning);
 }
 
 .app-stat-medal-danger {
-  background: var(--app-danger);
+  background: var(--app-danger-soft);
+  color: var(--app-danger);
+}
+
+.app-stat-value {
+  margin-bottom: var(--app-space-1);
+  color: var(--app-ink);
+  font-size: var(--app-text-metric);
+  font-weight: 700;
+  letter-spacing: var(--app-tracking-tight);
+  line-height: var(--app-leading-tight);
+}
+
+.app-stat-sub {
+  color: var(--app-ink-3);
+  font-size: var(--app-text-sm);
 }
 
 /* ===== Selector de periodo (control segmentado) =====
@@ -593,16 +770,60 @@ a.card.card-link {
   align-items: center;
   min-height: 2rem;
   padding: 0.25rem 0.75rem;
+  border: 0;
+  background: transparent;
   border-radius: var(--app-radius-chip);
   color: var(--app-ink-2);
+  font-family: inherit;
   font-size: var(--app-text-sm);
   font-weight: 600;
   line-height: 1.2;
   white-space: nowrap;
   text-decoration: none;
+  cursor: pointer;
   transition:
     background-color var(--app-dur-fast) var(--app-ease),
     color var(--app-dur-fast) var(--app-ease);
+}
+
+/* Contador del filtro: hereda el color del segmento —blanco sobre el activo,
+   tinta sobre el inactivo— así que nunca hay que comprobar contraste aparte. */
+.app-seg-count {
+  margin-inline-start: 0.375rem;
+  font-size: var(--app-text-caption);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===== Pestañas (nav-tabs) =====
+ * Bootstrap pinta las inactivas con el color primario y el subrayado con el
+ * borde de la tarjeta, así que en una cabecera todas parecían activas. Aquí la
+ * inactiva queda en tinta suave y la activa se distingue por el filete de
+ * marca, no por el relleno: en la banda de la cabecera un fondo blanco
+ * recortaba un rectángulo que no encajaba con nada.
+ */
+.nav-tabs {
+  border-bottom-color: var(--app-border);
+}
+
+.nav-tabs .nav-link {
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--app-ink-2);
+  font-weight: 600;
+}
+
+.nav-tabs .nav-link:hover {
+  border-bottom-color: var(--app-border-strong);
+  color: var(--app-ink);
+}
+
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-link.active:hover {
+  border-bottom-color: var(--app-accent-ink);
+  background: transparent;
+  color: var(--app-ink);
 }
 
 .app-seg:hover {
@@ -612,7 +833,7 @@ a.card.card-link {
 
 .app-seg-active,
 .app-seg-active:hover {
-  background: var(--app-accent);
+  background: var(--app-accent-ink);
   color: var(--app-accent-on);
 }
 
@@ -649,24 +870,100 @@ a.card.card-link {
   color: var(--app-surface);
 }
 
+/* Cabecera de tarjeta con banda propia: el título se separa del contenido por
+   el tinte y la línea inferior, así una tarjeta con secciones no parece un
+   rectángulo blanco con texto suelto. Los radios se recortan a mano porque la
+   banda es el primer hijo y el fondo se saldría de la esquina. */
+/* AdminLTE deja un clearfix (`::after` con `content: ""`) en la cabecera, el
+   cuerpo y el pie de la tarjeta. En un contenedor flex ese pseudo-elemento
+   cuenta como un tercer hijo, así que con `justify-content: space-between` las
+   acciones de la cabecera quedaban a media anchura en vez de a la derecha. */
+.card-header::after,
+.card-body::after,
+.card-footer::after {
+  content: none;
+}
+
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--app-space-3);
   padding: var(--app-space-4) var(--app-space-5);
-  background: transparent;
+  background: var(--app-surface-2);
   border-bottom: 1px solid var(--app-border);
+}
+
+.card > .card-header:first-child {
+  border-start-start-radius: calc(var(--app-radius-card) - 1px);
+  border-start-end-radius: calc(var(--app-radius-card) - 1px);
 }
 
 .app-card-heading {
   min-width: 0;
 }
 
+/* Título de tarjeta: el mismo peso y tamaño en toda la app. Sin esta regla
+   heredaba el tamaño de `h2` del navegador y el título pesaba más que el
+   contenido de la tarjeta. */
+.app-card-title {
+  color: var(--app-ink);
+  font-size: var(--app-text-h3);
+  font-weight: 700;
+  letter-spacing: var(--app-tracking-tight);
+  line-height: var(--app-leading-snug);
+}
+
 .app-card-actions {
   display: flex;
   align-items: center;
   gap: var(--app-space-2);
+}
+
+/* Contenido destacado dentro del cuerpo de una tarjeta —el nombre de la sesión
+   del día, por ejemplo—. Un paso por debajo del título de la tarjeta, para que
+   el dato principal mande sobre la fecha y la acción sin gritar como un `h2`. */
+.app-card-lead {
+  color: var(--app-ink);
+  font-size: var(--app-text-h2);
+  font-weight: 600;
+  letter-spacing: var(--app-tracking-tight);
+  line-height: var(--app-leading-snug);
+}
+
+/* Pie de tarjeta con dato y acciones en la misma línea: la tarjeta de plantilla
+   tenía el dato arriba, un hueco y los botones abajo, y en una tarjeta corta eso
+   se lee como un cuerpo vacío. */
+.app-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--app-space-3);
+}
+
+.app-card-meta-main {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  min-width: 0;
+}
+
+.app-card-meta-text {
+  color: var(--app-ink-3);
+  font-size: var(--app-text-sm);
+}
+
+.app-card-meta-actions {
+  flex-wrap: nowrap;
+}
+
+.app-card-note {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-1);
+  margin-bottom: var(--app-space-3);
+  color: var(--app-ink-3);
+  font-size: var(--app-text-sm);
 }
 
 .card-body {
@@ -681,9 +978,22 @@ a.card.card-link {
 
 /* ===== Tablas ===== */
 .table {
+  /* `--bs-table-bg` hereda `--bs-body-bg`, que es el gris del lienzo: cada celda
+     se pintaba de gris y una tabla dentro de una tarjeta blanca se veía como un
+     bloque pegado, con pinta de hoja de cálculo. Transparente, las filas toman
+     el fondo de la tarjeta y la estructura la dan la cabecera y las líneas. */
+  --bs-table-bg: transparent;
   margin-bottom: 0;
   color: var(--app-ink);
   border-color: var(--app-border);
+}
+
+/* La tabla en una tarjeta con el cuerpo sin relleno no necesita su propio
+   marco: el borde de la tarjeta ya lo dibuja y dos líneas a 1 px se leen como
+   un marco doble. */
+.card > .card-body.p-0 > .app-table-wrapper {
+  border: 0;
+  border-radius: 0;
 }
 
 .table > thead th {
@@ -719,6 +1029,24 @@ a.card.card-link {
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-card);
   background: var(--app-surface);
+}
+
+/* Una fecha o una hora partida en cuatro líneas no se lee. Estas celdas no
+   envuelven: si no caben, la tabla se desplaza, que es lo que ya hace el
+   contenedor. */
+.app-table-nowrap {
+  white-space: nowrap;
+}
+
+/* Detalle largo (el JSON de los logs): dos líneas y puntos suspensivos. El texto
+   completo sigue en el DOM y en el `title`, así que no se pierde nada para el
+   lector de pantalla ni al pasar el ratón. */
+.app-table-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 /* Patrón de tarjetas en móvil: cada fila se lee como un par etiqueta-valor. */
@@ -759,56 +1087,395 @@ a.card.card-link {
   }
 }
 
+/* ===== Calendario mensual =====
+ * La celda es un azulejo: superficie propia, borde fino y radio de control, para
+ * que la rejilla se lea como un tablero de entrenamiento y no como una tabla de
+ * líneas sobre el lienzo.
+ *
+ * El color del estado vive en un solo sitio, el punto de la cabecera, y ahí no
+ * basta el color: cada estado tiene forma propia (Fase 48, tarea 48.2). El
+ * cumplimiento va en un carril de 4 px con su porcentaje al lado, y el tipo de
+ * sesión queda neutro, porque antes la celda decía el mismo estado dos veces con
+ * dos colores distintos.
+ */
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--app-space-1);
+  margin-bottom: var(--app-space-2);
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--app-tracking-label);
+  text-transform: uppercase;
+  color: var(--app-ink-3);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--app-space-1);
+}
+
+.calendar-cell-empty {
+  min-height: 76px;
+}
+
+.calendar-cell,
+.calendar-droppable {
+  display: flex;
+}
+
+.calendar-cell .calendar-day,
+.calendar-droppable .calendar-day {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Arrastrar una plantilla encima es un estado transitorio del puntero, no un
+   estado del día: se pinta con el acento de tinta, no con el color de sesión. */
+.calendar-droppable.is-over .calendar-day {
+  border-color: var(--app-accent-ink);
+  background: var(--app-accent-soft);
+}
+
+.calendar-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--app-space-2);
+  margin-bottom: var(--app-space-3);
+}
+
+.drag-overlay-chip {
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--app-radius-chip);
+  background: var(--app-accent-ink);
+  color: var(--app-accent-on);
+  font-size: var(--app-text-sm);
+  font-weight: 600;
+  box-shadow: var(--app-shadow-2);
+}
+
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--app-space-2);
+  min-height: 76px;
+  padding: var(--app-space-2);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-control);
+  background: var(--app-surface);
+  color: var(--app-ink);
+  cursor: pointer;
+  text-align: start;
+  transition:
+    border-color var(--app-dur-fast) var(--app-ease),
+    background-color var(--app-dur-fast) var(--app-ease),
+    box-shadow var(--app-dur-fast) var(--app-ease);
+}
+
+.calendar-day:hover {
+  border-color: var(--app-border-strong);
+}
+
+/* Hoy se marca con un anillo interior y no con relleno: el relleno compite con
+   el estado del día y con la selección, que son la información de la celda.
+   El anillo va en el acento de tinta y no en el acento del rol: el calendario ya
+   habla en naranja (selección, arrastre, botones), y el acento del rol —morado
+   para el coach— metía un cuarto color en la paleta de la rejilla. */
+.calendar-day.is-today {
+  box-shadow: inset 0 0 0 2px var(--app-accent-ink);
+}
+
+.calendar-day.is-selected {
+  border-color: var(--app-accent-ink);
+  background: var(--app-accent-soft);
+}
+
+.calendar-day-head {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+}
+
+.calendar-day-number {
+  font-size: var(--app-text-sm);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/*
+ * Punto de estado del día.
+ *
+ * **Cada estado tiene además una forma distinta** (Fase 48, tarea 48.2). El
+ * punto de color era el único indicio: con los seis estados del calendario,
+ * quien tiene daltonismo —o simplemente una pantalla mala— no distinguía
+ * "completada" de "descanso". Eso es justo lo que WCAG 1.4.1 (uso del color)
+ * prohíbe: el color no puede ser el único medio de transmitir información.
+ *
+ * Las formas son deliberadamente contrastadas entre sí y no dependen solo de
+ * distinguir tonos: círculo lleno, cuadrado, triángulo, círculo hueco, anillo
+ * y punto hueco.
+ */
+.calendar-day-badge {
+  display: inline-block;
+  width: 0.65rem;
+  height: 0.65rem;
+  flex-shrink: 0;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="completed"] .calendar-day-badge,
+.weekstrip-day[data-state="completed"] .weekstrip-badge {
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.calendar-day[data-state="partial"] .calendar-day-badge,
+.weekstrip-day[data-state="partial"] .weekstrip-badge {
+  border-radius: 1px;
+  background-color: currentColor;
+}
+
+.calendar-day[data-state="not_done"] .calendar-day-badge,
+.weekstrip-day[data-state="not_done"] .weekstrip-badge {
+  width: 0;
+  height: 0;
+  border-inline: 0.33rem solid transparent;
+  border-block-start: 0.55rem solid currentColor;
+  border-block-end: 0;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="planned"] .calendar-day-badge,
+.weekstrip-day[data-state="planned"] .weekstrip-badge {
+  border-radius: 1px;
+  border: 2px solid currentColor;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="in_progress"] .calendar-day-badge,
+.weekstrip-day[data-state="in_progress"] .weekstrip-badge {
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  background-color: transparent;
+}
+
+.calendar-day[data-state="rest"] .calendar-day-badge,
+.weekstrip-day[data-state="rest"] .weekstrip-badge {
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  background-color: transparent;
+  opacity: 0.55;
+}
+
+/* El color del punto lo pone `style="color: var(--bs-<familia>)"` en
+   `CalendarDay`, así que aquí no hay que repetirlo para los seis estados. */
+
+/* Cumplimiento: carril de 4 px con el porcentaje al lado.
+ * El tono lo lleva el relleno del carril (`data-tone`) y el ancho la fracción
+ * cumplida; el porcentaje va en tinta y no en el tono porque el ámbar de aviso
+ * (#D97706) no llega a 4,5:1 como texto sobre ninguna superficie clara. El
+ * carril es redundante a propósito: el número ya dice lo mismo. */
+.calendar-day-compliance {
+  display: flex;
+  align-items: center;
+  gap: var(--app-space-2);
+  min-width: 0;
+  color: var(--app-ink-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.calendar-day-rail {
+  flex: 1 1 auto;
+  min-width: 0.75rem;
+  height: 4px;
+  overflow: hidden;
+  border-radius: var(--app-radius-full);
+  background: color-mix(in srgb, var(--app-ink) 16%, transparent);
+}
+
+.calendar-day-rail-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--app-ink-3);
+}
+
+.calendar-day-compliance[data-tone="success"] .calendar-day-rail-fill {
+  background: var(--app-success);
+}
+
+.calendar-day-compliance[data-tone="warning"] .calendar-day-rail-fill {
+  background: var(--app-warning);
+}
+
+.calendar-day-compliance[data-tone="danger"] .calendar-day-rail-fill {
+  background: var(--app-danger);
+}
+
+/* Tipo de sesión: píldora neutra. El tinte sale de la tinta mezclada con el
+   fondo que haya debajo, así que también funciona sobre la celda seleccionada
+   (que es naranja claro) sin cambiar de color a mano. Se ajusta a su texto: a
+   todo lo ancho se leía como un campo de formulario. */
+.calendar-day-session {
+  display: inline-flex;
+  align-self: flex-start;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 0.0625rem 0.4375rem;
+  border-radius: var(--app-radius-full);
+  background: color-mix(in srgb, var(--app-ink) 10%, transparent);
+  color: var(--app-ink-2);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* En móvil la celda queda en ~42 px: no caben el carril y el porcentaje, y el
+   nombre de la sesión se cortaba a "Te…". Queda el número, el punto de estado y
+   el porcentaje, que es lo que se lee de un vistazo. */
+@media (max-width: 575.98px) {
+  .calendar-weekdays {
+    gap: 2px;
+    font-size: 0.625rem;
+  }
+
+  .calendar-grid {
+    gap: 2px;
+  }
+
+  .calendar-day,
+  .calendar-cell-empty {
+    min-height: 56px;
+  }
+
+  .calendar-day {
+    gap: 3px;
+    padding: 4px 3px;
+  }
+
+  .calendar-day-number {
+    font-size: 0.8rem;
+  }
+
+  .calendar-day-rail {
+    display: none;
+  }
+
+  .calendar-day-compliance {
+    font-size: 0.625rem;
+  }
+
+  .calendar-day-session {
+    display: none;
+  }
+}
+
+/* ===== Tira de la semana (dashboard del atleta, Fase 49) =====
+ * Siete bloques apretados con el lenguaje del calendario: mismos estados,
+ * mismas formas por `data-state`. La tira entera enlaza al calendario, que es
+ * donde se registra la sesión. */
+.weekstrip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--app-space-1);
+}
+
+.weekstrip-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  padding: var(--app-space-2) var(--app-space-1);
+  border: 1px solid var(--app-border);
+  border-radius: var(--app-radius-control);
+  background: var(--app-surface-2);
+  transition:
+    border-color var(--app-dur-fast) var(--app-ease),
+    background-color var(--app-dur-fast) var(--app-ease);
+}
+
+a.weekstrip:hover .weekstrip-day {
+  border-color: var(--app-accent-ink);
+}
+
+/* El hoy no se comunica solo con el anillo: además queda con el número en el
+   color del acento del rol (la forma del anillo ya está en `.calendar-day`…,
+   aquí el hoy es el anillo de la celda). */
+.weekstrip-day.is-today {
+  box-shadow: inset 0 0 0 2px var(--app-role-accent);
+  background: var(--app-surface);
+}
+
+/* Sin planificar: la tira se dibuja como maqueta (borde punteado, sin fondo)
+   para que se lea como expectativa, pero los textos conservan la tinta plena:
+   una atenuación por `opacity` mezcla el color con el fondo y axe lo reporta
+   bajo 4,5:1. */
+.weekstrip-day--muted {
+  border-style: dashed;
+  background: transparent;
+}
+
+.weekstrip-weekday {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: var(--app-tracking-label);
+  text-transform: uppercase;
+  color: var(--app-ink-3);
+}
+
+.weekstrip-number {
+  font-size: var(--app-text-body);
+  font-weight: 600;
+  color: var(--app-ink);
+}
+
+.weekstrip-badge {
+  margin-block-start: 1px;
+}
+
+.weekstrip-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  color: var(--app-ink-2);
+}
+
+/* En móvil el nombre no cabe en ~45 px por bloque (el calendario mensual
+   también oculta las etiquetas de sesión): el estado queda en el punto y el
+   día se ve en el calendario con un toque. */
+@media (max-width: 575.98px) {
+  .weekstrip-label {
+    display: none;
+  }
+
+  .weekstrip-day {
+    padding: 6px 2px;
+  }
+}
+
 /* ===== Badges ===== */
 .badge {
   border-radius: var(--app-radius-chip);
   font-weight: 600;
 }
 
-/*
- * Compatibilidad de contraste para el patrón heredado `bg-*-lt` + `text-*`.
- *
- * Tabler pinta el texto de `.bg-*-lt` con el color puro de la variante, que sobre su
- * propio tinte queda entre 1,97:1 y 4,03:1 (axe lo reporta como violación). En lugar
- * de reescribir cada marcado —hay una docena de usos en listados, métricas y
- * plantillas— se corrige aquí al tono del tema, así cualquier resto futuro también
- * queda legible. El marcado nuevo usa `Badge`, que ya nace con `text-*-ink`.
- */
-.bg-green-lt.text-green,
-.bg-success-lt.text-success {
-  color: var(--app-success) !important;
-}
-
-.bg-yellow-lt.text-yellow,
-.bg-warning-lt.text-warning,
-.bg-orange-lt.text-orange {
-  color: var(--app-warning) !important;
-}
-
-.bg-red-lt.text-red,
-.bg-danger-lt.text-danger {
-  color: var(--app-danger) !important;
-}
-
-.bg-blue-lt.text-blue,
-.bg-primary-lt.text-primary {
-  color: var(--app-accent) !important;
-}
-
-.bg-azure-lt.text-azure,
-.bg-info-lt.text-info {
-  color: var(--app-info) !important;
-}
-
-.bg-purple-lt.text-purple {
-  color: var(--app-purple) !important;
-}
-
-/* `.nav` declara su propio color de enlace (gris 500 = 4,42:1 sobre el lienzo). */
-.nav {
-  --tblr-nav-link-color: var(--app-ink-2);
-  --tblr-nav-link-hover-color: var(--app-ink);
-}
+/* `.nav` declara su propio color de enlace. Con Bootstrap/AdminLTE usamos
+   `--bs-*` que ya mapeamos en `tokens.css`, así que no hace falta sobreescribir
+   aquí. Se conserva el bloque por si algún componente antiguo lo necesita. */
 
 .app-badge {
   display: inline-flex;
@@ -827,6 +1494,28 @@ a.card.card-link {
   background: currentColor;
 }
 
+/* ===== Listas dentro de tarjetas =====
+ * `--bs-list-group-bg` de AdminLTE cae en el gris de superficie secundaria: una
+ * lista dentro de una tarjeta se veía como un bloque gris pegado al cuerpo
+ * blanco, con las filas sin separación visible. Las filas quedan sobre el fondo
+ * de la tarjeta y se separan con una línea fina.
+ */
+.card .list-group-flush > .list-group-item {
+  background: transparent;
+  border-color: var(--app-border);
+}
+
+.card .list-group-flush > .list-group-item + .list-group-item {
+  border-top: 1px solid var(--app-border);
+}
+
+/* La regla de arriba gana a `.list-group-item-action:hover` por especificidad,
+   así que el hover se repone aquí: sin él, las plantillas arrastrables del
+   calendario perdían la única señal de que se pueden arrastrar. */
+.card .list-group-flush > .list-group-item-action:hover {
+  background: var(--app-surface-2);
+}
+
 /* ===== Avisos y modales ===== */
 .alert {
   border-width: 1px;
@@ -839,6 +1528,32 @@ a.card.card-link {
 
 .app-alert .alert-title {
   margin-bottom: var(--app-space-1);
+}
+
+/* ===== Estado vacío =====
+ * Círculo propio con tinte suave en vez del `.avatar text-bg-secondary` de
+ * Tabler: el relleno oscuro con ícono blanco pesaba más que el mensaje, que es
+ * lo que hay que leer. El ícono es decorativo; el título y la descripción
+ * llevan el significado.
+ */
+.app-empty-state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: var(--app-space-3);
+  border-radius: var(--app-radius-full);
+  background: var(--app-surface-2);
+  color: var(--app-ink-3);
+  font-size: 1.25rem;
+}
+
+.app-empty-state-compact .app-empty-state-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-bottom: var(--app-space-2);
+  font-size: 1.125rem;
 }
 
 .app-empty-state-title {

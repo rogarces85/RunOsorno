@@ -112,7 +112,7 @@ export default async function CoachMetricsPage({
                   href={`/coach/metrics?${periodToQuery(period)}&team=${team.id}`}
                   className={`btn btn-sm ${
                     team.id === teamId
-                      ? "btn-secondary"
+                      ? "btn-primary"
                       : "btn-outline-secondary"
                   }`}
                 >

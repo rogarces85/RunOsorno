@@ -1,10 +1,5 @@
 import Link from "next/link";
-import {
-  IconAlertTriangle,
-  IconGauge,
-  IconUsers,
-  IconUsersGroup,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { StatsCards } from "@/components/dashboard/StatsCards";
 import { GroupMetricsPanel } from "@/components/metrics/GroupMetricsPanel";
 import { PeriodSelector } from "@/components/metrics/PeriodSelector";
@@ -87,7 +82,7 @@ export default async function DirectorDashboardPage({
                   href={`/director/dashboard?${periodToQuery(period)}&group=${group.id}`}
                   className={`btn btn-sm ${
                     group.id === groupId
-                      ? "btn-secondary"
+                      ? "btn-primary"
                       : "btn-outline-secondary"
                   }`}
                 >
@@ -146,13 +141,13 @@ async function DirectorSummary({
             label: "Teams del grupo",
             value: metrics.teams.length,
             href: `/director/teams?group=${groupId}`,
-            stamp: { icon: <IconUsersGroup />, variant: "primary" },
+            stamp: { icon: <BIcon name="people-fill" aria-hidden />, variant: "primary" },
           },
           {
             key: "coaches",
             label: "Coaches",
             value: metrics.coaches.length,
-            stamp: { icon: <IconUsers />, variant: "info" },
+            stamp: { icon: <BIcon name="people" aria-hidden />, variant: "info" },
           },
           {
             key: "compliance",
@@ -165,14 +160,14 @@ async function DirectorSummary({
                 : compliancePercent >= 50
                   ? "warning"
                   : "danger",
-            stamp: { icon: <IconGauge />, variant: "success" },
+            stamp: { icon: <BIcon name="speedometer2" aria-hidden />, variant: "success" },
           },
           {
             key: "alerts",
             label: "Alertas activas",
             value: totals.alerts,
             tone: totals.alerts > 0 ? "danger" : "default",
-            stamp: { icon: <IconAlertTriangle />, variant: "danger" },
+            stamp: { icon: <BIcon name="exclamation-triangle" aria-hidden />, variant: "danger" },
           },
         ]}
       />

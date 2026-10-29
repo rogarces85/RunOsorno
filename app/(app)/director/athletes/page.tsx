@@ -94,7 +94,7 @@ export default async function DirectorAthletesPage({
                   href={`/director/athletes?group=${group.id}`}
                   className={`btn btn-sm ${
                     group.id === groupId
-                      ? "btn-secondary"
+                      ? "btn-primary"
                       : "btn-outline-secondary"
                   }`}
                 >

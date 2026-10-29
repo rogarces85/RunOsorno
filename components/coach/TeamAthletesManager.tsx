@@ -2,11 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  IconUserMinus,
-  IconUserPlus,
-  IconUserSearch,
-} from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import {
   assignAthleteAction,
   removeAthleteAction,
@@ -91,7 +87,7 @@ export function TeamAthletesManager({
           {assignable.length === 0 ? (
             <EmptyState
               compact
-              icon={IconUserSearch}
+              icon="person-search"
               title="No hay atletas disponibles para asignar"
               description="Crea atletas en “Atletas” y luego asígnalos a este team."
               actionLabel="Ir a Atletas"
@@ -127,7 +123,7 @@ export function TeamAthletesManager({
                   loading={busy}
                   onClick={assign}
                 >
-                  <IconUserPlus size={16} stroke={1.75} className="me-1" />
+                  <BIcon name="person-plus" size={16} className="me-1" aria-hidden />
                   Asignar
                 </Button>
               </div>
@@ -144,7 +140,7 @@ export function TeamAthletesManager({
           <div className="card-body">
             <EmptyState
               compact
-              icon={IconUserSearch}
+              icon="person-search"
               title="No hay atletas en este team"
               description="Asigna atletas desde el selector de arriba para empezar a planificarles entrenamientos."
             />
@@ -192,7 +188,7 @@ export function TeamAthletesManager({
                       disabled={busy}
                       onClick={() => remove(athlete.athleteId)}
                     >
-                      <IconUserMinus size={16} stroke={1.75} />
+                      <BIcon name="person-dash" size={16} aria-hidden />
                     </Button>
                   </td>
                 </tr>

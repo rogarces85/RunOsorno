@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { IconEdit, IconPlus, IconTrash, IconUsers } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { deleteTeamAction } from "@/lib/actions/team.actions";
 import type { TeamListItem } from "@/lib/services/team.service";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -56,7 +56,7 @@ export function TeamsList({
             : `${teams.length} team${teams.length === 1 ? "" : "s"}`}
         </p>
         <Button onClick={openCreate}>
-          <IconPlus size={18} stroke={1.75} className="me-1" />
+          <BIcon name="plus" size={18} className="me-1" aria-hidden />
           Nuevo team
         </Button>
       </div>
@@ -75,7 +75,7 @@ export function TeamsList({
         <div className="card">
           <div className="card-body">
             <EmptyState
-              icon={IconUsers}
+              icon="people"
               title="No tienes teams"
               description="Un team agrupa a tus atletas. Créalo para poderles asignar planificaciones y seguir su cumplimiento."
               actionLabel="Nuevo team"
@@ -122,7 +122,7 @@ export function TeamsList({
                         setFormOpen(true);
                       }}
                     >
-                      <IconEdit size={16} stroke={1.75} />
+                      <BIcon name="pencil" size={16} aria-hidden />
                     </Button>
                     <Button
                       variant="danger-ghost"
@@ -132,7 +132,7 @@ export function TeamsList({
                       title="Eliminar"
                       onClick={() => setDeleting(team)}
                     >
-                      <IconTrash size={16} stroke={1.75} />
+                      <BIcon name="trash" size={16} aria-hidden />
                     </Button>
                   </div>
                 </div>

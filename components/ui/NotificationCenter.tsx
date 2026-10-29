@@ -10,7 +10,7 @@ import {
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { formatDateTime } from "@/lib/i18n/format";
-import { IconBellOff, IconChecks } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 
 export type NotificationRow = {
   id: string;
@@ -104,7 +104,7 @@ export function NotificationCenter({
         <div className="card" data-testid="notifications-empty">
           <div className="card-body">
             <EmptyState
-              icon={IconBellOff}
+              icon="bell-off"
               title={
                 filter === "unread"
                   ? "No tienes notificaciones sin leer"
@@ -123,7 +123,7 @@ export function NotificationCenter({
             >
               {filter === "all" && (
                 <p className="text-secondary small mt-3 mb-0">
-                  <IconChecks size={14} stroke={1.75} className="me-1" />
+                  <BIcon name="check-all" size={14} className="me-1" aria-hidden />
                   Los eventos importantes también llegan a tu correo.
                 </p>
               )}

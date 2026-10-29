@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ModalShell } from "@/components/ui/ModalShell";
 import { useRouter } from "next/navigation";
-import { IconAlertTriangle } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { transferAthleteAction } from "@/lib/actions/athlete.actions";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
@@ -94,7 +94,7 @@ export function TransferDialog({
           <Alert
             variant="danger"
             testId="transfer-error"
-            icon={<IconAlertTriangle size={16} />}
+            icon={<BIcon name="exclamation-triangle" size={16} aria-hidden />}
           >
             {error}
           </Alert>

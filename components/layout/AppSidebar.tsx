@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import type { Role } from "@/lib/auth/role";
+import { BIcon } from "@/components/ui/BIcon";
 import { Logo } from "./Logo";
 import { useNav } from "./NavProvider";
 import { navForRole, type NavItem } from "./nav";
@@ -18,13 +19,20 @@ function isActive(pathname: string, href: string): boolean {
 /**
  * Sidebar de la aplicación, con menú según rol (Fases 31 y 39).
  *
+ * El marcado es el de AdminLTE 4 y no es decorativo: su hoja de estilos coloca
+ * este `<aside>` dentro de la rejilla de `.app-wrapper` mediante
+ * `grid-area: lte-app-sidebar`, y espera tres niveles —
+ * `.app-sidebar` → `.sidebar-brand` + `.sidebar-wrapper` → `nav.sidebar-menu`.
+ * Si falta cualquiera de ellos, el menú pierde su celda de rejilla y los
+ * enlaces acaban pintados como una franja horizontal sobre el contenido.
+ *
  * El rol y la condición de Director Técnico se resuelven en el layout (RSC)
  * y se pasan como props serializables. El estado de apertura vive en
  * `NavProvider`, compartido con el botón hamburguesa del header.
  *
  * Por debajo de `lg` se comporta como off-canvas (desliza desde la izquierda
  * sobre un fondo oscurecido, con `Escape` para cerrar); desde `lg` es la
- * columna fija de siempre. Ese comportamiento está en `globals.css`.
+ * columna fija de siempre. Ese comportamiento está en `components.css`.
  */
 export function AppSidebar({
   role,
@@ -46,29 +54,32 @@ export function AppSidebar({
   return (
     <>
       <aside
-        className={`navbar navbar-vertical navbar-expand-lg app-sidebar${open ? " is-open" : ""}`}
+        className={`app-sidebar${open ? " is-open" : ""}`}
         data-testid="app-sidebar"
         data-open={open ? "true" : "false"}
         id="app-sidebar"
         aria-label="Menú de navegación"
       >
-        <div className="container-fluid">
-          {/* Marca en el sidebar solo desde `lg`: en móvil ya está en el header y
-              repetirla dentro del panel off-canvas consume el alto útil del menú. */}
-          <div className="app-sidebar-brand d-none d-lg-flex">
-            <Link href="/" className="app-brand" prefetch={false} onClick={close}>
-              <Logo />
-            </Link>
-          </div>
-          <div className={`collapse navbar-collapse${open ? " show" : ""}`}>
+        <div className="sidebar-brand">
+          <Link
+            href="/"
+            className="brand-link"
+            prefetch={false}
+            onClick={close}
+          >
+            {/* `mark` y no el logo por defecto: `wordmark` ya trae el texto
+                "RunOsorno Training" dentro de la imagen y aquí AdminLTE añade
+                su propio `.brand-text`, así que se solaparían. */}
+            <Logo variant="mark" />
+            <span className="brand-text fw-light">RunOsorno</span>
+          </Link>
+        </div>
+        <div className="sidebar-wrapper">
+          <nav className="mt-2" aria-label="Secciones">
             {sections.map((section) => (
-              <ul key={section.key} className="navbar-nav pt-lg-3">
+              <ul key={section.key} className="nav sidebar-menu flex-column">
                 {section.header ? (
-                  <li className="nav-item">
-                    <span className="nav-link text-secondary small text-uppercase fw-bold">
-                      {section.header}
-                    </span>
-                  </li>
+                  <li className="nav-header">{section.header}</li>
                 ) : null}
                 {section.items.map((item: NavItem) => {
                   const active = isActive(pathname, item.href);
@@ -86,17 +97,17 @@ export function AppSidebar({
                         aria-current={active ? "page" : undefined}
                         onClick={close}
                       >
-                        <span className="nav-link-icon">
-                          <item.icon size={20} stroke={1.75} />
+                        <span className="nav-icon">
+                          <BIcon name={item.icon} size={20} />
                         </span>
-                        <span>{item.label}</span>
+                        <p>{item.label}</p>
                       </Link>
                     </li>
                   );
                 })}
               </ul>
             ))}
-          </div>
+          </nav>
         </div>
       </aside>
       {/* Solo se monta en mobile; el CSS lo oculta desde `lg`. */}

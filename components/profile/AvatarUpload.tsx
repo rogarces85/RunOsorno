@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { IconPhoto, IconTrash } from "@tabler/icons-react";
+import { BIcon } from "@/components/ui/BIcon";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import {
@@ -148,7 +148,7 @@ export function AvatarUpload({ avatarKey }: AvatarUploadProps) {
           loading={busy}
           onClick={() => inputRef.current?.click()}
         >
-          <IconPhoto size={18} stroke={1.75} className="me-1" />
+          <BIcon name="image" size={18} className="me-1" aria-hidden />
           {busy ? "Procesando..." : "Subir foto"}
         </Button>
         <Button
@@ -156,7 +156,7 @@ export function AvatarUpload({ avatarKey }: AvatarUploadProps) {
           disabled={busy || !hasAvatar}
           onClick={() => void handleDelete()}
         >
-          <IconTrash size={18} stroke={1.75} className="me-1" />
+          <BIcon name="trash" size={18} className="me-1" aria-hidden />
           Eliminar foto
         </Button>
       </div>
