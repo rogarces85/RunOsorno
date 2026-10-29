@@ -53,3 +53,50 @@ export const updateProfileSchema = z.object({
 });
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+
+/**
+ * Solicitud de recuperación self-service de contraseña (Fase 51).
+ *
+ * El email se normaliza y valida como email verdadero.
+ */
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().min(1, "Ingresa tu email").pipe(z.email("Email inválido")),
+});
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+
+/**
+ * Restablecimiento de contraseña con token (Fase 51).
+ *
+ * Se validan el token y la nueva contraseña.
+ */
+export const resetPasswordSchema = z
+  .object({
+    token: z.string().min(1, "Token requerido"),
+    newPassword: z
+      .string()
+      .min(8, "La contraseña debe tener al menos 8 caracteres")
+      .max(100, "Máximo 100 caracteres"),
+    confirmPassword: z.string().min(1, "Confirma la nueva contraseña"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Las contraseñas no coinciden",
+    path: ["confirmPassword"],
+  });
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+
+/**
+ * Invitación de coach (Fase 51).
+ *
+ * Solo admin o director pueden invitar. El token expira en 7 días.
+ */
+export const inviteCoachSchema = z.object({
+  inviterId: z.string().uuid("ID de invitor inválido"),
+  inviterName: z.string().min(1, "Nombre del invitor requerido"),
+  invitedEmail: z.string().trim().email("Email inválido"),
+  teamId: z.string().uuid("ID de team inválido"),
+  role: z.enum(["admin", "director"], "Rol inválido - solo admin o director pueden invitar coaches"),
+});
+
+export type InviteCoachInput = z.infer<typeof inviteCoachSchema>;
