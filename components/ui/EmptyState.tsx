@@ -63,14 +63,14 @@ export function EmptyState({
 
   return (
     <div
-      className={`app-empty-state text-center ${compact ? "py-2" : "py-4"}`}
+      className={`app-empty-state text-center ${
+        compact ? "app-empty-state-compact py-2" : "py-4"
+      }`}
       data-testid="empty-state"
     >
-      <div className="mb-3">
-        <span className="avatar avatar-md text-bg-secondary">
-          <BIcon name={icon} size={24} aria-hidden />
-        </span>
-      </div>
+      <span className="app-empty-state-icon" aria-hidden>
+        <BIcon name={icon} size={22} aria-hidden />
+      </span>
       <p
         className="empty-state-title app-empty-state-title mb-1"
         data-testid="empty-state-title"

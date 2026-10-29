@@ -83,7 +83,7 @@ export default async function AthleteDashboardPage() {
             >
               {todaySession ? (
                 <>
-                  <div className="h2 mb-1">
+                  <div className="app-card-lead mb-1">
                     {todaySession.template?.name ?? "Sesión"}
                   </div>
                   <div className="text-secondary mb-3">

@@ -10,7 +10,6 @@ import {
 } from "@/lib/actions/template.actions";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { Alert } from "@/components/ui/Alert";
-import { Badge } from "@/components/ui/Badge";
 import { buttonClassName } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import type { GroupBasic } from "@/lib/services/group.service";
@@ -156,24 +155,26 @@ export function TemplateList({
 
         Lo que sí es cierto es que son botones que activan y desactivan un
         filtro, y eso es exactamente lo que dice `aria-pressed`.
+
+        Se pintan con el control segmentado `.app-segments` en vez de las
+        pestañas subrayadas de Bootstrap: las inactivas iban en el naranja de
+        marca y competían con la activa, y el subrayado es lo que más delataba
+        el framework por defecto.
       */}
-      <ul className="nav nav-tabs mb-3">
+      <div className="app-segments mb-3" role="group" aria-label="Filtrar plantillas">
         {TABS.map((item) => (
-          <li className="nav-item" key={item.key}>
-            <button
-              type="button"
-              className={`nav-link ${tab === item.key ? "active" : ""}`}
-              aria-pressed={tab === item.key}
-              onClick={() => setTab(item.key)}
-            >
-              {item.label}
-              <Badge tone="neutral" dot={false} className="ms-1">
-                {counts[item.key]}
-              </Badge>
-            </button>
-          </li>
+          <button
+            key={item.key}
+            type="button"
+            className={`app-seg${tab === item.key ? " app-seg-active" : ""}`}
+            aria-pressed={tab === item.key}
+            onClick={() => setTab(item.key)}
+          >
+            {item.label}
+            <span className="app-seg-count">{counts[item.key]}</span>
+          </button>
         ))}
-      </ul>
+      </div>
 
       <div className="row">
         {visible.length === 0 && (
