@@ -1073,6 +1073,28 @@ a.card.card-link {
   background: currentColor;
 }
 
+/* ===== Listas dentro de tarjetas =====
+ * `--bs-list-group-bg` de AdminLTE cae en el gris de superficie secundaria: una
+ * lista dentro de una tarjeta se veía como un bloque gris pegado al cuerpo
+ * blanco, con las filas sin separación visible. Las filas quedan sobre el fondo
+ * de la tarjeta y se separan con una línea fina.
+ */
+.card .list-group-flush > .list-group-item {
+  background: transparent;
+  border-color: var(--app-border);
+}
+
+.card .list-group-flush > .list-group-item + .list-group-item {
+  border-top: 1px solid var(--app-border);
+}
+
+/* La regla de arriba gana a `.list-group-item-action:hover` por especificidad,
+   así que el hover se repone aquí: sin él, las plantillas arrastrables del
+   calendario perdían la única señal de que se pueden arrastrar. */
+.card .list-group-flush > .list-group-item-action:hover {
+  background: var(--app-surface-2);
+}
+
 /* ===== Avisos y modales ===== */
 .alert {
   border-width: 1px;
