@@ -874,6 +874,16 @@ a.card.card-link {
    el tinte y la línea inferior, así una tarjeta con secciones no parece un
    rectángulo blanco con texto suelto. Los radios se recortan a mano porque la
    banda es el primer hijo y el fondo se saldría de la esquina. */
+/* AdminLTE deja un clearfix (`::after` con `content: ""`) en la cabecera, el
+   cuerpo y el pie de la tarjeta. En un contenedor flex ese pseudo-elemento
+   cuenta como un tercer hijo, así que con `justify-content: space-between` las
+   acciones de la cabecera quedaban a media anchura en vez de a la derecha. */
+.card-header::after,
+.card-body::after,
+.card-footer::after {
+  content: none;
+}
+
 .card-header {
   display: flex;
   align-items: center;
@@ -968,9 +978,22 @@ a.card.card-link {
 
 /* ===== Tablas ===== */
 .table {
+  /* `--bs-table-bg` hereda `--bs-body-bg`, que es el gris del lienzo: cada celda
+     se pintaba de gris y una tabla dentro de una tarjeta blanca se veía como un
+     bloque pegado, con pinta de hoja de cálculo. Transparente, las filas toman
+     el fondo de la tarjeta y la estructura la dan la cabecera y las líneas. */
+  --bs-table-bg: transparent;
   margin-bottom: 0;
   color: var(--app-ink);
   border-color: var(--app-border);
+}
+
+/* La tabla en una tarjeta con el cuerpo sin relleno no necesita su propio
+   marco: el borde de la tarjeta ya lo dibuja y dos líneas a 1 px se leen como
+   un marco doble. */
+.card > .card-body.p-0 > .app-table-wrapper {
+  border: 0;
+  border-radius: 0;
 }
 
 .table > thead th {
@@ -1006,6 +1029,24 @@ a.card.card-link {
   border: 1px solid var(--app-border);
   border-radius: var(--app-radius-card);
   background: var(--app-surface);
+}
+
+/* Una fecha o una hora partida en cuatro líneas no se lee. Estas celdas no
+   envuelven: si no caben, la tabla se desplaza, que es lo que ya hace el
+   contenedor. */
+.app-table-nowrap {
+  white-space: nowrap;
+}
+
+/* Detalle largo (el JSON de los logs): dos líneas y puntos suspensivos. El texto
+   completo sigue en el DOM y en el `title`, así que no se pierde nada para el
+   lector de pantalla ni al pasar el ratón. */
+.app-table-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 /* Patrón de tarjetas en móvil: cada fila se lee como un par etiqueta-valor. */

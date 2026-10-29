@@ -69,6 +69,16 @@ function formatDetails(details: unknown): string {
     return "—";
   }
   if (typeof details === "string") {
+    // Muchos registros guardan el detalle como JSON serializado; mostrarlo tal
+    // cual llenaba la celda de llaves y comillas.
+    const texto = details.trim();
+    if (texto.startsWith("{") && texto.endsWith("}")) {
+      try {
+        return formatDetails(JSON.parse(texto));
+      } catch {
+        return texto;
+      }
+    }
     return details;
   }
   const entries = Object.entries(details as Record<string, unknown>);
@@ -169,47 +179,58 @@ export function LogsTable({ rows, total, page, totalPages, filters }: Props) {
             </tr>
           )}
 
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <td className="text-secondary" data-label="Fecha">
-                {formatDateTime(row.createdAt)}
-              </td>
-              <td data-label="Usuario">
-                {row.userName ? (
-                  <>
-                    <div>{row.userName}</div>
-                    <div className="text-secondary small">{row.userEmail}</div>
-                  </>
-                ) : (
-                  <span className="text-secondary">
-                    {row.userId ? "Usuario eliminado" : "Sistema"}
+          {rows.map((row) => {
+            const detalle = formatDetails(row.details);
+            return (
+              <tr key={row.id}>
+                <td
+                  className="text-secondary app-table-nowrap"
+                  data-label="Fecha"
+                >
+                  {formatDateTime(row.createdAt)}
+                </td>
+                <td data-label="Usuario">
+                  {row.userName ? (
+                    <>
+                      <div>{row.userName}</div>
+                      <div className="text-secondary small">{row.userEmail}</div>
+                    </>
+                  ) : (
+                    <span className="text-secondary">
+                      {row.userId ? "Usuario eliminado" : "Sistema"}
+                    </span>
+                  )}
+                </td>
+                <td data-label="Acción">
+                  <Badge tone="neutral">{actionLabel(row.action)}</Badge>
+                  <div className="text-secondary small">{row.action}</div>
+                </td>
+                <td data-label="Entidad">
+                  <div>{row.entityType}</div>
+                  {row.entityId && (
+                    <div
+                      className="text-secondary small text-truncate"
+                      style={{ maxWidth: "9rem" }}
+                      title={row.entityId}
+                    >
+                      {row.entityId}
+                    </div>
+                  )}
+                </td>
+                <td className="text-secondary small" data-label="Detalles">
+                  <span className="app-table-clamp" title={detalle}>
+                    {detalle}
                   </span>
-                )}
-              </td>
-              <td data-label="Acción">
-                <Badge tone="neutral">{actionLabel(row.action)}</Badge>
-                <div className="text-secondary small">{row.action}</div>
-              </td>
-              <td data-label="Entidad">
-                <div>{row.entityType}</div>
-                {row.entityId && (
-                  <div
-                    className="text-secondary small text-truncate"
-                    style={{ maxWidth: "9rem" }}
-                    title={row.entityId}
-                  >
-                    {row.entityId}
-                  </div>
-                )}
-              </td>
-              <td className="text-secondary small" data-label="Detalles">
-                {formatDetails(row.details)}
-              </td>
-              <td className="text-secondary" data-label="IP">
-                {row.ipAddress ?? "—"}
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td
+                  className="text-secondary app-table-nowrap"
+                  data-label="IP"
+                >
+                  {row.ipAddress ?? "—"}
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </Table>
     </Card>
